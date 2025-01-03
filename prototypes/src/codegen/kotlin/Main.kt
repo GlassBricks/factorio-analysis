@@ -3,7 +3,8 @@ package glassbricks.factorio.prototypecodegen
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.absolute
 
 @OptIn(ExperimentalSerializationApi::class)
 fun readDocs(): PrototypeApiDocs {
@@ -15,10 +16,14 @@ fun readDocs(): PrototypeApiDocs {
         }
 }
 
+private const val defaultArgs = "prototypes/build/generated/kotlin"
+
 fun main(args: Array<String>) {
-    val outPath = requireNotNull(args.firstOrNull()) { "output path required" }
+    val outPath = Path(args.firstOrNull() ?: defaultArgs)
     readDocs()
         .let { Generator(it).generate() }
-        .writeTo(File(outPath))
-    println("Generated to ${File(outPath).absolutePath}")
+        .forEach {
+            it.writeTo(outPath)
+        }
+    println("Generated to ${outPath.absolute()}")
 }
