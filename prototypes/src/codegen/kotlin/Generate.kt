@@ -19,7 +19,7 @@ private fun String.toClassName() = ClassName(PACKAGE_NAME, this)
 @OptIn(ExperimentalSerializationApi::class)
 class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
     fun generate(): List<FileSpec> {
-        return listOf(generatePrototypesFile(), generateConceptsFile(), generateDataRaw())
+        return listOf(generatePrototypesFile(), generateConceptsFile(), generateDataRawFile())
     }
 
     private val conceptSealedIntfs = input.concepts.values.filter { it.isSealedIntf }.associate { genConcept ->
@@ -136,71 +136,6 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         intf.modify?.invoke(this)
     }
 
-    private fun generateDataRaw(): FileSpec {
-        val file = newFile("Data")
-        val allPrototypes = TypeSpec.classBuilder("DataRaw").apply {
-            addKdoc(
-                "Models [data.raw](https://wiki.factorio.com/Data.raw). " +
-                        "This only contains a subset of objects and properties, that are used by this library."
-            )
-            addAnnotation(Serializable::class)
-
-            val constructorBuilder = FunSpec.constructorBuilder()
-            for (prototype in input.prototypes.values) {
-                val typeName = prototype.inner.typename ?: continue
-                val mapType = Map::class.asClassName().parameterizedBy(
-                    String::class.asClassName(),
-                    prototype.inner.name.toClassName()
-                )
-                addProperty(
-                    PropertySpec.builder(typeName, mapType)
-                        .initializer(typeName)
-                        .build()
-                )
-                constructorBuilder.addParameter(
-                    ParameterSpec.builder(typeName, mapType)
-                        .defaultValue("emptyMap()")
-                        .build()
-                )
-            }
-
-            primaryConstructor(constructorBuilder.build())
-        }.build()
-
-        file.addType(allPrototypes)
-
-        generateAllSubclassGetters(file)
-        return file.build()
-    }
-
-    private fun generateAllSubclassGetters(file: FileSpec.Builder) {
-        for (baseProtoName in input.allSubclassGetters) {
-            input.prototypes[baseProtoName] ?: error("Base prototype not found: $baseProtoName")
-            val subclasses = getAllPrototypeSubclasses(input.prototypes.mapValues { it.value.inner }, baseProtoName)
-                .filter { it.typename != null }
-                .sortedBy { it.order }
-                .map { it.typename!! }
-            // fun DataRaw.all(BasePrototypes)s(): List<BaseClass> = listOf(
-            //      `typename`,*
-            // ).flatMap { it.values }
-            val function = FunSpec.builder("all${baseProtoName}s").apply {
-                addKdoc("All prototypes that are subclasses of $baseProtoName.")
-                receiver("DataRaw".toClassName())
-                returns(List::class.asClassName().parameterizedBy(baseProtoName.toClassName()))
-                addCode(buildCodeBlock {
-                    add("return listOf(\n")
-                    withIndent {
-                        for (subclass in subclasses) {
-                            add("%N,\n", subclass)
-                        }
-                    }
-                    add(").flatMap { it.values }")
-                })
-            }.build()
-            file.addFunction(function)
-        }
-    }
-
 
     private fun generatePrototype(file: FileSpec.Builder, prototype: GeneratedPrototype): TypeSpec =
         generateClass(file, prototype, prototype.inner.name)
@@ -292,7 +227,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     primaryConstructor(constructorBuilder.build())
             } else {
                 for (property in value.includedProperties.values.sortedBy { it.inner.order }) {
-                    addProperty(generateProperty(file, value, property, initByMutate = true).first)
+                    addProperty(generateProperty(file, value, property, initByMutate = true).property)
                 }
             }
 
@@ -311,32 +246,43 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         return generateClass(file, concept, name, isDataClass = concept.inner.canBeDataClass())
     }
 
-    private fun generateConcept(
-        file: FileSpec.Builder,
-        concept: GeneratedConcept
-    ): Any {
-        val type = when {
-            concept.overrideType != null -> {
-                val (type, declaration) = concept.overrideType
-                TransformedType(type, declaration)
-            }
-
-            concept.isSealedIntf -> TransformedType(
-                typeName = concept.inner.name.toClassName(),
-                declaration = generateSealedIntf(conceptSealedIntfs[concept.inner.name]!!).build()
+    private fun generateIdType(file: FileSpec.Builder, concept: GeneratedConcept): TypeSpec {
+        val type = concept.inner.type as? BasicType ?: error("Id type must be a basic type")
+        return TypeSpec.classBuilder(concept.inner.name).apply {
+            addDescription(concept.inner.description)
+            addAnnotation(Serializable::class)
+            val mappedType = mapTypeDefinition(type, TypeContext.Concept(file, concept)).putType(file)
+            // @JvmInline
+            // value class <name>(val value: <Type>)
+            addAnnotation(JvmInline::class)
+            addModifiers(KModifier.VALUE)
+            primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter("value", mappedType)
+                    .build()
             )
+            addProperty(
+                PropertySpec.builder("value", mappedType)
+                    .initializer("value")
+                    .build()
+            )
+        }.build()
+    }
 
-            else -> mapTypeDefinition(
-                file, concept.inner.type,
+    private fun generateConcept(file: FileSpec.Builder, concept: GeneratedConcept): Any = when {
+        concept.isIdTypeFor != null -> generateIdType(file, concept)
+        concept.overrideType != null -> concept.overrideType
+        concept.isSealedIntf -> generateSealedIntf(conceptSealedIntfs[concept.inner.name]!!).build()
+        else -> {
+            val type = mapTypeDefinition(
+                concept.inner.type,
                 TypeContext.Concept(file, concept)
             )
+            type.declaration
+                ?: TypeAliasSpec.builder(concept.inner.name, type.putType(file)).apply {
+                    addDescription(concept.inner.description)
+                }.build()
         }
-        if (type.declaration != null) {
-            return type.declaration
-        }
-        return TypeAliasSpec.builder(concept.inner.name, type.putType(file)).apply {
-            addDescription(concept.inner.description)
-        }.build()
     }
 
     /**
@@ -350,8 +296,9 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         return concept.inner.type.getBuiltinType()
     }
 
-    private fun getDefaultValue(property: Property, type: TypeName): CodeBlock? {
-        return when (val default = property.default) {
+    private fun getDefaultValue(property: Property, type: TypeName): CodeBlock? =
+        when (val default = property.default) {
+            null, is DescriptionDefault -> null
             is ManualDefault -> default.value
             is LiteralDefault -> {
                 val value = default.value
@@ -359,6 +306,10 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     if (type is ClassName && type.simpleName in generatedEnumNames) {
                         // enumType.value
                         CodeBlock.of("%T.%N", type, value.content)
+                    } else if (type is ClassName &&
+                        input.concepts[type.simpleName]?.isIdTypeFor != null
+                    ) {
+                        CodeBlock.of("%T(%S)", type, value.content)
                     } else {
                         CodeBlock.of("%S", value.content)
                     }
@@ -380,18 +331,30 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     ?: error("Unhandled literal type: $value")
                 }
             }
-
-            else -> null
         }
-    }
 
-    private fun getPlaceholderValue(property: Property): CodeBlock? {
-        val builtinType = property.type.getBuiltinType()
+    private fun getPlaceholderValue(typeDefinition: TypeDefinition, includeString: Boolean = false): CodeBlock? {
+        val type = typeDefinition.innerType()
+        if (type is BasicType) {
+            val concept = input.concepts[type.value]
+            if (concept?.isIdTypeFor != null) {
+                // required(<name>(<placeholder for inner type>))
+                val conceptType = concept.inner.type
+                return CodeBlock.of(
+                    "required(%T(%L))",
+                    type.value.toClassName(),
+                    getPlaceholderValue(conceptType, true) ?: error("No placeholder type for $conceptType")
+                )
+            }
+        }
+
+        val builtinType = type.getBuiltinType()
         return when {
             builtinType == null -> null
             builtinType == "double" -> CodeBlock.of("0.0")
             builtinType == "float" -> CodeBlock.of("0f")
             builtinType == "bool" -> CodeBlock.of("false")
+            includeString && builtinType == "string" -> CodeBlock.of("""""""") // :D
             builtinType.contains("uint") -> CodeBlock.of("0u")
             builtinType.contains("int") -> CodeBlock.of("0")
             else -> null
@@ -400,21 +363,27 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         }
     }
 
+    private data class TransformedProperty(
+        val property: PropertySpec,
+        val defaultValue: CodeBlock?
+    )
+
     private fun generateProperty(
         file: FileSpec.Builder,
         context: GeneratedValue,
         genProperty: PropertyOptions,
         initByMutate: Boolean,
         block: PropertySpec.Builder.() -> Unit = {}
-    ): Pair<PropertySpec, CodeBlock?> {
+    ): TransformedProperty {
         val property = genProperty.inner
 
         val basicType =
             genProperty.overrideType ?: mapTypeDefinition(
-                file, property.type,
+                property.type,
                 TypeContext.Property(file, context, genProperty)
             ).putType(file)
         val defaultValue = getDefaultValue(property, basicType)
+
         val type =
             basicType.copy(nullable = property.optional && defaultValue == null)
 
@@ -434,21 +403,19 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     initializer(defaultValue)
                 } else if (property.optional) {
                     initializer("null")
-                } else {
-                    val placeholderValue = getPlaceholderValue(property)
-                    if (placeholderValue != null) {
-                        initializer(placeholderValue)
-                    } else {
-                        addModifiers(KModifier.LATEINIT)
-                    }
+                } else getPlaceholderValue(property.type)?.let {
+                    initializer(it)
+                } ?: run {
+                    addModifiers(KModifier.LATEINIT)
                 }
+
                 setter(FunSpec.setterBuilder().addModifiers(KModifier.PROTECTED).build())
             }
 
             block()
             genProperty.modify?.invoke(this)
         }.build()
-        return propertySpec to defaultValue
+        return TransformedProperty(propertySpec, defaultValue)
     }
 
 
@@ -549,10 +516,10 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
 
     private fun TypeName.toGenType() = TransformedType(this, null)
     private fun mapTypeDefinition(
-        file: FileSpec.Builder,
         type: TypeDefinition,
         context: TypeContext,
     ): TransformedType {
+        val file = context.file
         val parentType = context.parentType
         return when (type) {
             is BasicType -> {
@@ -570,13 +537,13 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
             }
 
             is ArrayType -> List::class.asClassName()
-                .parameterizedBy(mapTypeDefinition(file, type.value, InnerType(context)).putType(file))
+                .parameterizedBy(mapTypeDefinition(type.value, InnerType(context)).putType(file))
                 .toGenType()
 
             is DictType -> Map::class.asClassName()
                 .parameterizedBy(
-                    mapTypeDefinition(file, type.key, InnerType(context)).putType(file),
-                    mapTypeDefinition(file, type.value, InnerType(context)).putType(file),
+                    mapTypeDefinition(type.key, InnerType(context)).putType(file),
+                    mapTypeDefinition(type.value, InnerType(context)).putType(file),
                 )
                 .toGenType()
 
@@ -588,7 +555,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 }
             }
 
-            is TypeType -> mapTypeDefinition(file, type.value, context)
+            is TypeType -> mapTypeDefinition(type.value, context)
             StructType -> {
                 val parentName = parentType.inner.name
                 val name = if (context is TypeContext.Concept) {
@@ -622,13 +589,91 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 TransformedType(name.toClassName(), enumType)
             } ?: tryGetItemOrArrayValue(type)?.let { item ->
                 "ItemOrArray".toClassName()
-                    .parameterizedBy(mapTypeDefinition(file, item, InnerType(context)).putType(file))
+                    .parameterizedBy(mapTypeDefinition(item, InnerType(context)).putType(file))
                     .toGenType()
             } ?: tryGetSealedIntf(type)?.toGenType()
             ?: error("UnionType $type not supported")
         }
     }
 
+    private fun generateDataRawFile(): FileSpec {
+        val file = newFile("Data")
+
+        file.addType(generateDataRawClass())
+        generateAllSubclassGetters().forEach(file::addFunction)
+        generateIdGetters().forEach(file::addFunction)
+        return file.build()
+    }
+
+    private fun generateDataRawClass(): TypeSpec = TypeSpec.classBuilder("DataRaw").apply {
+        addKdoc(
+            "Models [data.raw](https://wiki.factorio.com/Data.raw). " +
+                    "This only contains a subset of objects and properties, that are used by this library."
+        )
+        addAnnotation(Serializable::class)
+
+        val constructorBuilder = FunSpec.constructorBuilder()
+        for (prototype in input.prototypes.values) {
+            val typeName = prototype.inner.typename ?: continue
+            val mapType = Map::class.asClassName().parameterizedBy(
+                String::class.asClassName(),
+                prototype.inner.name.toClassName()
+            )
+            addProperty(
+                PropertySpec.builder(typeName, mapType)
+                    .initializer(typeName)
+                    .build()
+            )
+            constructorBuilder.addParameter(
+                ParameterSpec.builder(typeName, mapType)
+                    .defaultValue("emptyMap()")
+                    .build()
+            )
+        }
+        primaryConstructor(constructorBuilder.build())
+
+    }.build()
+
+    private fun generateAllSubclassGetters(): List<FunSpec> = input.allSubclassGetters.map { baseProtoName ->
+        input.prototypes[baseProtoName] ?: error("Base prototype not found: $baseProtoName")
+        val subclasses = getAllPrototypeSubclasses(input.prototypes.mapValues { it.value.inner }, baseProtoName)
+            .filter { it.typename != null }
+            .sortedBy { it.order }
+            .map { it.typename!! }
+        // fun DataRaw.all(BasePrototypes)s(): List<BaseClass> = listOf(
+        //      `typename`,*
+        // ).flatMap { it.values }
+        FunSpec.builder("all${baseProtoName}s").apply {
+            addKdoc("All prototypes that are subclasses of $baseProtoName.")
+            receiver("DataRaw".toClassName())
+            returns(List::class.asClassName().parameterizedBy(baseProtoName.toClassName()))
+            addCode(buildCodeBlock {
+                add("return listOf(\n")
+                withIndent {
+                    for (subclass in subclasses) {
+                        add("%N,\n", subclass)
+                    }
+                }
+                add(").flatMap { it.values }")
+            })
+        }.build()
+    }
+
+    private fun generateIdGetters() = input.concepts.values
+        .filter { it.isIdTypeFor != null }
+        .map { concept ->
+            // operator fun DataRaw.get(id: <ConceptId>): <Prototype> = `<prototype>`[id.value]
+            val prototype = input.prototypes[concept.isIdTypeFor] ?: error("Id type prototype not found")
+            FunSpec.builder("get").apply<FunSpec.Builder> {
+                addModifiers(KModifier.OPERATOR)
+                receiver("DataRaw".toClassName())
+                addParameter("id", concept.inner.name.toClassName())
+                returns(prototype.inner.name.toClassName().copy(nullable = true))
+                val typeName =
+                    prototype.inner.typename ?: error("Prototype ${prototype.inner.name} has no typename")
+                addCode("return %N[id.value]", typeName)
+            }.build()
+        }
 }
 
 fun Documentable.Builder<*>.addDescription(description: String?) {

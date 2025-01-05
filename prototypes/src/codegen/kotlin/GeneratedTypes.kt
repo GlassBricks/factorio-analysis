@@ -37,12 +37,13 @@ class GeneratedPrototype(
 
 class GeneratedConcept(
     override val inner: Concept,
-    val overrideType: Pair<TypeName, TypeSpec?>?,
+    val overrideType: TypeSpec?,
     val innerEnumName: String?,
     override val includedProperties: Map<String, PropertyOptions>,
     override val typeName: String?,
     override val modify: (TypeSpec.Builder.() -> Unit)?,
-    var isSealedIntf: Boolean
+    var isSealedIntf: Boolean,
+    var isIdTypeFor: String?
 ) : GeneratedValue
 
 
@@ -68,7 +69,7 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
     var predefined: Map<String, TypeName> = emptyMap()
 
     private val extraSealedIntfs = mutableListOf<SealedIntf>()
-    val allSubclassGetters = mutableListOf<String>()
+    var allSubclassGetters = emptyList<String>()
 
     @GeneratedPrototypesDsl
     inner class Prototypes {
@@ -183,10 +184,7 @@ class GeneratedPrototypeBuilder(val prototype: Prototype) {
 
 @GeneratedPrototypesDsl
 class GeneratedConceptBuilder(val concept: Concept) {
-    var overrideType: Pair<TypeName, TypeSpec?>? = null
-    fun overrideType(type: TypeName) {
-        overrideType = type to null
-    }
+    var overrideType: TypeSpec? = null
 
     var innerEnumName: String? = null
     var modify: (TypeSpec.Builder.() -> Unit)? = null
@@ -195,6 +193,7 @@ class GeneratedConceptBuilder(val concept: Concept) {
     var includeAllProperties: Boolean = true
 
     var isSealedIntf: Boolean = false
+    var isIdTypeFor: String? = null
 
     fun property(
         name: String,
@@ -238,7 +237,8 @@ class GeneratedConceptBuilder(val concept: Concept) {
             properties,
             typeName,
             modify,
-            isSealedIntf
+            isSealedIntf,
+            isIdTypeFor
         )
     }
 }

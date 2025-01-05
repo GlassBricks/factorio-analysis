@@ -181,7 +181,9 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         for (prototype in this@classesToGenerate.prototypes) {
             val idName = prototype.key.removeSuffix("Prototype") + "ID"
             if (idName in this@classesToGenerate.origConcepts) {
-                concept(idName) {}
+                concept(idName) {
+                    if (prototype.value.typeName != null) isIdTypeFor = prototype.key
+                }
             }
         }
 
@@ -241,7 +243,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
                     addModifiers(KModifier.SEALED)
                     addAnnotation(Serializable::class)
                 }.build()
-                className to declaration
+                declaration
             }
         }
         "VoidEnergySource" {}
@@ -265,10 +267,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         }
     }
 
-    allSubclassGetters += listOf(
-        "ItemPrototype",
-        "EntityWithOwnerPrototype",
-    )
+    allSubclassGetters = listOf("ItemPrototype")
 
     val hasEnergySource = getAllPrototypeSubclasses(origPrototypes, "EntityWithOwnerPrototype").filter {
         it.name in this.prototypes && it.properties.any { prop ->
