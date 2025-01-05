@@ -77,8 +77,6 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         )
         addAnnotation(
             AnnotationSpec.builder(UseSerializers::class)
-                .addMember("PositionShorthandSerializer::class")
-                .addMember("BoundingBoxShorthandSerializer::class")
                 .addMember("LuaListSerializer::class")
                 .addMember("DoubleAsIntSerializer::class")
                 .build()
