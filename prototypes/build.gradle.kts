@@ -16,6 +16,7 @@ sourceSets {
 }
 
 dependencies {
+    api(libs.kotlinxSerializationJson)
     testImplementation(kotlin("test"))
 
     "codegenImplementation"(libs.kotlinxSerializationJson)

@@ -56,7 +56,7 @@ class Prototype(
     override val properties: List<Property>,
     val custom_properties: CustomProperties? = null
 ) : ProtoOrConcept {
-    override fun toString(): String = "Prototype(\"$name\")"
+    override fun toString(): String = "Prototype(name='$name')"
 }
 
 @Serializable
@@ -73,7 +73,7 @@ class Concept(
     val type: TypeDefinition,
     override val properties: List<Property>? = null
 ) : ProtoOrConcept {
-    override fun toString(): String = "Concept(\"$name\")"
+    override fun toString(): String = "Concept(name='$name')"
 }
 
 @Serializable
@@ -90,9 +90,7 @@ class Property(
     var type: TypeDefinition,
     var optional: Boolean,
     var default: DefaultValue? = null
-) {
-    override fun toString(): String = "Property(\"$name\")"
-}
+)
 
 @Serializable(with = DefaultValueSerializer::class)
 sealed interface DefaultValue
