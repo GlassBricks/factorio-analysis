@@ -1,83 +1,30 @@
-package glassbricks.factorio.blueprint.prototypes
+package glassbricks.factorio.prototypes
 
-import glassbricks.factorio.blueprint.BoundingBox
-import glassbricks.factorio.blueprint.Position
-import glassbricks.factorio.blueprint.json.DoubleAsIntSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 
+public object DoubleAsIntSerializer : KSerializer<Double> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DoubleAsInt", PrimitiveKind.DOUBLE)
 
-private val doubleAsIntListSerializer = ListSerializer(DoubleAsIntSerializer)
-
-public object PositionShorthandSerializer : KSerializer<Position> {
-    override val descriptor: SerialDescriptor = doubleAsIntListSerializer.descriptor
-
-    override fun deserialize(decoder: Decoder): Position {
-        decoder as JsonDecoder
-        val x: Double
-        val y: Double
-        when (val element = decoder.decodeJsonElement()) {
-            is JsonObject -> {
-                x = element["x"]?.jsonPrimitive?.doubleOrNull ?: error("Expected x in position")
-                y = element["y"]?.jsonPrimitive?.doubleOrNull ?: error("Expected y in position")
-            }
-
-            is JsonArray -> {
-                x = element.getOrNull(0)?.jsonPrimitive?.doubleOrNull ?: error("Expected x in position tuple")
-                y = element.getOrNull(1)?.jsonPrimitive?.doubleOrNull ?: error("Expected y in position tuple")
-            }
-
-            else -> throw SerializationException("Unexpected json for Position: $element")
+    override fun deserialize(decoder: Decoder): Double = decoder.decodeDouble()
+    override fun serialize(encoder: Encoder, value: Double) {
+        val asLong = value.toLong()
+        if (asLong.toDouble() == value) {
+            encoder.encodeLong(asLong)
+        } else {
+            encoder.encodeDouble(value)
         }
-        return Position(x, y)
-    }
-
-
-    override fun serialize(encoder: Encoder, value: Position) {
-        encoder.encodeSerializableValue(
-            doubleAsIntListSerializer,
-            listOf(value.x, value.y)
-        )
-    }
-}
-
-public object BoundingBoxShorthandSerializer : KSerializer<BoundingBox> {
-    override val descriptor: SerialDescriptor = ListSerializer(Position.serializer()).descriptor
-
-    override fun deserialize(decoder: Decoder): BoundingBox {
-        decoder as JsonDecoder
-        val leftTop: JsonElement
-        val rightBottom: JsonElement
-        when (val element = decoder.decodeJsonElement()) {
-            is JsonObject -> {
-                leftTop = element["left_top"] ?: error("Expected left_top in bounding box")
-                rightBottom = element["right_bottom"] ?: error("Expected right_bottom in bounding box")
-            }
-
-            is JsonArray -> {
-                leftTop = element.getOrNull(0) ?: error("Expected left_top in bounding box tuple")
-                rightBottom = element.getOrNull(1) ?: error("Expected right_bottom in bounding box tuple")
-            }
-
-            else -> throw SerializationException("Unexpected json for BoundingBox: $element")
-        }
-        return BoundingBox(
-            decoder.json.decodeFromJsonElement(PositionShorthandSerializer, leftTop),
-            decoder.json.decodeFromJsonElement(PositionShorthandSerializer, rightBottom)
-        )
-    }
-
-    override fun serialize(encoder: Encoder, value: BoundingBox) {
-        encoder.encodeSerializableValue(
-            ListSerializer(PositionShorthandSerializer),
-            listOf(value.leftTop, value.rightBottom)
-        )
     }
 }
 

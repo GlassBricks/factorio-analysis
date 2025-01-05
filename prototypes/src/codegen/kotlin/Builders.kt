@@ -37,11 +37,12 @@ class GeneratedPrototype(
 
 class GeneratedConcept(
     override val inner: Concept,
-    val overrideType: (() -> Pair<TypeName, TypeSpec?>)?,
+    val overrideType: Pair<TypeName, TypeSpec?>?,
     val innerEnumName: String?,
     override val includedProperties: Map<String, PropertyOptions>,
     override val typeName: String?,
-    override val modify: (TypeSpec.Builder.() -> Unit)?
+    override val modify: (TypeSpec.Builder.() -> Unit)?,
+    var isSealedIntf: Boolean
 ) : GeneratedValue
 
 
@@ -63,8 +64,8 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
     val prototypes = mutableMapOf<String, GeneratedPrototype>()
     val concepts = mutableMapOf<String, GeneratedConcept>()
 
-    var builtins: MutableMap<String, TypeName> = mutableMapOf()
-    var predefined: MutableMap<String, TypeName> = mutableMapOf()
+    var builtins: Map<String, TypeName> = emptyMap()
+    var predefined: Map<String, TypeName> = emptyMap()
 
     private val extraSealedIntfs = mutableListOf<SealedIntf>()
     val allSubclassGetters = mutableListOf<String>()
@@ -96,12 +97,16 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
 
     @GeneratedPrototypesDsl
     inner class Concepts {
-        operator fun String.invoke(block: GeneratedConceptBuilder.() -> Unit) {
+        fun concept(name: String, block: GeneratedConceptBuilder.() -> Unit) {
             this@GeneratedPrototypesBuilder.addConcept(
-                this, GeneratedConceptBuilder(
-                    this@GeneratedPrototypesBuilder.findConcept(this)
+                name, GeneratedConceptBuilder(
+                    this@GeneratedPrototypesBuilder.findConcept(name)
                 ).apply(block).build()
             )
+        }
+
+        operator fun String.invoke(block: GeneratedConceptBuilder.() -> Unit) {
+            concept(this, block)
         }
     }
 
@@ -178,9 +183,9 @@ class GeneratedPrototypeBuilder(val prototype: Prototype) {
 
 @GeneratedPrototypesDsl
 class GeneratedConceptBuilder(val concept: Concept) {
-    var overrideType: (() -> Pair<TypeName, TypeSpec?>)? = null
+    var overrideType: Pair<TypeName, TypeSpec?>? = null
     fun overrideType(type: TypeName) {
-        overrideType = { type to null }
+        overrideType = type to null
     }
 
     var innerEnumName: String? = null
@@ -188,6 +193,8 @@ class GeneratedConceptBuilder(val concept: Concept) {
     private val properties: MutableMap<String, PropertyOptions> = mutableMapOf()
 
     var includeAllProperties: Boolean = true
+
+    var isSealedIntf: Boolean = false
 
     fun property(
         name: String,
@@ -230,7 +237,8 @@ class GeneratedConceptBuilder(val concept: Concept) {
             innerEnumName = innerEnumName,
             properties,
             typeName,
-            modify
+            modify,
+            isSealedIntf
         )
     }
 }
@@ -238,7 +246,8 @@ class GeneratedConceptBuilder(val concept: Concept) {
 
 fun getAllPrototypeSubclasses(
     prototypes: Map<String, Prototype>,
-    baseName: String
+    baseName: String,
+    includeBase: Boolean = true
 ): List<Prototype> {
     val isSubclass = mutableMapOf<String, Boolean>()
     isSubclass[baseName] = true
@@ -246,5 +255,6 @@ fun getAllPrototypeSubclasses(
         val parent = prototype.parent
         parent != null && isSubclass(prototypes[parent]!!)
     }
+    if (!includeBase) isSubclass.remove(baseName)
     return prototypes.values.filter { isSubclass(it) }
 }

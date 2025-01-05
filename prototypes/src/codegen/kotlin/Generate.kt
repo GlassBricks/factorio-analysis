@@ -2,7 +2,7 @@ package glassbricks.factorio.prototypecodegen
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import glassbricks.factorio.prototypecodegen.PrototypeDeclarationsGenerator.TypeContext.*
+import glassbricks.factorio.prototypecodegen.PrototypeDeclarationsGenerator.TypeContext.InnerType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
 
-const val PACKAGE_NAME = "glassbricks.factorio.blueprint.prototypes"
+const val PACKAGE_NAME = "glassbricks.factorio.prototypes"
 const val PAR_PACKAGE_NAME = "glassbricks.factorio.blueprint"
 private fun String.toClassName() = ClassName(PACKAGE_NAME, this)
 
@@ -22,8 +22,22 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         return listOf(generatePrototypesFile(), generateConceptsFile(), generateDataRaw())
     }
 
-    private val extraSealedSupertypes =
-        input.extraSealedIntfs
+    private val conceptSealedIntfs = input.concepts.values.filter { it.isSealedIntf }.associate { genConcept ->
+        val concept = genConcept.inner
+        val options = (concept.type as? UnionType)?.let { getBasicTypes(it) }
+            ?: error("Sealed interface must be a union of basic types")
+        concept.name to SealedIntf(
+            genConcept.inner.name,
+            superTypes = concept.parent?.let { listOf(it) }.orEmpty(),
+            subtypes = options,
+            modify = null
+        )
+    }
+    private val sealedIntfs = conceptSealedIntfs.values + input.extraSealedIntfs
+    private val sealedIntfByOptions = sealedIntfs.associateBy { it.subtypes }
+
+    private val sealedSupertypes =
+        sealedIntfs
             .flatMap { it.subtypes.map { subType -> subType to it.name } }
             .groupBy({ it.first }, { it.second })
 
@@ -66,7 +80,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 .addMember("PositionShorthandSerializer::class")
                 .addMember("BoundingBoxShorthandSerializer::class")
                 .addMember("LuaListSerializer::class")
-                .addMember("%T::class", ClassName("$PAR_PACKAGE_NAME.json", "DoubleAsIntSerializer"))
+                .addMember("DoubleAsIntSerializer::class")
                 .build()
         )
         addKotlinDefaultImports()
@@ -93,18 +107,11 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
     }
 
     private fun generateConcepts(file: FileSpec.Builder) {
-        val alreadyGenerated = mutableSetOf<String>()
-
-        fun visitConcept(concept: GeneratedConcept) {
-            if (concept.inner.name in alreadyGenerated) return
-            alreadyGenerated.add(concept.inner.name)
-
+        for (concept in input.concepts.values.sortedBy { it.inner.order }) {
             val parent = concept.inner.parent
             if (parent != null && parent != "BaseEnergySource") {
-                val parentConcept = input.concepts[parent] ?: error("Parent concept not found: $parent")
-                visitConcept(parentConcept)
+                input.concepts[parent] ?: error("Parent concept not found: $parent")
             }
-
             val type = generateConcept(file, concept)
             if (type is TypeAliasSpec) {
                 file.addTypeAlias(type)
@@ -112,25 +119,23 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 file.addType(type)
             }
         }
-
-        for (concept in input.concepts.values.sortedBy { it.inner.order }) {
-            visitConcept(concept)
-        }
     }
 
 
     private fun generateExtraSealedIntfs(file: FileSpec.Builder) {
         for (intf in input.extraSealedIntfs) {
-            val type = TypeSpec.interfaceBuilder(intf.name).apply {
-                addAnnotation(Serializable::class)
-                addModifiers(KModifier.SEALED)
-                for (supertype in intf.superTypes) {
-                    addSuperinterface(supertype.toClassName())
-                }
-                intf.modify?.invoke(this)
-            }.build()
+            val type = generateSealedIntf(intf).build()
             file.addType(type)
         }
+    }
+
+    private fun generateSealedIntf(intf: SealedIntf): TypeSpec.Builder = TypeSpec.interfaceBuilder(intf.name).apply {
+        addAnnotation(Serializable::class)
+        addModifiers(KModifier.SEALED)
+        for (supertype in intf.superTypes) {
+            addSuperinterface(supertype.toClassName())
+        }
+        intf.modify?.invoke(this)
     }
 
     private fun generateDataRaw(): FileSpec {
@@ -241,15 +246,15 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 addModifiers(KModifier.DATA)
             }
 
-            val hasInheritors = value.inner.name in hasInheritors
-            if (hasInheritors) {
-                check(!isDataClass)
+            if (!isDataClass) {
                 if (value.inner.abstract) {
-                    addModifiers(KModifier.SEALED)
+                    addModifiers(KModifier.ABSTRACT)
                 } else {
                     addModifiers(KModifier.OPEN)
                 }
             }
+
+            val hasInheritors = value.inner.name in hasInheritors
             if (value.inner.abstract) check(hasInheritors)
 
             // supertypes
@@ -264,9 +269,9 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     superclass(ClassName(PACKAGE_NAME, parent))
                 }
             }
-            val extraSealedIntfs = extraSealedSupertypes[value.inner.name]
-            if (extraSealedIntfs != null) {
-                for (extra in extraSealedIntfs) {
+            val sealedSupertypes = sealedSupertypes[value.inner.name]
+            if (sealedSupertypes != null) {
+                for (extra in sealedSupertypes) {
                     addSuperinterface(extra.toClassName())
                 }
             }
@@ -312,18 +317,28 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         file: FileSpec.Builder,
         concept: GeneratedConcept
     ): Any {
-        val type = if (concept.overrideType != null) {
-            val (type, declaration) = concept.overrideType.invoke()
-            TransformedType(type, declaration)
-        } else {
-            mapTypeDefinition(file, concept.inner.type,
-                Concept(file, concept)
+        val type = when {
+            concept.overrideType != null -> {
+                val (type, declaration) = concept.overrideType
+                TransformedType(type, declaration)
+            }
+
+            concept.isSealedIntf -> TransformedType(
+                typeName = concept.inner.name.toClassName(),
+                declaration = generateSealedIntf(conceptSealedIntfs[concept.inner.name]!!).build()
+            )
+
+            else -> mapTypeDefinition(
+                file, concept.inner.type,
+                TypeContext.Concept(file, concept)
             )
         }
-        return type.declaration
-            ?: TypeAliasSpec.builder(concept.inner.name, type.putType(file)).apply {
-                addDescription(concept.inner.description)
-            }.build()
+        if (type.declaration != null) {
+            return type.declaration
+        }
+        return TypeAliasSpec.builder(concept.inner.name, type.putType(file)).apply {
+            addDescription(concept.inner.description)
+        }.build()
     }
 
     /**
@@ -397,8 +412,9 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         val property = genProperty.inner
 
         val basicType =
-            genProperty.overrideType ?: mapTypeDefinition(file, property.type,
-                Property(file, context, genProperty)
+            genProperty.overrideType ?: mapTypeDefinition(
+                file, property.type,
+                TypeContext.Property(file, context, genProperty)
             ).putType(file)
         val defaultValue = getDefaultValue(property, basicType)
         val type =
@@ -487,18 +503,16 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         return first
     }
 
-    private fun tryGetExtraSealedIntfName(type: UnionType): TypeName? {
-        if (!type.options.all {
-                it is BasicType
-                        && it.value in input.concepts
-            }) return null
-        val options = type.options.map { (it as BasicType).value }.toSet()
-        val name = input.extraSealedIntfs.find {
-            it.subtypes == options
-        }?.name ?: return null
-        return name.toClassName()
+    private fun tryGetSealedIntf(type: UnionType): TypeName? {
+        val options = getBasicTypes(type)
+        return sealedIntfByOptions[options]?.name?.toClassName()
     }
 
+    private fun getBasicTypes(type: UnionType): Set<String>? {
+        val typeOptions = type.options.map { it.innerType() }
+        if (!typeOptions.all { it is BasicType && it.value in input.concepts }) return null
+        return typeOptions.map { (it as BasicType).value }.toSet()
+    }
 
     private class TransformedType(
         private val typeName: TypeName,
@@ -512,8 +526,9 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         }
     }
 
+    private sealed interface RootTypeContext : TypeContext
     private sealed interface TypeContext {
-        sealed interface RootTypeContext : TypeContext
+
         val file: FileSpec.Builder
         val parentType: GeneratedValue
 
@@ -533,10 +548,6 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
             override val parentType: GeneratedValue get() = parentContext.parentType
         }
     }
-    private tailrec fun TypeContext.rootContext(): RootTypeContext = when (this) {
-        is RootTypeContext -> this
-        is InnerType -> parentContext.rootContext()
-    }
 
     private fun TypeName.toGenType() = TransformedType(this, null)
     private fun mapTypeDefinition(
@@ -552,8 +563,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     input.predefined[value]!!.toGenType()
                 } else {
                     check(
-                        value in input.concepts
-                                || input.extraSealedIntfs.any { value == it.name }
+                        value in input.concepts || input.extraSealedIntfs.any { value == it.name }
                     ) {
                         "Type not in generated concepts: $value"
                     }
@@ -599,6 +609,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     is TypeContext.Concept -> parentName
                     is TypeContext.Property -> context.property.innerEnumName
                         ?: error("Inner enum name not specified for ${parentName}.${context.property.inner.name}")
+
                     is InnerType -> {
                         check(parentType is GeneratedConcept)
                         parentType.innerEnumName ?: error("Inner enum name not specified for $parentName")
@@ -615,7 +626,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                 "ItemOrArray".toClassName()
                     .parameterizedBy(mapTypeDefinition(file, item, InnerType(context)).putType(file))
                     .toGenType()
-            } ?: tryGetExtraSealedIntfName(type)?.toGenType()
+            } ?: tryGetSealedIntf(type)?.toGenType()
             ?: error("UnionType $type not supported")
         }
     }

@@ -1,8 +1,5 @@
-package glassbricks.factorio.blueprint.prototypes
+package glassbricks.factorio.prototypes
 
-import glassbricks.factorio.blueprint.Direction
-import glassbricks.factorio.blueprint.Position
-import glassbricks.factorio.blueprint.TilePosition
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

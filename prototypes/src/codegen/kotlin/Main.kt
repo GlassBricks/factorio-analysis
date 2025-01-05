@@ -14,7 +14,7 @@ fun readDocs(): PrototypeApiDocs {
 }
 
 fun main(args: Array<String>) {
-    val outPath = Path(args.firstOrNull() ?: "prototypes/build/generated")
+    val outPath = Path(args.firstOrNull() ?: "prototypes/build/generated/kotlin")
     println("Generating prototypes to ${outPath.absolutePathString()}")
     readDocs()
         .let {
