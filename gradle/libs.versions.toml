@@ -7,16 +7,23 @@ kotlin = "2.0.21"
 kotlinxDatetime = "0.6.1"
 kotlinxSerializationJSON = "1.7.2"
 kotlinxCoroutines = "1.8.1"
+kotest = "5.9.1"
+orTools = "9.11.4210"
 
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotest = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotestAssertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotestProperty = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+orTools = { module = "com.google.ortools:ortools-java", version.ref = "orTools" }
 
 # Libraries can be bundled together for easier import
 [bundles]
 kotlinxEcosystem = ["kotlinxDatetime", "kotlinxSerializationJson", "kotlinxCoroutines"]
+kotest = ["kotest", "kotestAssertions", "kotestProperty"]
 
 [plugins]
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
