@@ -6,16 +6,19 @@ import com.google.ortools.linearsolver.MPVariable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-
-data class Variable<V>(
-    val id: V,
+class Variable(
+    val name: String,
     val lb: Double = Double.NEGATIVE_INFINITY,
     val ub: Double = Double.POSITIVE_INFINITY,
-    val integer: Boolean = false
-)
+    val integral: Boolean = false
+) {
+    override fun toString(): String {
+        return "Variable($name)"
+    }
+}
 
 enum class ComparisonOp { LE, GE, EQ }
-data class Constraint<V>(val lhs: Map<V, Double>, val op: ComparisonOp, val rhs: Double) {
+data class Constraint(val lhs: Map<Variable, Double>, val op: ComparisonOp, val rhs: Double) {
     override fun toString(): String {
         val opStr = when (op) {
             ComparisonOp.LE -> "<="
@@ -30,18 +33,19 @@ data class Constraint<V>(val lhs: Map<V, Double>, val op: ComparisonOp, val rhs:
     }
 }
 
-infix fun <V> MapVector<V, Unit>.le(rhs: Double) = Constraint(this, ComparisonOp.LE, rhs)
-infix fun <V> MapVector<V, Unit>.ge(rhs: Double) = Constraint(this, ComparisonOp.GE, rhs)
-infix fun <V> MapVector<V, Unit>.eq(rhs: Double) = Constraint(this, ComparisonOp.EQ, rhs)
+infix fun Map<Variable, Double>.le(rhs: Double) = Constraint(this, ComparisonOp.LE, rhs)
+infix fun Map<Variable, Double>.ge(rhs: Double) = Constraint(this, ComparisonOp.GE, rhs)
+infix fun Map<Variable, Double>.eq(rhs: Double) = Constraint(this, ComparisonOp.EQ, rhs)
 
-data class Objective<V>(
-    val coefficients: Map<V, Double>,
+data class Objective(
+    val coefficients: Map<Variable, Double>,
     val constant: Double = 0.0,
     val maximize: Boolean = true
 )
 
-data class LpProblem<V>(
-    val variables: List<Variable<V>>, val constraints: List<Constraint<V>>, val objective: Objective<V>
+data class LpProblem(
+    val constraints: List<Constraint>,
+    val objective: Objective
 )
 
 enum class LpResultStatus {
@@ -52,27 +56,31 @@ enum class LpResultStatus {
     Error
 }
 
-class LpSolution<V>(
-    val assignment: Map<V, Double>,
+class LpSolution(
+    val assignment: Map<Variable, Double>,
     val objective: Double
 )
 
-interface LpResult<V> {
+interface LpResult {
     val status: LpResultStatus
-    val solution: LpSolution<V>?
+    val solution: LpSolution?
 }
 
-interface LpSolver<V> {
-    fun solveLp(problem: LpProblem<V>): LpResult<V>
+class LpOptions(val timeLimit: Duration = 1.minutes)
+
+interface LpSolver {
+    fun solveLp(problem: LpProblem, options: LpOptions = LpOptions()): LpResult
 }
 
-class OrToolsLp<V>(val solverId: String = "GLOP", val timeLimit: Duration = 1.minutes) : LpSolver<V> {
-    class Result<V>(
+fun DefaultLpSolver(): LpSolver = OrToolsLp()
+
+class OrToolsLp(val solverId: String? = null) : LpSolver {
+    class Result(
         val solver: MPSolver,
         override val status: LpResultStatus,
-        variables: Map<V, MPVariable>,
-    ) : LpResult<V> {
-        override val solution: LpSolution<V>?
+        variables: Map<Variable, MPVariable>
+    ) : LpResult {
+        override val solution: LpSolution?
 
         init {
             val hasSolution = status == LpResultStatus.Optimal || status == LpResultStatus.Feasible
@@ -84,17 +92,28 @@ class OrToolsLp<V>(val solverId: String = "GLOP", val timeLimit: Duration = 1.mi
         }
     }
 
-    override fun solveLp(problem: LpProblem<V>): Result<V> {
-        val (variables, constraints, objective) = problem
+    override fun solveLp(problem: LpProblem, options: LpOptions): Result {
+        val (constraints, objective) = problem
+        val variables = buildSet {
+            for (constraint in constraints) {
+                addAll(constraint.lhs.keys)
+            }
+            addAll(objective.coefficients.keys)
+        }
         Loader.loadNativeLibraries()
+        val solverId = solverId ?: when {
+            variables.all { it.integral } -> "CPSAT"
+            variables.any { it.integral } -> "SCIP"
+            else -> "GLOP"
+        }
         val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
-        solver.setTimeLimit(timeLimit.inWholeMilliseconds)
+        solver.setTimeLimit(options.timeLimit.inWholeMilliseconds)
 
-        val mpVariables = variables.associate { it.id to solver.makeNumVar(it.lb, it.ub, it.id.toString())!! }
+        val mpVariables = variables.associateWith { solver.makeNumVar(it.lb, it.ub, it.name)!! }
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {
-                val mpVariable = mpVariables[variable] ?: error("Variable in constraint not found")
+                val mpVariable = mpVariables[variable]!!
                 ct.setCoefficient(mpVariable, coefficient)
             }
             when (constraint.op) {
@@ -107,7 +126,7 @@ class OrToolsLp<V>(val solverId: String = "GLOP", val timeLimit: Duration = 1.mi
         val mpObjective = solver.objective()!!
         mpObjective.setOptimizationDirection(objective.maximize)
         for ((variable, coefficient) in objective.coefficients) {
-            val mpVariable = mpVariables[variable] ?: error("Variable in objective not found")
+            val mpVariable = mpVariables[variable]!!
             mpObjective.setCoefficient(mpVariable, coefficient)
         }
         mpObjective.setOffset(objective.constant)

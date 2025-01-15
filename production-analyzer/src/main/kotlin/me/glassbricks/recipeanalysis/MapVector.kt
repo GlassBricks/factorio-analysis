@@ -7,6 +7,9 @@ value class MapVector<T, Units>
 internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
     override operator fun get(key: T): Double = map.getOrDefault(key, 0.0)
 
+    @Suppress("UNCHECKED_CAST")
+    fun <U> castUnits(): MapVector<T, U> = this as MapVector<T, U>
+
     private fun MutableMap<T, Double>.setOrRemove(key: T, amount: Double) {
         if (amount == 0.0) {
             remove(key)
@@ -76,11 +79,14 @@ operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vec
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()
 
 
-fun <Units, T> mapVector(vararg entries: Pair<T, Double>): MapVector<T, Units> =
+fun <Units, T> vector(vararg entries: Pair<T, Double>): MapVector<T, Units> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
-fun <Units, T> mapVector(map: Map<T, Double>): MapVector<T, Units> =
+fun <Units, T> vector(map: Map<T, Double>): MapVector<T, Units> =
     MapVector(map.filterValues { it != 0.0 })
 
+typealias AmountVector<T> = MapVector<T, Unit>
+fun <T> amountVector(vararg entries: Pair<T, Double>): AmountVector<T> = vector(entries.toMap())
+fun <T> amountVector(map: Map<T, Double>): AmountVector<T> = vector(map)
 
-fun <T> basis(key: T): MapVector<T, Unit> = mapVector(key to 1.0)
+fun <T> basis(key: T): AmountVector<T> = vector(key to 1.0)

@@ -1,9 +1,14 @@
 package me.glassbricks.recipeanalysis
 
+interface Equatable {
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
+}
+
 /**
- * Inherits of this type indicate that their instances are unique identifiers; i.e. equals, hashCode make sense.
+ * Inherits of this type indicate that their instances are identify something uniquely.
  */
-interface Symbol {
+interface Symbol : Equatable {
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 }
