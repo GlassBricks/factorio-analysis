@@ -21,7 +21,8 @@ fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount
     is ItemProductPrototype -> {
         val item = ingredients[product.name.value]!!
         val baseAmount: Double = product.amount ?: ((product.amount_min!! + product.amount_max!!).toDouble() / 2.0)
-        val amount: Double = (baseAmount + product.extra_count_fraction) * product.probability
+        // ignore extraCountFraction???
+        val amount: Double = baseAmount * product.probability
         IngredientAmount(item, amount, product.ignored_by_productivity?.toDouble() ?: 0.0)
     }
 

@@ -3,7 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.*
 import kotlin.collections.set
 
-class RecipePrototypes(dataRaw: DataRaw) : IngredientsMap {
+class RecipePrototypes(val dataRaw: DataRaw) : IngredientsMap {
     val qualities = dataRaw.quality.values
         .filter { it.name != "quality-unknown" }
         .sortedBy { it.level.toInt() }

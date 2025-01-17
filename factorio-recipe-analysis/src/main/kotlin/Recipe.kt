@@ -34,7 +34,7 @@ class Recipe private constructor(
                     val productAmount = map.getProductAmount(product)
                     put(productAmount.ingredient, productAmount.amount)
                     ignoreFromProductivity[productAmount.ingredient] =
-                        maxOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
+                        minOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
                 }
             }
             return Recipe(prototype, vector(ingredients), vector(products), vector(ignoreFromProductivity))
