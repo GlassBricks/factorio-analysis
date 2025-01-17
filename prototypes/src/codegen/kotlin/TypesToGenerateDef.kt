@@ -3,7 +3,6 @@ package glassbricks.factorio.prototypecodegen
 import com.squareup.kotlinpoet.*
 import kotlinx.serialization.Serializable
 
-
 fun GeneratedPrototypesBuilder.classesToGenerate() {
     builtins = mapOf(
         "bool" to Boolean::class.asClassName(),
@@ -56,7 +55,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "EntityWithOwnerPrototype" {}
 
         fun blueprintable(
-            name: String, block: GeneratedPrototypeBuilder.() -> Unit = {}
+            name: String, block: GeneratedPrototypeBuilder.() -> Unit = {},
         ) {
             prototype(name + "Prototype") {
                 tryAddProperty("energy_source")
@@ -143,9 +142,15 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             +"ingredients"
             +"results"
             +"main_product"
+            +"energy_required"
             +"maximum_productivity"
             +"surface_conditions"
             +"allowed_module_categories"
+            +"allow_consumption"
+            +"allow_speed"
+            +"allow_productivity"
+            +"allow_pollution"
+            +"allow_quality"
         }
         "RecipeCategory" {}
 
@@ -272,7 +277,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         }
     }
 
-    allSubclassGetters = listOf("ItemPrototype")
+    allSubclassGetters = listOf("ItemPrototype", "CraftingMachinePrototype")
 
     val hasEnergySource = getAllPrototypeSubclasses(origPrototypes, "EntityWithOwnerPrototype").filter {
         it.name in this.prototypes && it.properties.any { prop ->

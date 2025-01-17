@@ -1,4 +1,4 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 interface Equatable {
     override fun equals(other: Any?): Boolean

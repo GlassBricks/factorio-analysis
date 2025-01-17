@@ -1,5 +1,4 @@
-package me.glassbricks.recipeanalysis
-
+package glassbricks.recipeanalysis
 
 internal inline fun <K, T, R> Map<K, T>.mapValuesNotNull(transform: (Map.Entry<K, T>) -> R?): Map<K, R> {
     val destination = LinkedHashMap<K, R>()

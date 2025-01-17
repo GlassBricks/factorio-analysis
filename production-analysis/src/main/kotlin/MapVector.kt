@@ -1,4 +1,4 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 import kotlin.math.abs
 
@@ -78,7 +78,6 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
 operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()
 
-
 fun <Units, T> vector(vararg entries: Pair<T, Double>): MapVector<T, Units> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
@@ -86,6 +85,7 @@ fun <Units, T> vector(map: Map<T, Double>): MapVector<T, Units> =
     MapVector(map.filterValues { it != 0.0 })
 
 typealias AmountVector<T> = MapVector<T, Unit>
+
 fun <T> amountVector(vararg entries: Pair<T, Double>): AmountVector<T> = vector(entries.toMap())
 fun <T> amountVector(map: Map<T, Double>): AmountVector<T> = vector(map)
 

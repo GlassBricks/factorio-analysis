@@ -1,11 +1,11 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 interface Ingredient : Symbol
 
 typealias IngredientRate = MapVector<Ingredient, Rate>
 typealias IngredientVector = AmountVector<Ingredient>
 
-interface RecipeRate  {
+interface RecipeRate {
     val netRate: IngredientRate
     override fun toString(): String
 }

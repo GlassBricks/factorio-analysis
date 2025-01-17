@@ -1,9 +1,6 @@
-package me.glassbricks.factorio.recipes
+package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.BeaconPrototype
-import glassbricks.factorio.prototypes.EffectType
-import glassbricks.factorio.prototypes.ModulePrototype
-import glassbricks.factorio.prototypes.QualityPrototype
+import glassbricks.factorio.prototypes.*
 import java.util.*
 import kotlin.math.sign
 
@@ -22,6 +19,10 @@ data class EffectInt(
         pollution = (pollution + other.pollution).toShort(),
         quality = (quality + other.quality).toShort(),
     )
+
+    val speedMultiplier get() = 1 + speed / 100f
+    val prodMultiplier get() = 1 + productivity / 100f
+    val qualityChance get() = quality.coerceAtLeast(0) / 1000f
 }
 
 sealed interface AnyModule {
@@ -36,30 +37,7 @@ fun AnyModule.baseModule(): Module = when (this) {
 }
 
 data class Module(override val prototype: ModulePrototype) : Item, AnyModule {
-    override val effect get() = effect(0)
-    fun effect(qualityLevel: Int): EffectInt {
-        val baseEffect = prototype.effect
-        val qualityMult = 1.0f + qualityLevel * 0.3f
-        fun Float.bonusIfNegative() =
-            if (this < 0) this * qualityMult else this
-
-        fun Float.bonusIfPositive() =
-            if (this > 0) this * qualityMult else this
-
-        val consumption = baseEffect.consumption?.bonusIfNegative()
-        val speed = baseEffect.speed?.bonusIfPositive()
-        val productivity = baseEffect.productivity?.bonusIfPositive()
-        val pollution = baseEffect.pollution?.bonusIfNegative()
-        val quality = baseEffect.quality?.bonusIfPositive()
-
-        return EffectInt(
-            consumption = consumption?.toIntEffect() ?: 0,
-            speed = speed?.toIntEffect() ?: 0,
-            productivity = productivity?.toIntEffect() ?: 0,
-            pollution = pollution?.toIntEffect() ?: 0,
-            quality = quality?.toIntEffect() ?: 0,
-        )
-    }
+    override val effect get() = prototype.effect.toEffectInt(0)
 
     override val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         val effect = prototype.effect
@@ -71,8 +49,31 @@ data class Module(override val prototype: ModulePrototype) : Item, AnyModule {
     }
 }
 
+fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
+    val qualityMult = 1.0f + qualityLevel * 0.3f
+    fun Float.bonusIfNegative() =
+        if (this < 0) this * qualityMult else this
+
+    fun Float.bonusIfPositive() =
+        if (this > 0) this * qualityMult else this
+
+    val consumption = consumption?.bonusIfNegative()
+    val speed = speed?.bonusIfPositive()
+    val productivity = productivity?.bonusIfPositive()
+    val pollution = pollution?.bonusIfNegative()
+    val quality = quality?.bonusIfPositive()
+
+    return EffectInt(
+        consumption = consumption?.toIntEffect() ?: 0,
+        speed = speed?.toIntEffect() ?: 0,
+        productivity = productivity?.toIntEffect() ?: 0,
+        pollution = pollution?.toIntEffect() ?: 0,
+        quality = quality?.toIntEffect() ?: 0,
+    )
+}
+
 data class ModuleWithQuality(val module: Module, val qualityLevel: Int) : AnyModule {
-    override val effect get() = module.effect(qualityLevel = qualityLevel)
+    override val effect get() = module.prototype.effect.toEffectInt(qualityLevel = qualityLevel)
     override val prototype: ModulePrototype get() = module.prototype
     override val usedPositiveEffects: EnumSet<EffectType> get() = module.usedPositiveEffects
 }
@@ -85,10 +86,7 @@ sealed interface AnyBeacon {
     fun effectMultiplier(numBeacons: Int): Double
 }
 
-class Beacon(
-    override val prototype: BeaconPrototype,
-    override val builtBy: Item?,
-) : Entity, AnyBeacon {
+class Beacon(override val prototype: BeaconPrototype) : Entity, AnyBeacon {
     private val allowedEffects: EnumSet<EffectType> = prototype.allowed_effects
         ?.let { EnumSet.copyOf(it) }
         ?: EnumSet.allOf(EffectType::class.java)
@@ -173,20 +171,13 @@ data class BeaconWithModules(
 fun AnyBeacon.withModules(modules: List<AnyModule>) = BeaconWithModules(this, modules)
 fun AnyBeacon.withModules(vararg modules: AnyModule) = withModules(modules.asList())
 
-class FinalMachineEffect(effect: EffectInt) {
-    val speedMultiplier = 1 + effect.speed / 100f
-    val productivityMultiplier = 1 + effect.productivity / 100f
-
-    // extra factor of 10
-    val qualityChance = effect.quality.coerceAtLeast(0) / 1000f
-}
-
 fun getTotalMachineEffect(
     modules: List<AnyModule> = emptyList(),
     beacons: List<BeaconWithModules> = emptyList(),
-): FinalMachineEffect {
-    var result = EffectInt()
+    baseEffect: EffectInt = EffectInt(),
+): EffectInt {
+    var result = baseEffect
     for (module in modules) result += module.effect
     for (beacon in beacons) result += beacon.getEffect(beacons.size)
-    return FinalMachineEffect(result)
+    return result
 }

@@ -1,4 +1,4 @@
-package me.glassbricks.factorio.recipes
+package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.SpaceAgeDataRaw
 import io.kotest.core.spec.style.FunSpec
@@ -14,11 +14,11 @@ class ModulesKtTest : FunSpec({
                 speed = 20,
                 quality = -10,
             )
-            module.effect(0) shouldBe baseEffect
-            module.effect(1) shouldBe baseEffect.copy(speed = 26)
-            module.effect(2) shouldBe baseEffect.copy(speed = 32)
-            module.effect(3) shouldBe baseEffect.copy(speed = 38)
-            module.effect(5) shouldBe baseEffect.copy(speed = 50)
+            module.prototype.effect.toEffectInt(0) shouldBe baseEffect
+            module.prototype.effect.toEffectInt(1) shouldBe baseEffect.copy(speed = 26)
+            module.prototype.effect.toEffectInt(2) shouldBe baseEffect.copy(speed = 32)
+            module.prototype.effect.toEffectInt(3) shouldBe baseEffect.copy(speed = 38)
+            module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(speed = 50)
         }
         test("quality module quality") {
             val module = Module(SpaceAgeDataRaw.module["quality-module-3"]!!)
@@ -26,11 +26,11 @@ class ModulesKtTest : FunSpec({
                 speed = -5,
                 quality = 25,
             )
-            module.effect(0) shouldBe baseEffect
-            module.effect(1) shouldBe baseEffect.copy(quality = 32)
-            module.effect(2) shouldBe baseEffect.copy(quality = 40)
-            module.effect(3) shouldBe baseEffect.copy(quality = 47)
-            module.effect(5) shouldBe baseEffect.copy(quality = 62)
+            module.prototype.effect.toEffectInt(0) shouldBe baseEffect
+            module.prototype.effect.toEffectInt(1) shouldBe baseEffect.copy(quality = 32)
+            module.prototype.effect.toEffectInt(2) shouldBe baseEffect.copy(quality = 40)
+            module.prototype.effect.toEffectInt(3) shouldBe baseEffect.copy(quality = 47)
+            module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(quality = 62)
         }
         test("prod module quality") {
             val module = Module(SpaceAgeDataRaw.module["productivity-module"]!!)
@@ -40,15 +40,25 @@ class ModulesKtTest : FunSpec({
                 productivity = 4,
                 pollution = 5,
             )
-            module.effect(0) shouldBe baseEffect
-            module.effect(1) shouldBe baseEffect.copy(productivity = 5)
-            module.effect(2) shouldBe baseEffect.copy(productivity = 6)
-            module.effect(3) shouldBe baseEffect.copy(productivity = 7)
-            module.effect(5) shouldBe baseEffect.copy(productivity = 10)
+            module.prototype.effect.toEffectInt(0) shouldBe baseEffect
+            module.prototype.effect.toEffectInt(1) shouldBe baseEffect.copy(productivity = 5)
+            module.prototype.effect.toEffectInt(2) shouldBe baseEffect.copy(productivity = 6)
+            module.prototype.effect.toEffectInt(3) shouldBe baseEffect.copy(productivity = 7)
+            module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(productivity = 10)
         }
     }
     test("beacon acceptsModule") {
-        val beacon = Beacon(SpaceAgeDataRaw.beacon.values.first(), null)
+        val beacon = Beacon(SpaceAgeDataRaw.beacon.values.first())
+        fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!)
+
+        beacon.acceptsModule(module("speed-module")) shouldBe true
+        beacon.acceptsModule(module("efficiency-module")) shouldBe true
+        beacon.acceptsModule(module("productivity-module")) shouldBe false
+        beacon.acceptsModule(module("quality-module")) shouldBe false
+    }
+
+    test("acceptsModule") {
+        val beacon = SpaceAge.beacon
         fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!)
 
         beacon.acceptsModule(module("speed-module")) shouldBe true
@@ -64,17 +74,17 @@ class ModulesKtTest : FunSpec({
         val prod2 = SpaceAge.modules["productivity-module-2"]!!
         val (_, uncommon, rare, epic, legendary) = SpaceAge.qualities
         test("single speed module") {
-            val effects = getTotalMachineEffect(listOf(speed1))
+            val effects = getTotalMachineEffect(modules = listOf(speed1))
             effects.speedMultiplier shouldBe near(1.2)
-            effects.productivityMultiplier shouldBe 1.0
+            effects.prodMultiplier shouldBe 1.0
             effects.qualityChance shouldBe 0.0
         }
         test("quality and speed module") {
             val effects = getTotalMachineEffect(
-                listOf(speed1.withQuality(uncommon), quality3.withQuality(legendary))
+                modules = listOf(speed1.withQuality(uncommon), quality3.withQuality(legendary))
             )
             effects.speedMultiplier shouldBe near(1.21)
-            effects.productivityMultiplier shouldBe 1.0
+            effects.prodMultiplier shouldBe 1.0
             effects.qualityChance shouldBe near(0.052)
         }
         test("speed module in beacon") {
@@ -83,7 +93,7 @@ class ModulesKtTest : FunSpec({
                 listOf(SpaceAge.beacon.withModules(speed2))
             )
             effects.speedMultiplier shouldBe near(1.35)
-            effects.productivityMultiplier shouldBe 1.0
+            effects.prodMultiplier shouldBe 1.0
             effects.qualityChance shouldBe near(0.028)
             // test intentional rounding error shenanigans
             val effects2 = getTotalMachineEffect(
@@ -91,7 +101,7 @@ class ModulesKtTest : FunSpec({
                 listOf(SpaceAge.beacon.withModules(speed2, speed2))
             )
             effects2.speedMultiplier shouldBe near(1.8)
-            effects2.productivityMultiplier shouldBe 1.0
+            effects2.prodMultiplier shouldBe 1.0
             effects2.qualityChance shouldBe near(0.005)
         }
         test("complex") {
@@ -104,7 +114,7 @@ class ModulesKtTest : FunSpec({
                 listOf(SpaceAge.beacon.withModules(speed2.withQuality(epic)))
             )
             effects.speedMultiplier shouldBe near(1.96)
-            effects.productivityMultiplier shouldBe near(1.09)
+            effects.prodMultiplier shouldBe near(1.09)
             effects.qualityChance shouldBe near(0.03)
         }
     }

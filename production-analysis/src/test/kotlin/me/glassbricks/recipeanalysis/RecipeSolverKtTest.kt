@@ -1,18 +1,10 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.doubles.beGreaterThan
-import io.kotest.matchers.doubles.gt
-import io.kotest.matchers.doubles.shouldBeExactly
-import io.kotest.matchers.doubles.shouldBeGreaterThan
-import io.kotest.matchers.longs.beGreaterThan
-import io.kotest.matchers.longs.lbeEven
-import io.kotest.matchers.reflection.beSealed
-import io.kotest.matchers.sequences.beEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlin.test.Test
 
 fun recipe(
     name: String,

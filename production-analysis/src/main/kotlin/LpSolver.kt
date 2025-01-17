@@ -1,4 +1,4 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 import com.google.ortools.Loader
 import com.google.ortools.linearsolver.MPSolver
@@ -10,7 +10,7 @@ class Variable(
     val name: String,
     val lb: Double = Double.NEGATIVE_INFINITY,
     val ub: Double = Double.POSITIVE_INFINITY,
-    val integral: Boolean = false
+    val integral: Boolean = false,
 ) {
     override fun toString(): String {
         return "Variable($name)"
@@ -40,12 +40,12 @@ infix fun Map<Variable, Double>.eq(rhs: Double) = Constraint(this, ComparisonOp.
 data class Objective(
     val coefficients: Map<Variable, Double>,
     val constant: Double = 0.0,
-    val maximize: Boolean = true
+    val maximize: Boolean = true,
 )
 
 data class LpProblem(
     val constraints: List<Constraint>,
-    val objective: Objective
+    val objective: Objective,
 )
 
 enum class LpResultStatus {
@@ -58,7 +58,7 @@ enum class LpResultStatus {
 
 class LpSolution(
     val assignment: Map<Variable, Double>,
-    val objective: Double
+    val objective: Double,
 )
 
 interface LpResult {
@@ -78,7 +78,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
     class Result(
         val solver: MPSolver,
         override val status: LpResultStatus,
-        variables: Map<Variable, MPVariable>
+        variables: Map<Variable, MPVariable>,
     ) : LpResult {
         override val solution: LpSolution?
 
@@ -138,7 +138,8 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
             MPSolver.ResultStatus.UNBOUNDED -> LpResultStatus.Unbounded
             null, MPSolver.ResultStatus.ABNORMAL,
             MPSolver.ResultStatus.MODEL_INVALID,
-            MPSolver.ResultStatus.NOT_SOLVED -> LpResultStatus.Error
+            MPSolver.ResultStatus.NOT_SOLVED,
+                -> LpResultStatus.Error
         }
         return Result(solver, status, mpVariables)
     }

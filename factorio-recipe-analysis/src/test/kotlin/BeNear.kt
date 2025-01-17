@@ -1,4 +1,4 @@
-package me.glassbricks.factorio.recipes
+package glassbricks.factorio.recipes
 
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult

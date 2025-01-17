@@ -1,4 +1,4 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 @JvmInline
 value class Time(val seconds: Double)

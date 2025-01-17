@@ -1,4 +1,4 @@
-package me.glassbricks.factorio.recipes
+package glassbricks.factorio.recipes
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -17,12 +17,10 @@ class RecipePrototypesTest : FreeSpec({
         legendary.name shouldBe "legendary"
     }
     "allItems" {
-        SpaceAge.allItems shouldContainKey "inserter"
+        SpaceAge.items shouldContainKey "inserter"
     }
     "beacons" {
-        val beacon = assertNotNull(SpaceAge.beacons["beacon"])
-
-        assertNotNull(beacon.builtBy)
+        assertNotNull(SpaceAge.beacons["beacon"])
     }
 
 })

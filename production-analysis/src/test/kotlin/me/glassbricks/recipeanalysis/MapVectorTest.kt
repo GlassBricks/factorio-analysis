@@ -1,8 +1,7 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
-import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.*
+import io.kotest.matchers.shouldBe
 
 class MapVectorTest : StringSpec({
     "should remove 0 values on construction" {

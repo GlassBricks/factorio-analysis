@@ -10,7 +10,7 @@
  * Finds the optimal recipe usage to, in the following priorities
  * - Meets all constraints
  */
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -27,7 +27,7 @@ data class RealRecipe(
     val recipe: RecipeRate,
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
-    override val integral: Boolean = false
+    override val integral: Boolean = false,
 ) : PseudoRecipe {
     override val ingredientRate: IngredientRate get() = recipe.netRate
 }
@@ -35,7 +35,7 @@ data class RealRecipe(
 data class Input(
     val ingredient: Ingredient,
     override val cost: Double,
-    override val upperBound: Double = Double.POSITIVE_INFINITY
+    override val upperBound: Double = Double.POSITIVE_INFINITY,
 ) : PseudoRecipe {
     override val integral: Boolean get() = false
     override val ingredientRate: IngredientRate get() = vector(ingredient to 1.0)
@@ -55,14 +55,13 @@ data class Output(
 data class RecipeLp(
     val recipes: List<PseudoRecipe>,
     val surplusCost: Double = 1e-5,
-    val timeLimit: Duration = 1.minutes
+    val timeLimit: Duration = 1.minutes,
 )
 
 data class RecipeLpSolution(
     val lpResult: LpResult,
-    val recipeUsage: AmountVector<PseudoRecipe>?
+    val recipeUsage: AmountVector<PseudoRecipe>?,
 )
-
 
 fun RecipeLp.solve(): RecipeLpSolution {
     val recipeVariables = recipes.associateWith { recipe ->
@@ -91,7 +90,7 @@ fun RecipeLp.solve(): RecipeLpSolution {
             for ((recipe, variable) in recipeVariables) {
                 this[variable] = recipe.cost
             }
-            for ( variable in surplusRecipeVariables.values) {
+            for (variable in surplusRecipeVariables.values) {
                 this[variable] = surplusCost
             }
         },

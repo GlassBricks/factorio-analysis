@@ -1,4 +1,4 @@
-package me.glassbricks.recipeanalysis
+package glassbricks.recipeanalysis
 
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec
@@ -24,6 +24,5 @@ class OrToolsLpTest : StringSpec({
             fail("Solution $assignment is not close to $expectedSolution")
         }
     }
-
 
 })
