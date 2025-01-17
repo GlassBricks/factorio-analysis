@@ -2,9 +2,9 @@ package me.glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.DataRaw
 import glassbricks.factorio.prototypes.ItemFlag
+import glassbricks.factorio.prototypes.SpaceAgeDataRaw
 import glassbricks.factorio.prototypes.allItemPrototypes
 import kotlin.collections.set
-
 
 class RecipePrototypes(val dataRaw: DataRaw) {
     val qualities = dataRaw.quality.values
@@ -18,7 +18,6 @@ class RecipePrototypes(val dataRaw: DataRaw) {
     }
 
     val defaultQuality get() = qualities.first()
-
 
     val allItems = dataRaw.allItemPrototypes().associate {
         it.name to getItem(it)
@@ -39,4 +38,9 @@ class RecipePrototypes(val dataRaw: DataRaw) {
         this.beacons = dataRaw.beacon.mapValues { Beacon(it.value, builtByMap[it.key]) }
     }
 
+    val beacon get() = beacons.values.first()
+
+    val modules: Map<String, Module> = dataRaw.module.mapValues { Module(it.value) }
 }
+
+val SpaceAge by lazy { RecipePrototypes(SpaceAgeDataRaw) }
