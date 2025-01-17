@@ -110,6 +110,8 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         }
         // items
         "ItemPrototype" {
+            +"flags"
+            +"place_result"
             +"stack_size"
             +"spoil_result"
             +"plant_result"
@@ -188,6 +190,9 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         }
 
         "ItemStackIndex" {}
+        "ItemPrototypeFlags" {
+            innerEnumName = "ItemFlag"
+        }
         "ItemCountType" {}
 
         "EffectTypeLimitation" {

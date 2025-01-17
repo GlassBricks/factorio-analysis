@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.bundles.kotlinxEcosystem)
-    implementation(libs.orTools)
+    implementation(project(":production-analysis"))
+    implementation(project(":prototypes"))
     testImplementation(libs.bundles.kotest)
     testImplementation(kotlin("test"))
 }

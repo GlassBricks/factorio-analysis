@@ -22,7 +22,7 @@ public fun loadDataRawFromStream(stream: InputStream): DataRaw {
     return DataRawJson.decodeFromStream(DataRaw.serializer(), stream)
 }
 
-public val VanillaDataRaw: DataRaw by lazy {
+public val SpaceAgeDataRaw: DataRaw by lazy {
     loadDataRawFromStream(
         DataRaw::class.java.getResourceAsStream("/vanilla-data-raw.json")
             ?: error("Missing resource vanilla-data-raw.json")
