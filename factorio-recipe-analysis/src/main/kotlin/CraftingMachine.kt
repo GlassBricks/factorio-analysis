@@ -3,6 +3,9 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.AssemblingMachinePrototype
 import glassbricks.factorio.prototypes.CraftingMachinePrototype
 import glassbricks.factorio.prototypes.EffectType
+import glassbricks.recipeanalysis.IngredientVector
+import glassbricks.recipeanalysis.basisVec
+import glassbricks.recipeanalysis.emptyVector
 import java.util.*
 
 /**
@@ -17,7 +20,7 @@ sealed interface AnyMachine {
     val modulesUsed: Iterable<Module>
 }
 
-interface AnyCraftingMachine : AnyMachine, WithEffects {
+interface AnyCraftingMachine : AnyMachine, WithEffects, WithBuildCost {
     val prototype: CraftingMachinePrototype
     fun acceptsModule(module: Module): Boolean
     fun withMachineQuality(quality: Quality): AnyCraftingMachine
@@ -60,6 +63,11 @@ data class CraftingMachine(
 
     override fun withQuality(quality: Quality): CraftingMachine = copy(quality = quality)
     override fun withMachineQuality(quality: Quality): CraftingMachine = withQuality(quality)
+
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
+        val itemCost = prototypes.itemToBuild(prototype)?.withQuality(quality) ?: return emptyVector()
+        return basisVec(itemCost)
+    }
 
     override fun toString(): String = if (quality.level == 0) prototype.name
     else "${prototype.name}(${quality.prototype.name})"
@@ -104,6 +112,8 @@ data class MachineWithModules(
         }
     override val effects: IntEffects = machine.effects + modules + beacons.effects
     override fun withMachineQuality(quality: Quality): MachineWithModules = copy(machine = machine.withQuality(quality))
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        machine.getBuildCost(prototypes) + modules.getBuildCost(prototypes) + beacons.getBuildCost(prototypes)
 
     override fun toString(): String = buildString {
         append(machine)

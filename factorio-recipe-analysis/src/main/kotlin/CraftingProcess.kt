@@ -73,7 +73,7 @@ fun IngredientVector.applyQualityRolling(
     qualityChance: Float,
 ): IngredientVector {
     if (qualityChance > 1) TODO("Quality chance > 100%")
-    var result: IngredientVector = vector()
+    var result: IngredientVector = emptyVector()
     var curQuality = startingQuality
     var propRemaining = 1.0
     while (curQuality != finalQuality && curQuality.nextQuality != null) {

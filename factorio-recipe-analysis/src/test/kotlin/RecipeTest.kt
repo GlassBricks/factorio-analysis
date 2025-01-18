@@ -2,6 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.SpaceAgeDataRaw
 import glassbricks.recipeanalysis.amountVector
+import glassbricks.recipeanalysis.emptyVector
 import glassbricks.recipeanalysis.vector
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -19,7 +20,7 @@ class RecipeTest : FunSpec({
             recipe.prototype.name shouldBe "iron-gear-wheel"
             recipe.inputs shouldBe vector(ingredient("iron-plate") to 2.0)
             recipe.outputs shouldBe vector(ingredient("iron-gear-wheel") to 1.0)
-            recipe.outputsToIgnoreProductivity shouldBe vector()
+            recipe.outputsToIgnoreProductivity shouldBe emptyVector()
         }
         test("kovarex") {
             val recipe = recipe("kovarex-enrichment-process")

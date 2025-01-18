@@ -5,27 +5,6 @@ import glassbricks.recipeanalysis.Process
 @DslMarker
 annotation class RecipesConfigDsl
 
-/*
-recipeConfig(SpaceAge) {
-    machines {
-        addAllMachines()
-        default {
-            +moduleConfig(
-                prod1, *,
-                fill=prod2,
-            ) + beacon(prod1*2)*8
-        }
-        "recycler" {
-            qualities += uncommon
-            +moduleConfig(...)
-        }
-    }
-    recipes {
-        // todo
-    }
-}
- */
-
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
     val allProcesses: List<Process>,
@@ -62,6 +41,7 @@ class MachineConfig(
     internal fun toMachines(): List<AnyCraftingMachine> =
         qualities.flatMap { quality ->
             val machine = machine.withQuality(quality)
+            val moduleConfigs = if (moduleConfigs.isEmpty()) listOf(ModuleConfig()) else moduleConfigs
             moduleConfigs.mapNotNull { (modules, fill, beacons) ->
                 machine.withModulesOrNull(modules, fill, beacons)
             }
@@ -105,9 +85,7 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
 
     @RecipesConfigDsl
     inner class MachinesScope {
-        var defaultConfig: MachineConfigFn? = {
-            emptyModuleConfig()
-        }
+        var defaultConfig: MachineConfigFn? = null
         val machineConfigs = mutableMapOf<CraftingMachine, MutableList<MachineConfigFn>>()
 
         fun default(block: MachineConfigFn) {

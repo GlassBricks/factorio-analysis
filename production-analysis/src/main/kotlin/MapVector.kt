@@ -19,22 +19,24 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
     }
 
     operator fun plus(other: MapVector<T, Units>): MapVector<T, Units> {
+        if (other.isEmpty()) return this
         val result = map.toMutableMap()
         for ((key, amount) in other) {
             val amt = result.getOrDefault(key, 0.0) + amount
             result.setOrRemove(key, amt)
         }
-        if (result.isEmpty()) return zero()
+        if (result.isEmpty()) return emptyVector()
         return MapVector(result)
     }
 
     operator fun minus(other: MapVector<T, Units>): MapVector<T, Units> {
+        if (other.isEmpty()) return this
         val result = map.toMutableMap()
         for ((ingredient, amount) in other) {
             val amt = result.getOrDefault(ingredient, 0.0) - amount
             result.setOrRemove(ingredient, amt)
         }
-        if (result.isEmpty()) return zero()
+        if (result.isEmpty()) return emptyVector()
         return MapVector(result)
     }
 
@@ -44,7 +46,7 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
     operator fun unaryMinus(): MapVector<T, Units> = mapValues { -it.value }
 
     operator fun times(scalar: Double): MapVector<T, Units> = when (scalar) {
-        0.0 -> zero()
+        0.0 -> emptyVector()
         1.0 -> this
         else -> mapValues { it.value * scalar }
     }
@@ -52,7 +54,7 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
     operator fun times(scalar: Int): MapVector<T, Units> = this * scalar.toDouble()
 
     operator fun div(scalar: Double): MapVector<T, Units> = when {
-        scalar.isInfinite() -> zero()
+        scalar.isInfinite() -> emptyVector()
         scalar == 1.0 -> this
         else -> mapValues { it.value / scalar }
     }
@@ -75,11 +77,9 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
             append("%-${maxWidth}s: %f\n".format(ingredient, amount))
         }
     }
-
-    companion object {
-        fun <T, Units> zero() = MapVector<T, Units>(emptyMap())
-    }
 }
+
+fun <Units, T> emptyVector(): MapVector<T, Units> = MapVector(emptyMap())
 
 operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()
@@ -92,11 +92,9 @@ fun <Units, T> vector(map: Map<T, Double>): MapVector<T, Units> =
 
 fun <Units, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, Units> = MapVector(map)
 
-fun <Units, T> vector(): MapVector<T, Units> = MapVector.zero()
-
 typealias AmountVector<T> = MapVector<T, Unit>
 
 fun <T> amountVector(vararg entries: Pair<T, Double>): AmountVector<T> = vector(entries.toMap())
 fun <T> amountVector(map: Map<T, Double>): AmountVector<T> = vector(map)
 
-fun <T> basis(key: T): AmountVector<T> = vector(key to 1.0)
+fun <T> basisVec(key: T): AmountVector<T> = vector(key to 1.0)

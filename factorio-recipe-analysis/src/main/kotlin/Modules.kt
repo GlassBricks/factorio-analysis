@@ -4,6 +4,7 @@ import glassbricks.factorio.prototypes.BeaconPrototype
 import glassbricks.factorio.prototypes.Effect
 import glassbricks.factorio.prototypes.EffectType
 import glassbricks.factorio.prototypes.ModulePrototype
+import glassbricks.recipeanalysis.*
 import java.util.*
 import kotlin.math.sign
 
@@ -78,11 +79,12 @@ data class Module(
 }
 
 // for nice DSL stuff
-data class ModuleCount(val module: Module, val count: Int) : WithModuleCount {
+data class ModuleCount(val module: Module, val count: Int) : WithModuleCount, WithBuildCost {
     override val moduleCount: ModuleCount get() = this
     override val effects: IntEffects get() = module.effects * count
-    override fun toString(): String = if (count == 1) module.prototype.name
-    else "${module.prototype.name}*$count"
+    override fun toString(): String = if (count == 1) module.prototype.name else "${module.prototype.name}*$count"
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        amountVector(module to count.toDouble())
 }
 
 interface WithModuleCount : WithEffects {
@@ -93,11 +95,13 @@ operator fun Module.times(count: Int): ModuleCount = ModuleCount(this, count)
 operator fun Int.times(module: Module): ModuleCount = ModuleCount(module, this)
 
 @JvmInline
-value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects {
+value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithBuildCost {
     val size get() = moduleCounts.sumOf { it.count }
     fun isEmpty() = moduleCounts.isEmpty()
     override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
     override fun toString(): String = moduleCounts.joinToString(", ")
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        moduleCounts.fold(emptyVector()) { acc, moduleCount -> acc + moduleCount.getBuildCost(prototypes) }
 }
 
 fun moduleList(
@@ -173,7 +177,7 @@ data class Beacon(
 data class BeaconSetup(
     val beacon: Beacon,
     val modules: ModuleList,
-) : WithBeaconCount {
+) : WithBeaconCount, WithBuildCost {
     init {
         require(modules.size <= beacon.prototype.module_slots.toInt()) {
             "Too many modules for $beacon"
@@ -188,6 +192,10 @@ data class BeaconSetup(
 
     override val beaconCount: BeaconCount get() = BeaconCount(this, 1)
     override fun toString(): String = "$beacon[$modules]"
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
+        val base = modules.getBuildCost(prototypes)
+        return prototypes.itemToBuild(beacon)?.let { base + basisVec(it) } ?: base
+    }
 }
 
 fun Beacon.withModules(modules: List<WithModuleCount>, fill: Module? = null): BeaconSetup =
@@ -201,10 +209,14 @@ fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null): B
 operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null): BeaconSetup =
     withModules(modules.asList(), fill)
 
-data class BeaconCount(val beacon: BeaconSetup, val count: Int) : WithBeaconCount {
+data class BeaconCount(val beacon: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost {
     override val beaconCount: BeaconCount get() = this
     fun getEffect(numBeacons: Int): IntEffects = beacon.getEffect(numBeacons) * count
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        beacon.getBuildCost(prototypes) * count
+
     override fun toString(): String = if (count == 1) beacon.toString() else "$beacon*$count"
+
 }
 
 interface WithBeaconCount {
@@ -214,8 +226,10 @@ interface WithBeaconCount {
 operator fun BeaconSetup.times(count: Int): BeaconCount = BeaconCount(this, count)
 operator fun Int.times(beacon: BeaconSetup): BeaconCount = BeaconCount(beacon, this)
 
-@JvmInline
-value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects {
+class BeaconList(
+    val beaconCounts: List<BeaconCount>,
+    val beaconSharing: Double = 1.0,
+) : WithEffects, WithBuildCost {
     constructor(vararg beacons: WithBeaconCount) : this(beacons.map { it.beaconCount })
 
     val size get() = beaconCounts.sumOf { it.count }
@@ -224,6 +238,11 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects {
             val totalBeacons = size
             return beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(totalBeacons) }
         }
+
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        beaconCounts.fold(emptyVector<Unit, Ingredient>()) { acc, beaconCount ->
+            acc + beaconCount.getBuildCost(prototypes)
+        } / beaconSharing
 
     override fun toString(): String = beaconCounts.joinToString(", ")
 }

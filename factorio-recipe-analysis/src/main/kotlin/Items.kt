@@ -14,6 +14,7 @@ sealed interface Item : RealIngredient {
     override val prototype: ItemPrototype
     val quality: Quality
     fun withQuality(quality: Quality): Item
+
 }
 
 data class BasicItem(

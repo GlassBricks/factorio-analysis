@@ -39,7 +39,7 @@ class MapVectorTest : StringSpec({
     "times 0" {
         val mapVector = amountVector("a" to 1.0, "b" to 2.0)
         val result = mapVector * 0.0
-        result shouldBe MapVector.zero()
+        result shouldBe emptyVector()
     }
     "div" {
         val mapVector = amountVector("a" to 1.0, "b" to 2.0)
@@ -48,8 +48,8 @@ class MapVectorTest : StringSpec({
     }
     "div infinite" {
         val mapVector = amountVector("a" to 1.0, "b" to 2.0)
-        mapVector / Double.POSITIVE_INFINITY shouldBe MapVector.zero()
-        mapVector / Double.NEGATIVE_INFINITY shouldBe MapVector.zero()
+        mapVector / Double.POSITIVE_INFINITY shouldBe emptyVector()
+        mapVector / Double.NEGATIVE_INFINITY shouldBe emptyVector()
     }
     "closeTo" {
         val a = amountVector("a" to 1.0, "b" to 2.0)
