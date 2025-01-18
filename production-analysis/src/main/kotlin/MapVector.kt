@@ -3,41 +3,19 @@ package glassbricks.recipeanalysis
 import kotlin.math.abs
 
 @JvmInline
-value class MapVector<T, Units>
-internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
+value class MapVector<T, out Units>
+internal constructor(internal val map: Map<T, Double>) : Map<T, Double> by map {
     override operator fun get(key: T): Double = map.getOrDefault(key, 0.0)
 
     @Suppress("UNCHECKED_CAST")
     fun <U> castUnits(): MapVector<T, U> = this as MapVector<T, U>
 
-    private fun MutableMap<T, Double>.setOrRemove(key: T, amount: Double) {
+    internal fun MutableMap<T, Double>.setOrRemove(key: T, amount: Double) {
         if (amount == 0.0) {
             remove(key)
         } else {
             this[key] = amount
         }
-    }
-
-    operator fun plus(other: MapVector<T, Units>): MapVector<T, Units> {
-        if (other.isEmpty()) return this
-        val result = map.toMutableMap()
-        for ((key, amount) in other) {
-            val amt = result.getOrDefault(key, 0.0) + amount
-            result.setOrRemove(key, amt)
-        }
-        if (result.isEmpty()) return emptyVector()
-        return MapVector(result)
-    }
-
-    operator fun minus(other: MapVector<T, Units>): MapVector<T, Units> {
-        if (other.isEmpty()) return this
-        val result = map.toMutableMap()
-        for ((ingredient, amount) in other) {
-            val amt = result.getOrDefault(ingredient, 0.0) - amount
-            result.setOrRemove(ingredient, amt)
-        }
-        if (result.isEmpty()) return emptyVector()
-        return MapVector(result)
     }
 
     private inline fun mapValues(transform: (Map.Entry<T, Double>) -> Double): MapVector<T, Units> =
@@ -61,10 +39,6 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
 
     operator fun div(scalar: Int): MapVector<T, Units> = this / scalar.toDouble()
 
-    fun closeTo(other: MapVector<T, Units>, tolerance: Double): Boolean =
-        map.all { (ingredient, amount) -> abs(amount - other[ingredient]) <= tolerance }
-                && other.all { (ingredient, amount) -> abs(amount - this[ingredient]) <= tolerance }
-
     override fun toString(): String = map.entries.joinToString(
         prefix = "MapVector{",
         postfix = "}"
@@ -79,18 +53,44 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
     }
 }
 
-fun <Units, T> emptyVector(): MapVector<T, Units> = MapVector(emptyMap())
+fun <T, Units> MapVector<T, Units>.closeTo(other: MapVector<T, Units>, tolerance: Double): Boolean =
+    map.all { (ingredient, amount) -> abs(amount - other[ingredient]) <= tolerance }
+            && other.all { (ingredient, amount) -> abs(amount - this[ingredient]) <= tolerance }
+
+operator fun <T, U> MapVector<T, U>.minus(other: MapVector<T, U>): MapVector<T, U> {
+    if (other.isEmpty()) return this
+    val result = map.toMutableMap()
+    for ((ingredient, amount) in other) {
+        val amt = result.getOrDefault(ingredient, 0.0) - amount
+        result.setOrRemove(ingredient, amt)
+    }
+    if (result.isEmpty()) return emptyVector()
+    return MapVector(result)
+}
+
+operator fun <T, U> MapVector<T, U>.plus(other: MapVector<T, U>): MapVector<T, U> {
+    if (other.isEmpty()) return this
+    val result = map.toMutableMap()
+    for ((key, amount) in other) {
+        val amt = result.getOrDefault(key, 0.0) + amount
+        result.setOrRemove(key, amt)
+    }
+    if (result.isEmpty()) return emptyVector()
+    return MapVector(result)
+}
+
+fun <T> emptyVector(): MapVector<T, Nothing> = MapVector(emptyMap())
 
 operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()
 
-fun <Units, T> vector(vararg entries: Pair<T, Double>): MapVector<T, Units> =
+fun <U, T> vector(vararg entries: Pair<T, Double>): MapVector<T, U> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
-fun <Units, T> vector(map: Map<T, Double>): MapVector<T, Units> =
+fun <U, T> vector(map: Map<T, Double>): MapVector<T, U> =
     MapVector(map.filterValues { it != 0.0 })
 
-fun <Units, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, Units> = MapVector(map)
+fun <U, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 
 typealias AmountVector<T> = MapVector<T, Unit>
 

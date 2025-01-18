@@ -1,6 +1,8 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.Rate
+import glassbricks.recipeanalysis.plus
 import glassbricks.recipeanalysis.rateVector
 import glassbricks.recipeanalysis.vector
 import io.kotest.assertions.throwables.shouldThrow

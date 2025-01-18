@@ -240,7 +240,7 @@ class BeaconList(
         }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        beaconCounts.fold(emptyVector<Unit, Ingredient>()) { acc, beaconCount ->
+        beaconCounts.fold<_, IngredientVector>(emptyVector()) { acc, beaconCount ->
             acc + beaconCount.getBuildCost(prototypes)
         } / beaconSharing
 

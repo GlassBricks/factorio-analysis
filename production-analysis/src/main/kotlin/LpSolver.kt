@@ -81,7 +81,7 @@ fun DefaultLpSolver(): LpSolver = OrToolsLp()
 
 class OrToolsLp(val solverId: String? = null) : LpSolver {
     class Result(
-        val solver: MPSolver,
+        solver: MPSolver,
         override val status: LpResultStatus,
         variables: Map<Variable, MPVariable>,
     ) : LpResult {

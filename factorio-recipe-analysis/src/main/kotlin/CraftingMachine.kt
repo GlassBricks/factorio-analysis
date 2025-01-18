@@ -6,6 +6,7 @@ import glassbricks.factorio.prototypes.EffectType
 import glassbricks.recipeanalysis.IngredientVector
 import glassbricks.recipeanalysis.basisVec
 import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.plus
 import java.util.*
 
 /**
