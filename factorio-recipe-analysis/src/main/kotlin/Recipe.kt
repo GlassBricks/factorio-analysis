@@ -19,7 +19,7 @@ sealed interface Process {
     val craftingTime: Time
 }
 
-class CraftingRecipe private constructor(
+class Recipe private constructor(
     val prototype: RecipePrototype,
     val quality: Quality,
     val baseIngredients: IngredientVector,
@@ -32,9 +32,9 @@ class CraftingRecipe private constructor(
     override val outputs get() = baseProducts.withItemsQuality(quality)
     override val outputsToIgnoreProductivity get() = baseProductsIgnoreProd?.withItemsQuality(quality)
 
-    fun withQuality(quality: Quality): CraftingRecipe {
+    fun withQuality(quality: Quality): Recipe {
         if (quality == this.quality) return this
-        return CraftingRecipe(
+        return Recipe(
             prototype = prototype,
             quality = quality,
             baseIngredients = baseIngredients,
@@ -52,7 +52,7 @@ class CraftingRecipe private constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is CraftingRecipe) return false
+        if (other !is Recipe) return false
 
         if (prototype != other.prototype) return false
         if (quality != other.quality) return false
@@ -65,14 +65,15 @@ class CraftingRecipe private constructor(
         return result
     }
 
-    override fun toString(): String = "Recipe(prototype=${prototype.name}, quality=${quality.level})"
+    override fun toString(): String = if (quality.level == 0) prototype.name
+    else "${prototype.name}(${quality.prototype.name})"
 
     companion object {
         fun fromPrototype(
             prototype: RecipePrototype,
             quality: Quality,
             map: IngredientsMap,
-        ): CraftingRecipe {
+        ): Recipe {
             val ingredients = buildMap {
                 for (ingredient in prototype.ingredients.orEmpty()) {
                     val ingredientAmount = map.getIngredientAmount(ingredient)
@@ -95,7 +96,7 @@ class CraftingRecipe private constructor(
             if (prototype.allow_pollution) allowedModuleEffects.add(EffectType.pollution)
             if (prototype.allow_quality) allowedModuleEffects.add(EffectType.quality)
 
-            return CraftingRecipe(
+            return Recipe(
                 prototype = prototype,
                 quality = quality,
                 baseIngredients = vector(ingredients),
@@ -106,6 +107,8 @@ class CraftingRecipe private constructor(
         }
     }
 }
+
+fun Recipe.acceptsModules(modules: Iterable<Module>): Boolean = modules.all { this.acceptsModule(it) }
 
 private inline fun IngredientVector.vectorMapKeys(transform: (Ingredient) -> Ingredient): IngredientVector =
     vectorUnsafe(this.mapKeys { transform(it.key) })

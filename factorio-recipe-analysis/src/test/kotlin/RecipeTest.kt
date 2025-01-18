@@ -10,7 +10,7 @@ fun ingredient(name: String) = SpaceAge.ingredients[name]!!
 fun item(name: String) = SpaceAge.items[name]!!
 fun fluid(name: String) = SpaceAge.fluids[name]!!
 fun recipe(name: String) =
-    CraftingRecipe.fromPrototype(SpaceAgeDataRaw.recipe[name]!!, SpaceAge.defaultQuality, SpaceAge)
+    Recipe.fromPrototype(SpaceAgeDataRaw.recipe[name]!!, SpaceAge.defaultQuality, SpaceAge)
 
 class RecipeTest : FunSpec({
     context("recipes are correct") {

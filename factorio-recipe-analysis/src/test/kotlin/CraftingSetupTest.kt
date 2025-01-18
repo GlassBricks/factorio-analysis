@@ -19,6 +19,7 @@ class CraftingSetupTest : FunSpec({
         shouldThrow<IllegalArgumentException> {
             asm2.withModules(prod1).crafting(recipe("transport-belt"))
         }
+        asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
     }
     test("basic recipe") {
         val setup = asm2.crafting(recipe("electronic-circuit"))

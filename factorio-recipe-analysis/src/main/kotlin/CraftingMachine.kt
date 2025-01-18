@@ -20,10 +20,11 @@ sealed interface AnyMachine {
 interface AnyCraftingMachine : AnyMachine, WithEffects {
     val prototype: CraftingMachinePrototype
     fun acceptsModule(module: Module): Boolean
+    fun withMachineQuality(quality: Quality): AnyCraftingMachine
 }
 
 val AnyCraftingMachine.finalCraftingSpeed get() = baseCraftingSpeed * effects.speedMultiplier
-fun AnyCraftingMachine.acceptsRecipe(recipe: CraftingRecipe): Boolean {
+fun AnyCraftingMachine.acceptsRecipe(recipe: Recipe): Boolean {
     val prototype = prototype
     if (recipe.prototype.category !in prototype.crafting_categories) return false
     if (prototype is AssemblingMachinePrototype) {
@@ -33,6 +34,7 @@ fun AnyCraftingMachine.acceptsRecipe(recipe: CraftingRecipe): Boolean {
     if (recipe.inputs.keys.any { it is Fluid } || recipe.outputs.keys.any { it is Fluid }) {
         if (prototype.fluid_boxes.isNullOrEmpty()) return false
     }
+    if (!recipe.acceptsModules(this.modulesUsed)) return false
     return true
 }
 
@@ -57,6 +59,10 @@ data class CraftingMachine(
     }
 
     override fun withQuality(quality: Quality): CraftingMachine = copy(quality = quality)
+    override fun withMachineQuality(quality: Quality): CraftingMachine = withQuality(quality)
+
+    override fun toString(): String = if (quality.level == 0) prototype.name
+    else "${prototype.name}(${quality.prototype.name})"
 }
 
 data class MachineWithModules(
@@ -64,18 +70,6 @@ data class MachineWithModules(
     val modules: ModuleList,
     val beacons: BeaconList = BeaconList(emptyList()),
 ) : AnyCraftingMachine by machine {
-    override val modulesUsed: Set<Module>
-        get() = buildSet {
-            for ((module) in modules.moduleCounts) {
-                add(module)
-            }
-            for ((beacon) in beacons.beaconCounts) {
-                for ((module) in beacon.modules.moduleCounts) {
-                    add(module)
-                }
-            }
-        }
-
     init {
         require(modules.size <= machine.prototype.module_slots.toInt()) {
             "Machine ${machine.prototype.name} has ${machine.prototype.module_slots} module slots, but ${modules.size} modules were provided"
@@ -97,20 +91,55 @@ data class MachineWithModules(
         }
     }
 
+    override val modulesUsed: List<Module>
+        get() = buildList {
+            for ((module) in modules.moduleCounts) {
+                add(module)
+            }
+            for ((beacon) in beacons.beaconCounts) {
+                for ((module) in beacon.modules.moduleCounts) {
+                    add(module)
+                }
+            }
+        }
     override val effects: IntEffects = machine.effects + modules + beacons.effects
+    override fun withMachineQuality(quality: Quality): MachineWithModules = copy(machine = machine.withQuality(quality))
+
+    override fun toString(): String = buildString {
+        append(machine)
+        append(modules)
+        if (beacons.size > 0) {
+            append(" + ")
+            append(beacons)
+        }
+    }
 }
+
+fun CraftingMachine.withModulesOrNull(
+    modules: List<WithModuleCount>,
+    fill: Module? = null,
+    beacons: List<WithBeaconCount> = emptyList(),
+): AnyCraftingMachine? =
+    moduleList(prototype.module_slots.toInt(), modules, fill)
+        ?.let {
+            if (it.isEmpty() && beacons.isEmpty()) this
+            else MachineWithModules(this, it, BeaconList(beacons))
+        }
 
 fun CraftingMachine.withModules(
     modules: List<WithModuleCount>,
     fill: Module? = null,
     beacons: List<WithBeaconCount> = emptyList(),
-): MachineWithModules =
-    moduleList(prototype.module_slots.toInt(), modules, fill)
-        .let { requireNotNull(it) { "Too many modules for $this" } }
-        .let { MachineWithModules(this, it, BeaconList(beacons.map { it.beaconCount })) }
+): AnyCraftingMachine = requireNotNull(withModulesOrNull(modules, fill, beacons)) { "Too many modules for $this" }
+
+fun CraftingMachine.withModulesOrNull(
+    vararg modules: WithModuleCount,
+    fill: Module? = null,
+    beacons: List<WithBeaconCount> = emptyList(),
+): AnyCraftingMachine? = withModulesOrNull(modules.asList(), fill, beacons)
 
 fun CraftingMachine.withModules(
     vararg modules: WithModuleCount,
     fill: Module? = null,
     beacons: List<WithBeaconCount> = emptyList(),
-): MachineWithModules = withModules(modules.asList(), fill, beacons)
+): AnyCraftingMachine = withModules(modules.asList(), fill, beacons)

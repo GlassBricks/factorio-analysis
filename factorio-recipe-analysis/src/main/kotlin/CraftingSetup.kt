@@ -1,53 +1,59 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.*
-import glassbricks.recipeanalysis.CraftingProcess
 
 data class ResearchConfig(
     val maxQuality: Quality? = null,
     val recipeProductivity: Map<String, Float> = emptyMap(),
 )
 
-class CraftingSetup(
+data class CraftingSetup(
     val machine: AnyCraftingMachine,
-    val recipe: CraftingRecipe,
-    config: ResearchConfig,
-) : CraftingProcess {
+    val recipe: Recipe,
+    val maxQuality: Quality? = null,
+    val extraProductivity: Float = 0f,
+) : LpProcess {
+    constructor(
+        machine: AnyCraftingMachine,
+        recipe: Recipe,
+        config: ResearchConfig,
+    ) : this(
+        machine,
+        recipe,
+        config.maxQuality,
+        config.recipeProductivity[recipe.prototype.name] ?: 0f,
+    )
+
     init {
-        for (module in machine.modulesUsed) {
-            require(recipe.acceptsModule(module)) {
-                "Module ${module.prototype.name} is not allowed for recipe ${recipe.prototype.name}"
-            }
-        }
+        require(machine.acceptsRecipe(recipe)) { "$machine does not accept $recipe" }
     }
 
     val effectsUsed: IntEffects = machine.effects.let {
-        val additionalProd = config.recipeProductivity[recipe.prototype.name]
-        if (additionalProd != null) it + IntEffects(productivity = additionalProd.toIntEffect())
-        else it
+        if (extraProductivity != 0f) it + IntEffects(productivity = extraProductivity.toIntEffect()) else it
     }
     val cycleTime: Time = recipe.craftingTime / machine.finalCraftingSpeed
     val cycleOutputs = recipe.outputs.applyProdAndQuality(
         effectsUsed,
         recipe.outputsToIgnoreProductivity,
         recipe.quality,
-        config.maxQuality,
+        maxQuality,
     )
     val cycleInputs get() = recipe.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
-    override fun toString(): String {
-        // todo: better toString
-        return "CraftingSetup(machine=${machine.prototype.name}, recipe=${recipe.prototype.name})"
-    }
+    override fun toString(): String = "CraftingSetup(${machine} -> ${recipe})"
 
     init {
         require(machine.acceptsRecipe(recipe)) { "Machine ${machine.prototype.name} does not accept recipe ${recipe.prototype.name}" }
     }
 }
 
-fun AnyCraftingMachine.crafting(recipe: CraftingRecipe, config: ResearchConfig = ResearchConfig()) =
+fun AnyCraftingMachine.crafting(recipe: Recipe, config: ResearchConfig = ResearchConfig()) =
     CraftingSetup(this, recipe, config)
+
+fun AnyCraftingMachine.craftingOrNull(recipe: Recipe, config: ResearchConfig = ResearchConfig()): CraftingSetup? =
+    if (!this.acceptsRecipe(recipe)) null
+    else CraftingSetup(this, recipe, config)
 
 fun IngredientVector.applyProductivity(
     productsIgnoredFromProductivity: IngredientVector?,

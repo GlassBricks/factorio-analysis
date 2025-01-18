@@ -5,9 +5,10 @@ import glassbricks.factorio.prototypes.QualityPrototype
 class Quality(
     val prototype: QualityPrototype,
     val nextQuality: Quality?,
-) {
+) : Comparable<Quality> {
     val level = prototype.level.toInt()
     override fun toString(): String = prototype.name
+    override fun compareTo(other: Quality): Int = level.compareTo(other.level)
 }
 
 fun loadQualities(qualities: Map<String, QualityPrototype>): Map<String, Quality> {

@@ -81,6 +81,8 @@ data class Module(
 data class ModuleCount(val module: Module, val count: Int) : WithModuleCount {
     override val moduleCount: ModuleCount get() = this
     override val effects: IntEffects get() = module.effects * count
+    override fun toString(): String = if (count == 1) module.prototype.name
+    else "${module.prototype.name}*$count"
 }
 
 interface WithModuleCount : WithEffects {
@@ -93,7 +95,9 @@ operator fun Int.times(module: Module): ModuleCount = ModuleCount(module, this)
 @JvmInline
 value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects {
     val size get() = moduleCounts.sumOf { it.count }
+    fun isEmpty() = moduleCounts.isEmpty()
     override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
+    override fun toString(): String = moduleCounts.joinToString(", ", "[", "]")
 }
 
 fun moduleList(
@@ -101,6 +105,7 @@ fun moduleList(
     modules: List<WithModuleCount>,
     fill: Module? = null,
 ): ModuleList? {
+    if (modules.isEmpty() && fill == null) return ModuleList(emptyList())
     val moduleCounts = modules.map { it.moduleCount }
     val numExisting = moduleCounts.sumOf { it.count }
     if (numExisting > numSlots) return null
@@ -180,6 +185,7 @@ data class BeaconSetup(
     fun getEffect(numBeacons: Int): IntEffects = modules.effects * beacon.effectMultiplier(numBeacons)
 
     override val beaconCount: BeaconCount get() = BeaconCount(this, 1)
+    override fun toString(): String = "$beacon$modules"
 }
 
 fun Beacon.withModules(modules: List<WithModuleCount>, fill: Module? = null): BeaconSetup =
@@ -196,6 +202,7 @@ operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null
 data class BeaconCount(val beacon: BeaconSetup, val count: Int) : WithBeaconCount {
     override val beaconCount: BeaconCount get() = this
     fun getEffect(numBeacons: Int): IntEffects = beacon.getEffect(numBeacons) * count
+    override fun toString(): String = if (count == 1) beacon.toString() else "$beacon*$count"
 }
 
 interface WithBeaconCount {
@@ -215,4 +222,8 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects {
             val totalBeacons = size
             return beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(totalBeacons) }
         }
+
+    override fun toString(): String = beaconCounts.joinToString(", ", "[", "]")
 }
+
+fun BeaconList(beacons: List<WithBeaconCount>): BeaconList = BeaconList(beacons.map { it.beaconCount })

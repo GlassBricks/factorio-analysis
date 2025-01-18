@@ -4,8 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 fun machine(name: String) = SpaceAge.craftingMachines[name]!!
-class MachineTest : FunSpec({
+class CraftingMachineTest : FunSpec({
     val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
+    val speed1 = SpaceAge.modules["speed-module"]!!
     test("assembling machine 2 and modules") {
         val asm2 = machine("assembling-machine-2")
         asm2.prototype.name shouldBe "assembling-machine-2"
@@ -18,7 +19,6 @@ class MachineTest : FunSpec({
 
         asm2.withQuality(uncommon).effects shouldBe IntEffects()
 
-        val speed1 = SpaceAge.modules["speed-module"]!!
         asm2.withModules(speed1).baseCraftingSpeed shouldBe 0.75
         asm2.withModules(speed1).effects shouldBe speed1.effects
     }
@@ -32,8 +32,11 @@ class MachineTest : FunSpec({
         plant.withQuality(uncommon).baseCraftingSpeed shouldBe near(2.6)
         plant.withQuality(uncommon).effects shouldBe plant.effects
 
-        val speed1 = SpaceAge.modules["speed-module"]!!
         plant.withModules(speed1).baseCraftingSpeed shouldBe 2.0
         plant.withModules(speed1).effects shouldBe plant.effects + speed1.effects
+    }
+    test("withModulesOrNull should return null if too many modules") {
+        val plant = machine("assembling-machine-2")
+        plant.withModulesOrNull(speed1, speed1, speed1) shouldBe null
     }
 })

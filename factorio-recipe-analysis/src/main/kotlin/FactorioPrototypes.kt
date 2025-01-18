@@ -14,9 +14,14 @@ private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K,
     return destination
 }
 
-class FactorioPrototypes(val dataRaw: DataRaw) : IngredientsMap {
+interface WithPrototypes {
+    val prototypes: FactorioPrototypes
+}
+
+class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithPrototypes {
+    override val prototypes: FactorioPrototypes get() = this
     val qualitiesMap = loadQualities(dataRaw.quality)
-    val qualities = qualitiesMap.values.sortedBy { it.level }
+    val qualities = qualitiesMap.values.sorted()
     val defaultQuality get() = qualities.first()
 
     val items: Map<String, Item> = dataRaw.allItemPrototypes().associate { it.name to getItem(it, defaultQuality) }
@@ -44,8 +49,8 @@ class FactorioPrototypes(val dataRaw: DataRaw) : IngredientsMap {
     val craftingMachines: Map<String, CraftingMachine> =
         dataRaw.allCraftingMachinePrototypes().associate { it.name to CraftingMachine(it, defaultQuality) }
 
-    val recipes: Map<String, CraftingRecipe> =
-        dataRaw.recipe.mapValues { CraftingRecipe.fromPrototype(it.value, defaultQuality, this) }
+    val recipes: Map<String, Recipe> =
+        dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
 }
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }

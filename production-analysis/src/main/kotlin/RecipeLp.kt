@@ -24,7 +24,7 @@ interface PseudoRecipe {
 }
 
 data class RealRecipe(
-    val recipe: CraftingProcess,
+    val recipe: LpProcess,
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
