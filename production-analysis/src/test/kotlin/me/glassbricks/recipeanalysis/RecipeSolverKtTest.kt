@@ -10,7 +10,7 @@ fun recipe(
     name: String,
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
-): RealRecipe = RealRecipe(
+): Process = Process(
     object : LpProcess {
         override val netRate: IngredientRate = amountVector(inOut.toMap()) / Time(time)
         override fun toString(): String = name

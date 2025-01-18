@@ -12,7 +12,7 @@ import java.util.*
  * - Offshore pumping
  * Possibly others.
  */
-sealed interface Process {
+sealed interface RecipeOrProduction {
     val inputs: IngredientVector
     val outputs: IngredientVector
     val outputsToIgnoreProductivity: IngredientVector?
@@ -26,14 +26,15 @@ class Recipe private constructor(
     val baseProducts: IngredientVector,
     val baseProductsIgnoreProd: IngredientVector?,
     private val allowedModuleEffects: EnumSet<EffectType>,
-) : Process {
+) : RecipeOrProduction {
     override val craftingTime: Time get() = Time(prototype.energy_required)
     override val inputs get() = baseIngredients.withItemsQuality(quality)
     override val outputs get() = baseProducts.withItemsQuality(quality)
     override val outputsToIgnoreProductivity get() = baseProductsIgnoreProd?.withItemsQuality(quality)
 
-    fun withQuality(quality: Quality): Recipe {
+    fun withQualityOrNull(quality: Quality): Recipe? {
         if (quality == this.quality) return this
+        if (quality.level != 0 && baseIngredients.keys.none { it is Item }) return null
         return Recipe(
             prototype = prototype,
             quality = quality,
@@ -43,6 +44,9 @@ class Recipe private constructor(
             allowedModuleEffects = allowedModuleEffects
         )
     }
+
+    fun withQuality(quality: Quality): Recipe = withQualityOrNull(quality)
+        ?: throw IllegalArgumentException("Cannot change quality of recipe $this to $quality")
 
     fun acceptsModule(module: Module): Boolean {
         if (prototype.allowed_module_categories?.let { module.prototype.category in it } == false) return false

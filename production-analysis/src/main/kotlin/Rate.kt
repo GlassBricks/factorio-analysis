@@ -10,7 +10,17 @@ operator fun Time.div(value: Double): Time = Time(seconds / value)
  * Inverse of time
  */
 @JvmInline
-value class Rate(val seconds: Double)
+value class Rate(val perSecond: Double) {
+    companion object {
+        val zero: Rate = Rate(0.0)
+        val infinity: Rate = Rate(Double.POSITIVE_INFINITY)
+    }
+}
+
+val Double.perSecond: Rate get() = Rate(this)
+val Int.perSecond: Rate get() = Rate(this.toDouble())
+val Double.perMinute: Rate get() = Rate(this / 60.0)
+val Int.perMinute: Rate get() = Rate(this.toDouble() / 60.0)
 
 typealias RateVector<T> = MapVector<T, Rate>
 

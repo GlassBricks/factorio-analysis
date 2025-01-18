@@ -63,11 +63,17 @@ internal constructor(private val map: Map<T, Double>) : Map<T, Double> by map {
         map.all { (ingredient, amount) -> abs(amount - other[ingredient]) <= tolerance }
                 && other.all { (ingredient, amount) -> abs(amount - this[ingredient]) <= tolerance }
 
-    override fun toString(): String {
-        return map.entries.joinToString(
-            prefix = "MapVector{",
-            postfix = "}"
-        ) { (ingredient, amount) -> "$ingredient: $amount" }
+    override fun toString(): String = map.entries.joinToString(
+        prefix = "MapVector{",
+        postfix = "}"
+    ) { (ingredient, amount) -> "$ingredient: $amount" }
+
+    fun display(): String = buildString {
+        val ingredientStrs = map.keys.map { it.toString() }
+        val maxWidth = ingredientStrs.maxOfOrNull { it.length } ?: 0
+        for ((ingredient, amount) in map) {
+            append("%-${maxWidth}s: %f\n".format(ingredient, amount))
+        }
     }
 
     companion object {

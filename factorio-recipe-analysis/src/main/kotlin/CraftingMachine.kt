@@ -107,11 +107,13 @@ data class MachineWithModules(
 
     override fun toString(): String = buildString {
         append(machine)
+        append('[')
         append(modules)
         if (beacons.size > 0) {
-            append(" + ")
+            append(", ")
             append(beacons)
         }
+        append(']')
     }
 }
 
@@ -119,12 +121,14 @@ fun CraftingMachine.withModulesOrNull(
     modules: List<WithModuleCount>,
     fill: Module? = null,
     beacons: List<WithBeaconCount> = emptyList(),
-): AnyCraftingMachine? =
-    moduleList(prototype.module_slots.toInt(), modules, fill)
-        ?.let {
-            if (it.isEmpty() && beacons.isEmpty()) this
-            else MachineWithModules(this, it, BeaconList(beacons))
-        }
+): AnyCraftingMachine? {
+    val moduleList = moduleList(prototype.module_slots.toInt(), modules, fill) ?: return null
+    if (moduleList.isEmpty() && beacons.isEmpty()) return this
+    for ((module) in moduleList.moduleCounts) {
+        if (!acceptsModule(module)) return null
+    }
+    return MachineWithModules(this, moduleList, BeaconList(beacons))
+}
 
 fun CraftingMachine.withModules(
     modules: List<WithModuleCount>,

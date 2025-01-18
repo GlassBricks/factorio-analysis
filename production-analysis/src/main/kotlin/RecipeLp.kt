@@ -12,10 +12,7 @@
  */
 package glassbricks.recipeanalysis
 
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-
-interface PseudoRecipe {
+interface PseudoProcess {
     val lowerBound: Double get() = 0.0
     val upperBound: Double
     val cost: Double
@@ -23,51 +20,75 @@ interface PseudoRecipe {
     val ingredientRate: IngredientRate
 }
 
-data class RealRecipe(
-    val recipe: LpProcess,
+data class Process(
+    val process: LpProcess,
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
-) : PseudoRecipe {
-    override val ingredientRate: IngredientRate get() = recipe.netRate
+) : PseudoProcess {
+    override val ingredientRate: IngredientRate get() = process.netRate
+
+    override fun toString(): String = buildString {
+        append("Process(")
+        append(process)
+        if (cost != 1.0) append(", cost=").append("%e".format(cost))
+        if (upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(upperBound))
+        if (integral) append(", integral=true")
+        append(")")
+    }
 }
 
 data class Input(
     val ingredient: Ingredient,
     override val cost: Double,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
-) : PseudoRecipe {
+) : PseudoProcess {
     override val integral: Boolean get() = false
     override val ingredientRate: IngredientRate get() = vector(ingredient to 1.0)
+    override fun toString(): String = buildString {
+        append("Input(")
+        append(ingredient)
+        if (cost != 1.0) append(", cost=").append("%e".format(cost))
+        if (upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(upperBound))
+        append(")")
+    }
 }
 
 data class Output(
     val ingredient: Ingredient,
     val weight: Double,
     override val lowerBound: Double,
-) : PseudoRecipe {
+) : PseudoProcess {
     override val upperBound: Double get() = Double.POSITIVE_INFINITY
     override val cost get() = -weight
     override val integral: Boolean get() = false
     override val ingredientRate: IngredientRate get() = vector(ingredient to -1.0)
+
+    override fun toString(): String = buildString {
+        append("Output(")
+        append(ingredient)
+        if (weight != 1.0) append(", weight=").append("%e".format(weight))
+        if (lowerBound != 0.0) append(", lowerBound=").append("%e".format(lowerBound))
+        append(")")
+    }
 }
 
 data class RecipeLp(
-    val recipes: List<PseudoRecipe>,
+    val processes: List<PseudoProcess>,
     val surplusCost: Double = 1e-5,
-    val timeLimit: Duration = 1.minutes,
+    val lpOptions: LpOptions = LpOptions(),
 )
 
 data class RecipeLpSolution(
     val lpResult: LpResult,
-    val recipeUsage: AmountVector<PseudoRecipe>?,
+    val recipeUsage: AmountVector<PseudoProcess>?,
 )
 
 fun RecipeLp.solve(): RecipeLpSolution {
-    val recipeVariables = recipes.associateWith { recipe ->
+    val recipeVariables = processes.associateWith { recipe ->
         Variable(name = recipe.toString(), lb = recipe.lowerBound, ub = recipe.upperBound, integral = recipe.integral)
     }
-    val recipesByItem = buildRecipesByItem(recipes)
+    val recipesByItem = buildRecipesByItem(processes)
     val allItems = recipesByItem.keys
 
     val surplusRecipeVariables = allItems.associateWith { item ->
@@ -99,7 +120,7 @@ fun RecipeLp.solve(): RecipeLpSolution {
 
     val problem = LpProblem(constraints = constraints, objective = objective)
     val solver = DefaultLpSolver()
-    val result = solver.solveLp(problem, LpOptions(timeLimit = timeLimit))
+    val result = solver.solveLp(problem, options = lpOptions)
 
     val assignment = result.solution?.assignment
     val recipeUsage = if (assignment == null) null else {
@@ -109,8 +130,8 @@ fun RecipeLp.solve(): RecipeLpSolution {
     return RecipeLpSolution(lpResult = result, recipeUsage = recipeUsage)
 }
 
-private fun buildRecipesByItem(recipes: List<PseudoRecipe>): Map<Ingredient, List<PseudoRecipe>> =
-    buildMap<_, MutableList<PseudoRecipe>> {
+private fun buildRecipesByItem(recipes: List<PseudoProcess>): Map<Ingredient, List<PseudoProcess>> =
+    buildMap<_, MutableList<PseudoProcess>> {
         for (recipe in recipes) {
             for ((ingredient, _) in recipe.ingredientRate) {
                 this.getOrPut(ingredient, ::mutableListOf).add(recipe)

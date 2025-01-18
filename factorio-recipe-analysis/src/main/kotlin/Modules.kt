@@ -97,7 +97,7 @@ value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects {
     val size get() = moduleCounts.sumOf { it.count }
     fun isEmpty() = moduleCounts.isEmpty()
     override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
-    override fun toString(): String = moduleCounts.joinToString(", ", "[", "]")
+    override fun toString(): String = moduleCounts.joinToString(", ")
 }
 
 fun moduleList(
@@ -166,6 +166,8 @@ data class Beacon(
     }
 
     override fun withQuality(quality: Quality): Beacon = copy(quality = quality)
+
+    override fun toString(): String = if (quality.level == 0) prototype.name else "${prototype.name}(${quality})"
 }
 
 data class BeaconSetup(
@@ -185,7 +187,7 @@ data class BeaconSetup(
     fun getEffect(numBeacons: Int): IntEffects = modules.effects * beacon.effectMultiplier(numBeacons)
 
     override val beaconCount: BeaconCount get() = BeaconCount(this, 1)
-    override fun toString(): String = "$beacon$modules"
+    override fun toString(): String = "$beacon[$modules]"
 }
 
 fun Beacon.withModules(modules: List<WithModuleCount>, fill: Module? = null): BeaconSetup =
@@ -223,7 +225,7 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects {
             return beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(totalBeacons) }
         }
 
-    override fun toString(): String = beaconCounts.joinToString(", ", "[", "]")
+    override fun toString(): String = beaconCounts.joinToString(", ")
 }
 
 fun BeaconList(beacons: List<WithBeaconCount>): BeaconList = BeaconList(beacons.map { it.beaconCount })

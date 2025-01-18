@@ -1,7 +1,6 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.Input
-import glassbricks.recipeanalysis.Output
+import glassbricks.recipeanalysis.Process
 
 @DslMarker
 annotation class RecipesConfigDsl
@@ -27,7 +26,10 @@ recipeConfig(SpaceAge) {
 }
  */
 
-class FactoryConfig(val allCraftingSetups: List<CraftingSetup>)
+class FactoryConfig(
+    override val prototypes: FactorioPrototypes,
+    val allProcesses: List<Process>,
+) : WithPrototypes
 
 data class ModuleConfig(
     val modules: List<ModuleCount> = emptyList(),
@@ -68,27 +70,27 @@ class MachineConfig(
 
 typealias MachineConfigFn = MachineConfig.() -> Unit
 
-class RecipeConfig(
-    val prototypes: FactorioPrototypes,
-    val recipe: Recipe,
-) {
+class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
+    fun allQualities() {
+        qualities.addAll(prototypes.qualities)
+    }
+
+    var cost: Double = 1.0
+    var upperBound: Double = Double.POSITIVE_INFINITY
+    var integral: Boolean = false
+
     private var withQualitiesList: List<Recipe>? = null
-
-    fun toCraftingSetups(
-        machine: AnyCraftingMachine,
-        config: ResearchConfig,
-    ) = buildList { addCraftingSetups(this, machine, config) }
-
     internal fun addCraftingSetups(
-        list: MutableList<CraftingSetup>,
+        list: MutableList<in Process>,
         machine: AnyCraftingMachine,
         config: ResearchConfig,
     ) {
-        withQualitiesList = withQualitiesList ?: qualities.map { recipe.withQuality(it) }
+        withQualitiesList = withQualitiesList ?: qualities.mapNotNull { recipe.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
-            val element = machine.craftingOrNull(quality, config)
-            element?.let { list.add(it) }
+            machine.craftingOrNull(quality, config)
+                ?.let { Process(process = it, cost = cost, upperBound = upperBound, integral = integral) }
+                ?.let { list.add(it) }
         }
     }
 
@@ -103,7 +105,9 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
 
     @RecipesConfigDsl
     inner class MachinesScope {
-        var defaultConfig: MachineConfigFn? = null
+        var defaultConfig: MachineConfigFn? = {
+            emptyModuleConfig()
+        }
         val machineConfigs = mutableMapOf<CraftingMachine, MutableList<MachineConfigFn>>()
 
         fun default(block: MachineConfigFn) {
@@ -140,6 +144,17 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
         operator fun Recipe.invoke(block: RecipeConfigFn = {}) {
             recipeConfigs.getOrPut(this, ::ArrayList) += block
         }
+
+        fun allOfCategory(category: String, config: RecipeConfigFn = {}) {
+            this@FactorioConfigBuilder.prototypes.recipes.values.filter { it.prototype.category.value == category }
+                .forEach { recipe ->
+                    recipeConfigs.getOrPut(recipe, ::ArrayList).add(config)
+                }
+        }
+
+        fun allRecycling(config: RecipeConfigFn = {}) {
+            allOfCategory("recycling", config)
+        }
     }
 
     var researchConfig: ResearchConfig = ResearchConfig()
@@ -164,7 +179,7 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
         }
     }
 
-    private fun getAllCraftingSetups(): List<CraftingSetup> {
+    private fun getAllProcesses(): List<Process> {
         val machines = getAllMachines()
         val configs = getAllRecipeConfigs()
         val sizeEstimate = machines.size * configs.sumOf { it.sizeEstimate } * 1.1
@@ -177,19 +192,11 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
         }
     }
 
-    fun build(): FactoryConfig {
-        return FactoryConfig(allCraftingSetups = getAllCraftingSetups())
-    }
+    fun build(): FactoryConfig = FactoryConfig(prototypes, allProcesses = getAllProcesses())
 }
 
-inline fun factoryConfig(prototypes: FactorioPrototypes, block: FactorioConfigBuilder.() -> Unit): FactoryConfig {
-    val builder = FactorioConfigBuilder(prototypes)
+inline fun FactorioPrototypes.factory(block: FactorioConfigBuilder.() -> Unit): FactoryConfig {
+    val builder = FactorioConfigBuilder(this)
     builder.block()
     return builder.build()
 }
-
-class ProblemConfig(
-    val factoryConfig: FactoryConfig,
-    val inputs: List<Input>,
-    val outputs: List<Output>,
-)

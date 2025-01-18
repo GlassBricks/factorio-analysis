@@ -7,7 +7,7 @@ data class ResearchConfig(
     val recipeProductivity: Map<String, Float> = emptyMap(),
 )
 
-data class CraftingSetup(
+data class CraftingProcess(
     val machine: AnyCraftingMachine,
     val recipe: Recipe,
     val maxQuality: Quality? = null,
@@ -41,7 +41,7 @@ data class CraftingSetup(
     val cycleInputs get() = recipe.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
-    override fun toString(): String = "CraftingSetup(${machine} -> ${recipe})"
+    override fun toString(): String = "(${machine} -> ${recipe})"
 
     init {
         require(machine.acceptsRecipe(recipe)) { "Machine ${machine.prototype.name} does not accept recipe ${recipe.prototype.name}" }
@@ -49,11 +49,11 @@ data class CraftingSetup(
 }
 
 fun AnyCraftingMachine.crafting(recipe: Recipe, config: ResearchConfig = ResearchConfig()) =
-    CraftingSetup(this, recipe, config)
+    CraftingProcess(this, recipe, config)
 
-fun AnyCraftingMachine.craftingOrNull(recipe: Recipe, config: ResearchConfig = ResearchConfig()): CraftingSetup? =
+fun AnyCraftingMachine.craftingOrNull(recipe: Recipe, config: ResearchConfig = ResearchConfig()): CraftingProcess? =
     if (!this.acceptsRecipe(recipe)) null
-    else CraftingSetup(this, recipe, config)
+    else CraftingProcess(this, recipe, config)
 
 fun IngredientVector.applyProductivity(
     productsIgnoredFromProductivity: IngredientVector?,

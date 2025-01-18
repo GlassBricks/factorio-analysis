@@ -36,4 +36,6 @@ internal fun getItem(
     else -> BasicItem(prototype, quality)
 }
 
-data class Fluid(override val prototype: FluidPrototype) : RealIngredient
+data class Fluid(override val prototype: FluidPrototype) : RealIngredient {
+    override fun toString(): String = prototype.name
+}

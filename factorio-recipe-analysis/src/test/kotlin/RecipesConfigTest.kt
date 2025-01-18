@@ -1,6 +1,7 @@
 package glassbricks.factorio.recipes
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 
 class FactoryConfigKtTest : FunSpec({
@@ -11,7 +12,7 @@ class FactoryConfigKtTest : FunSpec({
         val prod2 = module("productivity-module-2")
         val uncommon = SpaceAge.qualitiesMap["uncommon"]!!
         val rare = SpaceAge.qualitiesMap["rare"]!!
-        val config = factoryConfig(SpaceAge) {
+        val config = SpaceAge.factory {
             machines {
                 default {
                     emptyModuleConfig()
@@ -23,13 +24,18 @@ class FactoryConfigKtTest : FunSpec({
                 }
             }
             recipes {
-                default {}
+                default {
+                    cost = 1.2
+                }
                 "advanced-circuit" {
                     qualities.clear()
                     qualities += uncommon
                     qualities += rare
+                    upperBound = 1.3
                 }
-                "transport-belt"()
+                "transport-belt" {
+                    integral = true
+                }
             }
         }
         val advCircuit = recipe("advanced-circuit")
@@ -47,7 +53,14 @@ class FactoryConfigKtTest : FunSpec({
         val expectedRecipes = machines.flatMap { machine ->
             recipes.mapNotNull { machine.craftingOrNull(it) }
         }.toSet()
-        val craftingSet = config.allCraftingSetups.toSet()
+        val allProcesses = config.allProcesses
+        allProcesses.forAll {
+            it.cost shouldBe 1.2
+            val recipe = (it.process as CraftingProcess).recipe
+            it.upperBound shouldBe if (recipe == advCircuit) 1.3 else Double.POSITIVE_INFINITY
+            it.integral shouldBe (recipe == transportBelt)
+        }
+        val craftingSet = allProcesses.mapTo(mutableSetOf()) { it.process as CraftingProcess }
         val diff1 = expectedRecipes - craftingSet
         val diff2 = craftingSet - expectedRecipes
         diff1 shouldBe emptySet()

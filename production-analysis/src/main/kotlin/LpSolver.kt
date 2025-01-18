@@ -66,7 +66,12 @@ interface LpResult {
     val solution: LpSolution?
 }
 
-class LpOptions(val timeLimit: Duration = 1.minutes)
+class LpOptions(
+    val timeLimit: Duration = 1.minutes,
+    val solver: LpSolver = DefaultLpSolver(),
+)
+
+fun LpOptions.solve(problem: LpProblem): LpResult = solver.solveLp(problem, this)
 
 interface LpSolver {
     fun solveLp(problem: LpProblem, options: LpOptions = LpOptions()): LpResult

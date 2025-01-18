@@ -44,13 +44,21 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithPrototypes {
     fun itemToBuild(entity: EntityID): Item? = builtByMap[entity]
 
     val beacons: Map<String, Beacon> = dataRaw.beacon.mapValues { Beacon(it.value, defaultQuality) }
-    val beacon get() = beacons.values.first()
 
     val craftingMachines: Map<String, CraftingMachine> =
         dataRaw.allCraftingMachinePrototypes().associate { it.name to CraftingMachine(it, defaultQuality) }
 
     val recipes: Map<String, Recipe> =
         dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
+
+    fun quality(name: String): Quality = qualitiesMap[name] ?: error("Quality $name not found")
+    fun item(name: String): Item = items.getValue(name)
+    fun fluid(name: String): Fluid = fluids.getValue(name)
+    fun ingredient(name: String): RealIngredient = ingredients.getValue(name)
+    fun module(name: String): Module = modules.getValue(name)
+    val beacon: Beacon get() = beacons.values.first()
+    fun craftingMachine(name: String): CraftingMachine = craftingMachines.getValue(name)
+    fun recipe(name: String): Recipe = recipes.getValue(name)
 }
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }
