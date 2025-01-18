@@ -14,20 +14,9 @@ private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K,
     return destination
 }
 
-class RecipePrototypes(val dataRaw: DataRaw) : IngredientsMap {
-    val qualities = dataRaw.quality.values
-        .filter { it.name != "quality-unknown" }
-        .sortedBy { it.level.toInt() }
-
-    fun quality(name: String) = qualities.find { it.name == name }
-    fun quality(level: Int) = qualities.find { it.level.toInt() == level }
-
-    init {
-        for ((prevQ, nextQ) in qualities.zipWithNext()) {
-            check(prevQ.next?.value == nextQ.name) { "Quality levels are not contiguous: $prevQ -> $nextQ" }
-        }
-    }
-
+class FactorioPrototypes(val dataRaw: DataRaw) : IngredientsMap {
+    val qualitiesMap = loadQualities(dataRaw.quality)
+    val qualities = qualitiesMap.values.sortedBy { it.level }
     val defaultQuality get() = qualities.first()
 
     val items: Map<String, Item> = dataRaw.allItemPrototypes().associate { it.name to getItem(it, defaultQuality) }
@@ -52,10 +41,11 @@ class RecipePrototypes(val dataRaw: DataRaw) : IngredientsMap {
     val beacons: Map<String, Beacon> = dataRaw.beacon.mapValues { Beacon(it.value, defaultQuality) }
     val beacon get() = beacons.values.first()
 
-    val machines: Map<String, Machine> =
-        dataRaw.allCraftingMachinePrototypes().associate { it.name to Machine(it, defaultQuality) }
+    val craftingMachines: Map<String, CraftingMachine> =
+        dataRaw.allCraftingMachinePrototypes().associate { it.name to CraftingMachine(it, defaultQuality) }
 
-    val recipes: Map<String, Recipe> = dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
+    val recipes: Map<String, CraftingRecipe> =
+        dataRaw.recipe.mapValues { CraftingRecipe.fromPrototype(it.value, defaultQuality, this) }
 }
 
-val SpaceAge by lazy { RecipePrototypes(SpaceAgeDataRaw) }
+val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }

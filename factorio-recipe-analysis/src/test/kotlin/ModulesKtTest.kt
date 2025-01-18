@@ -9,7 +9,7 @@ class ModulesKtTest : FunSpec({
     context("module effect") {
         test("speed module quality") {
             val module = module("speed-module")
-            val baseEffect = EffectInt(
+            val baseEffect = IntEffects(
                 consumption = 50,
                 speed = 20,
                 quality = -10,
@@ -23,7 +23,7 @@ class ModulesKtTest : FunSpec({
         test("quality module quality") {
             val name = "quality-module-3"
             val module = module(name)
-            val baseEffect = EffectInt(
+            val baseEffect = IntEffects(
                 speed = -5,
                 quality = 25,
             )
@@ -35,7 +35,7 @@ class ModulesKtTest : FunSpec({
         }
         test("prod module quality") {
             val module = module("productivity-module")
-            val baseEffect = EffectInt(
+            val baseEffect = IntEffects(
                 consumption = +40,
                 speed = -5,
                 productivity = 4,

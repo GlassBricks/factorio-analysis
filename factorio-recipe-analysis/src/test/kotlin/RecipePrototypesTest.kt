@@ -9,18 +9,18 @@ import kotlin.test.assertNotNull
 class RecipePrototypesTest : FreeSpec({
     "qualities" {
         SpaceAge.qualities shouldHaveSize 5
-        val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
-        normal.name shouldBe "normal"
-        uncommon.name shouldBe "uncommon"
-        rare.name shouldBe "rare"
-        epic.name shouldBe "epic"
-        legendary.name shouldBe "legendary"
+        val expectedNames = listOf("normal", "uncommon", "rare", "epic", "legendary")
+        SpaceAge.qualities.zip(expectedNames).forEach { (quality, expectedName) ->
+            quality.prototype.name shouldBe expectedName
+        }
+        SpaceAge.qualities.zipWithNext().forEach { (current, next) ->
+            current.nextQuality shouldBe next
+        }
     }
-    "allItems" {
+    "items" {
         SpaceAge.items shouldContainKey "inserter"
     }
     "beacons" {
         assertNotNull(SpaceAge.beacons["beacon"])
     }
-
 })

@@ -5,7 +5,7 @@ import glassbricks.factorio.prototypes.QualityPrototype
 
 interface Entity {
     val prototype: EntityWithOwnerPrototype
-    val quality: QualityPrototype
+    val quality: Quality
 
-    fun withQuality(quality: QualityPrototype): Entity
+    fun withQuality(quality: Quality): Entity
 }

@@ -1,6 +1,9 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.*
+import glassbricks.factorio.prototypes.FluidPrototype
+import glassbricks.factorio.prototypes.ItemPrototype
+import glassbricks.factorio.prototypes.ModulePrototype
+import glassbricks.factorio.prototypes.Prototype
 import glassbricks.recipeanalysis.Ingredient
 
 sealed interface RealIngredient : Ingredient {
@@ -9,20 +12,25 @@ sealed interface RealIngredient : Ingredient {
 
 sealed interface Item : RealIngredient {
     override val prototype: ItemPrototype
-    val quality: QualityPrototype
-    fun withQuality(quality: QualityPrototype): Item
+    val quality: Quality
+    fun withQuality(quality: Quality): Item
 }
 
 data class BasicItem(
     override val prototype: ItemPrototype,
-    override val quality: QualityPrototype,
+    override val quality: Quality,
 ) : Item {
-    override fun withQuality(quality: QualityPrototype): BasicItem = copy(quality = quality)
+    override fun withQuality(quality: Quality): BasicItem = copy(quality = quality)
+    override fun toString(): String = if (quality.level == 0) {
+        prototype.name
+    } else {
+        "${prototype.name}(${quality})"
+    }
 }
 
 internal fun getItem(
     prototype: ItemPrototype,
-    quality: QualityPrototype,
+    quality: Quality,
 ): Item = when (prototype) {
     is ModulePrototype -> Module(prototype, quality)
     else -> BasicItem(prototype, quality)

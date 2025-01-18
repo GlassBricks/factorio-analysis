@@ -1,35 +1,48 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.*
+import glassbricks.factorio.prototypes.BeaconPrototype
+import glassbricks.factorio.prototypes.Effect
+import glassbricks.factorio.prototypes.EffectType
+import glassbricks.factorio.prototypes.ModulePrototype
 import java.util.*
 import kotlin.math.sign
 
 fun Float.toIntEffect() = (this * 100 + 1e-6f * sign).toInt().toShort()
-data class EffectInt(
+data class IntEffects(
     val consumption: Short = 0,
     val speed: Short = 0,
     val productivity: Short = 0,
     val pollution: Short = 0,
     val quality: Short = 0,
-) {
-    operator fun plus(other: EffectInt) = EffectInt(
-        consumption = (consumption + other.consumption).toShort(),
-        speed = (speed + other.speed).toShort(),
-        productivity = (productivity + other.productivity).toShort(),
-        pollution = (pollution + other.pollution).toShort(),
-        quality = (quality + other.quality).toShort(),
-    )
+) : WithEffects {
+    operator fun plus(other: WithEffects): IntEffects {
+        val effects = other.effects
+        return IntEffects(
+            consumption = (consumption + effects.consumption).toShort(),
+            speed = (speed + effects.speed).toShort(),
+            productivity = (productivity + effects.productivity).toShort(),
+            pollution = (pollution + effects.pollution).toShort(),
+            quality = (quality + effects.quality).toShort(),
+        )
+    }
+
+    operator fun plus(other: Iterable<WithEffects>): IntEffects = other.fold(this, IntEffects::plus)
+    override val effects: IntEffects get() = this
 
     val speedMultiplier get() = 1 + speed / 100f
     val prodMultiplier get() = 1 + productivity / 100f
     val qualityChance get() = quality.coerceAtLeast(0) / 1000f
 }
 
+interface WithEffects {
+    val effects: IntEffects
+}
+
 data class Module(
     override val prototype: ModulePrototype,
-    override val quality: QualityPrototype,
-) : Item {
-    val effect = prototype.effect.toEffectInt(quality.level.toInt())
+    override val quality: Quality,
+) : Item, WithEffects {
+    override val effects = prototype.effect.toEffectInt(quality.level)
 
     val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         val effect = prototype.effect
@@ -40,10 +53,10 @@ data class Module(
         if (effect.quality != null && effect.quality!! > 0) add(EffectType.quality)
     }
 
-    override fun withQuality(quality: QualityPrototype): Module = copy(quality = quality)
+    override fun withQuality(quality: Quality): Module = copy(quality = quality)
 }
 
-fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
+fun Effect.toEffectInt(qualityLevel: Int): IntEffects {
     val qualityMult = 1.0f + qualityLevel * 0.3f
     fun Float.bonusIfNegative() =
         if (this < 0) this * qualityMult else this
@@ -57,7 +70,7 @@ fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
     val pollution = pollution?.bonusIfNegative()
     val quality = quality?.bonusIfPositive()
 
-    return EffectInt(
+    return IntEffects(
         consumption = consumption?.toIntEffect() ?: 0,
         speed = speed?.toIntEffect() ?: 0,
         productivity = productivity?.toIntEffect() ?: 0,
@@ -68,7 +81,7 @@ fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
 
 data class Beacon(
     override val prototype: BeaconPrototype,
-    override val quality: QualityPrototype,
+    override val quality: Quality,
 ) : Entity {
     private val allowedEffects: EnumSet<EffectType> = prototype.allowed_effects
         ?.let { EnumSet.copyOf(it) }
@@ -85,11 +98,11 @@ data class Beacon(
             val index = numBeacons - 1
             if (index in it.indices) it[index] else it.last()
         } ?: 1.0
-        val qualityMult = 1.0 + 0.3 * quality.level.toInt()
+        val qualityMult = 1.0 + 0.3 * quality.level
         return baseMult * profileMult * qualityMult
     }
 
-    override fun withQuality(quality: QualityPrototype): Beacon = copy(quality = quality)
+    override fun withQuality(quality: Quality): Beacon = copy(quality = quality)
 }
 
 data class BeaconSetup(
@@ -108,14 +121,14 @@ data class BeaconSetup(
     /**
      * Note: each beacon INDIVIDUALLY rounds the effect before applying.
      */
-    fun getEffect(numBeacons: Int): EffectInt {
+    fun getEffect(numBeacons: Int): IntEffects {
         val multiplier = beacon.effectMultiplier(numBeacons)
-        val consumption = modules.sumOf { it.effect.consumption.toInt() }
-        val speed = modules.sumOf { it.effect.speed.toInt() }
-        val productivity = modules.sumOf { it.effect.productivity.toInt() }
-        val pollution = modules.sumOf { it.effect.pollution.toInt() }
-        val quality = modules.sumOf { it.effect.quality.toInt() }
-        return EffectInt(
+        val consumption = modules.sumOf { it.effects.consumption.toInt() }
+        val speed = modules.sumOf { it.effects.speed.toInt() }
+        val productivity = modules.sumOf { it.effects.productivity.toInt() }
+        val pollution = modules.sumOf { it.effects.pollution.toInt() }
+        val quality = modules.sumOf { it.effects.quality.toInt() }
+        return IntEffects(
             consumption = (consumption * multiplier).toInt().toShort(),
             speed = (speed * multiplier).toInt().toShort(),
             productivity = (productivity * multiplier).toInt().toShort(),
@@ -128,13 +141,13 @@ data class BeaconSetup(
 fun Beacon.withModules(modules: List<Module>) = BeaconSetup(this, modules)
 fun Beacon.withModules(vararg modules: Module) = withModules(modules.asList())
 
+fun totalBeaconEffect(beacons: List<BeaconSetup>): IntEffects =
+    beacons.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(beacons.size) }
+
 fun getTotalMachineEffect(
     modules: List<Module> = emptyList(),
     beacons: List<BeaconSetup> = emptyList(),
-    baseEffect: EffectInt = EffectInt(),
-): EffectInt {
-    var result = baseEffect
-    for (module in modules) result += module.effect
-    for (beacon in beacons) result += beacon.getEffect(beacons.size)
-    return result
+    baseEffect: IntEffects = IntEffects(),
+): IntEffects {
+    return baseEffect + modules.map { it.effects } + totalBeaconEffect(beacons)
 }

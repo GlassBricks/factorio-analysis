@@ -83,6 +83,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         blueprintable("CraftingMachine") {
             +"crafting_speed"
             +"crafting_categories"
+            +"fluid_boxes"
         }
         blueprintable("AssemblingMachine") {
             +"fixed_recipe"
@@ -243,6 +244,20 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "SurfaceCondition" {}
 
         "BurnerUsageID" {}
+
+        "FluidBox" {
+            includeAllProperties = false
+            "pipe_connections" {}
+            "filter" {}
+            "production_type" {}
+        }
+        "ProductionType" {}
+        "PipeConnectionDefinition" {
+            includeAllProperties = false
+            "flow_direction" {
+                innerEnumName = "FlowDirection"
+            }
+        }
 
 //        // some stuff with energy source is hardcoded in Generate.kt
         "EnergySource" {
