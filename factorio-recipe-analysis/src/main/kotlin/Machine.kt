@@ -13,11 +13,12 @@ sealed interface AnyMachineSetup {
 
 val AnyMachineSetup.finalCraftingSpeed get() = baseCraftingSpeed * appliedEffects.speedMultiplier
 
-sealed interface AnyMachine : AnyMachineSetup
-
-class Machine(override val prototype: CraftingMachinePrototype) : Entity, AnyMachine {
+data class Machine(
+    override val prototype: CraftingMachinePrototype,
+    override val quality: QualityPrototype,
+) : Entity, AnyMachineSetup {
     override val appliedEffects = prototype.effect_receiver?.base_effect?.toEffectInt(0) ?: EffectInt()
-    override val baseCraftingSpeed: Double get() = prototype.crafting_speed
+    override val baseCraftingSpeed: Double get() = prototype.crafting_speed * (1.0 + quality.level.toInt() * 0.3)
 
     private val allowedEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         prototype.allowed_effects?.let { addAll(it) }
@@ -30,33 +31,14 @@ class Machine(override val prototype: CraftingMachinePrototype) : Entity, AnyMac
         return allowedEffects.containsAll(module.usedPositiveEffects)
                 && (prototype.allowed_module_categories?.let { module.prototype.category in it } ?: true)
     }
+
+    override fun withQuality(quality: QualityPrototype): Machine = copy(quality = quality)
 }
-
-data class MachineWithQuality(
-    val machine: Machine,
-    val qualityLevel: Int,
-) : AnyMachine {
-    override val prototype: CraftingMachinePrototype
-        get() = machine.prototype
-    override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed * (1.0 + qualityLevel * 0.3)
-    override val appliedEffects: EffectInt get() = machine.appliedEffects
-}
-
-tailrec fun AnyMachineSetup.baseMachine(): Machine = when (this) {
-    is Machine -> this
-    is MachineWithQuality -> machine
-    is MachineWithModules -> machine.baseMachine()
-}
-
-fun AnyMachine.withQualityLevel(level: Int) = MachineWithQuality(baseMachine(), level)
-fun AnyMachine.withQuality(quality: QualityPrototype) = withQualityLevel(quality.level.toInt())
-
-fun AnyMachineSetup.acceptsModule(module: AnyModule) = baseMachine().acceptsModule(module.baseModule())
 
 data class MachineWithModules(
-    val machine: AnyMachine,
-    val modules: List<AnyModule>,
-    val beacons: List<BeaconWithModules> = emptyList(),
+    val machine: Machine,
+    val modules: List<Module>,
+    val beacons: List<BeaconSetup> = emptyList(),
 ) : AnyMachineSetup {
     init {
         require(modules.size <= machine.prototype.module_slots.toInt()) {
@@ -85,12 +67,12 @@ data class MachineWithModules(
     override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed
 }
 
-fun AnyMachine.withModules(
-    modules: List<AnyModule>,
-    beacons: List<BeaconWithModules> = emptyList(),
+fun Machine.withModules(
+    modules: List<Module>,
+    beacons: List<BeaconSetup> = emptyList(),
 ) = MachineWithModules(this, modules, beacons)
 
-fun AnyMachine.withModules(
-    vararg modules: AnyModule,
-    beacons: List<BeaconWithModules> = emptyList(),
+fun Machine.withModules(
+    vararg modules: Module,
+    beacons: List<BeaconSetup> = emptyList(),
 ) = withModules(modules.asList(), beacons)

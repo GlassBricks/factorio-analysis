@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class MachineTest : FunSpec({
+    val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
     test("assembling machine 2 and modules") {
         val asm2 = SpaceAge.machines["assembling-machine-2"]!!
         asm2.prototype.name shouldBe "assembling-machine-2"
@@ -11,10 +12,10 @@ class MachineTest : FunSpec({
         asm2.baseCraftingSpeed shouldBe 0.75
         asm2.appliedEffects shouldBe EffectInt()
 
-        asm2.withQualityLevel(1).baseCraftingSpeed shouldBe near(0.975)
-        asm2.withQualityLevel(5).baseCraftingSpeed shouldBe near(1.875)
+        asm2.withQuality(uncommon).baseCraftingSpeed shouldBe near(0.975)
+        asm2.withQuality(legendary).baseCraftingSpeed shouldBe near(1.875)
 
-        asm2.withQualityLevel(1).appliedEffects shouldBe EffectInt()
+        asm2.withQuality(uncommon).appliedEffects shouldBe EffectInt()
 
         val speed1 = SpaceAge.modules["speed-module"]!!
         asm2.withModules(speed1).baseCraftingSpeed shouldBe 0.75
@@ -27,8 +28,8 @@ class MachineTest : FunSpec({
         plant.baseCraftingSpeed shouldBe 2.0
         plant.appliedEffects shouldBe EffectInt(productivity = 50)
 
-        plant.withQualityLevel(1).baseCraftingSpeed shouldBe near(2.6)
-        plant.withQualityLevel(1).appliedEffects shouldBe plant.appliedEffects
+        plant.withQuality(uncommon).baseCraftingSpeed shouldBe near(2.6)
+        plant.withQuality(uncommon).appliedEffects shouldBe plant.appliedEffects
 
         val speed1 = SpaceAge.modules["speed-module"]!!
         plant.withModules(speed1).baseCraftingSpeed shouldBe 2.0

@@ -4,11 +4,11 @@ import glassbricks.factorio.prototypes.SpaceAgeDataRaw
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
+fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!, SpaceAge.defaultQuality)
 class ModulesKtTest : FunSpec({
     context("module effect") {
         test("speed module quality") {
-            val module = Module(SpaceAgeDataRaw.module["speed-module"]!!)
-
+            val module = module("speed-module")
             val baseEffect = EffectInt(
                 consumption = 50,
                 speed = 20,
@@ -21,7 +21,8 @@ class ModulesKtTest : FunSpec({
             module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(speed = 50)
         }
         test("quality module quality") {
-            val module = Module(SpaceAgeDataRaw.module["quality-module-3"]!!)
+            val name = "quality-module-3"
+            val module = module(name)
             val baseEffect = EffectInt(
                 speed = -5,
                 quality = 25,
@@ -33,7 +34,7 @@ class ModulesKtTest : FunSpec({
             module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(quality = 62)
         }
         test("prod module quality") {
-            val module = Module(SpaceAgeDataRaw.module["productivity-module"]!!)
+            val module = module("productivity-module")
             val baseEffect = EffectInt(
                 consumption = +40,
                 speed = -5,
@@ -47,9 +48,8 @@ class ModulesKtTest : FunSpec({
             module.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(productivity = 10)
         }
     }
+    val beacon = SpaceAge.beacon
     test("beacon acceptsModule") {
-        val beacon = Beacon(SpaceAgeDataRaw.beacon.values.first())
-        fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!)
 
         beacon.acceptsModule(module("speed-module")) shouldBe true
         beacon.acceptsModule(module("efficiency-module")) shouldBe true
@@ -58,8 +58,6 @@ class ModulesKtTest : FunSpec({
     }
 
     test("acceptsModule") {
-        val beacon = SpaceAge.beacon
-        fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!)
 
         beacon.acceptsModule(module("speed-module")) shouldBe true
         beacon.acceptsModule(module("efficiency-module")) shouldBe true

@@ -84,6 +84,8 @@ fun <Units, T> vector(vararg entries: Pair<T, Double>): MapVector<T, Units> =
 fun <Units, T> vector(map: Map<T, Double>): MapVector<T, Units> =
     MapVector(map.filterValues { it != 0.0 })
 
+fun <Units, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, Units> = MapVector(map)
+
 fun <Units, T> vector(): MapVector<T, Units> = MapVector.zero()
 
 typealias AmountVector<T> = MapVector<T, Unit>

@@ -25,21 +25,13 @@ data class EffectInt(
     val qualityChance get() = quality.coerceAtLeast(0) / 1000f
 }
 
-sealed interface AnyModule {
-    val effect: EffectInt
-    val prototype: ModulePrototype
-    val usedPositiveEffects: EnumSet<EffectType>
-}
+data class Module(
+    override val prototype: ModulePrototype,
+    override val quality: QualityPrototype,
+) : Item {
+    val effect = prototype.effect.toEffectInt(quality.level.toInt())
 
-fun AnyModule.baseModule(): Module = when (this) {
-    is Module -> this
-    is ModuleWithQuality -> module
-}
-
-data class Module(override val prototype: ModulePrototype) : Item, AnyModule {
-    override val effect get() = prototype.effect.toEffectInt(0)
-
-    override val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
+    val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         val effect = prototype.effect
         if (effect.consumption != null && effect.consumption!! < 0) add(EffectType.consumption)
         if (effect.speed != null && effect.speed!! > 0) add(EffectType.speed)
@@ -47,6 +39,8 @@ data class Module(override val prototype: ModulePrototype) : Item, AnyModule {
         if (effect.pollution != null && effect.pollution!! < 0) add(EffectType.pollution)
         if (effect.quality != null && effect.quality!! > 0) add(EffectType.quality)
     }
+
+    override fun withQuality(quality: QualityPrototype): Module = copy(quality = quality)
 }
 
 fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
@@ -72,21 +66,10 @@ fun Effect.toEffectInt(qualityLevel: Int): EffectInt {
     )
 }
 
-data class ModuleWithQuality(val module: Module, val qualityLevel: Int) : AnyModule {
-    override val effect get() = module.prototype.effect.toEffectInt(qualityLevel = qualityLevel)
-    override val prototype: ModulePrototype get() = module.prototype
-    override val usedPositiveEffects: EnumSet<EffectType> get() = module.usedPositiveEffects
-}
-
-fun AnyModule.withQualityLevel(level: Int) = ModuleWithQuality(baseModule(), level)
-fun AnyModule.withQuality(quality: QualityPrototype) = withQualityLevel(quality.level.toInt())
-
-sealed interface AnyBeacon {
-    val prototype: BeaconPrototype
-    fun effectMultiplier(numBeacons: Int): Double
-}
-
-class Beacon(override val prototype: BeaconPrototype) : Entity, AnyBeacon {
+data class Beacon(
+    override val prototype: BeaconPrototype,
+    override val quality: QualityPrototype,
+) : Entity {
     private val allowedEffects: EnumSet<EffectType> = prototype.allowed_effects
         ?.let { EnumSet.copyOf(it) }
         ?: EnumSet.allOf(EffectType::class.java)
@@ -95,44 +78,23 @@ class Beacon(override val prototype: BeaconPrototype) : Entity, AnyBeacon {
         allowedEffects.containsAll(module.usedPositiveEffects) &&
                 (prototype.allowed_module_categories?.contains(module.prototype.category) ?: true)
 
-    fun effectMultiplier(
-        qualityLevel: Int,
-        numBeacons: Int,
-    ): Double {
+    fun effectMultiplier(numBeacons: Int): Double {
         if (numBeacons == 0) return 0.0
         val baseMult = prototype.distribution_effectivity
         val profileMult = prototype.profile?.let {
             val index = numBeacons - 1
             if (index in it.indices) it[index] else it.last()
         } ?: 1.0
-        val qualityMult = 1.0 + 0.3 * qualityLevel
+        val qualityMult = 1.0 + 0.3 * quality.level.toInt()
         return baseMult * profileMult * qualityMult
     }
 
-    override fun effectMultiplier(numBeacons: Int): Double = effectMultiplier(0, numBeacons)
+    override fun withQuality(quality: QualityPrototype): Beacon = copy(quality = quality)
 }
 
-data class BeaconWithQuality(
+data class BeaconSetup(
     val beacon: Beacon,
-    val qualityLevel: Int,
-) : AnyBeacon {
-    override val prototype get() = beacon.prototype
-    override fun effectMultiplier(numBeacons: Int): Double = beacon.effectMultiplier(qualityLevel, numBeacons)
-}
-
-fun AnyBeacon.baseBeacon(): Beacon = when (this) {
-    is Beacon -> this
-    is BeaconWithQuality -> beacon
-}
-
-fun AnyBeacon.withQualityLevel(level: Int) = BeaconWithQuality(baseBeacon(), level)
-fun AnyBeacon.withQuality(quality: QualityPrototype) = withQualityLevel(quality.level.toInt())
-
-fun AnyBeacon.acceptsModule(module: AnyModule): Boolean = baseBeacon().acceptsModule(module.baseModule())
-
-data class BeaconWithModules(
-    val beacon: AnyBeacon,
-    val modules: List<AnyModule>,
+    val modules: List<Module>,
 ) {
     init {
         require(modules.size <= beacon.prototype.module_slots.toInt()) {
@@ -141,11 +103,6 @@ data class BeaconWithModules(
         require(modules.all { beacon.acceptsModule(it) }) {
             "Module not accepted by $beacon"
         }
-    }
-
-    companion object {
-        fun tryCreate(beacon: BeaconWithQuality, modules: List<ModuleWithQuality>) =
-            runCatching { BeaconWithModules(beacon, modules) }
     }
 
     /**
@@ -168,12 +125,12 @@ data class BeaconWithModules(
     }
 }
 
-fun AnyBeacon.withModules(modules: List<AnyModule>) = BeaconWithModules(this, modules)
-fun AnyBeacon.withModules(vararg modules: AnyModule) = withModules(modules.asList())
+fun Beacon.withModules(modules: List<Module>) = BeaconSetup(this, modules)
+fun Beacon.withModules(vararg modules: Module) = withModules(modules.asList())
 
 fun getTotalMachineEffect(
-    modules: List<AnyModule> = emptyList(),
-    beacons: List<BeaconWithModules> = emptyList(),
+    modules: List<Module> = emptyList(),
+    beacons: List<BeaconSetup> = emptyList(),
     baseEffect: EffectInt = EffectInt(),
 ): EffectInt {
     var result = baseEffect

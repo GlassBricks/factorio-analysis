@@ -3,6 +3,9 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
 
+/**
+ * All items should have default quality
+ */
 interface IngredientsMap {
     val ingredients: Map<String, Ingredient>
 }
