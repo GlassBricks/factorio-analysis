@@ -1,9 +1,9 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.*
-import glassbricks.recipeanalysis.Process
+import glassbricks.recipeanalysis.CraftingProcess
 
-data class RecipeConfig(
+data class ResearchConfig(
     val maxQuality: Quality? = null,
     val recipeProductivity: Map<String, Float> = emptyMap(),
 )
@@ -11,8 +11,8 @@ data class RecipeConfig(
 class CraftingSetup(
     val machine: AnyCraftingMachine,
     val recipe: CraftingRecipe,
-    config: RecipeConfig,
-) : Process {
+    config: ResearchConfig,
+) : CraftingProcess {
     init {
         for (module in machine.modulesUsed) {
             require(recipe.acceptsModule(module)) {
@@ -46,7 +46,7 @@ class CraftingSetup(
     }
 }
 
-fun AnyCraftingMachine.crafting(recipe: CraftingRecipe, config: RecipeConfig = RecipeConfig()) =
+fun AnyCraftingMachine.crafting(recipe: CraftingRecipe, config: ResearchConfig = ResearchConfig()) =
     CraftingSetup(this, recipe, config)
 
 fun IngredientVector.applyProductivity(

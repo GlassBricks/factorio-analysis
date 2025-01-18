@@ -5,7 +5,7 @@ interface Ingredient : Symbol
 typealias IngredientRate = MapVector<Ingredient, Rate>
 typealias IngredientVector = AmountVector<Ingredient>
 
-interface Process {
+interface CraftingProcess {
     val netRate: IngredientRate
     override fun toString(): String
 }

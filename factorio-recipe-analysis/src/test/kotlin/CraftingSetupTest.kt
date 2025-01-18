@@ -119,7 +119,7 @@ class CraftingSetupTest : FunSpec({
         val setup2 = asm3.withModules(quality3.repeat(3))
             .crafting(
                 recipe("iron-chest").withQuality(uncommon),
-                RecipeConfig(maxQuality = epic)
+                ResearchConfig(maxQuality = epic)
             )
         val probs2 = listOf(
             1 - 0.075,

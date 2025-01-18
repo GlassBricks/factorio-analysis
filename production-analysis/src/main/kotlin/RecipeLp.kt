@@ -15,7 +15,7 @@ package glassbricks.recipeanalysis
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-sealed interface PseudoRecipe {
+interface PseudoRecipe {
     val lowerBound: Double get() = 0.0
     val upperBound: Double
     val cost: Double
@@ -24,7 +24,7 @@ sealed interface PseudoRecipe {
 }
 
 data class RealRecipe(
-    val recipe: Process,
+    val recipe: CraftingProcess,
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,

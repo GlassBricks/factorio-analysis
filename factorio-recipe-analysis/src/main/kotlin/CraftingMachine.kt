@@ -14,7 +14,7 @@ import java.util.*
  */
 sealed interface AnyMachine {
     val baseCraftingSpeed: Double
-    val modulesUsed: List<Module>
+    val modulesUsed: Iterable<Module>
 }
 
 interface AnyCraftingMachine : AnyMachine, WithEffects {
@@ -42,7 +42,7 @@ data class CraftingMachine(
 ) : Entity, AnyCraftingMachine {
     override val effects = prototype.effect_receiver?.base_effect?.toEffectInt(0) ?: IntEffects()
     override val baseCraftingSpeed: Double get() = prototype.crafting_speed * (1.0 + quality.level * 0.3)
-    override val modulesUsed: List<Module> get() = emptyList()
+    override val modulesUsed: Iterable<Module> get() = emptySet()
 
     private val allowedEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         prototype.allowed_effects?.let { addAll(it) }
@@ -61,23 +61,35 @@ data class CraftingMachine(
 
 data class MachineWithModules(
     val machine: CraftingMachine,
-    val modules: List<Module>,
-    val beacons: List<BeaconSetup> = emptyList(),
+    val modules: ModuleList,
+    val beacons: BeaconList = BeaconList(emptyList()),
 ) : AnyCraftingMachine by machine {
+    override val modulesUsed: Set<Module>
+        get() = buildSet {
+            for ((module) in modules.moduleCounts) {
+                add(module)
+            }
+            for ((beacon) in beacons.beaconCounts) {
+                for ((module) in beacon.modules.moduleCounts) {
+                    add(module)
+                }
+            }
+        }
+
     init {
         require(modules.size <= machine.prototype.module_slots.toInt()) {
             "Machine ${machine.prototype.name} has ${machine.prototype.module_slots} module slots, but ${modules.size} modules were provided"
         }
-        for (module in modules) {
+        for ((module) in modules.moduleCounts) {
             require(machine.acceptsModule(module)) {
                 "Module ${module.prototype.name} is not accepted by machine ${machine.prototype.name}"
             }
         }
-        require(!(beacons.isNotEmpty() && machine.prototype.effect_receiver?.uses_beacon_effects == false)) {
+        require(!(beacons.size > 0 && machine.prototype.effect_receiver?.uses_beacon_effects == false)) {
             "Machine ${machine.prototype.name} does not use beacon effects, cannot apply beacons"
         }
-        for ((_, modules) in beacons) {
-            for (module in modules) {
+        for ((beacon) in beacons.beaconCounts) {
+            for ((module, _) in beacon.modules.moduleCounts) {
                 require(machine.acceptsModule(module)) {
                     "Module ${module.prototype.name} (in beacon) is not accepted by machine ${machine.prototype.name}"
                 }
@@ -85,17 +97,20 @@ data class MachineWithModules(
         }
     }
 
-    override val modulesUsed: List<Module> get() = modules + beacons.flatMap { it.modules }
-
-    override val effects: IntEffects = machine.effects + modules + totalBeaconEffect(beacons)
+    override val effects: IntEffects = machine.effects + modules + beacons.effects
 }
 
 fun CraftingMachine.withModules(
-    modules: List<Module>,
-    beacons: List<BeaconSetup> = emptyList(),
-) = MachineWithModules(this, modules, beacons)
+    modules: List<WithModuleCount>,
+    fill: Module? = null,
+    beacons: List<WithBeaconCount> = emptyList(),
+): MachineWithModules =
+    moduleList(prototype.module_slots.toInt(), modules, fill)
+        .let { requireNotNull(it) { "Too many modules for $this" } }
+        .let { MachineWithModules(this, it, BeaconList(beacons.map { it.beaconCount })) }
 
 fun CraftingMachine.withModules(
-    vararg modules: Module,
-    beacons: List<BeaconSetup> = emptyList(),
-) = withModules(modules.asList(), beacons)
+    vararg modules: WithModuleCount,
+    fill: Module? = null,
+    beacons: List<WithBeaconCount> = emptyList(),
+): MachineWithModules = withModules(modules.asList(), fill, beacons)

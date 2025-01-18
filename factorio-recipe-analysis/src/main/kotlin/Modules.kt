@@ -15,6 +15,8 @@ data class IntEffects(
     val pollution: Short = 0,
     val quality: Short = 0,
 ) : WithEffects {
+    override val effects: IntEffects get() = this
+
     operator fun plus(other: WithEffects): IntEffects {
         val effects = other.effects
         return IntEffects(
@@ -27,12 +29,29 @@ data class IntEffects(
     }
 
     operator fun plus(other: Iterable<WithEffects>): IntEffects = other.fold(this, IntEffects::plus)
-    override val effects: IntEffects get() = this
+
+    operator fun times(multiplier: Double): IntEffects = IntEffects(
+        consumption = (consumption * multiplier).toInt().toShort(),
+        speed = (speed * multiplier).toInt().toShort(),
+        productivity = (productivity * multiplier).toInt().toShort(),
+        pollution = (pollution * multiplier).toInt().toShort(),
+        quality = (quality * multiplier).toInt().toShort(),
+    )
+
+    operator fun times(multiplier: Int): IntEffects = IntEffects(
+        consumption = (consumption * multiplier).toShort(),
+        speed = (speed * multiplier).toShort(),
+        productivity = (productivity * multiplier).toShort(),
+        pollution = (pollution * multiplier).toShort(),
+        quality = (quality * multiplier).toShort(),
+    )
 
     val speedMultiplier get() = 1 + speed / 100f
     val prodMultiplier get() = 1 + productivity / 100f
     val qualityChance get() = quality.coerceAtLeast(0) / 1000f
 }
+
+operator fun WithEffects.plus(other: WithEffects): IntEffects = effects + other.effects
 
 interface WithEffects {
     val effects: IntEffects
@@ -41,7 +60,7 @@ interface WithEffects {
 data class Module(
     override val prototype: ModulePrototype,
     override val quality: Quality,
-) : Item, WithEffects {
+) : Item, WithEffects, WithModuleCount {
     override val effects = prototype.effect.toEffectInt(quality.level)
 
     val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
@@ -54,7 +73,46 @@ data class Module(
     }
 
     override fun withQuality(quality: Quality): Module = copy(quality = quality)
+    override val moduleCount: ModuleCount
+        get() = ModuleCount(this, 1)
 }
+
+// for nice DSL stuff
+data class ModuleCount(val module: Module, val count: Int) : WithModuleCount {
+    override val moduleCount: ModuleCount get() = this
+    override val effects: IntEffects get() = module.effects * count
+}
+
+interface WithModuleCount : WithEffects {
+    val moduleCount: ModuleCount
+}
+
+operator fun Module.times(count: Int): ModuleCount = ModuleCount(this, count)
+operator fun Int.times(module: Module): ModuleCount = ModuleCount(module, this)
+
+@JvmInline
+value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects {
+    val size get() = moduleCounts.sumOf { it.count }
+    override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
+}
+
+fun moduleList(
+    numSlots: Int,
+    modules: List<WithModuleCount>,
+    fill: Module? = null,
+): ModuleList? {
+    val moduleCounts = modules.map { it.moduleCount }
+    val numExisting = moduleCounts.sumOf { it.count }
+    if (numExisting > numSlots) return null
+    if (fill == null) return ModuleList(moduleCounts)
+    return ModuleList(moduleCounts + ModuleCount(fill, numSlots - numExisting))
+}
+
+fun moduleList(
+    numSlots: Int,
+    vararg modules: WithModuleCount,
+    fill: Module? = null,
+): ModuleList? = moduleList(numSlots, modules.asList(), fill)
 
 fun Effect.toEffectInt(qualityLevel: Int): IntEffects {
     val qualityMult = 1.0f + qualityLevel * 0.3f
@@ -107,47 +165,54 @@ data class Beacon(
 
 data class BeaconSetup(
     val beacon: Beacon,
-    val modules: List<Module>,
-) {
+    val modules: ModuleList,
+) : WithBeaconCount {
     init {
         require(modules.size <= beacon.prototype.module_slots.toInt()) {
             "Too many modules for $beacon"
         }
-        require(modules.all { beacon.acceptsModule(it) }) {
+        require(modules.moduleCounts.all { beacon.acceptsModule(it.module) }) {
             "Module not accepted by $beacon"
         }
     }
 
-    /**
-     * Note: each beacon INDIVIDUALLY rounds the effect before applying.
-     */
-    fun getEffect(numBeacons: Int): IntEffects {
-        val multiplier = beacon.effectMultiplier(numBeacons)
-        val consumption = modules.sumOf { it.effects.consumption.toInt() }
-        val speed = modules.sumOf { it.effects.speed.toInt() }
-        val productivity = modules.sumOf { it.effects.productivity.toInt() }
-        val pollution = modules.sumOf { it.effects.pollution.toInt() }
-        val quality = modules.sumOf { it.effects.quality.toInt() }
-        return IntEffects(
-            consumption = (consumption * multiplier).toInt().toShort(),
-            speed = (speed * multiplier).toInt().toShort(),
-            productivity = (productivity * multiplier).toInt().toShort(),
-            pollution = (pollution * multiplier).toInt().toShort(),
-            quality = (quality * multiplier).toInt().toShort(),
-        )
-    }
+    /** On purpose, each beacon INDIVIDUALLY rounds effects before returning. */
+    fun getEffect(numBeacons: Int): IntEffects = modules.effects * beacon.effectMultiplier(numBeacons)
+
+    override val beaconCount: BeaconCount get() = BeaconCount(this, 1)
 }
 
-fun Beacon.withModules(modules: List<Module>) = BeaconSetup(this, modules)
-fun Beacon.withModules(vararg modules: Module) = withModules(modules.asList())
+fun Beacon.withModules(modules: List<WithModuleCount>, fill: Module? = null): BeaconSetup =
+    moduleList(prototype.module_slots.toInt(), modules, fill)
+        .let { requireNotNull(it) { "Too many modules for $this" } }
+        .let { BeaconSetup(this, it) }
 
-fun totalBeaconEffect(beacons: List<BeaconSetup>): IntEffects =
-    beacons.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(beacons.size) }
+fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null): BeaconSetup =
+    withModules(modules.asList(), fill)
 
-fun getTotalMachineEffect(
-    modules: List<Module> = emptyList(),
-    beacons: List<BeaconSetup> = emptyList(),
-    baseEffect: IntEffects = IntEffects(),
-): IntEffects {
-    return baseEffect + modules.map { it.effects } + totalBeaconEffect(beacons)
+operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null): BeaconSetup =
+    withModules(modules.asList(), fill)
+
+data class BeaconCount(val beacon: BeaconSetup, val count: Int) : WithBeaconCount {
+    override val beaconCount: BeaconCount get() = this
+    fun getEffect(numBeacons: Int): IntEffects = beacon.getEffect(numBeacons) * count
+}
+
+interface WithBeaconCount {
+    val beaconCount: BeaconCount
+}
+
+operator fun BeaconSetup.times(count: Int): BeaconCount = BeaconCount(this, count)
+operator fun Int.times(beacon: BeaconSetup): BeaconCount = BeaconCount(beacon, this)
+
+@JvmInline
+value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects {
+    constructor(vararg beacons: WithBeaconCount) : this(beacons.map { it.beaconCount })
+
+    val size get() = beaconCounts.sumOf { it.count }
+    override val effects: IntEffects
+        get() {
+            val totalBeacons = size
+            return beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(totalBeacons) }
+        }
 }
