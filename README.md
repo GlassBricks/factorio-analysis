@@ -1,23 +1,23 @@
-# factorio-analysis
+# Factorio analysis
 
-This project uses [Gradle](https://gradle.org/).
-To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
-or run it directly from the terminal:
+Calculates optimal Factorio factory production, like FactorioLab, but better on:
 
-* Run `./gradlew run` to build and run the application.
-* Run `./gradlew build` to only build the application.
-* Run `./gradlew check` to run all checks, including tests.
-* Run `./gradlew clean` to clean all build outputs.
+- Can customize the LP a lot, allowing you to almost add any other bells and whistles (variables and constraints)
+- Can have constraints based on build materials, not just input/output
+- ^ makes it actually good for quality upcycling builds
+- Hackable (can mess with the code)
 
-Note the usage of the Gradle Wrapper (`./gradlew`).
-This is the suggested way to use Gradle in production projects.
+Runnable stuff is in `/scripts/src`.
+For example usages, see there or `/factorio-recipe-analysis/src/test/kotlin/ProblemTest.kt`
 
-[Learn more about the Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+Currently only API, no GUI or CLI.
 
-[Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
+Still todo:
 
-This project follows the suggested multi-module setup and consists of the `app` and `utils` subprojects.
-The shared build logic was extracted to a convention plugin located in `buildSrc`.
-
-This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies
-and both a build cache and a configuration cache (see `gradle.properties`).
+- Mining drills
+- Power, fuel, nutrient requirements
+- More granular machine+recipe config
+- ILP stuff
+- Chaining builds. For example: build 1 is a mall, build 2 does final product, but build 2 must be buildable by build 1
+  in X minutes
+    - To answer what's the fastest quality-quality modules upscaling strategy?
