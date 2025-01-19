@@ -1,8 +1,6 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.LpResultStatus
-import glassbricks.recipeanalysis.perMinute
-import glassbricks.recipeanalysis.perSecond
+import glassbricks.recipeanalysis.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -215,6 +213,46 @@ class ProblemTest : FunSpec({
             val solution = problem.solve()
             solution.status shouldBe LpResultStatus.Optimal
             println(solution.recipeSolution!!.recipes.display())
+        }
+
+        test("cost on symbol") {
+            val foo = Symbol("foo")
+            val problem = problem {
+                factory {
+                    machines {
+                        default {
+                            includeBuildCosts = true
+                        }
+                        "assembling-machine-2" {
+                            additionalCosts += vector(foo to 2.0)
+                        }
+                        "assembling-machine-1" {
+                            additionalCosts += vector(foo to 1.0)
+                        }
+                    }
+                    recipes {
+                        "iron-gear-wheel" {}
+                    }
+                }
+                input(ironPlate)
+                output("iron-gear-wheel", 1.perSecond)
+                costs {
+                    symbolCost(foo, 1e5) // heavily penalize assembling-machine-2
+                }
+            }
+            val solution = problem.solve()
+            solution.status shouldBe LpResultStatus.Optimal
+
+            val asm2Recipe = problem.recipes.keys.find {
+                it.machine.prototype.name == "assembling-machine-2"
+            }
+            val asm1Recipe = problem.recipes.keys.find {
+                it.machine.prototype.name == "assembling-machine-1"
+            }
+            val asm2Usage = solution.recipesUsed(asm2Recipe!!)
+            val asm1Usage = solution.recipesUsed(asm1Recipe!!)
+            asm2Usage shouldBe 0.0
+            asm1Usage shouldBe 1.0
         }
     }
 })

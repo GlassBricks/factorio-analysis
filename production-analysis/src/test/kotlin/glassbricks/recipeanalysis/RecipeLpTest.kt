@@ -147,4 +147,35 @@ class RecipeSolverKtTest : StringSpec({
         usage2[process2] shouldBe 0.0
         usage2[output] shouldBe 1.0
     }
+    "high cost on additional symbol" {
+        val inputIng = TestIngredient("input")
+        val outputIng = TestIngredient("output")
+        val abstractCost: Symbol = TestSymbol("abstract cost")
+        val process1 = recipe(
+            "process1",
+            inputIng to -1.0,
+            outputIng to 1.0,
+            time = 1.0,
+        )
+        val process2 = recipe(
+            "process2",
+            inputIng to -0.5,
+            outputIng to 0.6,
+            time = 1.0,
+            additionalCosts = basisVec(abstractCost)
+        )
+        val input = Input(inputIng, cost = 0.0, upperBound = 1.0)
+        val output = Output(outputIng, weight = 100.0, lowerBound = 0.0)
+
+        val processes = listOf(process1, process2, input, output)
+        val symbolCosts = mapOf(abstractCost to 1e8) // make it prohibitively expensive
+
+        val result = RecipeLp(processes, symbolCosts = symbolCosts).solve()
+
+        result.status shouldBe LpResultStatus.Optimal
+        println(result.lpSolution?.objective)
+        val usage = result.solution?.recipes ?: fail("no usage")
+        usage[process2] shouldBe 0.0
+        usage[process1] shouldBe 1.0
+    }
 })

@@ -85,6 +85,7 @@ data class RecipeLp(
     val processes: List<PseudoProcess>,
     val additionalConstraints: List<SymbolConstraint> = emptyList(),
     val surplusCost: Double = 1e-5,
+    val symbolCosts: Map<Symbol, Double> = emptyMap(),
     val lpOptions: LpOptions = LpOptions(),
 )
 
@@ -98,6 +99,7 @@ data class RecipeLpResult(
     val lpResult: LpResult,
     val solution: RecipeLpSolution?,
 ) {
+    val lpSolution: LpSolution? get() = lpResult.solution
     val status: LpResultStatus get() = lpResult.status
 }
 
@@ -118,7 +120,12 @@ fun RecipeLp.solve(): RecipeLpResult {
         { symbol -> Variable(name = "cost $symbol") },
     )
 
-    val allSymbolVars = additionalConstraints.flatMapTo(mutableSetOf()) { it.lhs.keys }
+    val allSymbolVars = buildSet {
+        for (constraint in additionalConstraints) {
+            addAll(constraint.lhs.keys)
+        }
+        addAll(symbolCosts.keys)
+    }
         .associateWith { costVariables[it] ?: Variable(name = "symbol $it") }
     val additionalConstraints = additionalConstraints.map { (lhs, op, rhs) ->
         Constraint(lhs.mapKeys { allSymbolVars[it.key]!! }, op, rhs)
@@ -132,8 +139,12 @@ fun RecipeLp.solve(): RecipeLpResult {
             for (variable in surplusVariables.values) {
                 this[variable] = surplusCost
             }
+            for ((symbol, variable) in allSymbolVars) {
+                symbolCosts[symbol]?.let {
+                    this[variable] = it
+                }
+            }
         },
-        constant = 1e8,
         maximize = false
     )
 

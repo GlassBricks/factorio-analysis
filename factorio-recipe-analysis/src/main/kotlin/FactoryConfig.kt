@@ -19,7 +19,7 @@ data class ModuleConfig(
 data class MachineConfig(
     val machine: AnyCraftingMachine,
     val includeBuildCosts: Boolean,
-    val additionalCosts: AmountVector<Symbol>? = null,
+    val additionalCosts: AmountVector<Symbol>,
 )
 
 @RecipesConfigDsl
@@ -34,7 +34,7 @@ class MachineConfigScope(
         includeBuildCosts = true
     }
 
-    var additionalCosts: AmountVector<Symbol>? = null
+    var additionalCosts: AmountVector<Symbol> = emptyVector()
 
     val moduleConfigs = mutableListOf<ModuleConfig>()
     fun emptyModuleConfig() {
@@ -69,7 +69,7 @@ class MachineConfigScope(
 typealias MachineConfigFn = MachineConfigScope.() -> Unit
 
 @RecipesConfigDsl
-class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithPrototypes {
+class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
     fun allQualities() {
         qualities.addAll(prototypes.qualities)
@@ -79,7 +79,7 @@ class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Reci
     var upperBound: Double = Double.POSITIVE_INFINITY
     var integral: Boolean = false
 
-    var additionalCosts: AmountVector<Symbol>? = null
+    var additionalCosts: AmountVector<Symbol> = emptyVector()
 
     private var withQualitiesList: List<Recipe>? = null
     internal fun addCraftingSetups(
@@ -91,8 +91,7 @@ class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Reci
         for (quality in withQualitiesList!!) {
             val machineSetup = machine.machine.craftingOrNull(quality, config) ?: continue
             val additionalCosts: AmountVector<Symbol> =
-                (machine.additionalCosts ?: emptyVector()) +
-                        (this.additionalCosts ?: emptyVector()) +
+                machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
             val lpProcess = LpProcess(
                 process = machineSetup,
@@ -107,7 +106,7 @@ class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Reci
 
     internal val sizeEstimate: Int get() = qualities.size
 }
-typealias RecipeConfigFn = RecipeConfig.() -> Unit
+typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 
 @RecipesConfigDsl
 class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithPrototypes {
@@ -178,10 +177,10 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
         }
     }
 
-    private fun getAllRecipeConfigs(): List<RecipeConfig> {
+    private fun getAllRecipeConfigs(): List<RecipeConfigScope> {
         val recipeScope = recipes
         return recipeScope.recipeConfigs.keys.map { recipe ->
-            RecipeConfig(prototypes, recipe).apply {
+            RecipeConfigScope(prototypes, recipe).apply {
                 recipeScope.defaultRecipeConfig?.invoke(this)
                 recipeScope.recipeConfigs[recipe]?.forEach { it(this) }
             }

@@ -8,6 +8,7 @@ class Problem(
     inputs: List<Input>,
     outputs: List<Output>,
     val additionalConstraints: List<SymbolConstraint>,
+    val symbolCosts: Map<Symbol, Double>,
     surplusCost: Double,
     lpOptions: LpOptions,
 ) {
@@ -27,6 +28,7 @@ class Problem(
         surplusCost = surplusCost,
         lpOptions = lpOptions,
         additionalConstraints = additionalConstraints,
+        symbolCosts = symbolCosts,
     )
 
     fun solve(): Solution = Solution(this, recipeLp.solve())
@@ -128,6 +130,7 @@ class ProblemBuilder(
     }
 
     val symbolConstraints: MutableList<SymbolConstraint> = mutableListOf()
+    val symbolCosts: MutableMap<Symbol, Double> = mutableMapOf()
 
     inline fun costs(block: CostsScope.() -> Unit) {
         CostsScope().apply(block)
@@ -142,6 +145,10 @@ class ProblemBuilder(
         fun limit(itemName: String, value: Number) {
             limit(this@ProblemBuilder.prototypes.item(itemName), value)
         }
+
+        fun symbolCost(symbol: Symbol, value: Number) {
+            symbolCosts[symbol] = value.toDouble()
+        }
     }
 
     var surplusCost: Double = DefaultWeights.defaultSurplusCost
@@ -154,6 +161,7 @@ class ProblemBuilder(
         surplusCost = surplusCost,
         additionalConstraints = symbolConstraints,
         lpOptions = lpOptions,
+        symbolCosts = symbolCosts
     )
 }
 
