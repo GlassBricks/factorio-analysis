@@ -15,7 +15,6 @@ const val PACKAGE_NAME = "glassbricks.factorio.prototypes"
 const val PAR_PACKAGE_NAME = "glassbricks.factorio.blueprint"
 private fun String.toClassName() = ClassName(PACKAGE_NAME, this)
 
-
 @OptIn(ExperimentalSerializationApi::class)
 class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
     fun generate(): List<FileSpec> {
@@ -26,14 +25,15 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         val concept = genConcept.inner
         val options = (concept.type as? UnionType)?.let { getBasicTypes(it) }
             ?: error("Sealed interface must be a union of basic types")
-        concept.name to SealedIntf(
+        concept.name to ExtraIntf(
             genConcept.inner.name,
+            isSealed = true,
             superTypes = concept.parent?.let { listOf(it) }.orEmpty(),
             subtypes = options,
             modify = null
         )
     }
-    private val sealedIntfs = conceptSealedIntfs.values + input.extraSealedIntfs
+    private val sealedIntfs = conceptSealedIntfs.values + input.extraIntfs
     private val sealedIntfByOptions = sealedIntfs.associateBy { it.subtypes }
 
     private val sealedSupertypes =
@@ -119,23 +119,23 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         }
     }
 
-
     private fun generateExtraSealedIntfs(file: FileSpec.Builder) {
-        for (intf in input.extraSealedIntfs) {
+        for (intf in input.extraIntfs) {
             val type = generateSealedIntf(intf).build()
             file.addType(type)
         }
     }
 
-    private fun generateSealedIntf(intf: SealedIntf): TypeSpec.Builder = TypeSpec.interfaceBuilder(intf.name).apply {
-        addAnnotation(Serializable::class)
-        addModifiers(KModifier.SEALED)
+    private fun generateSealedIntf(intf: ExtraIntf): TypeSpec.Builder = TypeSpec.interfaceBuilder(intf.name).apply {
+        if (intf.isSealed) {
+            addAnnotation(Serializable::class)
+            addModifiers(KModifier.SEALED)
+        }
         for (supertype in intf.superTypes) {
             addSuperinterface(supertype.toClassName())
         }
         intf.modify?.invoke(this)
     }
-
 
     private fun generatePrototype(file: FileSpec.Builder, prototype: GeneratedPrototype): TypeSpec =
         generateClass(file, prototype, prototype.inner.name)
@@ -144,7 +144,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         file: FileSpec.Builder,
         value: GeneratedValue,
         name: String,
-        isDataClass: Boolean = false
+        isDataClass: Boolean = false,
     ): TypeSpec {
         val canBeObject =
             value.includedProperties.isEmpty()
@@ -365,7 +365,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
 
     private data class TransformedProperty(
         val property: PropertySpec,
-        val defaultValue: CodeBlock?
+        val defaultValue: CodeBlock?,
     )
 
     private fun generateProperty(
@@ -373,7 +373,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         context: GeneratedValue,
         genProperty: PropertyOptions,
         initByMutate: Boolean,
-        block: PropertySpec.Builder.() -> Unit = {}
+        block: PropertySpec.Builder.() -> Unit = {},
     ): TransformedProperty {
         val property = genProperty.inner
 
@@ -418,7 +418,6 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
         return TransformedProperty(propertySpec, defaultValue)
     }
 
-
     private fun tryGetEnumOptions(type: TypeDefinition): List<LiteralType>? =
         if (type is UnionType && type.options.all { it is LiteralType && it.value.isString }) {
             @Suppress("UNCHECKED_CAST")
@@ -430,7 +429,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
     private fun generateEnumType(
         name: String,
         options: List<LiteralType>,
-        block: TypeSpec.Builder.() -> Unit = {}
+        block: TypeSpec.Builder.() -> Unit = {},
     ): TypeSpec? {
         val stringOptions = options.map { it.value.content }.toSet()
         if (stringOptions in enumValuesToName) {
@@ -458,9 +457,8 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
             .also { generatedEnumNames += name }
     }
 
-
     private fun tryGetItemOrArrayValue(
-        type: UnionType
+        type: UnionType,
     ): TypeDefinition? {
         if (type.options.size != 2) return null
         val (first, second) = type.options
@@ -481,7 +479,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
 
     private class TransformedType(
         private val typeName: TypeName,
-        val declaration: TypeSpec?
+        val declaration: TypeSpec?,
     ) {
         fun putType(file: FileSpec.Builder): TypeName {
             if (declaration != null) {
@@ -499,13 +497,13 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
 
         class Concept(
             override val file: FileSpec.Builder,
-            override val parentType: GeneratedConcept
+            override val parentType: GeneratedConcept,
         ) : RootTypeContext
 
         class Property(
             override val file: FileSpec.Builder,
             override val parentType: GeneratedValue,
-            val property: PropertyOptions
+            val property: PropertyOptions,
         ) : RootTypeContext
 
         class InnerType(val parentContext: TypeContext) : TypeContext {
@@ -528,7 +526,7 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
                     input.predefined[value]!!.toGenType()
                 } else {
                     check(
-                        value in input.concepts || input.extraSealedIntfs.any { value == it.name }
+                        value in input.concepts || input.extraIntfs.any { value == it.name }
                     ) {
                         "Type not in generated concepts: $value"
                     }

@@ -1,12 +1,11 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.EntityWithOwnerPrototype
+import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.recipeanalysis.IngredientVector
 
 interface Entity {
-    val prototype: EntityWithOwnerPrototype
     val quality: Quality
-
+    val prototype: EntityPrototype
     fun withQuality(quality: Quality): Entity
 }
 

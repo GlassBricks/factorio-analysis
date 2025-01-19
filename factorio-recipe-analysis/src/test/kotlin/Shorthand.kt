@@ -47,6 +47,7 @@ fun main() = with(SpaceAge) {
     add("fluid", fluids)
     add("module", modules)
     add("craftingMachine", craftingMachines)
+    add("miningDrill", miningDrills)
     add("quality", qualityMap)
 
     // val WithFactorioPrototypes.$propName: $type get() = $fnName("$protoName")

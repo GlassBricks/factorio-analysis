@@ -4,20 +4,21 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 
-class SealedIntf(
+class ExtraIntf(
     val name: String,
     val superTypes: List<String>,
     val subtypes: Set<String>,
-    val modify: (TypeSpec.Builder.() -> Unit)?
+    val isSealed: Boolean,
+    val modify: (TypeSpec.Builder.() -> Unit)?,
 )
 
 class GeneratedPrototypes(
     val prototypes: Map<String, GeneratedPrototype>,
     val concepts: Map<String, GeneratedConcept>,
-    val extraSealedIntfs: List<SealedIntf>,
+    val extraIntfs: List<ExtraIntf>,
     val allSubclassGetters: List<String>,
     val builtins: Map<String, TypeName>,
-    val predefined: Map<String, TypeName>
+    val predefined: Map<String, TypeName>,
 )
 
 sealed interface GeneratedValue {
@@ -30,7 +31,7 @@ sealed interface GeneratedValue {
 class GeneratedPrototype(
     override val inner: Prototype,
     override val includedProperties: Map<String, PropertyOptions>,
-    override val modify: (TypeSpec.Builder.() -> Unit)?
+    override val modify: (TypeSpec.Builder.() -> Unit)?,
 ) : GeneratedValue {
     override val typeName: String? = inner.typename
 }
@@ -43,9 +44,8 @@ class GeneratedConcept(
     override val typeName: String?,
     override val modify: (TypeSpec.Builder.() -> Unit)?,
     var isSealedIntf: Boolean,
-    var isIdTypeFor: String?
+    var isIdTypeFor: String?,
 ) : GeneratedValue
-
 
 @DslMarker
 annotation class GeneratedPrototypesDsl
@@ -55,7 +55,7 @@ class PropertyOptions(
     val inner: Property,
     var overrideType: TypeName? = null,
     var innerEnumName: String? = null,
-    var modify: (PropertySpec.Builder.() -> Unit)? = null
+    var modify: (PropertySpec.Builder.() -> Unit)? = null,
 )
 
 @GeneratedPrototypesDsl
@@ -68,14 +68,14 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
     var builtins: Map<String, TypeName> = emptyMap()
     var predefined: Map<String, TypeName> = emptyMap()
 
-    private val extraSealedIntfs = mutableListOf<SealedIntf>()
+    private val extraIntfs = mutableListOf<ExtraIntf>()
     var allSubclassGetters = emptyList<String>()
 
     @GeneratedPrototypesDsl
     inner class Prototypes {
         fun prototype(
             name: String,
-            block: GeneratedPrototypeBuilder.() -> Unit
+            block: GeneratedPrototypeBuilder.() -> Unit,
         ) = this@GeneratedPrototypesBuilder.apply {
             val prototype = origPrototypes[name] ?: error("Prototype $name not found")
             prototypes[name] = GeneratedPrototypeBuilder(prototype).apply(block).build(prototype)
@@ -113,13 +113,31 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
 
     inline fun concepts(block: Concepts.() -> Unit) = Concepts().block()
 
-
-    fun extraSealedIntf(
+    fun extraIntf(
         name: String,
+        sealed: Boolean,
         supertypes: List<String>,
-        vararg subtypes: String, modify: (TypeSpec.Builder.() -> Unit)? = null
-    ) {
-        extraSealedIntfs.add(SealedIntf(name, supertypes, subtypes.toSet(), modify))
+        vararg subtypes: String,
+        modify: (TypeSpec.Builder.() -> Unit)? = null,
+    ): ExtraIntf {
+        return extraIntf(name, sealed, supertypes, subtypes.asList(), modify)
+    }
+
+    fun extraIntf(
+        name: String,
+        sealed: Boolean,
+        supertypes: List<String>,
+        subtypes: Iterable<String>, modify: (TypeSpec.Builder.() -> Unit)? = null,
+    ): ExtraIntf {
+        val intf = ExtraIntf(
+            name = name,
+            superTypes = supertypes,
+            subtypes = subtypes.toSet(),
+            isSealed = sealed,
+            modify = modify
+        )
+        extraIntfs.add(intf)
+        return intf
     }
 
     fun build(): GeneratedPrototypes {
@@ -131,7 +149,7 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
                 }
             }
         }
-        for (value in extraSealedIntfs.flatMap { it.subtypes }) {
+        for (value in this@GeneratedPrototypesBuilder.extraIntfs.flatMap { it.subtypes }) {
             check(value in prototypes || value in concepts) {
                 "Extra sealed interface value $value not found"
             }
@@ -139,7 +157,7 @@ class GeneratedPrototypesBuilder(docs: PrototypeApiDocs) {
         return GeneratedPrototypes(
             prototypes = prototypes,
             concepts = concepts,
-            extraSealedIntfs = extraSealedIntfs,
+            extraIntfs = this@GeneratedPrototypesBuilder.extraIntfs,
             allSubclassGetters = allSubclassGetters,
             builtins = builtins,
             predefined = builtins + predefined
@@ -155,7 +173,7 @@ class GeneratedPrototypeBuilder(val prototype: Prototype) {
 
     fun tryAddProperty(
         name: String,
-        block: PropertyOptions.() -> Unit = {}
+        block: PropertyOptions.() -> Unit = {},
     ): Boolean {
         if (name in properties) error("Property $name already defined")
         val property = prototype.properties.find { it.name == name } ?: return false
@@ -165,7 +183,7 @@ class GeneratedPrototypeBuilder(val prototype: Prototype) {
 
     fun property(
         name: String,
-        block: PropertyOptions.() -> Unit
+        block: PropertyOptions.() -> Unit,
     ) {
         if (!tryAddProperty(name, block))
             error("Property $name not found on prototype ${prototype.name}")
@@ -197,7 +215,7 @@ class GeneratedConceptBuilder(val concept: Concept) {
 
     fun property(
         name: String,
-        block: PropertyOptions.() -> Unit
+        block: PropertyOptions.() -> Unit,
     ) {
         if (name in properties) error("Property $name already defined")
         val property = concept.properties?.find { it.name == name } ?: error("Property $name not found")
@@ -243,11 +261,10 @@ class GeneratedConceptBuilder(val concept: Concept) {
     }
 }
 
-
 fun getAllPrototypeSubclasses(
     prototypes: Map<String, Prototype>,
     baseName: String,
-    includeBase: Boolean = true
+    includeBase: Boolean = true,
 ): List<Prototype> {
     val isSubclass = mutableMapOf<String, Boolean>()
     isSubclass[baseName] = true

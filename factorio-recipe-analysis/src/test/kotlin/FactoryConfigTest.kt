@@ -53,7 +53,7 @@ class FactoryConfigKtTest : FunSpec({
             asm2,
             asm2.withModules(speed1, fill = speed2),
             asm2.withModules(fill = prod2),
-        ).flatMap { listOf(it, it.withMachineQuality(uncommon)) }
+        ).flatMap { listOf(it, it.withQuality(uncommon)) }
         val expectedRecipes = machines.flatMap { machine ->
             recipes.mapNotNull { machine.craftingOrNull(it) }
         }.toSet()

@@ -11,12 +11,6 @@ class FactoryConfig(
     val allProcesses: List<LpProcess>,
 ) : WithFactorioPrototypes
 
-data class ModuleConfig(
-    val modules: List<WithModuleCount> = emptyList(),
-    val fill: Module? = null,
-    val beacons: List<WithBeaconCount> = emptyList(),
-)
-
 data class MachineConfig(
     val machine: AnyCraftingMachine,
     val includeBuildCosts: Boolean,
@@ -116,12 +110,12 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe:
 typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 
 @RecipesConfigDsl
-class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
+class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
     val machines = MachinesScope()
     inline fun machines(block: MachinesScope.() -> Unit) = machines.block()
 
     @RecipesConfigDsl
-    inner class MachinesScope : WithFactorioPrototypes by this@FactorioConfigBuilder {
+    inner class MachinesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
         var defaultConfig: MachineConfigFn? = null
         val machineConfigs = mutableMapOf<CraftingMachine, MutableList<MachineConfigFn>>()
 
@@ -137,14 +131,13 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
         operator fun String.invoke(block: MachineConfigFn) {
             craftingMachine(this)(block)
         }
-
     }
 
     val recipes = RecipesScope()
     inline fun recipes(block: RecipesScope.() -> Unit) = recipes.block()
 
     @RecipesConfigDsl
-    inner class RecipesScope : WithFactorioPrototypes by this@FactorioConfigBuilder {
+    inner class RecipesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
         var defaultRecipeConfig: RecipeConfigFn? = null
         val recipeConfigs = mutableMapOf<Recipe, MutableList<RecipeConfigFn>>()
         fun default(block: RecipeConfigFn) {
@@ -219,8 +212,8 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
     fun build(): FactoryConfig = FactoryConfig(prototypes, allProcesses = getAllProcesses())
 }
 
-inline fun WithFactorioPrototypes.factory(block: FactorioConfigBuilder.() -> Unit): FactoryConfig {
-    val builder = FactorioConfigBuilder(prototypes)
+inline fun WithFactorioPrototypes.factory(block: FactoryConfigBuilder.() -> Unit): FactoryConfig {
+    val builder = FactoryConfigBuilder(prototypes)
     builder.block()
     return builder.build()
 }

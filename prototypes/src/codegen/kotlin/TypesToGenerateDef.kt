@@ -1,6 +1,7 @@
 package glassbricks.factorio.prototypecodegen
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.Serializable
 
 fun GeneratedPrototypesBuilder.classesToGenerate() {
@@ -23,10 +24,11 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "Direction" to ClassName(PAR_PACKAGE_NAME, "Direction"),
     )
 
-    extraSealedIntf("EVEnergySource", listOf("EnergySource"), "ElectricEnergySource", "VoidEnergySource")
-    extraSealedIntf("BVEnergySource", listOf("EnergySource"), "BurnerEnergySource", "VoidEnergySource")
-    extraSealedIntf(
+    extraIntf("EVEnergySource", sealed = true, listOf("EnergySource"), "ElectricEnergySource", "VoidEnergySource")
+    extraIntf("BVEnergySource", sealed = true, listOf("EnergySource"), "BurnerEnergySource", "VoidEnergySource")
+    extraIntf(
         "EHFVEnergySource",
+        sealed = true,
         listOf("EnergySource"),
         "ElectricEnergySource",
         "HeatEnergySource",
@@ -60,7 +62,6 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             prototype(name + "Prototype") {
                 tryAddProperty("energy_source")
                 tryAddProperty("allowed_effects")
-                tryAddProperty("base_productivity")
                 tryAddProperty("module_slots")
                 tryAddProperty("allowed_module_categories")
                 tryAddProperty("effect_receiver")
@@ -100,6 +101,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             +"science_pack_drain_rate_percent"
         }
         blueprintable("MiningDrill") {
+            +"mining_speed"
             +"resource_categories"
         }
         blueprintable("OffshorePump") {
@@ -294,25 +296,53 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
 
     allSubclassGetters = listOf("ItemPrototype", "CraftingMachinePrototype")
 
-    val hasEnergySource = getAllPrototypeSubclasses(origPrototypes, "EntityWithOwnerPrototype").filter {
-        it.name in this.prototypes && it.properties.any { prop ->
-            prop.name == "energy_source"
-        }
-    }
+    fun List<Prototype>.filterWithProperty(propName: String): List<Prototype> =
+        filter { it.name in prototypes && it.properties.any { prop -> prop.name == propName } }
 
-    extraSealedIntf("HasEnergySource", emptyList(), *hasEnergySource.map { it.name }.toTypedArray()) {
-        // val energy_source: EnergySource
+    val entityPrototypes = getAllPrototypeSubclasses(origPrototypes, "EntityWithOwnerPrototype")
+    val intfs = extraIntf(
+        name = "HasEnergySource",
+        sealed = false,
+        supertypes = emptyList(),
+        subtypes = entityPrototypes.filterWithProperty("energy_source").map { it.name }) {
         addProperty(
-            PropertySpec.builder(
-                "energy_source", ClassName(PACKAGE_NAME, "EnergySource")
-//                    .copy(nullable = true)
-            ).build()
+            PropertySpec.builder("energy_source", ClassName(PACKAGE_NAME, "EnergySource")).build()
         )
     }
 
-    for (prototype in hasEnergySource) {
-        this.prototypes[prototype.name]!!.includedProperties["energy_source"]!!.modify = {
+    for (prototype in intfs.subtypes) {
+        this.prototypes[prototype]!!.includedProperties["energy_source"]!!.modify = {
             addModifiers(KModifier.OVERRIDE)
         }
     }
+
+    val machineProps = mapOf(
+        "effect_receiver" to ClassName(PACKAGE_NAME, "EffectReceiver"),
+        "module_slots" to ClassName(PACKAGE_NAME, "ItemStackIndex"),
+        "allowed_effects" to ClassName(PACKAGE_NAME, "EffectTypeLimitation"),
+        "allowed_module_categories" to List::class.asClassName()
+            .parameterizedBy(ClassName(PACKAGE_NAME, "ModuleCategoryID"))
+    ).mapValues {
+        PropertySpec.builder(it.key, it.value.copy(nullable = true))
+            .build()
+    }
+    val machineIntf = extraIntf(
+        name = "MachinePrototype",
+        sealed = false,
+        supertypes = listOf("HasEnergySource"),
+        "CraftingMachinePrototype", "MiningDrillPrototype"
+    ) {
+        for ((name, prop) in machineProps) {
+            addProperty(prop)
+        }
+    }
+    for (name in machineIntf.subtypes) {
+        val prototype = origPrototypes[name]!!
+        for (prop in machineProps.values) {
+            this.prototypes[name]!!.includedProperties[prop.name]!!.modify = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        }
+    }
+
 }

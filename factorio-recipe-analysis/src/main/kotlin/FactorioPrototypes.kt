@@ -2,17 +2,6 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
 
-private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K, V>) -> R?): Map<K, R> {
-    val destination = LinkedHashMap<K, R>()
-    for (entry in entries) {
-        val newValue = transform(entry)
-        if (newValue != null) {
-            destination[entry.key] = newValue
-        }
-    }
-    return destination
-}
-
 class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = this
     val qualityMap = loadQualities(dataRaw.quality)
@@ -41,6 +30,9 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototy
     val craftingMachines: Map<String, CraftingMachine> =
         dataRaw.allCraftingMachinePrototypes().associate { it.name to CraftingMachine(it, defaultQuality) }
 
+    val miningDrills: Map<String, MiningDrill> =
+        dataRaw.`mining-drill`.mapValues { MiningDrill(it.value, defaultQuality) }
+
     val recipes: Map<String, Recipe> =
         dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
 
@@ -56,11 +48,13 @@ interface WithFactorioPrototypes {
     fun ingredient(name: String): RealIngredient = prototypes.ingredients.getValue(name)
     fun module(name: String): Module = prototypes.modules.getValue(name)
     fun craftingMachine(name: String): CraftingMachine = prototypes.craftingMachines.getValue(name)
+    fun miningDrill(name: String): MiningDrill = prototypes.miningDrills.getValue(name)
     fun recipe(name: String): Recipe = prototypes.recipes.getValue(name)
 
     val beacon: Beacon get() = prototypes.beacons.values.first()
 
     fun itemOfOrNull(entity: EntityPrototype): Item? = prototypes.builtByMap[entity.name]
+    fun itemOfOrNull(entity: MachinePrototype): Item? = prototypes.builtByMap[entity.name]
     fun itemOfOrNull(entity: Entity): Item? = itemOfOrNull(entity.prototype)?.withQuality(entity.quality)
     fun Entity.itemOrNull(): Item? = itemOfOrNull(this)
 
@@ -72,3 +66,14 @@ interface WithFactorioPrototypes {
 val WithFactorioPrototypes.qualities get() = prototypes.qualities
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }
+
+private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K, V>) -> R?): Map<K, R> {
+    val destination = LinkedHashMap<K, R>()
+    for (entry in entries) {
+        val newValue = transform(entry)
+        if (newValue != null) {
+            destination[entry.key] = newValue
+        }
+    }
+    return destination
+}

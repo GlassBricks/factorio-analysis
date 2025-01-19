@@ -132,10 +132,10 @@ fun moduleList(
 fun Effect.toEffectInt(qualityLevel: Int): IntEffects {
     val qualityMult = 1.0f + qualityLevel * 0.3f
     fun Float.bonusIfNegative() =
-        if (this < 0) this * qualityMult else this
+        if (this < 0.0) this * qualityMult else this
 
     fun Float.bonusIfPositive() =
-        if (this > 0) this * qualityMult else this
+        if (this > 0.0) this * qualityMult else this
 
     val consumption = consumption?.bonusIfNegative()
     val speed = speed?.bonusIfPositive()
@@ -243,6 +243,8 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
     constructor(vararg beacons: WithBeaconCount) : this(beacons.map { it.beaconCount })
 
     val size get() = beaconCounts.sumOf { it.count }
+    fun isEmpty() = beaconCounts.isEmpty()
+
     override val effects: IntEffects
         get() {
             val totalBeacons = size
@@ -258,3 +260,45 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
 }
 
 fun BeaconList(beacons: List<WithBeaconCount>): BeaconList = BeaconList(beacons.map { it.beaconCount })
+
+data class ModuleSet(
+    val modules: ModuleList,
+    val beacons: BeaconList,
+) : WithEffects, WithBuildCost {
+    override val effects: IntEffects = modules + beacons.effects
+
+    fun modulesUsed(): List<Module> = buildList {
+        for ((module) in modules.moduleCounts) {
+            add(module)
+        }
+        for ((beacon) in beacons.beaconCounts) {
+            for ((module) in beacon.modules.moduleCounts) {
+                add(module)
+            }
+        }
+    }
+
+    fun isEmpty() = modules.isEmpty() && beacons.isEmpty()
+
+    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+        modules.getBuildCost(prototypes) + beacons.getBuildCost(prototypes)
+
+    override fun toString(): String = buildString {
+        append('[')
+        append(modules)
+        if (beacons.size > 0) {
+            append(", ")
+            append(beacons)
+        }
+        append(']')
+    }
+}
+
+data class ModuleConfig(
+    val modules: List<WithModuleCount> = emptyList(),
+    val fill: Module? = null,
+    val beacons: List<WithBeaconCount> = emptyList(),
+) {
+    fun toModuleSet(numModuleSlots: Int): ModuleSet? = moduleList(numModuleSlots, modules, fill)
+        ?.let { ModuleSet(it, BeaconList(beacons)) }
+}

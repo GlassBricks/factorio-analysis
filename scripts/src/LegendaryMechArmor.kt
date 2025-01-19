@@ -104,7 +104,7 @@ fun main() {
         lpOptions = LpOptions(
             solver = OrToolsLp("CLP"),
             timeLimit = 15.minutes,
-            epsilon = 1e-6
+            epsilon = 1e-5
         )
     }
     val solution = production.solve()

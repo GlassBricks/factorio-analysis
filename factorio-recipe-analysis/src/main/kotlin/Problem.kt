@@ -87,7 +87,7 @@ class ProblemBuilder(
         this.factory = factoryConfig
     }
 
-    inline fun factory(block: FactorioConfigBuilder.() -> Unit) {
+    inline fun factory(block: FactoryConfigBuilder.() -> Unit) {
         factory(prototypes.factory(block))
     }
 
