@@ -2,39 +2,39 @@ import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.LpOptions
 import glassbricks.recipeanalysis.OrToolsLp
 
-val vulcanusFactory = SpaceAge.factory {
-    machines {
-        default {
-            includeBuildCosts()
-
-            moduleConfig()
-            val beacon6 = beacon(fill = speedModule2, sharing = 6.0)
-            moduleConfig(fill = speedModule, beacons = listOf(beacon6))
-            moduleConfig(fill = speedModule, beacons = listOf(beacon6 * 4))
-
-            moduleConfig(fill = productivityModule2, beacons = listOf(beacon6))
-            moduleConfig(fill = productivityModule2, beacons = listOf(beacon6 * 4))
-
-            moduleConfig(fill = qualityModule2)
-            moduleConfig(fill = qualityModule2.withQuality(uncommon))
-            moduleConfig(fill = qualityModule2.withQuality(rare))
-        }
-        chemicalPlant()
-        oilRefinery()
-        assemblingMachine3()
-
-        foundry()
-        recycler()
-    }
-    recipes {
-        default {
-            allQualities()
-        }
-        allRecipes()
-    }
-}
-
 fun main() {
+    val vulcanusFactory = SpaceAge.factory {
+        machines {
+            default {
+                includeBuildCosts()
+
+                moduleConfig()
+                val beacon6 = beacon(fill = speedModule2, sharing = 6.0)
+                moduleConfig(fill = speedModule, beacons = listOf(beacon6))
+                moduleConfig(fill = speedModule, beacons = listOf(beacon6 * 4))
+
+                moduleConfig(fill = productivityModule2, beacons = listOf(beacon6))
+                moduleConfig(fill = productivityModule2, beacons = listOf(beacon6 * 4))
+
+                moduleConfig(fill = qualityModule2)
+                moduleConfig(fill = qualityModule2.withQuality(uncommon))
+                moduleConfig(fill = qualityModule2.withQuality(rare))
+            }
+            chemicalPlant()
+            oilRefinery()
+            assemblingMachine3()
+
+            foundry()
+            recycler()
+        }
+        recipes {
+            default {
+                allQualities()
+            }
+            allRecipes()
+        }
+    }
+
     val production = vulcanusFactory.problem {
         input(moltenIron, cost = 0.0)
         input(moltenCopper, cost = 0.0)

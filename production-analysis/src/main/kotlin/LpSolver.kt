@@ -112,14 +112,14 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         }
         Loader.loadNativeLibraries()
         val solverId = solverId ?: when {
-            variables.all { it.integral } -> "CPSAT"
+            variables.all { it.integral } -> "SAT"
             variables.any { it.integral } -> "SCIP"
             else -> "GLOP"
         }
         val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
         solver.setTimeLimit(options.timeLimit.inWholeMilliseconds)
 
-        val mpVariables = variables.associateWith { solver.makeNumVar(it.lb, it.ub, it.name)!! }
+        val mpVariables = variables.associateWith { solver.makeVar(it.lb, it.ub, it.integral, it.name) }
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {
@@ -140,6 +140,10 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
             mpObjective.setCoefficient(mpVariable, coefficient)
         }
         mpObjective.setOffset(objective.constant)
+
+        println("Solving LP with $solverId")
+        println("  Variables: ${mpVariables.size}")
+        println("  Constraints: ${constraints.size}")
 
         val resultStatus = solver.solve()
         val status = when (resultStatus) {

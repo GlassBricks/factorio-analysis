@@ -100,7 +100,7 @@ private inline fun <T> StringBuilder.displayLeftRight(
         append(left)
         repeat(leftWidth - left.length) { append(' ') }
         append(": ")
-        append("%10.3f".format(right(el)))
+        append("%10.5f".format(right(el)))
         append('\n')
     }
 }

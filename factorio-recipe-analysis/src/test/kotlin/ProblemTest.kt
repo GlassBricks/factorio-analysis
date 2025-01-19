@@ -307,6 +307,29 @@ class ProblemTest : FunSpec({
         println(solution.recipeSolution!!.recipes.display())
     }
 
+    test("integral") {
+        val problem = problem {
+            factory {
+                machines {
+                    "assembling-machine-3" {
+                        integral = true
+                    }
+                }
+                recipes {
+                    "iron-gear-wheel" {}
+                }
+            }
+            input(ironPlate)
+            output("iron-gear-wheel", 0.01.perSecond)
+            lpOptions = LpOptions(solver = OrToolsLp("SCIP"))
+        }
+        println(problem.factory.allProcesses.first())
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        val usage = solution.recipesUsed(problem.recipes.keys.single())
+        usage shouldBe 1.0
+    }
+
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

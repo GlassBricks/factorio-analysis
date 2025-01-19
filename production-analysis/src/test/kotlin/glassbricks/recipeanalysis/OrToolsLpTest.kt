@@ -43,4 +43,15 @@ class OrToolsLpTest : StringSpec({
         val result = OrToolsLp("CLP").solveLp(problem)
         result.status shouldBe LpResultStatus.Unbounded
     }
+    "integral" {
+        // x >= 0.5; minimize x
+        val x = Variable("x", integral = true)
+        val xv = basisVec(x)
+        val constraints = listOf(xv geq 0.5)
+        val objective = Objective(xv, maximize = false)
+        val problem = LpProblem(constraints, objective)
+        val result = OrToolsLp().solveLp(problem)
+        result.status shouldBe LpResultStatus.Optimal
+        result.solution!!.assignment[x] shouldBe 1.0
+    }
 })

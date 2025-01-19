@@ -21,6 +21,7 @@ data class MachineConfig(
     val machine: AnyCraftingMachine,
     val includeBuildCosts: Boolean,
     val additionalCosts: AmountVector<Symbol>,
+    val integral: Boolean,
 )
 
 class MachineConfigScope(
@@ -35,6 +36,7 @@ class MachineConfigScope(
     }
 
     var additionalCosts: AmountVector<Symbol> = emptyVector()
+    var integral = false
 
     val moduleConfigs = mutableListOf<ModuleConfig>()
     fun emptyModuleConfig() {
@@ -60,7 +62,12 @@ class MachineConfigScope(
             moduleConfigs.mapNotNull { (modules, fill, beacons) ->
                 machine.withModulesOrNull(modules, fill, beacons)
                     ?.let {
-                        MachineConfig(it, includeBuildCosts, additionalCosts)
+                        MachineConfig(
+                            machine = it,
+                            includeBuildCosts = includeBuildCosts,
+                            additionalCosts = additionalCosts,
+                            integral = integral
+                        )
                     }
             }
         }
@@ -97,7 +104,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe:
                 process = machineSetup,
                 cost = cost,
                 upperBound = upperBound,
-                integral = integral,
+                integral = machine.integral || this.integral,
                 additionalCosts = additionalCosts,
             )
             list.add(lpProcess)
