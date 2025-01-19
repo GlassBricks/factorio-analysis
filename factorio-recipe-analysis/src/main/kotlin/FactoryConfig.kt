@@ -8,7 +8,7 @@ annotation class RecipesConfigDsl
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
     val allProcesses: List<LpProcess>,
-) : WithPrototypes
+) : WithFactorioPrototypes
 
 data class ModuleConfig(
     val modules: List<ModuleCount> = emptyList(),
@@ -69,7 +69,7 @@ class MachineConfigScope(
 typealias MachineConfigFn = MachineConfigScope.() -> Unit
 
 @RecipesConfigDsl
-class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithPrototypes {
+class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithFactorioPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
     fun allQualities() {
         qualities.addAll(prototypes.qualities)
@@ -109,7 +109,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe:
 typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 
 @RecipesConfigDsl
-class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithPrototypes {
+class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
     val machines = MachinesScope()
     inline fun machines(block: MachinesScope.() -> Unit) = machines.block()
 
@@ -203,8 +203,8 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
     fun build(): FactoryConfig = FactoryConfig(prototypes, allProcesses = getAllProcesses())
 }
 
-inline fun FactorioPrototypes.factory(block: FactorioConfigBuilder.() -> Unit): FactoryConfig {
-    val builder = FactorioConfigBuilder(this)
+inline fun WithFactorioPrototypes.factory(block: FactorioConfigBuilder.() -> Unit): FactoryConfig {
+    val builder = FactorioConfigBuilder(prototypes)
     builder.block()
     return builder.build()
 }

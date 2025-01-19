@@ -74,7 +74,7 @@ object DefaultWeights {
 class ProblemBuilder(
     override val prototypes: FactorioPrototypes,
     factoryConfig: FactoryConfig? = null,
-) : WithPrototypes {
+) : WithFactorioPrototypes {
     constructor(factoryConfig: FactoryConfig) : this(factoryConfig.prototypes, factoryConfig)
 
     var factory: FactoryConfig? = factoryConfig
@@ -165,8 +165,8 @@ class ProblemBuilder(
     )
 }
 
-inline fun FactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): Problem =
-    ProblemBuilder(this).apply(block).build()
+inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): Problem =
+    ProblemBuilder(prototypes).apply(block).build()
 
 inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): Problem =
     ProblemBuilder(this).apply(block).build()

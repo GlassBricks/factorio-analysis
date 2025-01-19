@@ -1,7 +1,6 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
-import kotlin.collections.set
 
 private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K, V>) -> R?): Map<K, R> {
     val destination = LinkedHashMap<K, R>()
@@ -14,11 +13,7 @@ private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K,
     return destination
 }
 
-interface WithPrototypes {
-    val prototypes: FactorioPrototypes
-}
-
-class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithPrototypes {
+class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = this
     val qualitiesMap = loadQualities(dataRaw.quality)
     val qualities = qualitiesMap.values.sorted()
@@ -52,15 +47,22 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithPrototypes {
 
     val recipes: Map<String, Recipe> =
         dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
-
-    fun quality(name: String): Quality = qualitiesMap[name] ?: error("Quality $name not found")
-    fun item(name: String): Item = items.getValue(name)
-    fun fluid(name: String): Fluid = fluids.getValue(name)
-    fun ingredient(name: String): RealIngredient = ingredients.getValue(name)
-    fun module(name: String): Module = modules.getValue(name)
-    val beacon: Beacon get() = beacons.values.first()
-    fun craftingMachine(name: String): CraftingMachine = craftingMachines.getValue(name)
-    fun recipe(name: String): Recipe = recipes.getValue(name)
 }
+
+interface WithFactorioPrototypes {
+    val prototypes: FactorioPrototypes
+
+    fun quality(name: String): Quality = prototypes.qualitiesMap[name] ?: error("Quality $name not found")
+    fun item(name: String): Item = prototypes.items.getValue(name)
+    fun fluid(name: String): Fluid = prototypes.fluids.getValue(name)
+    fun ingredient(name: String): RealIngredient = prototypes.ingredients.getValue(name)
+    fun module(name: String): Module = prototypes.modules.getValue(name)
+    fun craftingMachine(name: String): CraftingMachine = prototypes.craftingMachines.getValue(name)
+    fun recipe(name: String): Recipe = prototypes.recipes.getValue(name)
+
+    val beacon: Beacon get() = prototypes.beacons.values.first()
+}
+
+val WithFactorioPrototypes.qualities get() = prototypes.qualities
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }
