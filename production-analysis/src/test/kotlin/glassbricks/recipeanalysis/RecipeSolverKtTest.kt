@@ -10,11 +10,13 @@ fun recipe(
     name: String,
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
+    additionalCosts: AmountVector<Symbol>? = null,
 ): LpProcess = LpProcess(
     object : Process {
         override val netRate: IngredientRate = amountVector(inOut.toMap()) / Time(time)
         override fun toString(): String = name
-    }
+    },
+    additionalCosts = additionalCosts ?: emptyVector(),
 )
 
 class RecipeSolverKtTest : StringSpec({
@@ -90,7 +92,7 @@ class RecipeSolverKtTest : StringSpec({
         )
         val lp = RecipeLp(recipes)
         val result = lp.solve()
-        result.lpResult.status shouldBe LpResultStatus.Optimal
+        result.status shouldBe LpResultStatus.Optimal
         val usage = result.solution?.recipes ?: fail("no usage")
         usage[basicOil] shouldBe 0.0
         usage[solidHeavy] shouldBe 0.0
@@ -100,5 +102,49 @@ class RecipeSolverKtTest : StringSpec({
         usage[crudeInput] shouldBe 100.0
         usage[waterInput] should beGreaterThan(0.0)
         usage[solidFuelOutput] should beGreaterThan(0.0)
+    }
+
+    "constrained additional cost" {
+        val inputIng = TestIngredient("input")
+        val outputIng = TestIngredient("output")
+        val abstractCost: Symbol = TestSymbol("abstract cost")
+        val process1 = recipe(
+            "process1",
+            inputIng to -1.0,
+            outputIng to 1.0,
+            time = 1.0,
+            additionalCosts = basisVec(abstractCost) * 2.0
+        )
+        // more efficient, but lower throughput
+        val process2 =
+            recipe(
+                "process2",
+                inputIng to -0.5,
+                outputIng to 0.6,
+                time = 1.0,
+                additionalCosts = basisVec(abstractCost) * 2.0
+            )
+
+        val input = Input(inputIng, cost = 0.0, upperBound = 1.0)
+        val output = Output(outputIng, weight = 100.0, lowerBound = 0.0)
+        val costRestr = basisVec(abstractCost) le 2.0
+
+        val processes = listOf(process1, process2, input, output)
+
+        // no constraint should use process2 * 2
+        val result1 = RecipeLp(processes).solve()
+        result1.status shouldBe LpResultStatus.Optimal
+        val usage = result1.solution?.recipes ?: fail("no usage")
+        usage[process2] shouldBe 2.0
+        usage[process1] shouldBe 0.0
+        usage[output] shouldBe 1.2
+
+        // constraint should use process1 * 1
+        val result2 = RecipeLp(processes, listOf(costRestr)).solve()
+        result2.status shouldBe LpResultStatus.Optimal
+        val usage2 = result2.solution?.recipes ?: fail("no usage")
+        usage2[process1] shouldBe 1
+        usage2[process2] shouldBe 0.0
+        usage2[output] shouldBe 1.0
     }
 })

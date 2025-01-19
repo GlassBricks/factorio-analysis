@@ -15,36 +15,45 @@ interface PseudoProcess {
     val additionalCosts: AmountVector<Symbol> get() = emptyVector()
 }
 
+private fun StringBuilder.commonToString(
+    process: PseudoProcess,
+    defaultCost: Double = Double.NaN,
+) {
+    if (process.cost != defaultCost) append(", cost=").append("%e".format(process.cost))
+    if (process.upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(process.upperBound))
+    if (process.integral) append(", integral=true")
+    if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
+}
+
 data class LpProcess(
     val process: Process,
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
+    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
 
     override fun toString(): String = buildString {
         append("Process(")
-        append(process)
-        if (cost != 1.0) append(", cost=").append("%e".format(cost))
-        if (upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(upperBound))
-        if (integral) append(", integral=true")
+        commonToString(this@LpProcess, 1.0)
         append(")")
     }
+
 }
 
 data class Input(
     val ingredient: Ingredient,
     override val cost: Double,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
+    override val integral: Boolean = false,
+    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
 ) : PseudoProcess {
-    override val integral: Boolean get() = false
     override val ingredientRate: IngredientRate get() = vector(ingredient to 1.0)
     override fun toString(): String = buildString {
         append("Input(")
         append(ingredient)
-        if (cost != 1.0) append(", cost=").append("%e".format(cost))
-        if (upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(upperBound))
+        commonToString(this@Input)
         append(")")
     }
 }
@@ -53,10 +62,11 @@ data class Output(
     val ingredient: Ingredient,
     val weight: Double,
     override val lowerBound: Double,
+    override val integral: Boolean = false,
+    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
 ) : PseudoProcess {
     override val upperBound: Double get() = Double.POSITIVE_INFINITY
     override val cost get() = -weight
-    override val integral: Boolean get() = false
     override val ingredientRate: IngredientRate get() = vector(ingredient to -1.0)
 
     override fun toString(): String = buildString {
@@ -64,6 +74,8 @@ data class Output(
         append(ingredient)
         if (weight != 1.0) append(", weight=").append("%e".format(weight))
         if (lowerBound != 0.0) append(", lowerBound=").append("%e".format(lowerBound))
+        if (integral) append(", integral=true")
+        if (additionalCosts.isNotEmpty()) append(", additionalCosts=").append(additionalCosts)
         append(")")
     }
 }
