@@ -142,6 +142,15 @@ class ModulesKtTest : FunSpec({
                 speed2 to 1.0
             )
         }
-
+        test("machine") {
+            val asm2 = machine("assembling-machine-2")
+            val machine = asm2.withModules(prod1 * 2, beacons = listOf(beacon(speed1 * 2)))
+            machine.getBuildCost(SpaceAge) shouldBe vector(
+                SpaceAge.itemOf(asm2) to 1.0,
+                prod1 to 2.0,
+                SpaceAge.itemOf(beacon) to 1.0,
+                speed1 to 2.0,
+            )
+        }
     }
 })

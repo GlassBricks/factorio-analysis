@@ -41,8 +41,9 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithPrototypes {
         }
     }
 
-    fun itemToBuild(entity: EntityPrototype): Item? = builtByMap[entity.name]
-    fun itemToBuild(entity: Entity): Item? = builtByMap[entity.prototype.name]?.withQuality(entity.quality)
+    fun itemOf(entity: EntityPrototype): Item? = builtByMap[entity.name]
+    fun itemOf(entity: Entity): Item? = itemOf(entity.prototype)?.withQuality(entity.quality)
+    fun Entity.item(): Item? = itemOf(this)
 
     val beacons: Map<String, Beacon> = dataRaw.beacon.mapValues { Beacon(it.value, defaultQuality) }
 

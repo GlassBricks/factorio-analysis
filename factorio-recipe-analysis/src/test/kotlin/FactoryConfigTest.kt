@@ -1,6 +1,7 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.amountVector
 import glassbricks.recipeanalysis.vector
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
@@ -8,13 +9,13 @@ import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 
 class FactoryConfigKtTest : FunSpec({
+    val asm2 = machine("assembling-machine-2")
+    val speed1 = module("speed-module")
+    val speed2 = module("speed-module-2")
+    val prod2 = module("productivity-module-2")
+    val uncommon = SpaceAge.qualitiesMap["uncommon"]!!
+    val rare = SpaceAge.qualitiesMap["rare"]!!
     test("machine, machine quality, modules, recipe quality") {
-        val asm2 = machine("assembling-machine-2")
-        val speed1 = module("speed-module")
-        val speed2 = module("speed-module-2")
-        val prod2 = module("productivity-module-2")
-        val uncommon = SpaceAge.qualitiesMap["uncommon"]!!
-        val rare = SpaceAge.qualitiesMap["rare"]!!
         val config = SpaceAge.factory {
             machines {
                 default {
@@ -88,5 +89,28 @@ class FactoryConfigKtTest : FunSpec({
         }
         val recipe = config.allProcesses.single()
         recipe.additionalCosts shouldBe vector(symbolA to 1.0, symbolB to 2.0)
+    }
+
+    test("build costs") {
+        val symbol1 = Symbol("1")
+        val config = SpaceAge.factory {
+            machines {
+                default { includeBuildCosts = true }
+                asm2 {
+                    moduleConfig(fill = speed2)
+                }
+            }
+            recipes {
+                "advanced-circuit" {
+                    additionalCosts = vector(symbol1 to 1.0)
+                }
+            }
+        }
+        val recipe = config.allProcesses.single()
+        recipe.additionalCosts shouldBe amountVector(
+            SpaceAge.itemOf(asm2) to 1.0,
+            speed2 to 2.0,
+            symbol1 to 1.0
+        )
     }
 })
