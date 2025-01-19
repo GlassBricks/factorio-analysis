@@ -89,9 +89,9 @@ class RecipeSolverKtTest : StringSpec({
             solidFuelOutput,
         )
         val lp = RecipeLp(recipes)
-        val solution = lp.solve()
-        solution.lpResult.status shouldBe LpResultStatus.Optimal
-        val usage = solution.recipes ?: fail("no usage")
+        val result = lp.solve()
+        result.lpResult.status shouldBe LpResultStatus.Optimal
+        val usage = result.solution?.recipes ?: fail("no usage")
         usage[basicOil] shouldBe 0.0
         usage[solidHeavy] shouldBe 0.0
         usage[advancedOil] shouldBe 5.0
