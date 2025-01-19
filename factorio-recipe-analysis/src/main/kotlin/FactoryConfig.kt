@@ -1,6 +1,6 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.LpProcess
+import glassbricks.recipeanalysis.*
 
 @DslMarker
 annotation class RecipesConfigDsl
@@ -16,13 +16,21 @@ data class ModuleConfig(
     val beacons: List<BeaconSetup> = emptyList(),
 )
 
+data class MachineConfig(
+    val machine: AnyCraftingMachine,
+    val includeBuildCosts: Boolean,
+    val additionalCosts: AmountVector<Symbol>? = null,
+)
+
 @RecipesConfigDsl
-class MachineConfig(
+class MachineConfigScope(
     val prototypes: FactorioPrototypes,
     val machine: CraftingMachine,
 ) {
     val qualities = sortedSetOf(prototypes.defaultQuality)
     val moduleConfigs = mutableListOf<ModuleConfig>()
+    var includeBuildCosts: Boolean = false
+    var additionalCosts: AmountVector<Symbol>? = null
 
     fun emptyModuleConfig() {
         moduleConfigs += ModuleConfig()
@@ -34,22 +42,28 @@ class MachineConfig(
         beacons: List<BeaconSetup> = emptyList(),
     ) {
         moduleConfigs += ModuleConfig(
-            modules.map { it.moduleCount }, fill = fill, beacons = beacons
+            modules.map { it.moduleCount },
+            fill = fill,
+            beacons = beacons
         )
     }
 
-    internal fun toMachines(): List<AnyCraftingMachine> =
+    internal fun toMachineConfigs(): List<MachineConfig> =
         qualities.flatMap { quality ->
             val machine = machine.withQuality(quality)
             val moduleConfigs = if (moduleConfigs.isEmpty()) listOf(ModuleConfig()) else moduleConfigs
             moduleConfigs.mapNotNull { (modules, fill, beacons) ->
                 machine.withModulesOrNull(modules, fill, beacons)
+                    ?.let {
+                        MachineConfig(it, includeBuildCosts, additionalCosts)
+                    }
             }
         }
 }
 
-typealias MachineConfigFn = MachineConfig.() -> Unit
+typealias MachineConfigFn = MachineConfigScope.() -> Unit
 
+@RecipesConfigDsl
 class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
     fun allQualities() {
@@ -60,17 +74,29 @@ class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Reci
     var upperBound: Double = Double.POSITIVE_INFINITY
     var integral: Boolean = false
 
+    var additionalCosts: AmountVector<Symbol>? = null
+
     private var withQualitiesList: List<Recipe>? = null
     internal fun addCraftingSetups(
         list: MutableList<in LpProcess>,
-        machine: AnyCraftingMachine,
+        machine: MachineConfig,
         config: ResearchConfig,
     ) {
         withQualitiesList = withQualitiesList ?: qualities.mapNotNull { recipe.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
-            machine.craftingOrNull(quality, config)
-                ?.let { LpProcess(process = it, cost = cost, upperBound = upperBound, integral = integral) }
-                ?.let { list.add(it) }
+            val machineSetup = machine.machine.craftingOrNull(quality, config) ?: continue
+            val additionalCosts: AmountVector<Symbol> =
+                (machine.additionalCosts ?: emptyVector()) +
+                        (this.additionalCosts ?: emptyVector()) +
+                        (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
+            val lpProcess = LpProcess(
+                process = machineSetup,
+                cost = cost,
+                upperBound = upperBound,
+                integral = integral,
+                additionalCosts = additionalCosts,
+            )
+            list.add(lpProcess)
         }
     }
 
@@ -137,13 +163,13 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
 
     var researchConfig: ResearchConfig = ResearchConfig()
 
-    private fun getAllMachines(): List<AnyCraftingMachine> {
+    private fun getAllMachines(): List<MachineConfig> {
         val machineScope = machines
         return machineScope.machineConfigs.keys.flatMap {
-            MachineConfig(prototypes, it).apply {
+            MachineConfigScope(prototypes, it).apply {
                 machineScope.defaultConfig?.invoke(this)
                 machineScope.machineConfigs[it]?.forEach { it(this) }
-            }.toMachines()
+            }.toMachineConfigs()
         }
     }
 

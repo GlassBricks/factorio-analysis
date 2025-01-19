@@ -1,12 +1,15 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.SpaceAgeDataRaw
+import glassbricks.recipeanalysis.amountVector
+import glassbricks.recipeanalysis.vector
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!, SpaceAge.defaultQuality)
 class ModulesKtTest : FunSpec({
     val speed1 = module("speed-module")
+    val speed2 = module("speed-module-2")
     val qual3 = module("quality-module-3")
     val prod1 = module("productivity-module")
     test("moduleList") {
@@ -112,5 +115,33 @@ class ModulesKtTest : FunSpec({
             effects.prodMultiplier shouldBe near(1.09)
             effects.qualityChance shouldBe near(0.03)
         }
+    }
+
+    context("buildCosts") {
+        test("modules") {
+            (prod1 * 3).getBuildCost(SpaceAge) shouldBe vector(prod1 to 3.0)
+            ModuleList(prod1 * 2, speed1 * 3).getBuildCost(SpaceAge) shouldBe vector(
+                prod1 to 2.0,
+                speed1 to 3.0,
+            )
+        }
+        test("beacon") {
+            val beaconItem = item("beacon")
+            beacon(speed1 * 2).getBuildCost(SpaceAge) shouldBe vector(beaconItem to 1.0, speed1 to 2.0)
+            beacon(speed1 * 2, sharing = 2.0).getBuildCost(SpaceAge) shouldBe amountVector(
+                beaconItem to 1.0,
+                speed1 to 2.0
+            ) / 2.0
+
+            BeaconList(
+                beacon(speed1 * 2),
+                beacon(speed2 * 2, sharing = 2.0),
+            ).getBuildCost(SpaceAge) shouldBe amountVector(
+                beaconItem to 1.5,
+                speed1 to 2.0,
+                speed2 to 1.0
+            )
+        }
+
     }
 })

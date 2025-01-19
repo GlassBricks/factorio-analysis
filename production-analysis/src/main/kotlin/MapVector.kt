@@ -10,14 +10,6 @@ internal constructor(internal val map: Map<T, Double>) : Map<T, Double> by map {
     @Suppress("UNCHECKED_CAST")
     fun <U> castUnits(): MapVector<T, U> = this as MapVector<T, U>
 
-    internal fun MutableMap<T, Double>.setOrRemove(key: T, amount: Double) {
-        if (amount == 0.0) {
-            remove(key)
-        } else {
-            this[key] = amount
-        }
-    }
-
     private inline fun mapValues(transform: (Map.Entry<T, Double>) -> Double): MapVector<T, Units> =
         MapVector(map.mapValues { transform(it) })
 
@@ -53,12 +45,20 @@ internal constructor(internal val map: Map<T, Double>) : Map<T, Double> by map {
     }
 }
 
+internal fun <T> MutableMap<T, Double>.setOrRemove(key: T, amount: Double) {
+    if (amount == 0.0) {
+        remove(key)
+    } else {
+        this[key] = amount
+    }
+}
+
 fun <T, Units> MapVector<T, Units>.closeTo(other: MapVector<T, Units>, tolerance: Double): Boolean =
     map.all { (ingredient, amount) -> abs(amount - other[ingredient]) <= tolerance }
             && other.all { (ingredient, amount) -> abs(amount - this[ingredient]) <= tolerance }
 
-operator fun <T, U> MapVector<T, U>.minus(other: MapVector<T, U>): MapVector<T, U> {
-    if (other.isEmpty()) return this
+operator fun <T, U> MapVector<out T, U>.minus(other: MapVector<out T, U>): MapVector<T, U> {
+    if (other.isEmpty()) return this.relaxKeys()
     val result = map.toMutableMap()
     for ((ingredient, amount) in other) {
         val amt = result.getOrDefault(ingredient, 0.0) - amount
@@ -68,9 +68,9 @@ operator fun <T, U> MapVector<T, U>.minus(other: MapVector<T, U>): MapVector<T, 
     return MapVector(result)
 }
 
-operator fun <T, U> MapVector<T, U>.plus(other: MapVector<T, U>): MapVector<T, U> {
-    if (other.isEmpty()) return this
-    if (this.isEmpty()) return other
+operator fun <T, U> MapVector<out T, U>.plus(other: MapVector<out T, U>): MapVector<T, U> {
+    if (other.isEmpty()) return this.relaxKeys()
+    if (this.isEmpty()) return other.relaxKeys()
     val result = map.toMutableMap()
     for ((key, amount) in other) {
         val amt = result.getOrDefault(key, 0.0) + amount
@@ -80,7 +80,10 @@ operator fun <T, U> MapVector<T, U>.plus(other: MapVector<T, U>): MapVector<T, U
     return MapVector(result)
 }
 
-fun <T> emptyVector(): MapVector<T, Nothing> = MapVector(emptyMap())
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+inline fun <T, U> MapVector<out T, U>.relaxKeys(): MapVector<T, U> = this as MapVector<T, U>
+
+fun <T, U> emptyVector(): MapVector<T, U> = MapVector(emptyMap())
 
 operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()

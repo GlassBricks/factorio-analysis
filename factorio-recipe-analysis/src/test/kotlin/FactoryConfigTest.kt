@@ -1,12 +1,14 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.vector
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 
 class FactoryConfigKtTest : FunSpec({
-    test("machine with quality and modules") {
+    test("machine, machine quality, modules, recipe quality") {
         val asm2 = machine("assembling-machine-2")
         val speed1 = module("speed-module")
         val speed2 = module("speed-module-2")
@@ -68,5 +70,23 @@ class FactoryConfigKtTest : FunSpec({
             extra shouldBe emptySet()
             missing shouldBe emptySet()
         }
+    }
+    test("additional costs") {
+        val symbolA = Symbol("a")
+        val symbolB = Symbol("b")
+        val config = SpaceAge.factory {
+            machines {
+                "assembling-machine-2" {
+                    additionalCosts = vector(symbolA to 1.0)
+                }
+            }
+            recipes {
+                "advanced-circuit" {
+                    additionalCosts = vector(symbolB to 2.0)
+                }
+            }
+        }
+        val recipe = config.allProcesses.single()
+        recipe.additionalCosts shouldBe vector(symbolA to 1.0, symbolB to 2.0)
     }
 })

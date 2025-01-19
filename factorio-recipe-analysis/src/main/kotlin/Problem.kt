@@ -130,3 +130,6 @@ class ProblemBuilder(
 
 inline fun FactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): Problem =
     ProblemBuilder(this).apply(block).build()
+
+inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): Problem =
+    ProblemBuilder(this).apply(block).build()
