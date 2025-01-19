@@ -13,8 +13,8 @@ class FactoryConfigKtTest : FunSpec({
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
     val prod2 = module("productivity-module-2")
-    val uncommon = SpaceAge.qualitiesMap["uncommon"]!!
-    val rare = SpaceAge.qualitiesMap["rare"]!!
+    val uncommon = SpaceAge.qualityMap["uncommon"]!!
+    val rare = SpaceAge.qualityMap["rare"]!!
     test("machine, machine quality, modules, recipe quality") {
         val config = SpaceAge.factory {
             machines {
@@ -108,7 +108,7 @@ class FactoryConfigKtTest : FunSpec({
         }
         val recipe = config.allProcesses.single()
         recipe.additionalCosts shouldBe amountVector(
-            SpaceAge.itemOf(asm2) to 1.0,
+            SpaceAge.itemOfOrNull(asm2) to 1.0,
             speed2 to 2.0,
             symbol1 to 1.0
         )

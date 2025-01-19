@@ -23,7 +23,6 @@ data class MachineConfig(
     val additionalCosts: AmountVector<Symbol>,
 )
 
-@RecipesConfigDsl
 class MachineConfigScope(
     val prototypes: FactorioPrototypes,
     val machine: CraftingMachine,
@@ -72,7 +71,7 @@ typealias MachineConfigFn = MachineConfigScope.() -> Unit
 @RecipesConfigDsl
 class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithFactorioPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
-    fun addAllQualities() {
+    fun allQualities() {
         qualities.addAll(prototypes.qualities)
     }
 
@@ -154,7 +153,7 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
             recipe(this)(block)
         }
 
-        fun addAllRecipes(config: RecipeConfigFn? = null) {
+        fun allRecipes(config: RecipeConfigFn? = null) {
             for (recipe in prototypes.recipes.values) {
                 recipe(config)
             }

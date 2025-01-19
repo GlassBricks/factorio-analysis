@@ -84,7 +84,7 @@ data class Module(
 data class ModuleCount(val module: Module, val count: Int) : WithModuleCount, WithBuildCost {
     override val moduleCount: ModuleCount get() = this
     override val effects: IntEffects get() = module.effects * count
-    override fun toString(): String = if (count == 1) module.prototype.name else "${module.prototype.name}*$count"
+    override fun toString(): String = if (count == 1) module.toString() else "${module}*${count}"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         amountVector(module to count.toDouble())
 }
@@ -201,7 +201,7 @@ data class BeaconSetup(
     override fun toString(): String = "$beacon[$modules]"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
         val moduleCost = modules.getBuildCost(prototypes)
-        val baseCost = prototypes.itemOf(beacon)?.let { moduleCost + basisVec(it) } ?: moduleCost
+        val baseCost = prototypes.itemOfOrNull(beacon)?.let { moduleCost + basisVec(it) } ?: moduleCost
         return baseCost / sharing
     }
 }

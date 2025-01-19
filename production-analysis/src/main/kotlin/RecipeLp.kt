@@ -89,11 +89,60 @@ data class RecipeLp(
     val lpOptions: LpOptions = LpOptions(),
 )
 
+private inline fun <T> StringBuilder.displayLeftRight(
+    list: List<T>,
+    left: (T) -> Any,
+    right: (T) -> Double,
+) = apply {
+    val lefts = list.map { left(it).toString() }
+    val leftWidth = lefts.maxOfOrNull { it.length } ?: 0
+    for ((el, left) in list.zip(lefts)) {
+        append(left)
+        repeat(leftWidth - left.length) { append(' ') }
+        append(": ")
+        append("%10.3f".format(right(el)))
+        append('\n')
+    }
+}
+
 data class RecipeLpSolution(
     val recipes: AmountVector<PseudoProcess>,
     val surpluses: AmountVector<Ingredient>,
     val additionalCosts: AmountVector<Symbol>,
-)
+) {
+    fun display() = buildString {
+        appendLine("Inputs:")
+        val inputs = recipes.keys.filterIsInstance<Input>()
+        displayLeftRight(inputs, { it.ingredient }) { recipes[it] }
+        appendLine()
+
+        appendLine("Outputs:")
+        val outputs = recipes.keys.filterIsInstance<Output>()
+        displayLeftRight(outputs, { it.ingredient }) { recipes[it] }
+        appendLine()
+
+        appendLine("Recipes:")
+        val processes = recipes.keys.filterIsInstance<LpProcess>()
+        displayLeftRight(processes, { it.process }) { recipes[it] }
+        appendLine()
+
+        val otherProcesses = recipes.keys.filter {
+            it !is Input && it !is Output && it !is LpProcess
+        }
+        if (otherProcesses.isNotEmpty()) {
+            appendLine()
+            appendLine("Other processes:")
+            displayLeftRight(otherProcesses, { it }) { recipes[it] }
+        }
+
+        if (surpluses.isNotEmpty()) {
+            appendLine()
+            appendLine("Surpluses:")
+            displayLeftRight(surpluses.keys.toList(), { it }) { surpluses[it] }
+        }
+    }
+
+}
 
 data class RecipeLpResult(
     val lpResult: LpResult,

@@ -99,6 +99,7 @@ fun <U, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 typealias AmountVector<T> = MapVector<T, Unit>
 
 fun <T> amountVector(vararg entries: Pair<T, Double>): AmountVector<T> = vector(entries.toMap())
+fun <T> amountVector(entries: List<Pair<T, Double>>): AmountVector<T> = vector(entries.toMap())
 fun <T> amountVector(map: Map<T, Double>): AmountVector<T> = vector(map)
 
 fun <T> basisVec(key: T): AmountVector<T> = vector(key to 1.0)

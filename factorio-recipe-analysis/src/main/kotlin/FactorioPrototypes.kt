@@ -15,8 +15,8 @@ private inline fun <K, V, R> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K,
 
 class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = this
-    val qualitiesMap = loadQualities(dataRaw.quality)
-    val qualities = qualitiesMap.values.sorted()
+    val qualityMap = loadQualities(dataRaw.quality)
+    val qualities = qualityMap.values.sorted()
     val defaultQuality get() = qualities.first()
 
     val items: Map<String, Item> = dataRaw.allItemPrototypes().associate { it.name to getItem(it, defaultQuality) }
@@ -36,10 +36,6 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototy
         }
     }
 
-    fun itemOf(entity: EntityPrototype): Item? = builtByMap[entity.name]
-    fun itemOf(entity: Entity): Item? = itemOf(entity.prototype)?.withQuality(entity.quality)
-    fun Entity.item(): Item? = itemOf(this)
-
     val beacons: Map<String, Beacon> = dataRaw.beacon.mapValues { Beacon(it.value, defaultQuality) }
 
     val craftingMachines: Map<String, CraftingMachine> =
@@ -54,7 +50,7 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototy
 interface WithFactorioPrototypes {
     val prototypes: FactorioPrototypes
 
-    fun quality(name: String): Quality = prototypes.qualitiesMap[name] ?: error("Quality $name not found")
+    fun quality(name: String): Quality = prototypes.qualityMap[name] ?: error("Quality $name not found")
     fun item(name: String): Item = prototypes.items.getValue(name)
     fun fluid(name: String): Fluid = prototypes.fluids.getValue(name)
     fun ingredient(name: String): RealIngredient = prototypes.ingredients.getValue(name)
@@ -63,6 +59,14 @@ interface WithFactorioPrototypes {
     fun recipe(name: String): Recipe = prototypes.recipes.getValue(name)
 
     val beacon: Beacon get() = prototypes.beacons.values.first()
+
+    fun itemOfOrNull(entity: EntityPrototype): Item? = prototypes.builtByMap[entity.name]
+    fun itemOfOrNull(entity: Entity): Item? = itemOfOrNull(entity.prototype)?.withQuality(entity.quality)
+    fun Entity.itemOrNull(): Item? = itemOfOrNull(this)
+
+    fun itemOf(entity: EntityPrototype): Item = itemOfOrNull(entity) ?: error("Item not found for $entity")
+    fun itemOf(entity: Entity): Item = itemOfOrNull(entity) ?: error("Item not found for $entity")
+    fun Entity.item(): Item = itemOrNull() ?: error("Item not found for $this")
 }
 
 val WithFactorioPrototypes.qualities get() = prototypes.qualities

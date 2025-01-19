@@ -65,7 +65,7 @@ class ProblemTest : FunSpec({
                 "recycler" {}
             }
             recipes {
-                default { addAllQualities() }
+                default { allQualities() }
                 "iron-chest" {}
                 "iron-chest-recycling" {}
             }
@@ -133,7 +133,7 @@ class ProblemTest : FunSpec({
             }
             recipes {
                 default {
-                    addAllQualities()
+                    allQualities()
                 }
                 "casting-iron" {}
                 "casting-pipe-to-ground" {}
@@ -275,9 +275,9 @@ class ProblemTest : FunSpec({
                     "electromagnetic-plant" {}
                 }
                 recipes {
-                    addAllRecipes()
+                    allRecipes()
                     default {
-                        addAllQualities()
+                        allQualities()
                     }
                 }
             }

@@ -57,7 +57,7 @@ enum class LpResultStatus {
 }
 
 class LpSolution(
-    val assignment: Map<Variable, Double>,
+    val assignment: AmountVector<Variable>,
     val objective: Double,
 )
 
@@ -69,6 +69,7 @@ interface LpResult {
 class LpOptions(
     val timeLimit: Duration = 1.minutes,
     val solver: LpSolver = DefaultLpSolver(),
+    val epsilon: Double = 1e-5,
 )
 
 fun LpProblem.solve(options: LpOptions): LpResult = options.solver.solveLp(this, options)
@@ -84,15 +85,19 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         solver: MPSolver,
         override val status: LpResultStatus,
         variables: Map<Variable, MPVariable>,
+        epsilon: Double,
     ) : LpResult {
         override val solution: LpSolution?
 
         init {
             val hasSolution = status == LpResultStatus.Optimal || status == LpResultStatus.Feasible
             solution = if (!hasSolution) null else {
-                val assignment = variables.mapValues { it.value.solutionValue() }
+                val assignment = variables.mapValuesNotNull {
+                    it.value.solutionValue()
+                        .let { if (it < epsilon) null else it }
+                }
                 val objective = solver.objective().value()
-                LpSolution(assignment, objective)
+                LpSolution(vector(assignment), objective)
             }
         }
     }
@@ -147,6 +152,6 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
             MPSolver.ResultStatus.NOT_SOLVED,
                 -> LpResultStatus.Error
         }
-        return Result(solver, status, mpVariables)
+        return Result(solver, status, mpVariables, options.epsilon)
     }
 }

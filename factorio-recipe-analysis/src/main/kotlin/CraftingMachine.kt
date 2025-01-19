@@ -66,7 +66,7 @@ data class CraftingMachine(
     override fun withMachineQuality(quality: Quality): CraftingMachine = withQuality(quality)
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
-        val itemCost = prototypes.itemOf(prototype)?.withQuality(quality) ?: return emptyVector()
+        val itemCost = prototypes.itemOfOrNull(prototype)?.withQuality(quality) ?: return emptyVector()
         return basisVec(itemCost)
     }
 

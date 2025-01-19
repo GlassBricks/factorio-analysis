@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":production-analysis"))
-    implementation(project(":prototypes"))
+    api(project(":production-analysis"))
+    api(project(":prototypes"))
     testImplementation(libs.bundles.kotest)
     testImplementation(kotlin("test"))
 }

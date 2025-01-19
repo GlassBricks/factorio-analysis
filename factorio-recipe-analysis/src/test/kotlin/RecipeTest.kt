@@ -42,7 +42,7 @@ class RecipeTest : FunSpec({
         }
 
         test("legendary night vision equipment") {
-            val legendary = SpaceAge.qualitiesMap["legendary"]!!
+            val legendary = SpaceAge.qualityMap["legendary"]!!
             val recipe = recipe("night-vision-equipment").withQuality(legendary)
             recipe.inputs shouldBe vector(
                 ingredient("steel-plate").maybeWithQuality(legendary) to 10.0,
