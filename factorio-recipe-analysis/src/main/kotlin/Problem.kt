@@ -146,7 +146,7 @@ class ProblemBuilder(
             limit(this@ProblemBuilder.prototypes.item(itemName), value)
         }
 
-        fun symbolCost(symbol: Symbol, value: Number) {
+        fun costOf(symbol: Symbol, value: Number) {
             symbolCosts[symbol] = value.toDouble()
         }
     }

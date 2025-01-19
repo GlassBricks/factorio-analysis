@@ -47,6 +47,8 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototy
 
     val recipes: Map<String, Recipe> =
         dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
+
+    val recipesByCategory = recipes.values.groupBy { it.prototype.category }
 }
 
 interface WithFactorioPrototypes {

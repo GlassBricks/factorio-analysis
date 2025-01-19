@@ -3,6 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.recipeanalysis.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.seconds
 
 class ProblemTest : FunSpec({
     this as ProblemTest
@@ -64,7 +65,7 @@ class ProblemTest : FunSpec({
                 "recycler" {}
             }
             recipes {
-                default { allQualities() }
+                default { addAllQualities() }
                 "iron-chest" {}
                 "iron-chest-recycling" {}
             }
@@ -132,7 +133,7 @@ class ProblemTest : FunSpec({
             }
             recipes {
                 default {
-                    allQualities()
+                    addAllQualities()
                 }
                 "casting-iron" {}
                 "casting-pipe-to-ground" {}
@@ -237,7 +238,7 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output("iron-gear-wheel", 1.perSecond)
             costs {
-                symbolCost(foo, 1e5) // heavily penalize assembling-machine-2
+                costOf(foo, 1e5) // heavily penalize assembling-machine-2
             }
         }
         val solution = problem.solve()
@@ -254,6 +255,58 @@ class ProblemTest : FunSpec({
         asm2Usage shouldBe 0.0
         asm1Usage shouldBe 1.0
     }
+
+    test("all recipes for complex stuff") {
+        val problem = problem {
+            factory {
+                machines {
+                    default {
+                        moduleConfig()
+                        moduleConfig(fill = prod3, beacons = listOf(beacon(fill = speed2) * 4))
+                        moduleConfig(fill = speed2)
+                        moduleConfig(fill = qual3)
+                        includeBuildCosts()
+                    }
+                    "assembling-machine-3" {}
+                    "chemical-plant" {}
+                    "oil-refinery" {}
+                    "centrifuge" {}
+                    "recycler" {}
+                    "electromagnetic-plant" {}
+                }
+                recipes {
+                    addAllRecipes()
+                    default {
+                        addAllQualities()
+                    }
+                }
+            }
+            input("iron-plate")
+            input("steel-plate")
+            input("copper-plate")
+            input("uranium-ore")
+            input("coal")
+            input("crude-oil")
+            input("water")
+            input("raw-fish")
+            input("spoilage")
+            input("carbon-fiber")
+
+            output(item("spidertron").withQuality(legendary), 1.perMinute)
+
+            costs {
+                costOf(prod3, 15)
+                costOf(qual3, 15)
+                limit("recycler", 50)
+            }
+            surplusCost = 0.0
+            lpOptions = LpOptions(timeLimit = 15.seconds, solver = OrToolsLp("CLP"))
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        println(solution.recipeSolution!!.recipes.display())
+    }
+
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

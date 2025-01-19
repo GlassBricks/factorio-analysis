@@ -136,7 +136,8 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         }
         mpObjective.setOffset(objective.constant)
 
-        val status = when (solver.solve()) {
+        val resultStatus = solver.solve()
+        val status = when (resultStatus) {
             MPSolver.ResultStatus.OPTIMAL -> LpResultStatus.Optimal
             MPSolver.ResultStatus.FEASIBLE -> LpResultStatus.Feasible
             MPSolver.ResultStatus.INFEASIBLE -> LpResultStatus.Infeasible

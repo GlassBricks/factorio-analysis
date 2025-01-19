@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.recipeanalysis.*
 
 @DslMarker
@@ -11,9 +12,9 @@ class FactoryConfig(
 ) : WithFactorioPrototypes
 
 data class ModuleConfig(
-    val modules: List<ModuleCount> = emptyList(),
+    val modules: List<WithModuleCount> = emptyList(),
     val fill: Module? = null,
-    val beacons: List<BeaconSetup> = emptyList(),
+    val beacons: List<WithBeaconCount> = emptyList(),
 )
 
 data class MachineConfig(
@@ -44,12 +45,12 @@ class MachineConfigScope(
     fun moduleConfig(
         vararg modules: WithModuleCount,
         fill: Module? = null,
-        beacons: List<BeaconSetup> = emptyList(),
+        beacons: List<WithBeaconCount> = emptyList(),
     ) {
         moduleConfigs += ModuleConfig(
-            modules.map { it.moduleCount },
+            modules.asList(),
             fill = fill,
-            beacons = beacons
+            beacons = beacons,
         )
     }
 
@@ -71,7 +72,7 @@ typealias MachineConfigFn = MachineConfigScope.() -> Unit
 @RecipesConfigDsl
 class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithFactorioPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
-    fun allQualities() {
+    fun addAllQualities() {
         qualities.addAll(prototypes.qualities)
     }
 
@@ -114,7 +115,7 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
     inline fun machines(block: MachinesScope.() -> Unit) = machines.block()
 
     @RecipesConfigDsl
-    inner class MachinesScope {
+    inner class MachinesScope : WithFactorioPrototypes by this@FactorioConfigBuilder {
         var defaultConfig: MachineConfigFn? = null
         val machineConfigs = mutableMapOf<CraftingMachine, MutableList<MachineConfigFn>>()
 
@@ -122,42 +123,47 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
             defaultConfig = block
         }
 
-        operator fun String.invoke(block: MachineConfigFn) {
-            val machine = this@FactorioConfigBuilder.prototypes.craftingMachines[this] ?: error("Unknown machine $this")
-            machine.invoke(block)
+        operator fun CraftingMachine.invoke(block: MachineConfigFn? = null) {
+            val list = machineConfigs.getOrPut(this, ::ArrayList)
+            if (block != null) list += block
         }
 
-        operator fun CraftingMachine.invoke(block: MachineConfigFn) {
-            machineConfigs.getOrPut(this, ::ArrayList) += block
+        operator fun String.invoke(block: MachineConfigFn) {
+            craftingMachine(this)(block)
         }
+
     }
 
     val recipes = RecipesScope()
     inline fun recipes(block: RecipesScope.() -> Unit) = recipes.block()
 
     @RecipesConfigDsl
-    inner class RecipesScope {
+    inner class RecipesScope : WithFactorioPrototypes by this@FactorioConfigBuilder {
         var defaultRecipeConfig: RecipeConfigFn? = null
         val recipeConfigs = mutableMapOf<Recipe, MutableList<RecipeConfigFn>>()
         fun default(block: RecipeConfigFn) {
             defaultRecipeConfig = block
         }
 
-        operator fun String.invoke(block: RecipeConfigFn = {}) {
-            val recipe = this@FactorioConfigBuilder.prototypes
-                .recipes[this] ?: error("Unknown recipe $this")
-            recipe.invoke(block)
+        operator fun Recipe.invoke(block: RecipeConfigFn? = null) {
+            val list = recipeConfigs.getOrPut(this, ::ArrayList)
+            if (block != null) list += block
         }
 
-        operator fun Recipe.invoke(block: RecipeConfigFn = {}) {
-            recipeConfigs.getOrPut(this, ::ArrayList) += block
+        operator fun String.invoke(block: RecipeConfigFn? = null) {
+            recipe(this)(block)
         }
 
-        fun allOfCategory(category: String, config: RecipeConfigFn = {}) {
-            this@FactorioConfigBuilder.prototypes.recipes.values.filter { it.prototype.category.value == category }
-                .forEach { recipe ->
-                    recipeConfigs.getOrPut(recipe, ::ArrayList).add(config)
-                }
+        fun addAllRecipes(config: RecipeConfigFn? = null) {
+            for (recipe in prototypes.recipes.values) {
+                recipe(config)
+            }
+        }
+
+        fun allOfCategory(category: String, config: RecipeConfigFn?) {
+            prototypes.recipesByCategory[RecipeCategoryID(category)]?.forEach { recipe ->
+                recipe(config)
+            }
         }
 
         fun allRecycling(config: RecipeConfigFn = {}) {
@@ -190,11 +196,15 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithF
     private fun getAllProcesses(): List<LpProcess> {
         val machines = getAllMachines()
         val configs = getAllRecipeConfigs()
+        val configsByCategory = configs.groupBy { it.recipe.prototype.category }
         val sizeEstimate = machines.size * configs.sumOf { it.sizeEstimate } * 1.1
         return buildList(sizeEstimate.toInt()) {
             for (machine in machines) {
-                for (config in configs) {
-                    config.addCraftingSetups(this, machine, researchConfig)
+                for (category in machine.machine.prototype.crafting_categories) {
+                    val categoryConfigs = configsByCategory[category] ?: continue
+                    for (config in categoryConfigs) {
+                        config.addCraftingSetups(this, machine, researchConfig)
+                    }
                 }
             }
         }
