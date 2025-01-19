@@ -77,7 +77,8 @@ class ProblemTest : FunSpec({
                 output(ironPlate.withQuality(legendary), 6.perMinute)
             }
             val solution = problem.solve()
-            println(solution.lpSolution!!.recipes.display())
+            solution.status shouldBe LpResultStatus.Optimal
+            println(solution.recipeSolution!!.recipes.display())
         }
 
         test("can cast pipe") {
@@ -97,7 +98,7 @@ class ProblemTest : FunSpec({
             }
             val solution = problem.solve()
             solution.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution!!.recipes.display())
+            println(solution.recipeSolution!!.recipes.display())
         }
         test("can have excess") {
             val problem = problem {
@@ -114,7 +115,7 @@ class ProblemTest : FunSpec({
             }
             val solution = problem.solve()
             solution.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution!!.recipes.display())
+            println(solution.recipeSolution!!.recipes.display())
         }
 
         test("underground pipes casting is better") {
@@ -153,7 +154,67 @@ class ProblemTest : FunSpec({
             }
             val solution = problem.solve()
             solution.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution!!.recipes.display())
+            println(solution.recipeSolution!!.recipes.display())
+        }
+
+        test("constrain machines") {
+            val problem = problem {
+                factory {
+                    machines {
+                        "assembling-machine-1" {
+                            includeBuildCosts()
+                        }
+                    }
+                    recipes {
+                        "iron-gear-wheel" {}
+                    }
+                }
+                input(ironPlate)
+                maximize("iron-gear-wheel")
+                costs {
+                    limit("assembling-machine-1", 1.0)
+                }
+            }
+            val solution = problem.solve()
+            solution.status shouldBe LpResultStatus.Optimal
+
+            println(solution.lpSolution?.objective)
+
+            val inputRate = solution.inputRate(ironPlate)!!
+            inputRate shouldBe 2.perSecond
+            val outputRate = solution.outputRate(item("iron-gear-wheel"))!!
+            outputRate shouldBe 1.perSecond
+
+            val recipe = problem.recipes.keys.single()
+
+            val recipeUsage = solution.recipesUsed(recipe)
+            recipeUsage shouldBe 1.0
+        }
+
+        test("constrain modules") {
+            val problem = problem {
+                factory {
+                    machines {
+                        "assembling-machine-2" {
+                            includeBuildCosts = true
+                            moduleConfig()
+                            moduleConfig(fill = prod3)
+                        }
+                    }
+                    recipes {
+                        "iron-gear-wheel" {}
+                    }
+                }
+                input(ironPlate)
+                maximize("iron-gear-wheel")
+                costs {
+                    limit(prod3, 2.0)
+                    limit("assembling-machine-2", 1.0)
+                }
+            }
+            val solution = problem.solve()
+            solution.status shouldBe LpResultStatus.Optimal
+            println(solution.recipeSolution!!.recipes.display())
         }
     }
 })

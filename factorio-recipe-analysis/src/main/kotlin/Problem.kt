@@ -2,11 +2,12 @@ package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.*
 
-// wrapper types for now in case we want additional functionality later
+/** Wrapper around a [RecipeLp] */
 class Problem(
+    val factory: FactoryConfig,
     inputs: List<Input>,
     outputs: List<Output>,
-    val factory: FactoryConfig,
+    val additionalConstraints: List<SymbolConstraint>,
     surplusCost: Double,
     lpOptions: LpOptions,
 ) {
@@ -15,6 +16,7 @@ class Problem(
         .groupBy { it.ingredient }
     val outputs: Map<Ingredient, List<Output>> = outputs
         .groupBy { it.ingredient }
+    val recipes: Map<CraftingProcess, LpProcess> = factory.allProcesses.associateBy { it.process as CraftingProcess }
 
     val recipeLp = RecipeLp(
         processes = concat(
@@ -24,6 +26,7 @@ class Problem(
         ),
         surplusCost = surplusCost,
         lpOptions = lpOptions,
+        additionalConstraints = additionalConstraints,
     )
 
     fun solve(): Solution = Solution(this, recipeLp.solve())
@@ -33,28 +36,36 @@ class Solution(
     val problem: Problem,
     val recipeResult: RecipeLpResult,
 ) {
-    val lpSolution: RecipeLpSolution? get() = recipeResult.solution
+    val recipeSolution: RecipeLpSolution? get() = recipeResult.solution
     val status: LpResultStatus get() = recipeResult.lpResult.status
+    val lpResult: LpResult get() = recipeResult.lpResult
+    val lpSolution: LpSolution? get() = lpResult.solution
     fun outputRate(ingredient: Ingredient): Rate? {
         val output = problem.outputs[ingredient] ?: return null
-        val usage = lpSolution?.recipes ?: return null
+        val usage = recipeSolution?.recipes ?: return null
         return Rate(output.sumOf { usage[it] })
     }
 
     fun inputRate(ingredient: Ingredient): Rate? {
         val input = problem.inputs[ingredient] ?: return null
-        val usage = lpSolution?.recipes ?: return null
+        val usage = recipeSolution?.recipes ?: return null
         return Rate(input.sumOf { usage[it] })
+    }
+
+    fun recipesUsed(recipe: CraftingProcess): Double? {
+        val usage = recipeSolution?.recipes ?: return 0.0
+        val lpProcess = problem.recipes[recipe] ?: return 0.0
+        return usage[lpProcess]
     }
 }
 
 object DefaultWeights {
-    val inputCost = 1e4
-    val inputRateCost = 1.0
+    const val inputCost = 1e4
+    const val inputRateCost = 1.0
 
-    val maximizeWeight = 1e8
-    val outputCost = 1.0
-    val defaultSurplusCost: Double = 1e-3
+    const val maximizeWeight = 1e8
+    const val outputCost = 1.0
+    const val defaultSurplusCost: Double = 1e-4
 }
 
 @RecipesConfigDsl
@@ -116,6 +127,23 @@ class ProblemBuilder(
         maximize(prototypes.ingredients.getValue(ingredient), weight)
     }
 
+    val symbolConstraints: MutableList<SymbolConstraint> = mutableListOf()
+
+    inline fun costs(block: CostsScope.() -> Unit) {
+        CostsScope().apply(block)
+    }
+
+    inner class CostsScope : ConstraintDsl {
+        override val constraints: MutableList<SymbolConstraint> get() = this@ProblemBuilder.symbolConstraints
+        fun limit(symbol: Symbol, value: Number) {
+            basisVec(symbol) leq value
+        }
+
+        fun limit(itemName: String, value: Number) {
+            limit(this@ProblemBuilder.prototypes.item(itemName), value)
+        }
+    }
+
     var surplusCost: Double = DefaultWeights.defaultSurplusCost
     var lpOptions: LpOptions = LpOptions()
 
@@ -124,6 +152,7 @@ class ProblemBuilder(
         outputs = outputs,
         factory = factory ?: error("Factory not set"),
         surplusCost = surplusCost,
+        additionalConstraints = symbolConstraints,
         lpOptions = lpOptions,
     )
 }

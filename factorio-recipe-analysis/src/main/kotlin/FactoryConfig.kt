@@ -28,10 +28,15 @@ class MachineConfigScope(
     val machine: CraftingMachine,
 ) {
     val qualities = sortedSetOf(prototypes.defaultQuality)
-    val moduleConfigs = mutableListOf<ModuleConfig>()
+
     var includeBuildCosts: Boolean = false
+    fun includeBuildCosts() {
+        includeBuildCosts = true
+    }
+
     var additionalCosts: AmountVector<Symbol>? = null
 
+    val moduleConfigs = mutableListOf<ModuleConfig>()
     fun emptyModuleConfig() {
         moduleConfigs += ModuleConfig()
     }
