@@ -10,8 +10,8 @@ fun recipe(
     name: String,
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
-): Process = Process(
-    object : LpProcess {
+): LpProcess = LpProcess(
+    object : Process {
         override val netRate: IngredientRate = amountVector(inOut.toMap()) / Time(time)
         override fun toString(): String = name
     }
@@ -91,7 +91,7 @@ class RecipeSolverKtTest : StringSpec({
         val lp = RecipeLp(recipes)
         val solution = lp.solve()
         solution.lpResult.status shouldBe LpResultStatus.Optimal
-        val usage = solution.recipeUsage ?: fail("no usage")
+        val usage = solution.recipes ?: fail("no usage")
         usage[basicOil] shouldBe 0.0
         usage[solidHeavy] shouldBe 0.0
         usage[advancedOil] shouldBe 5.0

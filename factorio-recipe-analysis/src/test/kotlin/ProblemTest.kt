@@ -77,7 +77,7 @@ class ProblemTest : FunSpec({
                 output(ironPlate.withQuality(legendary), 6.perMinute)
             }
             val solution = problem.solve()
-            println(solution.lpSolution.recipeUsage!!.display())
+            println(solution.lpSolution!!.recipes.display())
         }
 
         test("can cast pipe") {
@@ -96,8 +96,8 @@ class ProblemTest : FunSpec({
                 output(item("pipe-to-ground"), 1.perSecond)
             }
             val solution = problem.solve()
-            solution.lpSolution.lpResult.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution.recipeUsage!!.display())
+            solution.status shouldBe LpResultStatus.Optimal
+            println(solution.lpSolution!!.recipes.display())
         }
         test("can have excess") {
             val problem = problem {
@@ -113,8 +113,8 @@ class ProblemTest : FunSpec({
                 output(item("iron-plate"), 1.perSecond)
             }
             val solution = problem.solve()
-            solution.lpSolution.lpResult.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution.recipeUsage!!.display())
+            solution.status shouldBe LpResultStatus.Optimal
+            println(solution.lpSolution!!.recipes.display())
         }
 
         test("underground pipes casting is better") {
@@ -152,8 +152,8 @@ class ProblemTest : FunSpec({
                 output(ironPlate.withQuality(legendary), 6.perMinute)
             }
             val solution = problem.solve()
-            solution.lpSolution.lpResult.status shouldBe LpResultStatus.Optimal
-            println(solution.lpSolution.recipeUsage!!.display())
+            solution.status shouldBe LpResultStatus.Optimal
+            println(solution.lpSolution!!.recipes.display())
         }
     }
 })

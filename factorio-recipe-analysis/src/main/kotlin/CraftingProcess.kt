@@ -12,7 +12,7 @@ data class CraftingProcess(
     val recipe: Recipe,
     val maxQuality: Quality? = null,
     val extraProductivity: Float = 0f,
-) : LpProcess {
+) : Process {
     constructor(
         machine: AnyCraftingMachine,
         recipe: Recipe,

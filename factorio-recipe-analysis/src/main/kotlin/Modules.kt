@@ -101,7 +101,9 @@ value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithB
     override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
     override fun toString(): String = moduleCounts.joinToString(", ")
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        moduleCounts.fold(emptyVector()) { acc, moduleCount -> acc + moduleCount.getBuildCost(prototypes) }
+        moduleCounts.fold<_, IngredientVector>(emptyVector()) { acc, moduleCount ->
+            acc + moduleCount.getBuildCost(prototypes)
+        }
 }
 
 fun moduleList(
@@ -226,7 +228,7 @@ interface WithBeaconCount {
 operator fun BeaconSetup.times(count: Int): BeaconCount = BeaconCount(this, count)
 operator fun Int.times(beacon: BeaconSetup): BeaconCount = BeaconCount(beacon, this)
 
-class BeaconList(
+data class BeaconList(
     val beaconCounts: List<BeaconCount>,
     val beaconSharing: Double = 1.0,
 ) : WithEffects, WithBuildCost {

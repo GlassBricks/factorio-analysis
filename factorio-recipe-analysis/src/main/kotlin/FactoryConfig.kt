@@ -1,13 +1,13 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.Process
+import glassbricks.recipeanalysis.LpProcess
 
 @DslMarker
 annotation class RecipesConfigDsl
 
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
-    val allProcesses: List<Process>,
+    val allProcesses: List<LpProcess>,
 ) : WithPrototypes
 
 data class ModuleConfig(
@@ -62,14 +62,14 @@ class RecipeConfig(override val prototypes: FactorioPrototypes, val recipe: Reci
 
     private var withQualitiesList: List<Recipe>? = null
     internal fun addCraftingSetups(
-        list: MutableList<in Process>,
+        list: MutableList<in LpProcess>,
         machine: AnyCraftingMachine,
         config: ResearchConfig,
     ) {
         withQualitiesList = withQualitiesList ?: qualities.mapNotNull { recipe.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
             machine.craftingOrNull(quality, config)
-                ?.let { Process(process = it, cost = cost, upperBound = upperBound, integral = integral) }
+                ?.let { LpProcess(process = it, cost = cost, upperBound = upperBound, integral = integral) }
                 ?.let { list.add(it) }
         }
     }
@@ -157,7 +157,7 @@ class FactorioConfigBuilder(override val prototypes: FactorioPrototypes) : WithP
         }
     }
 
-    private fun getAllProcesses(): List<Process> {
+    private fun getAllProcesses(): List<LpProcess> {
         val machines = getAllMachines()
         val configs = getAllRecipeConfigs()
         val sizeEstimate = machines.size * configs.sumOf { it.sizeEstimate } * 1.1

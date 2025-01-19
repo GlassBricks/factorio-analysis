@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes
 
+import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
@@ -57,13 +58,15 @@ class FactoryConfigKtTest : FunSpec({
         allProcesses.forAll {
             it.cost shouldBe 1.2
             val recipe = (it.process as CraftingProcess).recipe
-            it.upperBound shouldBe if (recipe == advCircuit) 1.3 else Double.POSITIVE_INFINITY
+            it.upperBound shouldBe if (recipe.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
             it.integral shouldBe (recipe == transportBelt)
         }
-        val craftingSet = allProcesses.mapTo(mutableSetOf()) { it.process as CraftingProcess }
-        val diff1 = expectedRecipes - craftingSet
-        val diff2 = craftingSet - expectedRecipes
-        diff1 shouldBe emptySet()
-        diff2 shouldBe emptySet()
+        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as CraftingProcess }
+        val extra = expectedRecipes - actualRecipes
+        val missing = actualRecipes - expectedRecipes
+        assertSoftly {
+            extra shouldBe emptySet()
+            missing shouldBe emptySet()
+        }
     }
 })

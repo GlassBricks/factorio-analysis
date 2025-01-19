@@ -70,6 +70,7 @@ operator fun <T, U> MapVector<T, U>.minus(other: MapVector<T, U>): MapVector<T, 
 
 operator fun <T, U> MapVector<T, U>.plus(other: MapVector<T, U>): MapVector<T, U> {
     if (other.isEmpty()) return this
+    if (this.isEmpty()) return other
     val result = map.toMutableMap()
     for ((key, amount) in other) {
         val amt = result.getOrDefault(key, 0.0) + amount

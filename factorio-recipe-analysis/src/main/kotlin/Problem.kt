@@ -2,13 +2,6 @@ package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.*
 
-private fun <T> flattenSmart(
-    vararg items: Collection<T>,
-): List<T> =
-    ArrayList<T>(items.sumOf { it.size }).apply {
-        for (item in items) addAll(item)
-    }
-
 // wrapper types for now in case we want additional functionality later
 class Problem(
     inputs: List<Input>,
@@ -24,7 +17,7 @@ class Problem(
         .groupBy { it.ingredient }
 
     val recipeLp = RecipeLp(
-        processes = flattenSmart(
+        processes = concat(
             inputs,
             outputs,
             factory.allProcesses,
@@ -38,21 +31,21 @@ class Problem(
 
 class Solution(
     val problem: Problem,
-    val lpSolution: RecipeLpSolution,
+    val recipeResult: RecipeLpResult,
 ) {
-    val usage: AmountVector<PseudoProcess>? get() = lpSolution.recipeUsage
+    val lpSolution: RecipeLpSolution? get() = recipeResult.solution
+    val status: LpResultStatus get() = recipeResult.lpResult.status
     fun outputRate(ingredient: Ingredient): Rate? {
         val output = problem.outputs[ingredient] ?: return null
-        val usage = lpSolution.recipeUsage ?: return null
+        val usage = lpSolution?.recipes ?: return null
         return Rate(output.sumOf { usage[it] })
     }
 
     fun inputRate(ingredient: Ingredient): Rate? {
         val input = problem.inputs[ingredient] ?: return null
-        val usage = lpSolution.recipeUsage ?: return null
+        val usage = lpSolution?.recipes ?: return null
         return Rate(input.sumOf { usage[it] })
     }
-
 }
 
 object DefaultWeights {
