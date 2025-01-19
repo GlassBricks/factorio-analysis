@@ -58,7 +58,7 @@ fun <T, Units> MapVector<T, Units>.closeTo(other: MapVector<T, Units>, tolerance
             && other.all { (ingredient, amount) -> abs(amount - this[ingredient]) <= tolerance }
 
 operator fun <T, U> MapVector<out T, U>.minus(other: MapVector<out T, U>): MapVector<T, U> {
-    if (other.isEmpty()) return this.relaxKeys()
+    if (other.isEmpty()) return this.relaxKeyType()
     val result = map.toMutableMap()
     for ((ingredient, amount) in other) {
         val amt = result.getOrDefault(ingredient, 0.0) - amount
@@ -69,8 +69,8 @@ operator fun <T, U> MapVector<out T, U>.minus(other: MapVector<out T, U>): MapVe
 }
 
 operator fun <T, U> MapVector<out T, U>.plus(other: MapVector<out T, U>): MapVector<T, U> {
-    if (other.isEmpty()) return this.relaxKeys()
-    if (this.isEmpty()) return other.relaxKeys()
+    if (other.isEmpty()) return this.relaxKeyType()
+    if (this.isEmpty()) return other.relaxKeyType()
     val result = map.toMutableMap()
     for ((key, amount) in other) {
         val amt = result.getOrDefault(key, 0.0) + amount
@@ -81,7 +81,7 @@ operator fun <T, U> MapVector<out T, U>.plus(other: MapVector<out T, U>): MapVec
 }
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
-inline fun <T, U> MapVector<out T, U>.relaxKeys(): MapVector<T, U> = this as MapVector<T, U>
+inline fun <T, U> MapVector<out T, U>.relaxKeyType(): MapVector<T, U> = this as MapVector<T, U>
 
 fun <T, U> emptyVector(): MapVector<T, U> = MapVector(emptyMap())
 

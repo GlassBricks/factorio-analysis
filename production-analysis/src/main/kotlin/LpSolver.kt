@@ -17,13 +17,13 @@ class Variable(
     }
 }
 
-enum class ComparisonOp { LE, GE, EQ }
+enum class ComparisonOp { Leq, Geq, Eq }
 data class Constraint(val lhs: Map<Variable, Double>, val op: ComparisonOp, val rhs: Double) {
     override fun toString(): String {
         val opStr = when (op) {
-            ComparisonOp.LE -> "<="
-            ComparisonOp.GE -> ">="
-            ComparisonOp.EQ -> "=="
+            ComparisonOp.Leq -> "<="
+            ComparisonOp.Geq -> ">="
+            ComparisonOp.Eq -> "=="
         }
         return lhs.entries.joinToString(
             prefix = "Constraint(",
@@ -33,9 +33,9 @@ data class Constraint(val lhs: Map<Variable, Double>, val op: ComparisonOp, val 
     }
 }
 
-infix fun Map<Variable, Double>.le(rhs: Double) = Constraint(this, ComparisonOp.LE, rhs)
-infix fun Map<Variable, Double>.ge(rhs: Double) = Constraint(this, ComparisonOp.GE, rhs)
-infix fun Map<Variable, Double>.eq(rhs: Double) = Constraint(this, ComparisonOp.EQ, rhs)
+infix fun Map<Variable, Double>.leq(rhs: Double) = Constraint(this, ComparisonOp.Leq, rhs)
+infix fun Map<Variable, Double>.geq(rhs: Double) = Constraint(this, ComparisonOp.Geq, rhs)
+infix fun Map<Variable, Double>.eq(rhs: Double) = Constraint(this, ComparisonOp.Eq, rhs)
 
 data class Objective(
     val coefficients: Map<Variable, Double>,
@@ -71,7 +71,7 @@ class LpOptions(
     val solver: LpSolver = DefaultLpSolver(),
 )
 
-fun LpOptions.solve(problem: LpProblem): LpResult = solver.solveLp(problem, this)
+fun LpProblem.solve(options: LpOptions): LpResult = options.solver.solveLp(this, options)
 
 interface LpSolver {
     fun solveLp(problem: LpProblem, options: LpOptions = LpOptions()): LpResult
@@ -122,9 +122,9 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                 ct.setCoefficient(mpVariable, coefficient)
             }
             when (constraint.op) {
-                ComparisonOp.LE -> ct.setBounds(Double.NEGATIVE_INFINITY, constraint.rhs)
-                ComparisonOp.GE -> ct.setBounds(constraint.rhs, Double.POSITIVE_INFINITY)
-                ComparisonOp.EQ -> ct.setBounds(constraint.rhs, constraint.rhs)
+                ComparisonOp.Leq -> ct.setBounds(Double.NEGATIVE_INFINITY, constraint.rhs)
+                ComparisonOp.Geq -> ct.setBounds(constraint.rhs, Double.POSITIVE_INFINITY)
+                ComparisonOp.Eq -> ct.setBounds(constraint.rhs, constraint.rhs)
             }
         }
 

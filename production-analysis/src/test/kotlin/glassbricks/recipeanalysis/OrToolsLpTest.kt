@@ -10,9 +10,9 @@ class OrToolsLpTest : StringSpec({
         val x = basisVec(xv)
         val y = basisVec(yv)
         val constraints = listOf(
-            x + 2 * y le 14.0,
-            3 * x - y ge 0.0,
-            x - y le 2.0
+            x + 2 * y leq 14.0,
+            3 * x - y geq 0.0,
+            x - y leq 2.0
         )
         val objective = Objective(x + y, maximize = true)
         val problem = LpProblem(constraints, objective)
@@ -24,5 +24,23 @@ class OrToolsLpTest : StringSpec({
             fail("Solution $assignment is not close to $expectedSolution")
         }
     }
-
+    "can have negative objective" {
+        val x = Variable("x")
+        val xv = basisVec(x)
+        val constraints = listOf(xv geq -1.0)
+        val objective = Objective(xv, maximize = false)
+        val problem = LpProblem(constraints, objective)
+        val result = OrToolsLp().solveLp(problem)
+        result.status shouldBe LpResultStatus.Optimal
+        result.solution!!.objective shouldBe -1.0
+    }
+    "unbounded solution" {
+        val x = Variable("x")
+        val xv = basisVec(x)
+        val constraints = listOf(xv geq 0.0)
+        val objective = Objective(xv, maximize = true)
+        val problem = LpProblem(constraints, objective)
+        val result = OrToolsLp("CLP").solveLp(problem)
+        result.status shouldBe LpResultStatus.Unbounded
+    }
 })

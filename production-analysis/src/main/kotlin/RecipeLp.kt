@@ -35,7 +35,8 @@ data class LpProcess(
     override val ingredientRate: IngredientRate get() = process.netRate
 
     override fun toString(): String = buildString {
-        append("Process(")
+        append("LpProcess(")
+        append(process)
         commonToString(this@LpProcess, 1.0)
         append(")")
     }
@@ -80,24 +81,9 @@ data class Output(
     }
 }
 
-/**
- * Any additional constraints.
- *
- * Note: symbols may match those given by [PseudoProcess.additionalCosts]
- */
-data class AdditionalConstraint(
-    val lhs: AmountVector<Symbol>,
-    val op: ComparisonOp,
-    val rhs: Double,
-)
-
-infix fun AmountVector<Symbol>.eq(rhs: Double) = AdditionalConstraint(this, ComparisonOp.EQ, rhs)
-infix fun AmountVector<Symbol>.le(rhs: Double) = AdditionalConstraint(this, ComparisonOp.LE, rhs)
-infix fun AmountVector<Symbol>.ge(rhs: Double) = AdditionalConstraint(this, ComparisonOp.GE, rhs)
-
 data class RecipeLp(
     val processes: List<PseudoProcess>,
-    val additionalConstraints: List<AdditionalConstraint> = emptyList(),
+    val additionalConstraints: List<SymbolConstraint> = emptyList(),
     val surplusCost: Double = 1e-5,
     val lpOptions: LpOptions = LpOptions(),
 )
@@ -147,15 +133,15 @@ fun RecipeLp.solve(): RecipeLpResult {
                 this[variable] = surplusCost
             }
         },
+        constant = 1e8,
         maximize = false
     )
 
-    val problem = LpProblem(
+    val lp = LpProblem(
         constraints = concat(recipeEquations, costEquations, additionalConstraints),
         objective = objective
     )
-    val solver = DefaultLpSolver()
-    val result = solver.solveLp(problem, options = lpOptions)
+    val result = lp.solve(lpOptions)
 
     val solution = result.solution?.let { solution ->
         fun <T> getAssignment(variables: Map<T, Variable>): AmountVector<T> =
