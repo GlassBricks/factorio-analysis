@@ -9,6 +9,7 @@ import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 
 class FactoryConfigKtTest : FunSpec({
+    this as FactoryConfigKtTest
     val asm2 = machine("assembling-machine-2")
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
@@ -60,11 +61,11 @@ class FactoryConfigKtTest : FunSpec({
         val allProcesses = config.allProcesses
         allProcesses.forAll {
             it.cost shouldBe 1.2
-            val recipe = (it.process as CraftingProcess).recipe
-            it.upperBound shouldBe if (recipe.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
+            val recipe = (it.process as MachineProcess<*>).recipe
+            it.upperBound shouldBe if ((recipe as? Recipe)?.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
             it.integral shouldBe (recipe == transportBelt)
         }
-        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as CraftingProcess }
+        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineProcess<*> }
         val extra = expectedRecipes - actualRecipes
         val missing = actualRecipes - expectedRecipes
         assertSoftly {
@@ -113,4 +114,6 @@ class FactoryConfigKtTest : FunSpec({
             symbol1 to 1.0
         )
     }
-})
+}), WithFactorioPrototypes {
+    override val prototypes: FactorioPrototypes get() = SpaceAge
+}

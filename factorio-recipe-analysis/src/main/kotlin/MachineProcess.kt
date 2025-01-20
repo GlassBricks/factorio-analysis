@@ -1,31 +1,36 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.recipeanalysis.*
 
 data class ResearchConfig(
     val maxQuality: Quality? = null,
-    val recipeProductivity: Map<String, Float> = emptyMap(),
+    val recipeProductivity: Map<RecipeID, Float> = emptyMap(),
+    val miningProductivity: Float = 0f,
 )
 
-data class CraftingProcess(
-    val machine: AnyCraftingMachine,
-    val recipe: Recipe,
+data class MachineProcess<M : AnyMachine<*>>(
+    val machine: M,
+    val recipe: RecipeOrResource<M>,
     val maxQuality: Quality? = null,
     val extraProductivity: Float = 0f,
 ) : Process {
     constructor(
-        machine: AnyCraftingMachine,
-        recipe: Recipe,
+        machine: M,
+        recipe: RecipeOrResource<M>,
         config: ResearchConfig,
     ) : this(
         machine,
         recipe,
         config.maxQuality,
-        config.recipeProductivity[recipe.prototype.name] ?: 0f,
+        when (recipe) {
+            is Recipe -> config.recipeProductivity[RecipeID(recipe.prototype.name)] ?: 0f
+            is Resource -> config.miningProductivity
+        },
     )
 
     init {
-        require(machine.acceptsRecipe(recipe)) { "$machine does not accept $recipe" }
+        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
     }
 
     val effectsUsed: IntEffects = machine.effects.let {
@@ -35,27 +40,32 @@ data class CraftingProcess(
     val cycleOutputs = recipe.outputs.applyProdAndQuality(
         effectsUsed,
         recipe.outputsToIgnoreProductivity,
-        recipe.quality,
+        recipe.inputQuality,
         maxQuality,
     )
     val cycleInputs get() = recipe.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
     override fun toString(): String = "(${machine} -> ${recipe})"
-
-    init {
-        require(machine.acceptsRecipe(recipe)) { "Machine ${machine.prototype.name} does not accept recipe ${recipe.prototype.name}" }
-    }
 }
 
-fun AnyCraftingMachine.crafting(recipe: Recipe, config: ResearchConfig = ResearchConfig()) =
-    CraftingProcess(this, recipe, config)
+fun <M : AnyMachine<*>> M.crafting(
+    recipe: RecipeOrResource<M>,
+    config: ResearchConfig = ResearchConfig(),
+): MachineProcess<M> =
+    MachineProcess(this, recipe, config)
 
-fun AnyCraftingMachine.craftingOrNull(recipe: Recipe, config: ResearchConfig = ResearchConfig()): CraftingProcess? =
-    if (!this.acceptsRecipe(recipe)) null
-    else CraftingProcess(this, recipe, config)
+fun <M : AnyMachine<*>> M.craftingOrNull(
+    recipe: RecipeOrResource<M>,
+    config: ResearchConfig = ResearchConfig(),
+): MachineProcess<M>? =
+    if (!this.canProcess(recipe)) null
+    else MachineProcess(this, recipe, config)
 
-fun IngredientVector.applyProductivity(
+typealias CraftingProcess = MachineProcess<AnyCraftingMachine>
+typealias MiningProcess = MachineProcess<AnyMiningDrill>
+
+internal fun IngredientVector.applyProductivity(
     productsIgnoredFromProductivity: IngredientVector?,
     multiplier: Float,
 ): IngredientVector {
@@ -67,7 +77,7 @@ fun IngredientVector.applyProductivity(
         .let { if (productsIgnoredFromProductivity != null) it + productsIgnoredFromProductivity else it }
 }
 
-fun IngredientVector.applyQualityRolling(
+internal fun IngredientVector.applyQualityRolling(
     startingQuality: Quality,
     finalQuality: Quality?,
     qualityChance: Float,
@@ -81,13 +91,13 @@ fun IngredientVector.applyQualityRolling(
         val propCurrent = propRemaining * (1 - probQualityIncrease)
         result += propCurrent * this.withItemsQuality(curQuality)
         propRemaining *= probQualityIncrease
-        curQuality = curQuality.nextQuality!!
+        curQuality = curQuality.nextQuality
     }
     result += propRemaining * this.withItemsQuality(curQuality)
     return result
 }
 
-fun IngredientVector.applyProdAndQuality(
+internal fun IngredientVector.applyProdAndQuality(
     effects: IntEffects,
     productsIgnoredFromProductivity: IngredientVector?,
     startingQuality: Quality,

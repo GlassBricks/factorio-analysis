@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.prototypes.ItemID
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldContainKey
@@ -18,7 +19,7 @@ class RecipePrototypesTest : FreeSpec({
         }
     }
     "items" {
-        SpaceAge.items shouldContainKey "inserter"
+        SpaceAge.items shouldContainKey ItemID("inserter")
     }
     "beacons" {
         assertNotNull(SpaceAge.beacons["beacon"])

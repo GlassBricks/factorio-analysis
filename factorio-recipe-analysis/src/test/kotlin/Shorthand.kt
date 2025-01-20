@@ -30,14 +30,14 @@ fun main() = with(SpaceAge) {
         )
     }
 
-    fun <T : Any> add(
+    fun <K, T : Any> add(
         fnName: String,
-        map: Map<String, T>,
+        map: Map<K, T>,
     ) {
         for ((protoName, el) in map) add(
             fnName = fnName,
             typeName = fnName.capitalize(),
-            protoName = protoName,
+            protoName = protoName.toString(),
         )
     }
 

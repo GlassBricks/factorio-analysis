@@ -1,15 +1,12 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.*
-import glassbricks.recipeanalysis.Rate
-import glassbricks.recipeanalysis.plus
-import glassbricks.recipeanalysis.rateVector
-import glassbricks.recipeanalysis.vector
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class CraftingSetupTest : FunSpec({
+    this as CraftingSetupTest
     val asm2 = machine("assembling-machine-2")
     val asm3 = machine("assembling-machine-3")
     val foundry = machine("foundry")
@@ -17,25 +14,35 @@ class CraftingSetupTest : FunSpec({
     val speed1 = module("speed-module")
     val quality3 = module("quality-module-3")
     val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
+    test("withModules") {
+        asm2.withModules() shouldBe asm2
+        asm2.withModules(speed1) shouldBe MachineWithModules(
+            asm2,
+            ModuleSet(
+                ModuleList(listOf(speed1 * 1)),
+                BeaconList(emptyList())
+            )
+        )
+    }
     test("doesn't accept prod modules in non prod recipe") {
+        asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
         shouldThrow<IllegalArgumentException> {
             asm2.withModules(prod1).crafting(recipe("transport-belt"))
         }
-        asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
     }
     test("basic recipe") {
         val setup = asm2.crafting(recipe("electronic-circuit"))
         setup.cycleInputs shouldBe mapOf(
-            ingredient("copper-cable") to 3.0,
-            ingredient("iron-plate") to 1.0,
+            item("copper-cable") to 3.0,
+            item("iron-plate") to 1.0,
         )
         setup.cycleOutputs shouldBe mapOf(
-            ingredient("electronic-circuit") to 1.0,
+            item("electronic-circuit") to 1.0,
         )
         setup.netRate shouldBe vector(
-            ingredient("iron-plate") to -1.5,
-            ingredient("copper-cable") to -4.5,
-            ingredient("electronic-circuit") to 1.5,
+            item("iron-plate") to -1.5,
+            item("copper-cable") to -4.5,
+            item("electronic-circuit") to 1.5,
         )
 
         val withSpeed = asm2
@@ -46,9 +53,9 @@ class CraftingSetupTest : FunSpec({
         withSpeed.cycleInputs shouldBe setup.cycleInputs
         withSpeed.cycleOutputs shouldBe setup.cycleOutputs
         withSpeed.netRate.round1e6() shouldBe vector(
-            ingredient("iron-plate") to -1.8,
-            ingredient("copper-cable") to -5.4,
-            ingredient("electronic-circuit") to 1.8,
+            item("iron-plate") to -1.8,
+            item("copper-cable") to -5.4,
+            item("electronic-circuit") to 1.8,
         )
 
         val withProd = asm2
@@ -60,9 +67,9 @@ class CraftingSetupTest : FunSpec({
         withProd.cycleOutputs.round1e6() shouldBe setup.cycleOutputs * 1.04
 
         withProd.netRate.round1e6() shouldBe vector<Rate, RealIngredient>(
-            ingredient("iron-plate") to -1.5 * 0.95,
-            ingredient("copper-cable") to -4.5 * 0.95,
-            ingredient("electronic-circuit") to 1.482,
+            item("iron-plate") to -1.5 * 0.95,
+            item("copper-cable") to -4.5 * 0.95,
+            item("electronic-circuit") to 1.482,
         ).round1e6()
     }
 
@@ -71,32 +78,32 @@ class CraftingSetupTest : FunSpec({
         val setup = foundry.crafting(recipe("transport-belt"))
 
         setup.cycleInputs shouldBe mapOf(
-            ingredient("iron-plate") to 1.0,
-            ingredient("iron-gear-wheel") to 1.0,
+            item("iron-plate") to 1.0,
+            item("iron-gear-wheel") to 1.0,
         )
         setup.cycleOutputs shouldBe mapOf(
-            ingredient("transport-belt") to 3.0,
+            item("transport-belt") to 3.0,
         )
         setup.netRate shouldBe vector(
-            ingredient("iron-plate") to -8.0,
-            ingredient("iron-gear-wheel") to -8.0,
-            ingredient("transport-belt") to 24.0
+            item("iron-plate") to -8.0,
+            item("iron-gear-wheel") to -8.0,
+            item("transport-belt") to 24.0
         )
     }
 
     test("crafting different quality") {
         val setup = asm2.crafting(recipe("electronic-circuit").withQuality(legendary))
         setup.cycleInputs shouldBe mapOf(
-            ingredient("copper-cable").maybeWithQuality(legendary) to 3.0,
-            ingredient("iron-plate").maybeWithQuality(legendary) to 1.0,
+            item("copper-cable").maybeWithQuality(legendary) to 3.0,
+            item("iron-plate").maybeWithQuality(legendary) to 1.0,
         )
         setup.cycleOutputs shouldBe mapOf(
-            ingredient("electronic-circuit").maybeWithQuality(legendary) to 1.0,
+            item("electronic-circuit").maybeWithQuality(legendary) to 1.0,
         )
         setup.netRate shouldBe vector(
-            ingredient("iron-plate").maybeWithQuality(legendary) to -1.5,
-            ingredient("copper-cable").maybeWithQuality(legendary) to -4.5,
-            ingredient("electronic-circuit").maybeWithQuality(legendary) to 1.5,
+            item("iron-plate").maybeWithQuality(legendary) to -1.5,
+            item("copper-cable").maybeWithQuality(legendary) to -4.5,
+            item("electronic-circuit").maybeWithQuality(legendary) to 1.5,
         )
     }
 
@@ -154,7 +161,8 @@ class CraftingSetupTest : FunSpec({
 
         setup.cycleOutputs.round1e6() shouldBe rateVector(item("iron-chest").withQuality(legendary) to 1.0)
     }
-})
+}), WithFactorioPrototypes {
+    override val prototypes get() = SpaceAge
+}
 
-private operator fun <E> List<E>.times(i: Int): List<E> = List(i) { this }.flatten()
 private fun <E> E.repeat(i: Int): List<E> = List(i) { this }

@@ -91,8 +91,11 @@ operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector
 fun <U, T> vector(vararg entries: Pair<T, Double>): MapVector<T, U> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
-fun <U, T> vector(map: Map<T, Double>): MapVector<T, U> =
-    MapVector(map.filterValues { it != 0.0 })
+fun <U, T> vector(map: Map<T, Double>): MapVector<T, U> {
+    val filterMap = map.filterValues { it != 0.0 }
+    if (filterMap.isEmpty()) return emptyVector()
+    return MapVector(filterMap)
+}
 
 fun <U, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 

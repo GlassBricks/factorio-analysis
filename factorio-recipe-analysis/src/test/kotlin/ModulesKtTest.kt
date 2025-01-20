@@ -1,13 +1,12 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.SpaceAgeDataRaw
 import glassbricks.recipeanalysis.amountVector
 import glassbricks.recipeanalysis.vector
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-fun module(name: String) = Module(SpaceAgeDataRaw.module[name]!!, SpaceAge.defaultQuality)
 class ModulesKtTest : FunSpec({
+    this as ModulesKtTest
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
     val qual3 = module("quality-module-3")
@@ -79,9 +78,9 @@ class ModulesKtTest : FunSpec({
     }
 
     context("adding machine effects") {
-        val speed2 = SpaceAge.modules["speed-module-2"]!!
-        val quality3 = SpaceAge.modules["quality-module-3"]!!
-        val prod2 = SpaceAge.modules["productivity-module-2"]!!
+        val speed2 = module("speed-module-2")
+        val quality3 = module("quality-module-3")
+        val prod2 = module("productivity-module-2")
         val (_, uncommon, rare, epic, legendary) = SpaceAge.qualities
         test("single speed module") {
             val effects = speed1.effects
@@ -153,4 +152,6 @@ class ModulesKtTest : FunSpec({
             )
         }
     }
-})
+}), WithFactorioPrototypes {
+    override val prototypes: FactorioPrototypes get() = SpaceAge
+}

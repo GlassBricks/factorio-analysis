@@ -10,6 +10,7 @@ class ProblemTest : FunSpec({
     val gc = item("electronic-circuit")
     val ironPlate = item("iron-plate")
     val copperPlate = item("copper-plate")
+    val ironGearWheel = item("iron-gear-wheel")
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
     val prod3 = module("productivity-module-2")
@@ -24,7 +25,7 @@ class ProblemTest : FunSpec({
         recipes {
             "copper-cable" {}
             (gc.prototype.name) {}
-            "iron-gear-wheel" {}
+            (ironGearWheel.prototype.name) {}
             // something irrelevant
             "iron-chest" {}
         }
@@ -32,8 +33,8 @@ class ProblemTest : FunSpec({
     test("solve maximize") {
         val problem = problem {
             factory = gcFactory
-            limit("copper-plate", 3.perSecond)
-            limit("iron-plate", 3.perSecond)
+            limit(copperPlate, 3.perSecond)
+            limit(ironPlate, 3.perSecond)
             maximize(gc)
         }
         val solution = problem.solve()
@@ -44,8 +45,8 @@ class ProblemTest : FunSpec({
     test("solve limit") {
         val problem = problem {
             factory = gcFactory
-            input("copper-plate")
-            input("iron-plate")
+            input(copperPlate)
+            input(ironPlate)
             output(gc, 2.perSecond)
         }
         val solution = problem.solve()
@@ -110,7 +111,7 @@ class ProblemTest : FunSpec({
                 }
             }
             input(item("pipe-to-ground"))
-            output(item("iron-plate"), 1.perSecond)
+            output(ironPlate, 1.perSecond)
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
@@ -165,11 +166,11 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    "iron-gear-wheel" {}
+                    (ironGearWheel.prototype.name) {}
                 }
             }
             input(ironPlate)
-            maximize("iron-gear-wheel")
+            maximize(ironGearWheel)
             costs {
                 limit("assembling-machine-1", 1.0)
             }
@@ -181,12 +182,12 @@ class ProblemTest : FunSpec({
 
         val inputRate = solution.inputRate(ironPlate)!!
         inputRate shouldBe 2.perSecond
-        val outputRate = solution.outputRate(item("iron-gear-wheel"))!!
+        val outputRate = solution.outputRate(ironGearWheel)!!
         outputRate shouldBe 1.perSecond
 
         val recipe = problem.recipes.keys.single()
 
-        val recipeUsage = solution.recipesUsed(recipe)
+        val recipeUsage = solution.amountUsed(recipe)
         recipeUsage shouldBe 1.0
     }
 
@@ -201,11 +202,11 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    "iron-gear-wheel" {}
+                    (ironGearWheel.prototype.name) {}
                 }
             }
             input(ironPlate)
-            maximize("iron-gear-wheel")
+            maximize(ironGearWheel)
             costs {
                 limit(prod3, 2.0)
                 limit("assembling-machine-2", 1.0)
@@ -232,11 +233,11 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    "iron-gear-wheel" {}
+                    (ironGearWheel.prototype.name) {}
                 }
             }
             input(ironPlate)
-            output("iron-gear-wheel", 1.perSecond)
+            output(ironGearWheel, 1.perSecond)
             costs {
                 costOf(foo, 1e5) // heavily penalize assembling-machine-2
             }
@@ -250,8 +251,8 @@ class ProblemTest : FunSpec({
         val asm1Recipe = problem.recipes.keys.find {
             it.machine.prototype.name == "assembling-machine-1"
         }
-        val asm2Usage = solution.recipesUsed(asm2Recipe!!)
-        val asm1Usage = solution.recipesUsed(asm1Recipe!!)
+        val asm2Usage = solution.amountUsed(asm2Recipe!!)
+        val asm1Usage = solution.amountUsed(asm1Recipe!!)
         asm2Usage shouldBe 0.0
         asm1Usage shouldBe 1.0
     }
@@ -281,16 +282,16 @@ class ProblemTest : FunSpec({
                     }
                 }
             }
-            input("iron-plate")
-            input("steel-plate")
-            input("copper-plate")
-            input("uranium-ore")
-            input("coal")
-            input("crude-oil")
-            input("water")
-            input("raw-fish")
-            input("spoilage")
-            input("carbon-fiber")
+            input(ironPlate)
+            input(item("steel-plate"))
+            input(copperPlate)
+            input(item("uranium-ore"))
+            input(item("coal"))
+            input(fluid("crude-oil"))
+            input(fluid("water"))
+            input(item("raw-fish"))
+            input(item("spoilage"))
+            input(item("carbon-fiber"))
 
             output(item("spidertron").withQuality(legendary), 1.perMinute)
 
@@ -316,17 +317,17 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    "iron-gear-wheel" {}
+                    (ironGearWheel.prototype.name) {}
                 }
             }
             input(ironPlate)
-            output("iron-gear-wheel", 0.01.perSecond)
+            output(ironGearWheel, 0.01.perSecond)
             lpOptions = LpOptions(solver = OrToolsLp("SCIP"))
         }
         println(problem.factory.allProcesses.first())
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        val usage = solution.recipesUsed(problem.recipes.keys.single())
+        val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBe 1.0
     }
 

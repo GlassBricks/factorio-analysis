@@ -4,15 +4,15 @@ import glassbricks.factorio.prototypes.*
 
 class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = this
+
     val qualityMap = loadQualities(dataRaw.quality)
     val qualities = qualityMap.values.sorted()
-    val defaultQuality get() = qualities.first()
+    override val defaultQuality get() = qualities.first()
 
-    val items: Map<String, Item> = dataRaw.allItemPrototypes().associate { it.name to getItem(it, defaultQuality) }
-    val fluids: Map<String, Fluid> = dataRaw.fluid.mapValues { Fluid(it.value) }
-    override val ingredients: Map<String, RealIngredient> = items + fluids
-
-    val modules: Map<String, Module> = items.mapValuesNotNull { it.value as? Module }
+    override val items: Map<ItemID, Item> =
+        dataRaw.allItemPrototypes().associate { ItemID(it.name) to getItem(it, defaultQuality) }
+    override val fluids: Map<FluidID, Fluid> =
+        dataRaw.fluid.values.associate { FluidID(it.name) to Fluid(it) }
 
     val builtByMap: Map<EntityID, Item> = buildMap {
         for (item in items.values) {
@@ -26,15 +26,17 @@ class FactorioPrototypes(dataRaw: DataRaw) : IngredientsMap, WithFactorioPrototy
     }
 
     val beacons: Map<String, Beacon> = dataRaw.beacon.mapValues { Beacon(it.value, defaultQuality) }
+    val modules: Map<ItemID, Module> = items.mapValuesNotNull { it.value as? Module }
 
     val craftingMachines: Map<String, CraftingMachine> =
         dataRaw.allCraftingMachinePrototypes().associate { it.name to CraftingMachine(it, defaultQuality) }
+    val recipes: Map<String, Recipe> =
+        dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
 
     val miningDrills: Map<String, MiningDrill> =
         dataRaw.`mining-drill`.mapValues { MiningDrill(it.value, defaultQuality) }
-
-    val recipes: Map<String, Recipe> =
-        dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
+    val resources: Map<String, Resource> =
+        dataRaw.resource.mapValues { Resource.fromPrototype(it.value, this) }
 
     val recipesByCategory = recipes.values.groupBy { it.prototype.category }
 }
@@ -43,18 +45,19 @@ interface WithFactorioPrototypes {
     val prototypes: FactorioPrototypes
 
     fun quality(name: String): Quality = prototypes.qualityMap[name] ?: error("Quality $name not found")
-    fun item(name: String): Item = prototypes.items.getValue(name)
-    fun fluid(name: String): Fluid = prototypes.fluids.getValue(name)
-    fun ingredient(name: String): RealIngredient = prototypes.ingredients.getValue(name)
-    fun module(name: String): Module = prototypes.modules.getValue(name)
-    fun craftingMachine(name: String): CraftingMachine = prototypes.craftingMachines.getValue(name)
-    fun miningDrill(name: String): MiningDrill = prototypes.miningDrills.getValue(name)
-    fun recipe(name: String): Recipe = prototypes.recipes.getValue(name)
 
+    fun item(name: String): Item = prototypes.items.getValue(ItemID(name))
+    fun fluid(name: String): Fluid = prototypes.fluids.getValue(FluidID(name))
+
+    fun module(name: String): Module = prototypes.modules.getValue(ItemID(name))
     val beacon: Beacon get() = prototypes.beacons.values.first()
 
+    fun craftingMachine(name: String): CraftingMachine = prototypes.craftingMachines.getValue(name)
+    fun recipe(name: String): Recipe = prototypes.recipes.getValue(name)
+    fun miningDrill(name: String): MiningDrill = prototypes.miningDrills.getValue(name)
+    fun resource(name: String): Resource = prototypes.resources.getValue(name)
+
     fun itemOfOrNull(entity: EntityPrototype): Item? = prototypes.builtByMap[entity.name]
-    fun itemOfOrNull(entity: MachinePrototype): Item? = prototypes.builtByMap[entity.name]
     fun itemOfOrNull(entity: Entity): Item? = itemOfOrNull(entity.prototype)?.withQuality(entity.quality)
     fun Entity.itemOrNull(): Item? = itemOfOrNull(this)
 

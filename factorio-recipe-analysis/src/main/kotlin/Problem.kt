@@ -17,7 +17,8 @@ class Problem(
         .groupBy { it.ingredient }
     val outputs: Map<Ingredient, List<Output>> = outputs
         .groupBy { it.ingredient }
-    val recipes: Map<CraftingProcess, LpProcess> = factory.allProcesses.associateBy { it.process as CraftingProcess }
+    val recipes: Map<MachineProcess<*>, LpProcess> =
+        factory.allProcesses.associateBy { it.process as MachineProcess<*> }
 
     val recipeLp = RecipeLp(
         processes = concat(
@@ -54,7 +55,7 @@ class Solution(
         return Rate(input.sumOf { usage[it] })
     }
 
-    fun recipesUsed(recipe: CraftingProcess): Double? {
+    fun amountUsed(recipe: MachineProcess<*>): Double? {
         val usage = recipeSolution?.recipes ?: return 0.0
         val lpProcess = problem.recipes[recipe] ?: return 0.0
         return usage[lpProcess]
@@ -100,14 +101,6 @@ class ProblemBuilder(
         input(ingredient, cost = DefaultWeights.inputRateCost, limit = rate)
     }
 
-    fun input(ingredient: String, cost: Double = DefaultWeights.inputCost, limit: Rate = Rate.infinity) {
-        input(prototypes.ingredients.getValue(ingredient), cost, limit)
-    }
-
-    fun limit(ingredient: String, rate: Rate) {
-        limit(prototypes.ingredients.getValue(ingredient), rate)
-    }
-
     val outputs = mutableListOf<Output>()
     fun output(
         ingredient: Ingredient,
@@ -119,14 +112,6 @@ class ProblemBuilder(
 
     fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.maximizeWeight) {
         output(ingredient, rate = Rate.zero, weight = weight)
-    }
-
-    fun output(ingredient: String, rate: Rate, weight: Double = DefaultWeights.outputCost) {
-        output(prototypes.ingredients.getValue(ingredient), rate, weight)
-    }
-
-    fun maximize(ingredient: String, weight: Double = DefaultWeights.maximizeWeight) {
-        maximize(prototypes.ingredients.getValue(ingredient), weight)
     }
 
     val symbolConstraints: MutableList<SymbolConstraint> = mutableListOf()

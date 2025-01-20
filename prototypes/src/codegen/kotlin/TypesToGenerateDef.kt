@@ -180,6 +180,9 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "ResourceCategory" {}
         "ResourceEntityPrototype" {
             +"category"
+            +"infinite"
+            +"minimum"
+            +"normal"
         }
 
         // misc categories

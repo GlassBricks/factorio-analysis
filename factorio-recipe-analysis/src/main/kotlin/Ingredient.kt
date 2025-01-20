@@ -2,12 +2,16 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
+import glassbricks.recipeanalysis.IngredientVector
+import glassbricks.recipeanalysis.vector
 
 /**
  * All items should have default quality
  */
 interface IngredientsMap {
-    val ingredients: Map<String, Ingredient>
+    val defaultQuality: Quality
+    val items: Map<ItemID, Item>
+    val fluids: Map<FluidID, Fluid>
 }
 
 data class IngredientAmount(
@@ -16,13 +20,13 @@ data class IngredientAmount(
 )
 
 fun IngredientsMap.getIngredientAmount(ingredient: IngredientPrototype): IngredientAmount = when (ingredient) {
-    is ItemIngredientPrototype -> IngredientAmount(ingredients[ingredient.name.value]!!, ingredient.amount.toDouble())
-    is FluidIngredientPrototype -> IngredientAmount(ingredients[ingredient.name.value]!!, ingredient.amount)
+    is ItemIngredientPrototype -> IngredientAmount(items[ingredient.name]!!, ingredient.amount.toDouble())
+    is FluidIngredientPrototype -> IngredientAmount(fluids[ingredient.name]!!, ingredient.amount)
 }
 
 fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount = when (product) {
     is ItemProductPrototype -> {
-        val item = ingredients[product.name.value]!!
+        val item = items[product.name]!!
         val baseAmount: Double = product.amount ?: ((product.amount_min!! + product.amount_max!!).toDouble() / 2.0)
         // ignore extraCountFraction???
         val amount: Double = baseAmount * product.probability
@@ -30,11 +34,24 @@ fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount
     }
 
     is FluidProductPrototype -> {
-        val fluid = ingredients[product.name.value]!!
+        val fluid = fluids[product.name]!!
         val baseAmount = product.amount ?: ((product.amount_min!! + product.amount_max!!) / 2.0)
         val amount = baseAmount * product.probability
         IngredientAmount(fluid, amount, product.ignored_by_productivity ?: 0.0)
     }
 
     is ResearchProgressProductPrototype -> TODO("research progress as product")
+}
+
+fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<IngredientVector, IngredientVector> {
+    val ignoreFromProductivity = mutableMapOf<Ingredient, Double>()
+    val products = buildMap {
+        for (product in prototypes.orEmpty()) {
+            val productAmount = this@getProductsVector.getProductAmount(product)
+            put(productAmount.ingredient, productAmount.amount)
+            ignoreFromProductivity[productAmount.ingredient] =
+                minOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
+        }
+    }
+    return Pair(vector(products), vector(ignoreFromProductivity))
 }
