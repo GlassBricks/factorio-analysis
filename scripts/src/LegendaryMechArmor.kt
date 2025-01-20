@@ -42,9 +42,7 @@ fun main() {
                     moduleConfig(fill = qualityModule2.withQuality(q))
                 }
             }
-            bigMiningDrill {
-            }
-
+            bigMiningDrill {}
             electromagneticPlant()
             assemblingMachine3()
             foundry()
@@ -67,7 +65,7 @@ fun main() {
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
-        input(sulfuricAcid, cost = 0.1)
+        input(sulfuricAcid, cost = 0.05)
 
         fun addWithQualities(item: Item, baseCost: Double) {
             input(item, cost = baseCost)
@@ -148,7 +146,7 @@ fun main() {
             }
         }
 
-        val time = Time(60.0 * 60.0)
+        val time = Time(60.0 * 30.0)
 
         output(
             mechArmor.withQuality(legendary),

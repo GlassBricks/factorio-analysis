@@ -1,128 +1,130 @@
 Inputs:
-lava                      | 15488.92768
-sulfuric-acid             |  681.80323
-holmium-plate(legendary)  |    0.05941
-supercapacitor(legendary) |    0.01389
+lava                      | 32632.28710
+sulfuric-acid             | 1042.65401
+holmium-plate(legendary)  |    0.11883
+supercapacitor(legendary) |    0.02778
 
 Outputs:
-mech-armor(legendary)  |    0.00028
-Ingredient(full armor) |    0.00028
+mech-armor(legendary)  |    0.00056
+Ingredient(full armor) |    0.00056
 
 Recipes:
-big-mining-drill[speed-module*4, beacon[speed-module-2*2]] --> calcite                                                 |    3.90834
-big-mining-drill[quality-module*4] --> coal                                                                            |   92.55347
-big-mining-drill[quality-module-2*4] --> coal                                                                          |    3.53818
-electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> speed-module(legendary)                          |    0.02228
-electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> efficiency-module(legendary)                     |    0.02228
-electromagnetic-plant[productivity-module*5, beacon[speed-module-2(uncommon)*2]*2] --> electronic-circuit(uncommon)    |    0.70527
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> superconductor(legendary)     |    0.00451
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> electronic-circuit(legendary) |    0.02764
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> copper-cable(epic)            |    0.07905
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> copper-cable(legendary)       |    0.02258
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> advanced-circuit(legendary)   |    0.08649
-electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> processing-unit(legendary)    |    0.04737
-electromagnetic-plant[quality-module-2*5] --> speed-module(epic)                                                       |    0.41605
-electromagnetic-plant[quality-module-2*5] --> efficiency-module(epic)                                                  |    0.41605
-electromagnetic-plant[quality-module-2*5] --> electronic-circuit(rare)                                                 |    1.33149
-electromagnetic-plant[quality-module-2*5] --> electronic-circuit(epic)                                                 |    0.32602
-electromagnetic-plant[quality-module-2*5] --> copper-cable(epic)                                                       |    0.20936
-electromagnetic-plant[quality-module-2*5] --> big-electric-pole(rare)                                                  |    0.20908
-electromagnetic-plant[quality-module-2*5] --> solar-panel(rare)                                                        |    0.57966
-electromagnetic-plant[quality-module-2*5] --> solar-panel(epic)                                                        |    0.02925
-electromagnetic-plant[quality-module-2*5] --> advanced-circuit(epic)                                                   |    1.72270
-electromagnetic-plant[quality-module-2*5] --> substation(uncommon)                                                     |    0.64278
-electromagnetic-plant[quality-module-2*5] --> substation(rare)                                                         |    0.05160
-electromagnetic-plant[quality-module-2*5] --> processing-unit(epic)                                                    |    0.16642
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> night-vision-equipment(legendary)                   |    0.03408
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> solar-panel-equipment(legendary)                    |    0.00704
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> power-armor-mk2(legendary)                          |    0.00164
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> mech-armor(legendary)                               |    0.00494
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> copper-cable(uncommon)                              |    3.78732
-assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> copper-cable(rare)                                  |    0.78615
-assembling-machine-3[productivity-module*4, beacon[speed-module-2*2]] --> advanced-circuit(uncommon)                   |   16.18172
-assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> iron-stick(rare)                         |    0.30002
-assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> engine-unit(legendary)                   |    0.01041
-assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> electric-engine-unit(legendary)          |    0.02204
-assembling-machine-3[quality-module*4] --> pipe(uncommon)                                                              |    9.80005
-assembling-machine-3[quality-module*4] --> pipe(rare)                                                                  |    0.45063
-assembling-machine-3[quality-module-2*4] --> energy-shield-equipment(epic)                                             |    0.50671
-assembling-machine-3[quality-module-2*4] --> battery-equipment(epic)                                                   |    0.27778
-assembling-machine-3[quality-module-2*4] --> solar-panel-equipment(epic)                                               |    0.22401
-assembling-machine-3[quality-module-2*4] --> cargo-wagon                                                               |   16.17221
-assembling-machine-3[quality-module-2*4] --> power-armor-mk2(epic)                                                     |    0.01781
-assembling-machine-3[quality-module-2*4] --> engine-unit(epic)                                                         |    0.26544
-assembling-machine-3[quality-module-2*4] --> electric-engine-unit(epic)                                                |    0.24421
-foundry[speed-module*4, beacon[speed-module-2*2]] --> molten-iron-from-lava                                            |   40.98484
-foundry[speed-module*4, beacon[speed-module-2*2]] --> molten-copper-from-lava                                          |    4.90828
-foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-iron                                                     |   21.39883
-foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-steel                                                    |   50.37105
-foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-iron-gear-wheel                                          |    7.87048
-foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-pipe                                                     |   10.17958
-foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-pipe-to-ground(legendary)                                |    0.00337
-foundry[quality-module*4] --> casting-low-density-structure(uncommon)                                                  |   17.52055
-foundry[quality-module-2*4] --> casting-pipe-to-ground                                                                 |    7.54968
-foundry[quality-module-2*4] --> casting-pipe-to-ground(uncommon)                                                       |    1.41089
-foundry[quality-module-2*4] --> casting-pipe-to-ground(rare)                                                           |    0.25105
-foundry[quality-module-2*4] --> casting-pipe-to-ground(epic)                                                           |    0.04464
-foundry[quality-module-2*4] --> casting-low-density-structure(rare)                                                    |    5.77460
-recycler[speed-module*4, beacon[speed-module-2*2]] --> iron-stick-recycling(legendary)                                 |    0.00106
-recycler[speed-module*4, beacon[speed-module-2*2]] --> iron-gear-wheel-recycling(legendary)                            |    0.00025
-recycler[speed-module*4, beacon[speed-module-2*2]] --> pipe-to-ground-recycling(legendary)                             |    0.00415
-recycler[speed-module*4, beacon[speed-module-2*2]] --> big-electric-pole-recycling(legendary)                          |    0.00022
-recycler[speed-module*4, beacon[speed-module-2*2]] --> cargo-wagon-recycling(legendary)                                |    0.00006
-recycler[speed-module*4, beacon[speed-module-2*2]] --> substation-recycling(legendary)                                 |    0.00012
-recycler[speed-module*4, beacon[speed-module-2*2]] --> battery-recycling(legendary)                                    |    0.00047
-recycler[speed-module*4, beacon[speed-module-2*2]] --> low-density-structure-recycling(legendary)                      |    0.00750
-recycler[quality-module*4] --> low-density-structure-recycling(uncommon)                                               |   12.61480
-recycler[quality-module-2*4] --> energy-shield-equipment-recycling(epic)                                               |    0.07284
-recycler[quality-module-2*4] --> battery-equipment-recycling(epic)                                                     |    0.03993
-recycler[quality-module-2*4] --> solar-panel-equipment-recycling(epic)                                                 |    0.03220
-recycler[quality-module-2*4] --> iron-stick-recycling(epic)                                                            |    0.02170
-recycler[quality-module-2*4] --> iron-gear-wheel-recycling(uncommon)                                                   |    0.41846
-recycler[quality-module-2*4] --> iron-gear-wheel-recycling(rare)                                                       |    0.05822
-recycler[quality-module-2*4] --> iron-gear-wheel-recycling(epic)                                                       |    0.00539
-recycler[quality-module-2*4] --> electronic-circuit-recycling(rare)                                                    |    0.35104
-recycler[quality-module-2*4] --> pipe-to-ground-recycling                                                              |    5.20928
-recycler[quality-module-2*4] --> pipe-to-ground-recycling(uncommon)                                                    |    1.38119
-recycler[quality-module-2*4] --> pipe-to-ground-recycling(rare)                                                        |    0.29018
-recycler[quality-module-2*4] --> pipe-to-ground-recycling(epic)                                                        |    0.05605
-recycler[quality-module-2*4] --> big-electric-pole-recycling(rare)                                                     |    0.06615
-recycler[quality-module-2*4] --> big-electric-pole-recycling(epic)                                                     |    0.00662
-recycler[quality-module-2*4] --> solar-panel-recycling(rare)                                                           |    0.18341
-recycler[quality-module-2*4] --> cargo-wagon-recycling                                                                 |    2.32476
-recycler[quality-module-2*4] --> cargo-wagon-recycling(uncommon)                                                       |    0.18194
-recycler[quality-module-2*4] --> cargo-wagon-recycling(rare)                                                           |    0.01819
-recycler[quality-module-2*4] --> cargo-wagon-recycling(epic)                                                           |    0.00182
-recycler[quality-module-2*4] --> power-armor-mk2-recycling(epic)                                                       |    0.00256
-recycler[quality-module-2*4] --> substation-recycling(uncommon)                                                        |    0.20338
-recycler[quality-module-2*4] --> substation-recycling(rare)                                                            |    0.03666
-recycler[quality-module-2*4] --> substation-recycling(epic)                                                            |    0.00367
-recycler[quality-module-2*4] --> low-density-structure-recycling(rare)                                                 |    4.45753
-recycler[quality-module-2*4] --> low-density-structure-recycling(epic)                                                 |    0.31964
-recycler[quality-module-2*4] --> coal-recycling                                                                        |   17.33524
-chemical-plant --> lubricant                                                                                           |    0.04432
-chemical-plant --> acid-neutralisation                                                                                 |    3.39861
-chemical-plant --> steam-condensation                                                                                  |    6.54621
-chemical-plant --> heavy-oil-cracking                                                                                  |   16.29266
-chemical-plant --> light-oil-cracking                                                                                  |   22.98463
-chemical-plant[productivity-module-2*3, beacon[speed-module-2*2]*2] --> plastic-bar(legendary)                         |    0.00714
-chemical-plant[productivity-module-2*3, beacon[speed-module-2*2]*2] --> battery(epic)                                  |    0.18938
-chemical-plant[quality-module-2*3] --> plastic-bar(uncommon)                                                           |   14.82595
-chemical-plant[quality-module-2*3] --> plastic-bar(rare)                                                               |    1.48259
-chemical-plant[quality-module-2*3] --> plastic-bar(epic)                                                               |    0.14826
-oil-refinery --> coal-liquefaction                                                                                     |   25.09971
+big-mining-drill[speed-module*4, beacon[speed-module-2(uncommon)*2]*2] --> calcite                                     |    6.42447
+big-mining-drill[quality-module-2*4] --> coal                                                                          |   93.57553
+electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> speed-module(legendary)                          |    0.02702
+electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> efficiency-module(legendary)                     |    0.02702
+electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> copper-cable(rare)                               |    0.50000
+electromagnetic-plant[speed-module*5, beacon[speed-module-2*2]*2] --> advanced-circuit(uncommon)                       |    1.73709
+electromagnetic-plant[productivity-module*5, beacon[speed-module-2(uncommon)*2]*2] --> electronic-circuit(uncommon)    |    0.23230
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> superconductor(legendary)     |    0.00901
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> electronic-circuit(legendary) |    0.04388
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> copper-cable(epic)            |    0.11785
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> copper-cable(legendary)       |    0.03316
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> advanced-circuit(legendary)   |    0.12924
+electromagnetic-plant[productivity-module-2*5, beacon[speed-module-2(uncommon)*2]*2] --> processing-unit(legendary)    |    0.08583
+electromagnetic-plant[quality-module-2*5] --> speed-module(epic)                                                       |    1.19123
+electromagnetic-plant[quality-module-2*5] --> efficiency-module(epic)                                                  |    1.19123
+electromagnetic-plant[quality-module-2*5] --> electronic-circuit(rare)                                                 |    2.94649
+electromagnetic-plant[quality-module-2*5] --> electronic-circuit(epic)                                                 |    0.47110
+electromagnetic-plant[quality-module-2*5] --> copper-cable(epic)                                                       |    0.28013
+electromagnetic-plant[quality-module-2*5] --> big-electric-pole(uncommon)                                              |    2.38444
+electromagnetic-plant[quality-module-2*5] --> big-electric-pole(rare)                                                  |    0.25664
+electromagnetic-plant[quality-module-2*5] --> big-electric-pole(epic)                                                  |    0.04815
+electromagnetic-plant[quality-module-2*5] --> solar-panel(epic)                                                        |    0.17443
+electromagnetic-plant[quality-module-2*5] --> advanced-circuit(rare)                                                   |    8.67634
+electromagnetic-plant[quality-module-2*5] --> advanced-circuit(epic)                                                   |    2.63496
+electromagnetic-plant[quality-module-2*5] --> substation(uncommon)                                                     |    0.27377
+electromagnetic-plant[quality-module-2*5] --> substation(rare)                                                         |    0.23167
+electromagnetic-plant[quality-module-2*5] --> processing-unit(rare)                                                    |    3.67179
+electromagnetic-plant[quality-module-2*5] --> processing-unit(epic)                                                    |    0.10931
+assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> night-vision-equipment(legendary)                   |    0.08381
+assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> solar-panel-equipment(legendary)                    |    0.01407
+assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> power-armor-mk2(legendary)                          |    0.00291
+assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> mech-armor(legendary)                               |    0.00988
+assembling-machine-3[speed-module*4, beacon[speed-module-2*2]] --> copper-cable(uncommon)                              |    2.76588
+assembling-machine-3[productivity-module*4, beacon[speed-module-2*2]] --> iron-stick(uncommon)                         |    4.00179
+assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> iron-stick(rare)                         |    0.09359
+assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> engine-unit(legendary)                   |    0.00297
+assembling-machine-3[productivity-module-2*4, beacon[speed-module-2*2]*2] --> electric-engine-unit(legendary)          |    0.02983
+assembling-machine-3[quality-module*4] --> pipe(uncommon)                                                              |   15.70739
+assembling-machine-3[quality-module*4] --> copper-cable(rare)                                                          |    4.88982
+assembling-machine-3[quality-module-2*4] --> energy-shield-equipment(epic)                                             |    0.35332
+assembling-machine-3[quality-module-2*4] --> battery-equipment(epic)                                                   |    0.55556
+assembling-machine-3[quality-module-2*4] --> solar-panel-equipment(epic)                                               |    0.44803
+assembling-machine-3[quality-module-2*4] --> pipe(rare)                                                                |    0.06581
+assembling-machine-3[quality-module-2*4] --> cargo-wagon                                                               |   36.69833
+assembling-machine-3[quality-module-2*4] --> power-armor-mk2(epic)                                                     |    0.05099
+assembling-machine-3[quality-module-2*4] --> engine-unit(epic)                                                         |    0.76000
+assembling-machine-3[quality-module-2*4] --> electric-engine-unit(epic)                                                |    0.69920
+foundry[speed-module*4, beacon[speed-module-2*2]] --> molten-iron-from-lava                                            |   86.25867
+foundry[speed-module*4, beacon[speed-module-2*2]] --> molten-copper-from-lava                                          |   10.42959
+foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-iron                                                     |   51.23708
+foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-steel                                                    |  114.30308
+foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-iron-gear-wheel                                          |   17.85986
+foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-pipe                                                     |   15.89954
+foundry[speed-module*4, beacon[speed-module-2*2]] --> casting-pipe-to-ground(legendary)                                |    0.00489
+foundry[quality-module-2*4] --> casting-pipe-to-ground                                                                 |   11.79189
+foundry[quality-module-2*4] --> casting-pipe-to-ground(uncommon)                                                       |    2.23889
+foundry[quality-module-2*4] --> casting-pipe-to-ground(rare)                                                           |    0.33967
+foundry[quality-module-2*4] --> casting-pipe-to-ground(epic)                                                           |    0.06134
+foundry[quality-module-2*4] --> casting-low-density-structure(uncommon)                                                |   44.41583
+foundry[quality-module-2*4] --> casting-low-density-structure(rare)                                                    |    5.08396
+recycler[speed-module*4, beacon[speed-module-2*2]] --> iron-stick-recycling(legendary)                                 |    0.00460
+recycler[speed-module*4, beacon[speed-module-2*2]] --> iron-gear-wheel-recycling(legendary)                            |    0.00068
+recycler[speed-module*4, beacon[speed-module-2*2]] --> pipe-to-ground-recycling(legendary)                             |    0.00597
+recycler[speed-module*4, beacon[speed-module-2*2]] --> big-electric-pole-recycling(legendary)                          |    0.00102
+recycler[speed-module*4, beacon[speed-module-2*2]] --> cargo-wagon-recycling(legendary)                                |    0.00014
+recycler[speed-module*4, beacon[speed-module-2*2]] --> substation-recycling(legendary)                                 |    0.00027
+recycler[speed-module*4, beacon[speed-module-2*2]] --> battery-recycling(legendary)                                    |    0.00095
+recycler[speed-module*4, beacon[speed-module-2*2]] --> low-density-structure-recycling(legendary)                      |    0.00954
+recycler[quality-module-2*4] --> energy-shield-equipment-recycling(epic)                                               |    0.05079
+recycler[quality-module-2*4] --> battery-equipment-recycling(epic)                                                     |    0.07986
+recycler[quality-module-2*4] --> solar-panel-equipment-recycling(epic)                                                 |    0.06440
+recycler[quality-module-2*4] --> iron-gear-wheel-recycling(uncommon)                                                   |    0.94957
+recycler[quality-module-2*4] --> iron-gear-wheel-recycling(rare)                                                       |    0.13211
+recycler[quality-module-2*4] --> iron-gear-wheel-recycling(epic)                                                       |    0.01099
+recycler[quality-module-2*4] --> pipe-to-ground-recycling                                                              |    8.13640
+recycler[quality-module-2*4] --> pipe-to-ground-recycling(uncommon)                                                    |    2.18159
+recycler[quality-module-2*4] --> pipe-to-ground-recycling(rare)                                                        |    0.41895
+recycler[quality-module-2*4] --> pipe-to-ground-recycling(epic)                                                        |    0.07913
+recycler[quality-module-2*4] --> big-electric-pole-recycling(uncommon)                                                 |    0.75445
+recycler[quality-module-2*4] --> big-electric-pole-recycling(rare)                                                     |    0.15665
+recycler[quality-module-2*4] --> big-electric-pole-recycling(epic)                                                     |    0.03090
+recycler[quality-module-2*4] --> cargo-wagon-recycling                                                                 |    5.27539
+recycler[quality-module-2*4] --> cargo-wagon-recycling(uncommon)                                                       |    0.41286
+recycler[quality-module-2*4] --> cargo-wagon-recycling(rare)                                                           |    0.04129
+recycler[quality-module-2*4] --> cargo-wagon-recycling(epic)                                                           |    0.00413
+recycler[quality-module-2*4] --> power-armor-mk2-recycling(epic)                                                       |    0.00733
+recycler[quality-module-2*4] --> processing-unit-recycling(rare)                                                       |    1.16178
+recycler[quality-module-2*4] --> substation-recycling(uncommon)                                                        |    0.08662
+recycler[quality-module-2*4] --> substation-recycling(rare)                                                            |    0.08196
+recycler[quality-module-2*4] --> substation-recycling(epic)                                                            |    0.00820
+recycler[quality-module-2*4] --> low-density-structure-recycling(uncommon)                                             |   30.64692
+recycler[quality-module-2*4] --> low-density-structure-recycling(rare)                                                 |    5.90639
+recycler[quality-module-2*4] --> low-density-structure-recycling(epic)                                                 |    0.40131
+recycler[quality-module-2*4] --> coal-recycling                                                                        |   13.19494
+chemical-plant --> lubricant                                                                                           |    0.11528
+chemical-plant --> acid-neutralisation                                                                                 |    5.17961
+chemical-plant --> steam-condensation                                                                                  |    9.97640
+chemical-plant --> heavy-oil-cracking                                                                                  |   24.82612
+chemical-plant --> light-oil-cracking                                                                                  |   35.03227
+chemical-plant[productivity-module-2*3, beacon[speed-module-2*2]*2] --> plastic-bar(legendary)                         |    0.01089
+chemical-plant[productivity-module-2*3, beacon[speed-module-2*2]*2] --> battery(epic)                                  |    0.37876
+chemical-plant[quality-module-2*3] --> plastic-bar(uncommon)                                                           |   22.59996
+chemical-plant[quality-module-2*3] --> plastic-bar(rare)                                                               |    2.26000
+chemical-plant[quality-module-2*3] --> plastic-bar(epic)                                                               |    0.22600
+oil-refinery --> coal-liquefaction                                                                                     |   38.28271
 
 
 Other processes:
-CustomProcess(doubling Ingredient(grid 2x2)) |    0.00778
-CustomProcess(doubling Ingredient(grid 2x4)) |    0.00333
-CustomProcess(full armor)                    |    0.00028
-CustomProcess(grid solar-panel-equipment)    |    0.00417
-CustomProcess(grid battery-equipment)        |    0.00222
-CustomProcess(grid night-vision-equipment)   |    0.01150
-CustomProcess(grid energy-shield-equipment)  |    0.00405
+CustomProcess(doubling Ingredient(grid 2x2)) |    0.01556
+CustomProcess(doubling Ingredient(grid 2x4)) |    0.00667
+CustomProcess(full armor)                    |    0.00056
+CustomProcess(grid solar-panel-equipment)    |    0.00833
+CustomProcess(grid battery-equipment)        |    0.00444
+CustomProcess(grid night-vision-equipment)   |    0.02828
+CustomProcess(grid energy-shield-equipment)  |    0.00283
 
 Surpluses:
-copper-plate(uncommon) |    0.27068
-copper-plate(rare)     |    4.11121
-stone                  |  489.51599
+copper-plate(uncommon) |   41.48001
+stone                  | 1031.76839
