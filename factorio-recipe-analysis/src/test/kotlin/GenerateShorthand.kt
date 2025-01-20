@@ -41,12 +41,16 @@ fun main() = with(SpaceAge) {
     add("module", modules)
     add("craftingMachine", craftingMachines)
     add("miningDrill", miningDrills)
-    add("resource", resources)
+    add("resource", resources, suffix = "Mining")
     add("quality", qualityMap)
 
     // val WithFactorioPrototypes.$propName: $type get() = $fnName("$protoName")
     val result = buildString {
-        for ((propName, typeName, functionName, protoName) in shorthands.values) {
+        for (v in shorthands.values) {
+            val propName = v.property
+            val typeName = v.type
+            val functionName = v.function
+            val protoName = v.protoName
             appendLine("val WithFactorioPrototypes.$propName: $typeName get() = $functionName(\"$protoName\")")
         }
     }
