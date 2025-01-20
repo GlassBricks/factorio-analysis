@@ -1,8 +1,5 @@
 import glassbricks.factorio.recipes.*
-import glassbricks.recipeanalysis.LpOptions
-import glassbricks.recipeanalysis.OrToolsLp
-import glassbricks.recipeanalysis.Time
-import glassbricks.recipeanalysis.div
+import glassbricks.recipeanalysis.*
 import java.io.File
 import kotlin.time.Duration.Companion.minutes
 
@@ -41,11 +38,11 @@ fun main() {
             }
 
             foundry {
-                integral = true
+//                integral = true
             }
             recycler() // not integral as we can easily share recyclers
             electromagneticPlant {
-                integral = true
+//                integral = true
             }
         }
         recipes {
@@ -58,19 +55,23 @@ fun main() {
 
     val production = vulcanusFactory.problem {
         input(coal, cost = 10.0)
-        input(calcite, cost = 1.0)
+        input(calcite, cost = 10.0)
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.1)
+        //        input(scrap, cost = 1.0)
+//        input(heavyOil, cost = 0.0)
         fun addWithQualities(item: Item, baseCost: Double) {
 //            input(item, cost = baseCost)
 //            input(item.withQuality(uncommon), cost = baseCost * 5)
 //            input(item.withQuality(rare), cost = baseCost * 5 * 5)
-            input(item.withQuality(epic), cost = baseCost * 5 * 5 * 5)
+//            input(item.withQuality(epic), cost = baseCost * 5 * 5 * 5)
 //            input(item.withQuality(legendary), cost = baseCost * 5 * 5 * 5 * 5)
         }
-        addWithQualities(holmiumPlate, 100.0)
-        addWithQualities(supercapacitor, 350.0)
+//        addWithQualities(holmiumPlate, 100.0
+//        addWithQualities(supercapacitor, 350.0)
 
+        val slot2x2 = Symbol("2x2 slot")
+        val slot1x1 = Symbol("1x1 slot")
         output(
             mechArmor.withQuality(legendary),
             rate = 1.0 / Time(60.0 * 30.0),
@@ -87,7 +88,7 @@ fun main() {
             costOf(assemblingMachine3.item(), 3)
             costOf(foundry.item(), 5)
             costOf(recycler.item(), 10)
-            costOf(electromagneticPlant.item(), 60)
+            costOf(electromagneticPlant.item(), 50)
 
             fun addQualityCost(item: Item, baseCost: Double) {
                 costOf(item, baseCost)
@@ -112,6 +113,6 @@ fun main() {
     val display = solution.recipeSolution?.display()
     println(display)
     display?.let {
-        File("output/legendary-mech-armor.txt").writeText(it)
+        File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(it)
     }
 }

@@ -1,6 +1,7 @@
 import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.LpOptions
 import glassbricks.recipeanalysis.OrToolsLp
+import glassbricks.recipeanalysis.perSecond
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
@@ -39,18 +40,16 @@ fun main() {
         input(moltenIron, cost = 0.0)
         input(moltenCopper, cost = 0.0)
 
-        maximize(ironPlate.withQuality(epic))
+        output(ironPlate.withQuality(epic), 1.0.perSecond)
 
         costs {
             costOf(speedModule, 1)
             costOf(assemblingMachine3.item(), 3)
             costOf(speedModule2, 5)
             costOf(productivityModule2, 5)
+            costOf(qualityModule2, 5)
             costOf(foundry.item(), 5)
-
-            limit(qualityModule2, 100)
-            limit(qualityModule2.withQuality(uncommon), 20)
-            limit(qualityModule2.withQuality(rare), 4)
+            costOf(recycler.item(), 5)
         }
 
         lpOptions = LpOptions(
