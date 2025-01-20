@@ -349,6 +349,24 @@ class ProblemTest : FunSpec({
         solution.status shouldBe LpResultStatus.Optimal
         println(solution.recipeSolution!!.recipes.display())
     }
+    test("moduled mining") {
+        val problem = problem {
+            factory {
+                machines {
+                    "electric-mining-drill" {
+                        moduleConfig(fill = speed2)
+                    }
+                }
+                recipes {
+                    mining("iron-ore") {}
+                }
+            }
+            output(item("iron-ore"), 1.perSecond)
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        println(solution.recipeSolution!!.recipes.display())
+    }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

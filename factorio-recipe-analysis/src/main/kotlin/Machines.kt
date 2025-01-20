@@ -72,9 +72,12 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
 
     private var _allowedEffects: EnumSet<EffectType>? = null
     private val allowedEffects
-        get() = _allowedEffects ?: EnumSet.noneOf(EffectType::class.java).apply {
-            prototype.allowed_effects?.let { addAll(it) }
-        }.also { _allowedEffects = it }
+        get() = _allowedEffects ?: run {
+            val allowedEffects = prototype.allowed_effects
+            if (allowedEffects == null) EnumSet.allOf(EffectType::class.java)
+            else EnumSet.noneOf(EffectType::class.java).apply { addAll(allowedEffects) }
+        }
+            .also { _allowedEffects = it }
 
     override fun acceptsModule(module: Module): Boolean {
         if (prototype.module_slots.let { it == null || it.toInt() == 0 } ||

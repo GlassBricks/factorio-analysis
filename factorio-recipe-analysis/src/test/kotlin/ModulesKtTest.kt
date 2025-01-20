@@ -9,8 +9,10 @@ class ModulesKtTest : FunSpec({
     this as ModulesKtTest
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
-    val qual3 = module("quality-module-3")
     val prod1 = module("productivity-module")
+    val eff1 = module("efficiency-module")
+    val qual1 = module("quality-module")
+    val qual3 = module("quality-module-3")
     test("moduleList") {
         val moduleList1 = moduleList(2, prod1)
         moduleList1?.moduleCounts shouldBe listOf(ModuleCount(prod1, 1))
@@ -60,21 +62,28 @@ class ModulesKtTest : FunSpec({
             prod1.prototype.effect.toEffectInt(5) shouldBe baseEffect.copy(productivity = 10)
         }
     }
-    val beacon = SpaceAge.beacon
     test("beacon acceptsModule") {
-
         beacon.acceptsModule(module("speed-module")) shouldBe true
         beacon.acceptsModule(module("efficiency-module")) shouldBe true
         beacon.acceptsModule(module("productivity-module")) shouldBe false
         beacon.acceptsModule(module("quality-module")) shouldBe false
     }
 
-    test("acceptsModule") {
+    val asm1 = craftingMachine("assembling-machine-1")
+    val asm2 = craftingMachine("assembling-machine-2")
+    val drill = miningDrill("electric-mining-drill")
+    test("machine acceptsModule") {
+        asm1.acceptsModule(speed1) shouldBe false
 
-        beacon.acceptsModule(module("speed-module")) shouldBe true
-        beacon.acceptsModule(module("efficiency-module")) shouldBe true
-        beacon.acceptsModule(module("productivity-module")) shouldBe false
-        beacon.acceptsModule(module("quality-module")) shouldBe false
+        asm2.acceptsModule(speed1) shouldBe true
+        asm2.acceptsModule(prod1) shouldBe true
+        asm2.acceptsModule(qual1) shouldBe true
+        asm2.acceptsModule(eff1) shouldBe true
+
+        drill.acceptsModule(speed1) shouldBe true
+        drill.acceptsModule(prod1) shouldBe true
+        drill.acceptsModule(qual1) shouldBe true
+        drill.acceptsModule(eff1) shouldBe true
     }
 
     context("adding machine effects") {
@@ -152,6 +161,7 @@ class ModulesKtTest : FunSpec({
             )
         }
     }
+
 }), WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = SpaceAge
 }
