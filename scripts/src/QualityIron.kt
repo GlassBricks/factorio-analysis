@@ -27,18 +27,19 @@ fun main() {
 
             foundry()
             recycler()
+            bigMiningDrill()
         }
         recipes {
             default {
                 allQualities()
             }
             allRecipes()
+            calciteMining()
         }
     }
 
     val production = vulcanusFactory.problem {
-        input(moltenIron, cost = 0.0)
-        input(moltenCopper, cost = 0.0)
+        input(lava, cost = 0.0)
 
         output(ironPlate.withQuality(epic), 1.0.perSecond)
 

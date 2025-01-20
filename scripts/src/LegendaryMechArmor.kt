@@ -1,5 +1,8 @@
 import glassbricks.factorio.recipes.*
-import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.LpOptions
+import glassbricks.recipeanalysis.OrToolsLp
+import glassbricks.recipeanalysis.Time
+import glassbricks.recipeanalysis.div
 import java.io.File
 import kotlin.time.Duration.Companion.minutes
 
@@ -9,86 +12,83 @@ fun main() {
             default {
                 includeBuildCosts()
 
-                moduleConfig(fill = qualityModule2)
-                moduleConfig(fill = qualityModule2.withQuality(uncommon))
-                moduleConfig(fill = qualityModule2.withQuality(rare))
-                moduleConfig(fill = qualityModule2.withQuality(epic))
-                moduleConfig(fill = qualityModule2.withQuality(legendary))
                 moduleConfig()
 
-                val beacon6 = beacon(fill = speedModule2, sharing = 6.0)
+                val beacons = listOf(
+                    speedModule,
+                    speedModule2
+                ).flatMap { module ->
+                    qualities.map { q ->
+                        beacon(fill = module.withQuality(q), sharing = 6.0)
+                    }
+                }.map {
+                    listOf(it)
+                }.plusElement(emptyList())
 
-                for (q in qualities) {
-                    moduleConfig(fill = speedModule.withQuality(q))
-                    moduleConfig(fill = speedModule.withQuality(q), beacons = listOf(beacon6))
-                    moduleConfig(fill = speedModule2.withQuality(q))
-                    moduleConfig(fill = speedModule2.withQuality(q), beacons = listOf(beacon6))
-                    moduleConfig(fill = qualityModule2.withQuality(q))
-                    moduleConfig(fill = productivityModule2.withQuality(q), beacons = listOf(beacon6))
-                    moduleConfig(fill = productivityModule2.withQuality(q), beacons = listOf(beacon6 * 4))
+                val modules = listOf(
+                    speedModule,
+                    speedModule2,
+                    productivityModule,
+                    productivityModule2,
+                    qualityModule,
+                    qualityModule2
+                )
 
-//                moduleConfig(fill = qualityModule3.withQuality(q))
+                for (q in listOf(normal)) {
+                    for (module in modules) {
+                        for (beacon in beacons) {
+                            moduleConfig(fill = module.withQuality(q), beacons = beacon)
+                        }
+                    }
                 }
 
             }
             chemicalPlant()
             oilRefinery()
-            assemblingMachine3 {
-//                integral = true
-            }
-
-            foundry {
-//                integral = true
-            }
+            assemblingMachine3()
+            foundry()
             recycler() // not integral as we can easily share recyclers
-            electromagneticPlant {
-//                integral = true
-            }
+            electromagneticPlant()
+            bigMiningDrill()
         }
+        researchConfig = ResearchConfig(
+            miningProductivity = 0.2
+        )
         recipes {
             default {
                 allQualities()
             }
-            allRecipes {}
+            allRecipes()
+            calciteMining()
+            coalMining()
         }
     }
 
     val production = vulcanusFactory.problem {
-        input(coal, cost = 10.0)
-        input(calcite, cost = 10.0)
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.1)
-        //        input(scrap, cost = 1.0)
-//        input(heavyOil, cost = 0.0)
-        fun addWithQualities(item: Item, baseCost: Double) {
-//            input(item, cost = baseCost)
-//            input(item.withQuality(uncommon), cost = baseCost * 5)
-//            input(item.withQuality(rare), cost = baseCost * 5 * 5)
-//            input(item.withQuality(epic), cost = baseCost * 5 * 5 * 5)
-//            input(item.withQuality(legendary), cost = baseCost * 5 * 5 * 5 * 5)
-        }
-//        addWithQualities(holmiumPlate, 100.0
-//        addWithQualities(supercapacitor, 350.0)
 
-        val slot2x2 = Symbol("2x2 slot")
-        val slot1x1 = Symbol("1x1 slot")
+        fun addWithQualities(item: Item, baseCost: Double) {
+            input(item, cost = baseCost)
+            input(item.withQuality(uncommon), cost = baseCost * 5)
+            input(item.withQuality(rare), cost = baseCost * 5 * 5)
+            input(item.withQuality(epic), cost = baseCost * 5 * 5 * 5)
+            input(item.withQuality(legendary), cost = baseCost * 5 * 5 * 5 * 5)
+        }
+        addWithQualities(holmiumPlate, 100.0)
+        addWithQualities(supercapacitor, 350.0)
+
         output(
             mechArmor.withQuality(legendary),
-            rate = 1.0 / Time(60.0 * 30.0),
+            rate = 1.0 / Time(60.0 * 60.0),
         )
 
-//        surplusCost = 1e-8
-
         costs {
-            costOf(speedModule, 1)
-
-            costOf(speedModule2, 5)
-            costOf(productivityModule2, 5)
-
             costOf(assemblingMachine3.item(), 3)
             costOf(foundry.item(), 5)
             costOf(recycler.item(), 10)
             costOf(electromagneticPlant.item(), 50)
+            costOf(beacon.item(), 4)
 
             fun addQualityCost(item: Item, baseCost: Double) {
                 costOf(item, baseCost)
@@ -98,8 +98,10 @@ fun main() {
                 costOf(item.withQuality(legendary), baseCost * 5 * 5 * 5 * 5)
             }
             addQualityCost(qualityModule2, 5.0)
-//            limit(qualityModule2, 1)
-//            addQualityCost(qualityModule3, 22.0)
+
+            costOf(speedModule, 1)
+            costOf(speedModule2, 5)
+            costOf(productivityModule2, 5)
         }
 
         lpOptions = LpOptions(
