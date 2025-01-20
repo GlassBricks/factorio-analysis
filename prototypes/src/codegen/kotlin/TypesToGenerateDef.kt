@@ -123,6 +123,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             +"weight"
             +"ingredient_to_weight_coefficient"
             +"default_import_location"
+            +"place_as_equipment_result"
         }
         "ModulePrototype" {
             +"category"
@@ -130,14 +131,26 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             +"effect"
         }
         "ModuleCategory" {}
-        val origPrototypes = this@classesToGenerate.origPrototypes
-        for (prototype in getAllPrototypeSubclasses(origPrototypes, "ItemPrototype")) {
-            if (prototype.name in this@classesToGenerate.prototypes) continue
-            prototype(prototype.name) {}
+        fun addAllSubtypes(name: String) {
+            for (prototype in getAllPrototypeSubclasses(this@classesToGenerate.origPrototypes, name)) {
+                if (prototype.name !in this@classesToGenerate.prototypes) {
+                    prototype(prototype.name) {}
+                }
+            }
         }
+
+        addAllSubtypes("ItemPrototype")
 
         // fluid
         "FluidPrototype" {}
+
+        // equipment
+        "EquipmentPrototype" {
+            +"shape"
+        }
+        addAllSubtypes("EquipmentPrototype")
+        // ignore equipmentGhost
+        this@classesToGenerate.prototypes.remove("EquipmentGhostPrototype")
 
         // recipes
         "RecipePrototype" {
@@ -261,6 +274,12 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             includeAllProperties = false
             "flow_direction" {
                 innerEnumName = "FlowDirection"
+            }
+        }
+
+        "EquipmentShape" {
+            "type" {
+                innerEnumName = "EquipmentShapeType"
             }
         }
 

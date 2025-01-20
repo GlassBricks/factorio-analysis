@@ -151,6 +151,7 @@ class ProblemTest : FunSpec({
             val moltenIron = fluid("molten-iron")
             input(moltenIron)
             output(ironPlate.withQuality(legendary), 6.perMinute)
+            lpOptions = LpOptions(solver = OrToolsLp("CLP"))
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
