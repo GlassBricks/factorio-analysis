@@ -44,7 +44,6 @@ data class CraftingMachine(
         }
         return true
     }
-
 }
 typealias AnyCraftingMachine = AnyMachine<CraftingMachinePrototype>
 typealias CraftingMachineWithModules = MachineWithModules<CraftingMachinePrototype>
@@ -133,7 +132,7 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
         beacons: List<WithBeaconCount> = emptyList(),
     ) = withModules(modules.asList(), fill, beacons)
 
-    override fun toString(): String {
+    final override fun toString(): String {
         val prototype = prototype as EntityPrototype
         return if (quality.level == 0) prototype.name
         else "${prototype.name}(${quality.prototype.name})"

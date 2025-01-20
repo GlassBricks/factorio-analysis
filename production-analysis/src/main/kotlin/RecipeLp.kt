@@ -81,6 +81,18 @@ data class Output(
     }
 }
 
+data class CustomProcess(
+    val name: String,
+    override val ingredientRate: IngredientRate,
+    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
+    override val lowerBound: Double = 0.0,
+    override val upperBound: Double = Double.POSITIVE_INFINITY,
+    override val cost: Double = 0.0,
+    override val integral: Boolean = false,
+) : PseudoProcess {
+    override fun toString(): String = "CustomProcess($name)"
+}
+
 data class RecipeLp(
     val processes: List<PseudoProcess>,
     val additionalConstraints: List<SymbolConstraint> = emptyList(),
@@ -174,8 +186,9 @@ fun RecipeLp.solve(): RecipeLpResult {
             addAll(constraint.lhs.keys)
         }
         addAll(symbolCosts.keys)
+    }.associateWith {
+        costVariables[it] ?: Variable(name = "symbol $it", lb = 0.0)
     }
-        .associateWith { costVariables[it] ?: Variable(name = "symbol $it") }
     val additionalConstraints = additionalConstraints.map { (lhs, op, rhs) ->
         Constraint(lhs.mapKeys { allSymbolVars[it.key]!! }, op, rhs)
     }

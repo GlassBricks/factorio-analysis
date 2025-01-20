@@ -11,6 +11,7 @@ class Problem(
     val symbolCosts: Map<Symbol, Double>,
     surplusCost: Double,
     lpOptions: LpOptions,
+    customProcesses: List<PseudoProcess>,
 ) {
 
     val inputs: Map<Ingredient, List<Input>> = inputs
@@ -25,6 +26,7 @@ class Problem(
             inputs,
             outputs,
             factory.allProcesses,
+            customProcesses,
         ),
         surplusCost = surplusCost,
         lpOptions = lpOptions,
@@ -105,13 +107,13 @@ class ProblemBuilder(
     fun output(
         ingredient: Ingredient,
         rate: Rate,
-        weight: Double = DefaultWeights.outputCost,
+        weight: Double = 0.0,
     ) {
         outputs += Output(ingredient = ingredient, weight = weight, lowerBound = rate.perSecond)
     }
 
-    fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.maximizeWeight) {
-        output(ingredient, rate = Rate.zero, weight = weight)
+    fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.maximizeWeight, rate: Rate = Rate.zero) {
+        output(ingredient, rate = rate, weight = weight)
     }
 
     val symbolConstraints: MutableList<SymbolConstraint> = mutableListOf()
@@ -136,6 +138,11 @@ class ProblemBuilder(
         }
     }
 
+    val customProcesses: MutableList<PseudoProcess> = mutableListOf()
+    inline fun customProcess(name: String, block: CustomProcessBuilder.() -> Unit) {
+        customProcesses += CustomProcessBuilder(name).apply(block).build()
+    }
+
     var surplusCost: Double = DefaultWeights.defaultSurplusCost
     var lpOptions: LpOptions = LpOptions()
 
@@ -146,7 +153,8 @@ class ProblemBuilder(
         surplusCost = surplusCost,
         additionalConstraints = symbolConstraints,
         lpOptions = lpOptions,
-        symbolCosts = symbolCosts
+        symbolCosts = symbolCosts,
+        customProcesses = customProcesses,
     )
 }
 

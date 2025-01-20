@@ -367,6 +367,24 @@ class ProblemTest : FunSpec({
         solution.status shouldBe LpResultStatus.Optimal
         println(solution.recipeSolution!!.recipes.display())
     }
+
+    test("purely custom") {
+        val foo = Ingredient("foo")
+        val foo2 = Ingredient("foo2")
+        val problem = problem {
+            factory {}
+            customProcess("foo crafting") {
+                ingredientRate -= vector(foo to 1.0)
+                ingredientRate += vector(foo2 to 1.0)
+            }
+            input(foo)
+            output(foo2, 1.perSecond)
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        println(solution.recipeSolution!!.recipes.display())
+
+    }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

@@ -5,15 +5,15 @@ import glassbricks.recipeanalysis.*
 
 data class ResearchConfig(
     val maxQuality: Quality? = null,
-    val recipeProductivity: Map<RecipeID, Float> = emptyMap(),
-    val miningProductivity: Float = 0f,
+    val recipeProductivity: Map<RecipeID, Double> = emptyMap(),
+    val miningProductivity: Double = 0.0,
 )
 
 data class MachineSetup<M : AnyMachine<*>>(
     val machine: M,
     val process: RecipeOrResource<M>,
     val maxQuality: Quality? = null,
-    val extraProductivity: Float = 0f,
+    val extraProductivity: Double = 0.0,
 ) : Process {
     constructor(
         machine: M,
@@ -24,7 +24,7 @@ data class MachineSetup<M : AnyMachine<*>>(
         process,
         config.maxQuality,
         when (process) {
-            is Recipe -> config.recipeProductivity[RecipeID(process.prototype.name)] ?: 0f
+            is Recipe -> config.recipeProductivity[RecipeID(process.prototype.name)] ?: 0.0
             is Resource -> config.miningProductivity
         },
     )
@@ -34,7 +34,7 @@ data class MachineSetup<M : AnyMachine<*>>(
     }
 
     val effectsUsed: IntEffects = machine.effects.let {
-        if (extraProductivity != 0f) it + IntEffects(productivity = extraProductivity.toIntEffect()) else it
+        if (extraProductivity != 0.0) it + IntEffects(productivity = extraProductivity.toFloat().toIntEffect()) else it
     }
     val cycleTime: Time = process.craftingTime / machine.finalCraftingSpeed
     val cycleOutputs = process.outputs.applyProdAndQuality(
