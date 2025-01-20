@@ -10,8 +10,8 @@ import glassbricks.recipeanalysis.vector
  */
 interface IngredientsMap {
     val defaultQuality: Quality
-    val items: Map<ItemID, Item>
-    val fluids: Map<FluidID, Fluid>
+    fun get(id: ItemID): Item
+    fun get(id: FluidID): Fluid
 }
 
 data class IngredientAmount(
@@ -20,13 +20,13 @@ data class IngredientAmount(
 )
 
 fun IngredientsMap.getIngredientAmount(ingredient: IngredientPrototype): IngredientAmount = when (ingredient) {
-    is ItemIngredientPrototype -> IngredientAmount(items[ingredient.name]!!, ingredient.amount.toDouble())
-    is FluidIngredientPrototype -> IngredientAmount(fluids[ingredient.name]!!, ingredient.amount)
+    is ItemIngredientPrototype -> IngredientAmount(get(ingredient.name), ingredient.amount.toDouble())
+    is FluidIngredientPrototype -> IngredientAmount(get(ingredient.name), ingredient.amount)
 }
 
 fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount = when (product) {
     is ItemProductPrototype -> {
-        val item = items[product.name]!!
+        val item = get(product.name)
         val baseAmount: Double = product.amount ?: ((product.amount_min!! + product.amount_max!!).toDouble() / 2.0)
         // ignore extraCountFraction???
         val amount: Double = baseAmount * product.probability
@@ -34,7 +34,7 @@ fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount
     }
 
     is FluidProductPrototype -> {
-        val fluid = fluids[product.name]!!
+        val fluid = get(product.name)
         val baseAmount = product.amount ?: ((product.amount_min!! + product.amount_max!!) / 2.0)
         val amount = baseAmount * product.probability
         IngredientAmount(fluid, amount, product.ignored_by_productivity ?: 0.0)

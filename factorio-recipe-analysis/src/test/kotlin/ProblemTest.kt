@@ -331,6 +331,24 @@ class ProblemTest : FunSpec({
         usage shouldBe 1.0
     }
 
+    test("with mining") {
+        val problem = problem {
+            factory {
+                machines {
+                    "electric-mining-drill" {}
+                    "electric-furnace" {}
+                }
+                recipes {
+                    mining("iron-ore") {}
+                    "iron-plate" {}
+                }
+            }
+            output(item("iron-plate"), 1.perSecond)
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        println(solution.recipeSolution!!.recipes.display())
+    }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

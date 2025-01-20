@@ -12,6 +12,7 @@ sealed interface RecipeOrResource<M : AnyMachine<*>> {
     val craftingTime: Time
 
     val inputQuality: Quality
+    fun withQualityOrNull(quality: Quality): RecipeOrResource<M>?
 }
 
 class Recipe private constructor(
@@ -27,7 +28,7 @@ class Recipe private constructor(
     override val outputs get() = baseProducts.withItemsQuality(inputQuality)
     override val outputsToIgnoreProductivity get() = baseProductsIgnoreProd.withItemsQuality(inputQuality)
 
-    fun withQualityOrNull(quality: Quality): Recipe? {
+    override fun withQualityOrNull(quality: Quality): Recipe? {
         if (quality == this.inputQuality) return this
         if (quality.level != 0 && baseIngredients.keys.none { it is Item }) return null
         return Recipe(

@@ -1,9 +1,9 @@
 package glassbricks.factorio.recipes
 
 data class Shorthand(
-    val propName: String,
-    val typeName: String,
-    val functionName: String,
+    val property: String,
+    val type: String,
+    val function: String,
     val protoName: String,
 )
 
@@ -15,30 +15,23 @@ fun toCamelCase(s: String): String {
 }
 
 fun main() = with(SpaceAge) {
-    // key by protoName
     val shorthands = mutableMapOf<String, Shorthand>()
-    fun add(
-        fnName: String,
-        typeName: String,
-        protoName: String,
-    ) {
-        shorthands[protoName] = Shorthand(
-            propName = toCamelCase(protoName),
-            typeName = typeName,
-            protoName = protoName,
-            functionName = fnName
-        )
-    }
 
     fun <K, T : Any> add(
         fnName: String,
         map: Map<K, T>,
+        suffix: String = "",
     ) {
-        for ((protoName, el) in map) add(
-            fnName = fnName,
-            typeName = fnName.capitalize(),
-            protoName = protoName.toString(),
-        )
+        for ((protoName, el) in map) {
+            val protoName = protoName.toString()
+            val propName = toCamelCase(protoName) + suffix
+            shorthands[propName] = Shorthand(
+                property = propName,
+                type = fnName.capitalize(),
+                function = fnName,
+                protoName = protoName,
+            )
+        }
     }
 
     // lowest to highest priority
@@ -48,6 +41,7 @@ fun main() = with(SpaceAge) {
     add("module", modules)
     add("craftingMachine", craftingMachines)
     add("miningDrill", miningDrills)
+    add("resource", resources)
     add("quality", qualityMap)
 
     // val WithFactorioPrototypes.$propName: $type get() = $fnName("$protoName")

@@ -17,8 +17,8 @@ class Problem(
         .groupBy { it.ingredient }
     val outputs: Map<Ingredient, List<Output>> = outputs
         .groupBy { it.ingredient }
-    val recipes: Map<MachineProcess<*>, LpProcess> =
-        factory.allProcesses.associateBy { it.process as MachineProcess<*> }
+    val recipes: Map<MachineSetup<*>, LpProcess> =
+        factory.allProcesses.associateBy { it.process as MachineSetup<*> }
 
     val recipeLp = RecipeLp(
         processes = concat(
@@ -55,7 +55,7 @@ class Solution(
         return Rate(input.sumOf { usage[it] })
     }
 
-    fun amountUsed(recipe: MachineProcess<*>): Double? {
+    fun amountUsed(recipe: MachineSetup<*>): Double? {
         val usage = recipeSolution?.recipes ?: return 0.0
         val lpProcess = problem.recipes[recipe] ?: return 0.0
         return usage[lpProcess]

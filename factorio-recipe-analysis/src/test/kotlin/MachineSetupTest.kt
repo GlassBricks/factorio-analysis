@@ -5,11 +5,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class CraftingSetupTest : FunSpec({
-    this as CraftingSetupTest
-    val asm2 = machine("assembling-machine-2")
-    val asm3 = machine("assembling-machine-3")
-    val foundry = machine("foundry")
+class MachineSetupTest : FunSpec({
+    this as MachineSetupTest
+    val asm2 = craftingMachine("assembling-machine-2")
+    val asm3 = craftingMachine("assembling-machine-3")
+    val foundry = craftingMachine("foundry")
     val prod1 = module("productivity-module")
     val speed1 = module("speed-module")
     val quality3 = module("quality-module-3")
@@ -24,14 +24,22 @@ class CraftingSetupTest : FunSpec({
             )
         )
     }
+    test("crafting") {
+        val beltRecipe = recipe("transport-belt")
+        asm2.processing(beltRecipe) shouldBe MachineSetup(
+            machine = asm2,
+            process = beltRecipe,
+        )
+
+    }
     test("doesn't accept prod modules in non prod recipe") {
-        asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
+        asm2.withModules(prod1).processingOrNull(recipe("transport-belt")) shouldBe null
         shouldThrow<IllegalArgumentException> {
-            asm2.withModules(prod1).crafting(recipe("transport-belt"))
+            asm2.withModules(prod1).processing(recipe("transport-belt"))
         }
     }
     test("basic recipe") {
-        val setup = asm2.crafting(recipe("electronic-circuit"))
+        val setup = asm2.processing(recipe("electronic-circuit"))
         setup.cycleInputs shouldBe mapOf(
             item("copper-cable") to 3.0,
             item("iron-plate") to 1.0,
@@ -47,7 +55,7 @@ class CraftingSetupTest : FunSpec({
 
         val withSpeed = asm2
             .withModules(speed1)
-            .crafting(recipe("electronic-circuit"))
+            .processing(recipe("electronic-circuit"))
 
         withSpeed.cycleTime.seconds shouldBe near(1 / 1.8)
         withSpeed.cycleInputs shouldBe setup.cycleInputs
@@ -60,7 +68,7 @@ class CraftingSetupTest : FunSpec({
 
         val withProd = asm2
             .withModules(prod1)
-            .crafting(recipe("electronic-circuit"))
+            .processing(recipe("electronic-circuit"))
 
         withProd.cycleTime.seconds shouldBe near(0.5 / 0.75 / 0.95)
         withProd.cycleInputs shouldBe setup.cycleInputs
@@ -75,7 +83,7 @@ class CraftingSetupTest : FunSpec({
 
 
     test("with intrinsic prod") {
-        val setup = foundry.crafting(recipe("transport-belt"))
+        val setup = foundry.processing(recipe("transport-belt"))
 
         setup.cycleInputs shouldBe mapOf(
             item("iron-plate") to 1.0,
@@ -92,7 +100,7 @@ class CraftingSetupTest : FunSpec({
     }
 
     test("crafting different quality") {
-        val setup = asm2.crafting(recipe("electronic-circuit").withQuality(legendary))
+        val setup = asm2.processing(recipe("electronic-circuit").withQuality(legendary))
         setup.cycleInputs shouldBe mapOf(
             item("copper-cable").maybeWithQuality(legendary) to 3.0,
             item("iron-plate").maybeWithQuality(legendary) to 1.0,
@@ -109,7 +117,7 @@ class CraftingSetupTest : FunSpec({
 
     test("Gambling!") {
         val setup = asm3.withModules(quality3.repeat(3))
-            .crafting(recipe("iron-chest"))
+            .processing(recipe("iron-chest"))
         val probs = listOf(
             1 - 0.075,
             0.075 * 0.9,
@@ -127,7 +135,7 @@ class CraftingSetupTest : FunSpec({
     }
     test("Gambling but I'm not legendary") {
         val setup2 = asm3.withModules(quality3.repeat(3))
-            .crafting(
+            .processing(
                 recipe("iron-chest").withQuality(uncommon),
                 ResearchConfig(maxQuality = epic)
             )
@@ -143,7 +151,7 @@ class CraftingSetupTest : FunSpec({
         setup2.cycleOutputs.round1e6() shouldBe expected2.round1e6()
     }
     test("gambling with fluids") {
-        val setup = foundry.crafting(
+        val setup = foundry.processing(
             recipe("casting-low-density-structure")
                 .withQuality(epic)
         )
@@ -157,7 +165,7 @@ class CraftingSetupTest : FunSpec({
     }
     test("gambling legendary quality should do nothing") {
         val setup = asm3.withModules(quality3.repeat(4))
-            .crafting(recipe("iron-chest").withQuality(legendary))
+            .processing(recipe("iron-chest").withQuality(legendary))
 
         setup.cycleOutputs.round1e6() shouldBe rateVector(item("iron-chest").withQuality(legendary) to 1.0)
     }

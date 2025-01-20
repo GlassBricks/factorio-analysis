@@ -1,5 +1,7 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.prototypes.CraftingMachinePrototype
+import glassbricks.factorio.prototypes.MiningDrillPrototype
 import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.recipeanalysis.*
 
@@ -12,7 +14,7 @@ class FactoryConfig(
 ) : WithFactorioPrototypes
 
 data class MachineConfig(
-    val machine: AnyCraftingMachine,
+    val machine: AnyMachine<*>,
     val includeBuildCosts: Boolean,
     val additionalCosts: AmountVector<Symbol>,
     val integral: Boolean,
@@ -20,7 +22,7 @@ data class MachineConfig(
 
 class MachineConfigScope(
     val prototypes: FactorioPrototypes,
-    val machine: CraftingMachine,
+    val machine: BaseMachine<*>,
 ) {
     val qualities = sortedSetOf(prototypes.defaultQuality)
 
@@ -70,7 +72,8 @@ class MachineConfigScope(
 typealias MachineConfigFn = MachineConfigScope.() -> Unit
 
 @RecipesConfigDsl
-class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe: Recipe) : WithFactorioPrototypes {
+class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process: RecipeOrResource<*>) :
+    WithFactorioPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
     fun allQualities() {
         qualities.addAll(prototypes.qualities)
@@ -82,15 +85,15 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val recipe:
 
     var additionalCosts: AmountVector<Symbol> = emptyVector()
 
-    private var withQualitiesList: List<Recipe>? = null
+    private var withQualitiesList: List<RecipeOrResource<*>>? = null
     internal fun addCraftingSetups(
         list: MutableList<in LpProcess>,
         machine: MachineConfig,
         config: ResearchConfig,
     ) {
-        withQualitiesList = withQualitiesList ?: qualities.mapNotNull { recipe.withQualityOrNull(it) }
+        withQualitiesList = withQualitiesList ?: qualities.mapNotNull { process.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
-            val machineSetup = machine.machine.craftingOrNull(quality, config) ?: continue
+            val machineSetup = machine.machine.craftingOrNullCast(quality, config) ?: continue
             val additionalCosts: AmountVector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
@@ -117,19 +120,19 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
     @RecipesConfigDsl
     inner class MachinesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
         var defaultConfig: MachineConfigFn? = null
-        val machineConfigs = mutableMapOf<CraftingMachine, MutableList<MachineConfigFn>>()
+        val machineConfigs = mutableMapOf<BaseMachine<*>, MutableList<MachineConfigFn>>()
 
         fun default(block: MachineConfigFn) {
             defaultConfig = block
         }
 
-        operator fun CraftingMachine.invoke(block: MachineConfigFn? = null) {
+        operator fun BaseMachine<*>.invoke(block: MachineConfigFn? = null) {
             val list = machineConfigs.getOrPut(this, ::ArrayList)
             if (block != null) list += block
         }
 
         operator fun String.invoke(block: MachineConfigFn) {
-            craftingMachine(this)(block)
+            machine(this)(block)
         }
     }
 
@@ -139,12 +142,12 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
     @RecipesConfigDsl
     inner class RecipesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
         var defaultRecipeConfig: RecipeConfigFn? = null
-        val recipeConfigs = mutableMapOf<Recipe, MutableList<RecipeConfigFn>>()
+        val recipeConfigs = mutableMapOf<RecipeOrResource<*>, MutableList<RecipeConfigFn>>()
         fun default(block: RecipeConfigFn) {
             defaultRecipeConfig = block
         }
 
-        operator fun Recipe.invoke(block: RecipeConfigFn? = null) {
+        operator fun RecipeOrResource<*>.invoke(block: RecipeConfigFn? = null) {
             val list = recipeConfigs.getOrPut(this, ::ArrayList)
             if (block != null) list += block
         }
@@ -167,6 +170,15 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
 
         fun allRecycling(config: RecipeConfigFn = {}) {
             allOfCategory("recycling", config)
+        }
+
+        fun mining(
+            vararg resources: String,
+            config: RecipeConfigFn? = null,
+        ) {
+            for (resource in resources) {
+                resource(resource)(config)
+            }
         }
     }
 
@@ -195,16 +207,28 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
     private fun getAllProcesses(): List<LpProcess> {
         val machines = getAllMachines()
         val configs = getAllRecipeConfigs()
-        val configsByCategory = configs.groupBy { it.recipe.prototype.category }
+        val (recipes, mining) = configs.partition { it.process is Recipe }
+        val recipeConfigs = recipes.groupBy { (it.process as Recipe).prototype.category }
+        val miningConfigs = mining.groupBy { (it.process as Resource).prototype.category }
         val sizeEstimate = machines.size * configs.sumOf { it.sizeEstimate } * 1.1
         return buildList(sizeEstimate.toInt()) {
             for (machine in machines) {
-                for (category in machine.machine.prototype.crafting_categories) {
-                    val categoryConfigs = configsByCategory[category] ?: continue
-                    for (config in categoryConfigs) {
-                        config.addCraftingSetups(this, machine, researchConfig)
+                val prototype = machine.machine.prototype
+                if (prototype is CraftingMachinePrototype) {
+                    for (category in prototype.crafting_categories) {
+                        val categoryConfigs = recipeConfigs[category] ?: continue
+                        for (config in categoryConfigs) {
+                            config.addCraftingSetups(this, machine, researchConfig)
+                        }
                     }
-                }
+                } else if (prototype is MiningDrillPrototype) {
+                    for (category in prototype.resource_categories) {
+                        val categoryConfigs = miningConfigs[category] ?: continue
+                        for (config in categoryConfigs) {
+                            config.addCraftingSetups(this, machine, researchConfig)
+                        }
+                    }
+                } else error("Unknown machine type: $prototype")
             }
         }
     }

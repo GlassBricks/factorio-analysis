@@ -3,12 +3,12 @@ package glassbricks.factorio.recipes
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-fun machine(name: String) = SpaceAge.craftingMachines[name]!!
-class CraftingMachineTest : FunSpec({
+class MachineTest : FunSpec({
+    this as MachineTest
     val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
     val speed1 = SpaceAge.module("speed-module")
     test("assembling machine 2 and modules") {
-        val asm2 = machine("assembling-machine-2")
+        val asm2 = craftingMachine("assembling-machine-2")
         asm2.prototype.name shouldBe "assembling-machine-2"
 
         asm2.baseCraftingSpeed shouldBe 0.75
@@ -23,7 +23,7 @@ class CraftingMachineTest : FunSpec({
         asm2.withModules(speed1).effects shouldBe speed1.effects
     }
     test("em plant and modules") {
-        val plant = machine("electromagnetic-plant")
+        val plant = craftingMachine("electromagnetic-plant")
 
         plant.prototype.name shouldBe "electromagnetic-plant"
         plant.baseCraftingSpeed shouldBe 2.0
@@ -36,7 +36,9 @@ class CraftingMachineTest : FunSpec({
         plant.withModules(speed1).effects shouldBe plant.effects + speed1.effects
     }
     test("withModulesOrNull should return null if too many modules") {
-        val plant = machine("assembling-machine-2")
+        val plant = craftingMachine("assembling-machine-2")
         plant.withModulesOrNull(speed1, speed1, speed1) shouldBe null
     }
-})
+}), WithFactorioPrototypes {
+    override val prototypes get() = SpaceAge
+}

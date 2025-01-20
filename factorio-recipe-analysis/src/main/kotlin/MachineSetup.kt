@@ -9,61 +9,69 @@ data class ResearchConfig(
     val miningProductivity: Float = 0f,
 )
 
-data class MachineProcess<M : AnyMachine<*>>(
+data class MachineSetup<M : AnyMachine<*>>(
     val machine: M,
-    val recipe: RecipeOrResource<M>,
+    val process: RecipeOrResource<M>,
     val maxQuality: Quality? = null,
     val extraProductivity: Float = 0f,
 ) : Process {
     constructor(
         machine: M,
-        recipe: RecipeOrResource<M>,
+        process: RecipeOrResource<M>,
         config: ResearchConfig,
     ) : this(
         machine,
-        recipe,
+        process,
         config.maxQuality,
-        when (recipe) {
-            is Recipe -> config.recipeProductivity[RecipeID(recipe.prototype.name)] ?: 0f
+        when (process) {
+            is Recipe -> config.recipeProductivity[RecipeID(process.prototype.name)] ?: 0f
             is Resource -> config.miningProductivity
         },
     )
 
     init {
-        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
+        require(machine.canProcess(process)) { "$machine does not accept $process" }
     }
 
     val effectsUsed: IntEffects = machine.effects.let {
         if (extraProductivity != 0f) it + IntEffects(productivity = extraProductivity.toIntEffect()) else it
     }
-    val cycleTime: Time = recipe.craftingTime / machine.finalCraftingSpeed
-    val cycleOutputs = recipe.outputs.applyProdAndQuality(
+    val cycleTime: Time = process.craftingTime / machine.finalCraftingSpeed
+    val cycleOutputs = process.outputs.applyProdAndQuality(
         effectsUsed,
-        recipe.outputsToIgnoreProductivity,
-        recipe.inputQuality,
+        process.outputsToIgnoreProductivity,
+        process.inputQuality,
         maxQuality,
     )
-    val cycleInputs get() = recipe.inputs
+    val cycleInputs get() = process.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
-    override fun toString(): String = "(${machine} -> ${recipe})"
+    override fun toString(): String = "(${machine} -> ${process})"
 }
 
-fun <M : AnyMachine<*>> M.crafting(
-    recipe: RecipeOrResource<M>,
+fun <M : AnyMachine<*>> M.processing(
+    process: RecipeOrResource<M>,
     config: ResearchConfig = ResearchConfig(),
-): MachineProcess<M> =
-    MachineProcess(this, recipe, config)
+): MachineSetup<M> =
+    MachineSetup(this, process, config)
 
-fun <M : AnyMachine<*>> M.craftingOrNull(
-    recipe: RecipeOrResource<M>,
+fun <M : AnyMachine<*>> M.processingOrNull(
+    process: RecipeOrResource<M>,
     config: ResearchConfig = ResearchConfig(),
-): MachineProcess<M>? =
-    if (!this.canProcess(recipe)) null
-    else MachineProcess(this, recipe, config)
+): MachineSetup<M>? =
+    if (!this.canProcess(process)) null
+    else MachineSetup(this, process, config)
 
-typealias CraftingProcess = MachineProcess<AnyCraftingMachine>
-typealias MiningProcess = MachineProcess<AnyMiningDrill>
+@Suppress("UNCHECKED_CAST")
+fun <M : AnyMachine<*>> M.craftingOrNullCast(
+    process: RecipeOrResource<*>,
+    config: ResearchConfig = ResearchConfig(),
+): MachineSetup<M>? =
+    if (!this.canProcess(process)) null
+    else MachineSetup(this, process as RecipeOrResource<M>, config)
+
+typealias CraftingSetup = MachineSetup<AnyCraftingMachine>
+typealias MiningSetup = MachineSetup<AnyMiningDrill>
 
 internal fun IngredientVector.applyProductivity(
     productsIgnoredFromProductivity: IngredientVector?,

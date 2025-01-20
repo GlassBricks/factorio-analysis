@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 
 class FactoryConfigKtTest : FunSpec({
     this as FactoryConfigKtTest
-    val asm2 = machine("assembling-machine-2")
+    val asm2 = craftingMachine("assembling-machine-2")
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
     val prod2 = module("productivity-module-2")
@@ -56,22 +56,37 @@ class FactoryConfigKtTest : FunSpec({
             asm2.withModules(fill = prod2),
         ).flatMap { listOf(it, it.withQuality(uncommon)) }
         val expectedRecipes = machines.flatMap { machine ->
-            recipes.mapNotNull { machine.craftingOrNull(it) }
+            recipes.mapNotNull { machine.processingOrNull(it) }
         }.toSet()
         val allProcesses = config.allProcesses
         allProcesses.forAll {
             it.cost shouldBe 1.2
-            val recipe = (it.process as MachineProcess<*>).recipe
+            val recipe = (it.process as MachineSetup<*>).process
             it.upperBound shouldBe if ((recipe as? Recipe)?.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
             it.integral shouldBe (recipe == transportBelt)
         }
-        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineProcess<*> }
+        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineSetup<*> }
         val extra = expectedRecipes - actualRecipes
         val missing = actualRecipes - expectedRecipes
         assertSoftly {
             extra shouldBe emptySet()
             missing shouldBe emptySet()
         }
+    }
+    test("mining recipe") {
+        val ironOre = resource("iron-ore")
+        val drill = miningDrill("electric-mining-drill")
+        val config = SpaceAge.factory {
+            machines {
+                drill()
+            }
+            recipes {
+                ironOre {}
+            }
+        }
+        val recipe = config.allProcesses.single().process as MachineSetup<*>
+        recipe shouldBe drill.processing(ironOre)
+
     }
     test("additional costs") {
         val symbolA = Symbol("a")
@@ -91,7 +106,6 @@ class FactoryConfigKtTest : FunSpec({
         val recipe = config.allProcesses.single()
         recipe.additionalCosts shouldBe vector(symbolA to 1.0, symbolB to 2.0)
     }
-
     test("build costs") {
         val symbol1 = Symbol("1")
         val config = SpaceAge.factory {

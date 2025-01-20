@@ -27,9 +27,9 @@ data class MachineWithModules<P>(
     override fun acceptsModule(module: Module): Boolean = machine.acceptsModule(module)
 
     override val modulesUsed: List<Module> get() = moduleSet.modulesUsed()
-    override fun canProcess(recipe: RecipeOrResource<*>): Boolean {
-        if (recipe is Recipe && !recipe.acceptsModules(modulesUsed)) return false
-        return machine.canProcess(recipe)
+    override fun canProcess(process: RecipeOrResource<*>): Boolean {
+        if (process is Recipe && !process.acceptsModules(modulesUsed)) return false
+        return machine.canProcess(process)
     }
 
     override val effects: IntEffects get() = machine.effects + moduleSet
@@ -40,35 +40,3 @@ data class MachineWithModules<P>(
 
     override fun toString(): String = "${machine}${moduleSet}"
 }
-
-interface ModuleInstall<P> {
-    val prototype: MachinePrototype
-    fun withModulesOrNull(modules: ModuleSet): P?
-}
-
-fun <T> ModuleInstall<T>.withModulesOrNull(modules: ModuleConfig): T? =
-    prototype.module_slots?.toInt()?.let { modules.toModuleSet(it) }?.let { withModulesOrNull(it) }
-
-fun <T> ModuleInstall<T>.withModulesOrNull(
-    modules: List<WithModuleCount>,
-    fill: Module? = null,
-    beacons: List<WithBeaconCount> = emptyList(),
-): T? = withModulesOrNull(ModuleConfig(modules, fill, beacons))
-
-fun <T> ModuleInstall<T>.withModules(
-    modules: List<WithModuleCount>,
-    fill: Module? = null,
-    beacons: List<WithBeaconCount> = emptyList(),
-): T = requireNotNull(withModulesOrNull(modules, fill, beacons)) { "Too many modules for $this" }
-
-fun <T> ModuleInstall<T>.withModulesOrNull(
-    vararg modules: WithModuleCount,
-    fill: Module? = null,
-    beacons: List<WithBeaconCount> = emptyList(),
-): T? = withModulesOrNull(modules.asList(), fill, beacons)
-
-fun <T> ModuleInstall<T>.withModules(
-    vararg modules: WithModuleCount,
-    fill: Module? = null,
-    beacons: List<WithBeaconCount> = emptyList(),
-): T = withModules(modules.asList(), fill, beacons)

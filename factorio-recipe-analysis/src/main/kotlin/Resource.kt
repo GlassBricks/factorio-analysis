@@ -13,7 +13,8 @@ class Resource private constructor(
     override val craftingTime: Time
         get() = Time(prototype.minable!!.mining_time)
 
-    override fun toString(): String = prototype.name
+    override fun withQualityOrNull(quality: Quality): RecipeOrResource<AnyMiningDrill>? =
+        if (quality == this.inputQuality) this else null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -24,18 +25,20 @@ class Resource private constructor(
 
     override fun hashCode(): Int = prototype.hashCode()
 
+    override fun toString(): String = prototype.name
+
     companion object {
         fun fromPrototype(prototype: ResourceEntityPrototype, ingredientsMap: IngredientsMap): Resource {
             val minable = requireNotNull(prototype.minable) { "Resource $prototype has no minable" }
             val inputs = minable.required_fluid?.let { fluidId ->
-                val fluid = ingredientsMap.fluids[fluidId]!! as Ingredient
-                amountVector(fluid to minable.fluid_amount)
+                val fluid = ingredientsMap.get(fluidId)
+                amountVector<Ingredient>(fluid to minable.fluid_amount)
             } ?: emptyVector()
             val (products, prod) = minable.results?.let { products ->
                 ingredientsMap.getProductsVector(products)
             } ?: run {
-                val item = ingredientsMap.items[minable.result]!! as Ingredient
-                amountVector(item to minable.count.toDouble()) to emptyVector()
+                val item = ingredientsMap.get(minable.result!!)
+                amountVector<Ingredient>(item to minable.count.toDouble()) to emptyVector()
             }
             return Resource(
                 prototype = prototype,
