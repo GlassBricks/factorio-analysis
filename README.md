@@ -14,7 +14,7 @@ Currently only API, no GUI or CLI.
 
 Still todo:
 
-- Mining drills
+- Custom recipes/LP augmentations
 - Power, fuel, nutrient requirements
 - More granular machine+recipe config
 - ILP stuff
