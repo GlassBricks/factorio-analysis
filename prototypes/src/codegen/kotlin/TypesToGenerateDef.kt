@@ -316,7 +316,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         }
     }
 
-    allSubclassGetters = listOf("ItemPrototype", "CraftingMachinePrototype")
+    allSubclassGetters = listOf("ItemPrototype", "CraftingMachinePrototype", "EquipmentPrototype")
 
     fun List<Prototype>.filterWithProperty(propName: String): List<Prototype> =
         filter { it.name in prototypes && it.properties.any { prop -> prop.name == propName } }

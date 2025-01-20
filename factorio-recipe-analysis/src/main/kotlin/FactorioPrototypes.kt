@@ -40,6 +40,8 @@ class FactorioPrototypes(dataRaw: DataRaw) : WithFactorioPrototypes, Ingredients
 
     val recipesByCategory = recipes.values.groupBy { it.prototype.category }
 
+    val equipment = dataRaw.allEquipmentPrototypes().associateBy { it.name }
+
     override fun get(itemID: ItemID): Item = items.getValue(itemID.value)
     override fun get(fluidID: FluidID): Fluid = fluids.getValue(fluidID.value)
 }

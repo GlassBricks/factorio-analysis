@@ -111,9 +111,8 @@ private inline fun <T> StringBuilder.displayLeftRight(
     for ((el, left) in list.zip(lefts)) {
         append(left)
         repeat(leftWidth - left.length) { append(' ') }
-        append(": ")
-        append("%10.5f".format(right(el)))
-        append('\n')
+        append(" | ")
+        appendLine("%10.5f".format(right(el)))
     }
 }
 

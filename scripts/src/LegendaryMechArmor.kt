@@ -1,55 +1,56 @@
+import glassbricks.factorio.prototypes.EquipmentShapeType
 import glassbricks.factorio.recipes.*
-import glassbricks.recipeanalysis.LpOptions
-import glassbricks.recipeanalysis.OrToolsLp
-import glassbricks.recipeanalysis.Time
-import glassbricks.recipeanalysis.div
+import glassbricks.recipeanalysis.*
 import java.io.File
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
+        val beacons = listOf(
+            speedModule,
+            speedModule2
+        ).flatMap { module ->
+            qualities.flatMap { q ->
+                listOf(
+                    beacon(fill = module.withQuality(q), sharing = 8.0),
+                    beacon(fill = module.withQuality(q), sharing = 6.0) * 2,
+                )
+            }
+        }
+
+        val modules = listOf(
+            speedModule,
+            speedModule2,
+            productivityModule,
+            productivityModule2,
+        )
         machines {
             default {
                 includeBuildCosts()
 
                 moduleConfig()
 
-                val beacons = listOf(
-                    speedModule,
-                    speedModule2
-                ).flatMap { module ->
-                    qualities.map { q ->
-                        beacon(fill = module.withQuality(q), sharing = 6.0)
-                    }
-                }.map {
-                    listOf(it)
-                }.plusElement(emptyList())
-
-                val modules = listOf(
-                    speedModule,
-                    speedModule2,
-                    productivityModule,
-                    productivityModule2,
-                    qualityModule,
-                    qualityModule2
-                )
-
-                for (q in listOf(normal)) {
+                for (q in qualities) {
                     for (module in modules) {
+                        moduleConfig(fill = module.withQuality(q))
                         for (beacon in beacons) {
-                            moduleConfig(fill = module.withQuality(q), beacons = beacon)
+                            moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon))
                         }
                     }
+                    moduleConfig(fill = qualityModule.withQuality(q))
+                    moduleConfig(fill = qualityModule2.withQuality(q))
                 }
-
             }
-            chemicalPlant()
-            oilRefinery()
+            bigMiningDrill {
+            }
+
+            electromagneticPlant()
             assemblingMachine3()
             foundry()
             recycler() // not integral as we can easily share recyclers
-            electromagneticPlant()
-            bigMiningDrill()
+            chemicalPlant()
+            oilRefinery()
         }
         researchConfig = ResearchConfig(
             miningProductivity = 0.2
@@ -78,11 +79,6 @@ fun main() {
         addWithQualities(holmiumPlate, 100.0)
         addWithQualities(supercapacitor, 350.0)
 
-        output(
-            mechArmor.withQuality(legendary),
-            rate = 1.0 / Time(60.0 * 60.0),
-        )
-
         costs {
             costOf(assemblingMachine3.item(), 3)
             costOf(foundry.item(), 5)
@@ -90,22 +86,81 @@ fun main() {
             costOf(electromagneticPlant.item(), 50)
             costOf(beacon.item(), 4)
 
-            fun addQualityCost(item: Item, baseCost: Double) {
-                costOf(item, baseCost)
-                costOf(item.withQuality(uncommon), baseCost * 5)
-                costOf(item.withQuality(rare), baseCost * 5 * 5)
-                costOf(item.withQuality(epic), baseCost * 5 * 5 * 5)
-                costOf(item.withQuality(legendary), baseCost * 5 * 5 * 5 * 5)
-            }
-            addQualityCost(qualityModule2, 5.0)
+            limit(bigMiningDrill.item(), 100)
 
-            costOf(speedModule, 1)
-            costOf(speedModule2, 5)
-            costOf(productivityModule2, 5)
+            val qualityCostMultiplier = 3.5
+            fun addQualityCost(item: Item, baseCost: Double) {
+                for ((index, quality) in qualities.withIndex()) {
+                    costOf(item.withQuality(quality), baseCost * qualityCostMultiplier.pow(index))
+                }
+            }
+            for (module in listOf(speedModule, productivityModule, qualityModule)) {
+                addQualityCost(module, 1.0)
+            }
+            for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
+                addQualityCost(module, 5.0)
+            }
         }
 
+        // 15x17
+        data class Size(val x: Int, val y: Int)
+
+        val sizes = listOf(
+            Size(1, 1),
+            Size(1, 2),
+            Size(2, 2),
+            Size(2, 4),
+            Size(4, 4)
+        )
+        val gridVars = sizes.associateWith { size ->
+            Ingredient("grid ${size.x}x${size.y}")
+        }
+        for ((prev, next) in gridVars.values.zipWithNext()) {
+            customProcess("doubling $prev") {
+                ingredientRate = vector(prev to -2.0, next to 1.0)
+                cost = 0.0
+            }
+        }
+
+        val fullArmorGrid = Ingredient("full armor")
+        val (grid1x1, grid1x2, grid2x2, grid2x4, grid4x4) = gridVars.values.toList()
+        customProcess("full armor") {
+            ingredientRate += vector(fullArmorGrid to 1.0)
+            ingredientRate -= vector(
+                grid4x4 to 12.0,
+                grid2x4 to 4.0,
+                grid1x2 to 8.0,
+                grid1x1 to 15.0
+            )
+        }
+
+        for (item in prototypes.items.values) {
+            val placeResult = item.prototype.place_as_equipment_result
+            if (placeResult.isNotBlank()) {
+                val shape = prototypes.equipment[placeResult]!!.shape
+                if (shape.type == EquipmentShapeType.manual) continue
+                val size = Size(shape.width.toInt(), shape.height.toInt())
+                val grid = gridVars[size] ?: continue
+                customProcess("grid $item") {
+                    ingredientRate += vector(grid to 1.0)
+                    ingredientRate -= vector(item.withQuality(legendary) to 1.0)
+                }
+            }
+        }
+
+        val time = Time(60.0 * 60.0)
+
+        output(
+            mechArmor.withQuality(legendary),
+            rate = 1.0 / time
+        )
+        output(
+            fullArmorGrid,
+            rate = 1.0 / time
+        )
+
         lpOptions = LpOptions(
-            solver = OrToolsLp("CLP"),
+            solver = OrToolsLp("GLOP"),
             timeLimit = 15.minutes,
             epsilon = 1e-5
         )

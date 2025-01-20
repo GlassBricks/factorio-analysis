@@ -46,7 +46,7 @@ data class MachineSetup<M : AnyMachine<*>>(
     val cycleInputs get() = process.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
-    override fun toString(): String = "(${machine} -> ${process})"
+    override fun toString(): String = "$machine --> $process"
 }
 
 fun <M : AnyMachine<*>> M.processing(
