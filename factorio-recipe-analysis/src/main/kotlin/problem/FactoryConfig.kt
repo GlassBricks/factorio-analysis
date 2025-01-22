@@ -1,8 +1,9 @@
-package glassbricks.factorio.recipes
+package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.prototypes.CraftingMachinePrototype
 import glassbricks.factorio.prototypes.MiningDrillPrototype
 import glassbricks.factorio.prototypes.RecipeCategoryID
+import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.*
 
 @DslMarker

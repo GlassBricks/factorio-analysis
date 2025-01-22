@@ -1,5 +1,8 @@
-package glassbricks.factorio.recipes
+package glassbricks.factorio.recipes.problem
 
+import glassbricks.factorio.recipes.FactorioPrototypes
+import glassbricks.factorio.recipes.MachineSetup
+import glassbricks.factorio.recipes.WithFactorioPrototypes
 import glassbricks.recipeanalysis.*
 
 /** Wrapper around a [RecipeLp] */

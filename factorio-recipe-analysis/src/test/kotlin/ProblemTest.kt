@@ -1,5 +1,7 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.recipes.problem.factory
+import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -1,6 +1,6 @@
 package glassbricks.recipeanalysis
 
-interface Equatable {
+interface Equals {
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 }
@@ -8,7 +8,7 @@ interface Equatable {
 /**
  * Inherits of this type indicate that their instances are identify something uniquely.
  */
-interface Symbol : Equatable {
+interface Symbol : Equals {
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 }

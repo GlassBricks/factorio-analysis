@@ -165,16 +165,21 @@ data class RecipeLpResult(
 
 fun RecipeLp.solve(): RecipeLpResult {
     val recipeVariables = processes.associateWith { recipe ->
-        Variable(name = recipe.toString(), lb = recipe.lowerBound, ub = recipe.upperBound, integral = recipe.integral)
+        Variable(
+            name = recipe.toString(),
+            lowerBound = recipe.lowerBound,
+            upperBound = recipe.upperBound,
+            integral = recipe.integral
+        )
     }
     // surplus_j = sum ( recipe_i * recipe_rate_ij )
-    val (recipeEquations, surplusVariables) = createEquations(
+    val (recipeEquations, surplusVariables) = createMatrixEquations(
         recipeVariables,
         { it.ingredientRate },
-        { item -> Variable(name = "surplus $item", lb = 0.0) },
+        { item -> Variable(name = "surplus $item", lowerBound = 0.0) },
     )
     // cost_j = sum ( recipe_i * recipe_cost_ij )
-    val (costEquations, costVariables) = createEquations(
+    val (costEquations, costVariables) = createMatrixEquations(
         recipeVariables,
         { it.additionalCosts },
         { symbol -> Variable(name = "cost $symbol") },
@@ -186,7 +191,7 @@ fun RecipeLp.solve(): RecipeLpResult {
         }
         addAll(symbolCosts.keys)
     }.associateWith {
-        costVariables[it] ?: Variable(name = "symbol $it", lb = 0.0)
+        costVariables[it] ?: Variable(name = "symbol $it", lowerBound = 0.0)
     }
     val additionalConstraints = additionalConstraints.map { (lhs, op, rhs) ->
         Constraint(lhs.mapKeys { allSymbolVars[it.key]!! }, op, rhs)
@@ -230,44 +235,3 @@ fun RecipeLp.solve(): RecipeLpResult {
         solution = solution,
     )
 }
-
-/**
- * Creates variables and constraints such that:
- * ```
- * for all keys K:
- *    var_k = sum( recipe.var * recipe.weight[K] )
- * ```
- * where `recipe.var` is from [recipeVars], recipe.weight[K] is from [weight],
- * and `var_k` are new variables created by [createVariable].
- */
-private inline fun <R, K> createEquations(
-    recipeVars: Map<R, Variable>,
-    weight: (R) -> MapVector<K, *>,
-    createVariable: (K) -> Variable,
-): Pair<List<Constraint>, Map<K, Variable>> {
-    val elementsByKeys = recipeVars.entries.groupByMulti { weight(it.key).keys }
-    val allKeys = elementsByKeys.keys
-    val keyToVar = LinkedHashMap<K, Variable>(allKeys.size)
-    val constraints = mutableListOf<Constraint>()
-    for ((key, entries) in elementsByKeys) {
-        val keyVar = createVariable(key)
-        keyToVar[key] = keyVar
-        val coeffs = buildMap {
-            for ((element, elementVar) in entries) {
-                this[elementVar] = weight(element)[key]
-            }
-            this[keyVar] = -1.0
-        }
-        constraints.add(coeffs eq 0.0)
-    }
-    return constraints to keyToVar
-}
-
-private inline fun <T, K> Iterable<T>.groupByMulti(getKeys: (T) -> Iterable<K>): Map<K, List<T>> =
-    buildMap<K, MutableList<T>> {
-        for (element in this@groupByMulti) {
-            for (ingredient in getKeys(element)) {
-                this.getOrPut(ingredient, ::mutableListOf).add(element)
-            }
-        }
-    }

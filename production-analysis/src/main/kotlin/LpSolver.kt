@@ -8,29 +8,29 @@ import kotlin.time.Duration.Companion.minutes
 
 class Variable(
     val name: String,
-    val lb: Double = Double.NEGATIVE_INFINITY,
-    val ub: Double = Double.POSITIVE_INFINITY,
+    val lowerBound: Double = Double.NEGATIVE_INFINITY,
+    val upperBound: Double = Double.POSITIVE_INFINITY,
     val integral: Boolean = false,
 ) {
-    override fun toString(): String {
-        return "Variable($name)"
+    override fun toString(): String = "Variable($name)"
+}
+
+enum class ComparisonOp {
+    Leq, Geq, Eq;
+
+    fun opString() = when (this) {
+        Leq -> "<="
+        Geq -> ">="
+        Eq -> "=="
     }
 }
 
-enum class ComparisonOp { Leq, Geq, Eq }
 data class Constraint(val lhs: Map<Variable, Double>, val op: ComparisonOp, val rhs: Double) {
-    override fun toString(): String {
-        val opStr = when (op) {
-            ComparisonOp.Leq -> "<="
-            ComparisonOp.Geq -> ">="
-            ComparisonOp.Eq -> "=="
-        }
-        return lhs.entries.joinToString(
-            prefix = "Constraint(",
-            postfix = " $opStr $rhs)",
-            separator = " + "
-        ) { (variable, coefficient) -> "$variable * $coefficient" }
-    }
+    override fun toString(): String = lhs.entries.joinToString(
+        prefix = "Constraint(",
+        postfix = " ${op.opString()} $rhs)",
+        separator = " + "
+    ) { (variable, coefficient) -> "$variable * $coefficient" }
 }
 
 infix fun Map<Variable, Double>.leq(rhs: Double) = Constraint(this, ComparisonOp.Leq, rhs)
@@ -119,7 +119,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
         solver.setTimeLimit(options.timeLimit.inWholeMilliseconds)
 
-        val mpVariables = variables.associateWith { solver.makeVar(it.lb, it.ub, it.integral, it.name) }
+        val mpVariables = variables.associateWith { solver.makeVar(it.lowerBound, it.upperBound, it.integral, it.name) }
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {

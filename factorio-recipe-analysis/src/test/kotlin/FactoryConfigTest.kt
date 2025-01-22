@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.amountVector
 import glassbricks.recipeanalysis.vector

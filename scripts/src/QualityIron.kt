@@ -1,4 +1,6 @@
 import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.problem.factory
+import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.LpOptions
 import glassbricks.recipeanalysis.OrToolsLp
 import glassbricks.recipeanalysis.perSecond

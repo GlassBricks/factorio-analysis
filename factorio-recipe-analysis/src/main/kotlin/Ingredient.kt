@@ -1,57 +1,41 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.*
+import glassbricks.factorio.prototypes.FluidPrototype
+import glassbricks.factorio.prototypes.ItemPrototype
+import glassbricks.factorio.prototypes.ModulePrototype
+import glassbricks.factorio.prototypes.Prototype
 import glassbricks.recipeanalysis.Ingredient
-import glassbricks.recipeanalysis.IngredientVector
-import glassbricks.recipeanalysis.vector
 
-/**
- * All items should have default quality
- */
-interface IngredientsMap {
-    val defaultQuality: Quality
-    fun get(id: ItemID): Item
-    fun get(id: FluidID): Fluid
+sealed interface RealIngredient : Ingredient {
+    val prototype: Prototype
 }
 
-data class IngredientAmount(
-    val ingredient: Ingredient, val amount: Double,
-    val ignoredByProductivityAmount: Double = 0.0,
-)
-
-fun IngredientsMap.getIngredientAmount(ingredient: IngredientPrototype): IngredientAmount = when (ingredient) {
-    is ItemIngredientPrototype -> IngredientAmount(get(ingredient.name), ingredient.amount.toDouble())
-    is FluidIngredientPrototype -> IngredientAmount(get(ingredient.name), ingredient.amount)
+sealed interface Item : RealIngredient {
+    override val prototype: ItemPrototype
+    val quality: Quality
+    fun withQuality(quality: Quality): Item
 }
 
-fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount = when (product) {
-    is ItemProductPrototype -> {
-        val item = get(product.name)
-        val baseAmount: Double = product.amount ?: ((product.amount_min!! + product.amount_max!!).toDouble() / 2.0)
-        // ignore extraCountFraction???
-        val amount: Double = baseAmount * product.probability
-        IngredientAmount(item, amount, product.ignored_by_productivity?.toDouble() ?: 0.0)
+data class BasicItem(
+    override val prototype: ItemPrototype,
+    override val quality: Quality,
+) : Item {
+    override fun withQuality(quality: Quality): BasicItem = copy(quality = quality)
+    override fun toString(): String = if (quality.level == 0) {
+        prototype.name
+    } else {
+        "${prototype.name}(${quality})"
     }
-
-    is FluidProductPrototype -> {
-        val fluid = get(product.name)
-        val baseAmount = product.amount ?: ((product.amount_min!! + product.amount_max!!) / 2.0)
-        val amount = baseAmount * product.probability
-        IngredientAmount(fluid, amount, product.ignored_by_productivity ?: 0.0)
-    }
-
-    is ResearchProgressProductPrototype -> TODO("research progress as product")
 }
 
-fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<IngredientVector, IngredientVector> {
-    val ignoreFromProductivity = mutableMapOf<Ingredient, Double>()
-    val products = buildMap {
-        for (product in prototypes.orEmpty()) {
-            val productAmount = this@getProductsVector.getProductAmount(product)
-            put(productAmount.ingredient, productAmount.amount)
-            ignoreFromProductivity[productAmount.ingredient] =
-                minOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
-        }
-    }
-    return Pair(vector(products), vector(ignoreFromProductivity))
+internal fun getItem(
+    prototype: ItemPrototype,
+    quality: Quality,
+): Item = when (prototype) {
+    is ModulePrototype -> Module(prototype, quality)
+    else -> BasicItem(prototype, quality)
+}
+
+data class Fluid(override val prototype: FluidPrototype) : RealIngredient {
+    override fun toString(): String = prototype.name
 }

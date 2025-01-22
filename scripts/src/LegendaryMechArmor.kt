@@ -1,5 +1,7 @@
 import glassbricks.factorio.prototypes.EquipmentShapeType
 import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.problem.factory
+import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import java.io.File
 import kotlin.math.pow

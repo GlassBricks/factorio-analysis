@@ -1,7 +1,7 @@
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
-import glassbricks.factorio.recipes.factory
-import glassbricks.factorio.recipes.problem
+import glassbricks.factorio.recipes.problem.factory
+import glassbricks.factorio.recipes.problem.problem
 import java.io.File
 
 fun main() {
