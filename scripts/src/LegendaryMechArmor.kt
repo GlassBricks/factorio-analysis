@@ -9,17 +9,17 @@ import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
-        val beacons = listOf(
-            speedModule,
-            speedModule2
-        ).flatMap { module ->
-            qualities.flatMap { q ->
-                listOf(
-                    beacon(fill = module.withQuality(q), sharing = 8.0),
-                    beacon(fill = module.withQuality(q), sharing = 6.0) * 2,
-                )
-            }
-        }
+        /*  val beacons = listOf(
+              speedModule,
+              speedModule2
+          ).flatMap { module ->
+              qualities.flatMap { q ->
+                  listOf(
+                      beacon(fill = module.withQuality(q), sharing = 8.0),
+                      beacon(fill = module.withQuality(q), sharing = 6.0) * 2,
+                  )
+              }
+          }*/
 
         val modules = listOf(
             speedModule,
@@ -33,12 +33,11 @@ fun main() {
 
                 moduleConfig()
 
-                for (q in qualities) {
+                for (q in listOf(uncommon, rare, epic, legendary)) {
                     for (module in modules) {
                         moduleConfig(fill = module.withQuality(q))
-                        for (beacon in beacons) {
-                            moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon))
-                        }
+                        moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon(fill = speedModule)))
+                        moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon(fill = speedModule2)))
                     }
                     moduleConfig(fill = qualityModule.withQuality(q))
                     moduleConfig(fill = qualityModule2.withQuality(q))
@@ -69,26 +68,28 @@ fun main() {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.05)
 
-        fun addWithQualities(item: Item, baseCost: Double) {
-            input(item, cost = baseCost)
-            input(item.withQuality(uncommon), cost = baseCost * 5)
-            input(item.withQuality(rare), cost = baseCost * 5 * 5)
-            input(item.withQuality(epic), cost = baseCost * 5 * 5 * 5)
-            input(item.withQuality(legendary), cost = baseCost * 5 * 5 * 5 * 5)
+        fun addWithQualities(item: Item, baseCost: Double, rocketCapacity: Double) {
+            val shippingCost = 1e6 / rocketCapacity
+            val qualityCost = 8.0
+            for ((index, quality) in qualities.withIndex()) {
+                input(item.withQuality(quality), cost = baseCost * qualityCost.pow(index) + shippingCost)
+            }
         }
-        addWithQualities(holmiumPlate, 100.0)
-        addWithQualities(supercapacitor, 350.0)
+        addWithQualities(holmiumOre, 150.0, 500.0)
+        addWithQualities(holmiumPlate, 150 / 2.5, 1000.0)
+//        addWithQualities(supercapacitor, 50.0, 500.0)
 
         costs {
-            costOf(assemblingMachine3.item(), 3)
-            costOf(foundry.item(), 5)
-            costOf(recycler.item(), 10)
-            costOf(electromagneticPlant.item(), 50)
-            costOf(beacon.item(), 4)
+            costOf(assemblingMachine3.item(), 3 + 1.0)
+            costOf(foundry.item(), 5 + 2.0)
+            costOf(recycler.item(), 10 + 1.0)
+            costOf(electromagneticPlant.item(), 50 + 1.0)
+            costOf(beacon.item(), 4 + 1.0)
+            costOf(bigMiningDrill.item(), 5 + 2)
 
-            limit(bigMiningDrill.item(), 100)
+//            limit(bigMiningDrill.item(), 100)
 
-            val qualityCostMultiplier = 3.5
+            val qualityCostMultiplier = 5.0
             fun addQualityCost(item: Item, baseCost: Double) {
                 for ((index, quality) in qualities.withIndex()) {
                     costOf(item.withQuality(quality), baseCost * qualityCostMultiplier.pow(index))
@@ -148,7 +149,7 @@ fun main() {
             }
         }
 
-        val time = Time(60.0 * 30.0)
+        val time = Time(60.0 * 60.0)
 
         output(
             mechArmor.withQuality(legendary),
