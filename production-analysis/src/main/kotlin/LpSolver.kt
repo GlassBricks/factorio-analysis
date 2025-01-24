@@ -57,7 +57,7 @@ enum class LpResultStatus {
 }
 
 class LpSolution(
-    val assignment: AmountVector<Variable>,
+    val assignment: Vector<Variable>,
     val objective: Double,
 )
 
@@ -97,7 +97,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                         .let { if (it < epsilon) null else it }
                 }
                 val objective = solver.objective().value()
-                LpSolution(vector(assignment), objective)
+                LpSolution(vectorWithUnits(assignment), objective)
             }
         }
     }

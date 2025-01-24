@@ -229,10 +229,10 @@ class ProblemTest : FunSpec({
                         includeBuildCosts = true
                     }
                     "assembling-machine-2" {
-                        additionalCosts += vector(foo to 2.0)
+                        additionalCosts += vectorWithUnits(foo to 2.0)
                     }
                     "assembling-machine-1" {
-                        additionalCosts += vector(foo to 1.0)
+                        additionalCosts += vectorWithUnits(foo to 1.0)
                     }
                 }
                 recipes {
@@ -377,8 +377,8 @@ class ProblemTest : FunSpec({
         val problem = problem {
             factory {}
             customProcess("foo crafting") {
-                ingredientRate -= vector(foo to 1.0)
-                ingredientRate += vector(foo2 to 1.0)
+                ingredientRate -= vectorWithUnits(foo to 1.0)
+                ingredientRate += vectorWithUnits(foo2 to 1.0)
             }
             input(foo)
             output(foo2, 1.perSecond)

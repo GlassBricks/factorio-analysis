@@ -12,7 +12,7 @@ interface PseudoProcess {
     val cost: Double
     val integral: Boolean
     val ingredientRate: IngredientRate
-    val additionalCosts: AmountVector<Symbol> get() = emptyVector()
+    val additionalCosts: Vector<Symbol> get() = emptyVector()
 }
 
 private fun StringBuilder.commonToString(
@@ -30,7 +30,7 @@ data class LpProcess(
     override val cost: Double = 1.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
-    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = emptyVector(),
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
 
@@ -48,9 +48,9 @@ data class Input(
     override val cost: Double,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
-    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = emptyVector(),
 ) : PseudoProcess {
-    override val ingredientRate: IngredientRate get() = vector(ingredient to 1.0)
+    override val ingredientRate: IngredientRate get() = vectorWithUnits(ingredient to 1.0)
     override fun toString(): String = buildString {
         append("Input(")
         append(ingredient)
@@ -64,11 +64,11 @@ data class Output(
     val weight: Double,
     override val lowerBound: Double,
     override val integral: Boolean = false,
-    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = emptyVector(),
 ) : PseudoProcess {
     override val upperBound: Double get() = Double.POSITIVE_INFINITY
     override val cost get() = -weight
-    override val ingredientRate: IngredientRate get() = vector(ingredient to -1.0)
+    override val ingredientRate: IngredientRate get() = vectorWithUnits(ingredient to -1.0)
 
     override fun toString(): String = buildString {
         append("Output(")
@@ -84,7 +84,7 @@ data class Output(
 data class CustomProcess(
     val name: String,
     override val ingredientRate: IngredientRate,
-    override val additionalCosts: AmountVector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val lowerBound: Double = 0.0,
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val cost: Double = 0.0,
@@ -117,9 +117,9 @@ private inline fun <T> StringBuilder.displayLeftRight(
 }
 
 data class RecipeLpSolution(
-    val recipes: AmountVector<PseudoProcess>,
-    val surpluses: AmountVector<Ingredient>,
-    val additionalCosts: AmountVector<Symbol>,
+    val recipes: Vector<PseudoProcess>,
+    val surpluses: Vector<Ingredient>,
+    val additionalCosts: Vector<Symbol>,
 ) {
     fun display() = buildString {
         appendLine("Inputs:")
@@ -221,8 +221,8 @@ fun RecipeLp.solve(): RecipeLpResult {
     val result = lp.solve(lpOptions)
 
     val solution = result.solution?.let { solution ->
-        fun <T> getAssignment(variables: Map<T, Variable>): AmountVector<T> =
-            amountVector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
+        fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
+            vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
         RecipeLpSolution(
             recipes = getAssignment(recipeVariables),
             surpluses = getAssignment(surplusVariables),

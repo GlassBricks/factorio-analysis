@@ -10,10 +10,10 @@ fun recipe(
     name: String,
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
-    additionalCosts: AmountVector<Symbol>? = null,
+    additionalCosts: Vector<Symbol>? = null,
 ): LpProcess = LpProcess(
     object : Process {
-        override val netRate: IngredientRate = amountVector(inOut.toMap()) / Time(time)
+        override val netRate: IngredientRate = vector(inOut.toMap()) / Time(time)
         override fun toString(): String = name
     },
     additionalCosts = additionalCosts ?: emptyVector(),

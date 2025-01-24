@@ -6,7 +6,7 @@ package glassbricks.recipeanalysis
  * Note: symbols may match those given by [PseudoProcess.additionalCosts]
  */
 data class SymbolConstraint(
-    val lhs: AmountVector<Symbol>,
+    val lhs: Vector<Symbol>,
     val op: ComparisonOp,
     val rhs: Double,
 )
@@ -17,25 +17,25 @@ interface ConstraintDsl {
         constraints += this
     }
 
-    infix fun AmountVector<out Symbol>.leq(rhs: Number) =
+    infix fun Vector<out Symbol>.leq(rhs: Number) =
         +SymbolConstraint(this.relaxKeyType(), ComparisonOp.Leq, rhs.toDouble())
 
-    infix fun AmountVector<out Symbol>.eq(rhs: Number) =
+    infix fun Vector<out Symbol>.eq(rhs: Number) =
         +SymbolConstraint(this.relaxKeyType(), ComparisonOp.Eq, rhs.toDouble())
 
-    infix fun AmountVector<out Symbol>.geq(rhs: Number) =
+    infix fun Vector<out Symbol>.geq(rhs: Number) =
         +SymbolConstraint(this.relaxKeyType(), ComparisonOp.Geq, rhs.toDouble())
 
-    infix fun AmountVector<out Symbol>.leq(rhs: AmountVector<out Symbol>) = (this - rhs) leq 0
-    infix fun AmountVector<out Symbol>.eq(rhs: AmountVector<out Symbol>) = (this - rhs) eq 0
-    infix fun AmountVector<out Symbol>.geq(rhs: AmountVector<out Symbol>) = (this - rhs) geq 0
+    infix fun Vector<out Symbol>.leq(rhs: Vector<out Symbol>) = (this - rhs) leq 0
+    infix fun Vector<out Symbol>.eq(rhs: Vector<out Symbol>) = (this - rhs) eq 0
+    infix fun Vector<out Symbol>.geq(rhs: Vector<out Symbol>) = (this - rhs) geq 0
 }
 
-fun AmountVector<out Symbol>.constrainLeq(rhs: Double) =
+fun Vector<out Symbol>.constrainLeq(rhs: Double) =
     SymbolConstraint(this.relaxKeyType(), ComparisonOp.Leq, rhs.toDouble())
 
-fun AmountVector<out Symbol>.constrainEq(rhs: Double) =
+fun Vector<out Symbol>.constrainEq(rhs: Double) =
     SymbolConstraint(this.relaxKeyType(), ComparisonOp.Eq, rhs.toDouble())
 
-fun AmountVector<out Symbol>.constrainGeq(rhs: Double) =
+fun Vector<out Symbol>.constrainGeq(rhs: Double) =
     SymbolConstraint(this.relaxKeyType(), ComparisonOp.Geq, rhs.toDouble())

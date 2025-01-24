@@ -86,7 +86,7 @@ data class ModuleCount(val module: Module, val count: Int) : WithModuleCount, Wi
     override val effects: IntEffects get() = module.effects * count
     override fun toString(): String = if (count == 1) module.toString() else "${module}*${count}"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        amountVector(module to count.toDouble())
+        vector(module to count.toDouble())
 }
 
 interface WithModuleCount : WithEffects {

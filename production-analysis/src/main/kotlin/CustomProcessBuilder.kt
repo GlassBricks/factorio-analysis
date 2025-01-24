@@ -4,7 +4,7 @@ class CustomProcessBuilder(
     val name: String,
 ) {
     var ingredientRate: IngredientRate = emptyVector()
-    var additionalCosts: AmountVector<Symbol> = emptyVector()
+    var additionalCosts: Vector<Symbol> = emptyVector()
     var lowerBound: Double = 0.0
     var upperBound: Double = Double.POSITIVE_INFINITY
     var cost: Double = 0.0

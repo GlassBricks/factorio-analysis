@@ -17,7 +17,7 @@ class FactoryConfig(
 data class MachineConfig(
     val machine: AnyMachine<*>,
     val includeBuildCosts: Boolean,
-    val additionalCosts: AmountVector<Symbol>,
+    val additionalCosts: Vector<Symbol>,
     val integral: Boolean,
 )
 
@@ -32,7 +32,7 @@ class MachineConfigScope(
         includeBuildCosts = true
     }
 
-    var additionalCosts: AmountVector<Symbol> = emptyVector()
+    var additionalCosts: Vector<Symbol> = emptyVector()
     var integral = false
 
     val moduleConfigs = mutableListOf<ModuleConfig>()
@@ -84,7 +84,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
     var upperBound: Double = Double.POSITIVE_INFINITY
     var integral: Boolean = false
 
-    var additionalCosts: AmountVector<Symbol> = emptyVector()
+    var additionalCosts: Vector<Symbol> = emptyVector()
 
     private var withQualitiesList: List<RecipeOrResource<*>>? = null
     internal fun addCraftingSetups(
@@ -95,7 +95,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
         withQualitiesList = withQualitiesList ?: qualities.mapNotNull { process.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
             val machineSetup = machine.machine.craftingOrNullCast(quality, config) ?: continue
-            val additionalCosts: AmountVector<Symbol> =
+            val additionalCosts: Vector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
             val lpProcess = LpProcess(

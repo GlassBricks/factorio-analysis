@@ -1,7 +1,7 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.MapVector
-import glassbricks.recipeanalysis.vectorUnsafe
+import glassbricks.recipeanalysis.createVectorUnsafe
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
 import kotlin.math.abs
@@ -17,6 +17,6 @@ fun beNear(number: Double, epsilon: Double = 1e-6): Matcher<Number> = object : M
 }
 
 fun <T, U> MapVector<T, U>.round1e6(): MapVector<T, U> =
-    vectorUnsafe(mapValues { (_, value) -> (value * 1e6).roundToInt() / 1e6 })
+    createVectorUnsafe(mapValues { (_, value) -> (value * 1e6).roundToInt() / 1e6 })
 
 fun near(number: Double, epsilon: Double = 1e-6) = beNear(number, epsilon)

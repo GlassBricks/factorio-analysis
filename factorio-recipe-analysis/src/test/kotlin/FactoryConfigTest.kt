@@ -2,8 +2,8 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.amountVector
 import glassbricks.recipeanalysis.vector
+import glassbricks.recipeanalysis.vectorWithUnits
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
@@ -95,17 +95,17 @@ class FactoryConfigKtTest : FunSpec({
         val config = SpaceAge.factory {
             machines {
                 "assembling-machine-2" {
-                    additionalCosts = vector(symbolA to 1.0)
+                    additionalCosts = vectorWithUnits(symbolA to 1.0)
                 }
             }
             recipes {
                 "advanced-circuit" {
-                    additionalCosts = vector(symbolB to 2.0)
+                    additionalCosts = vectorWithUnits(symbolB to 2.0)
                 }
             }
         }
         val recipe = config.allProcesses.single()
-        recipe.additionalCosts shouldBe vector(symbolA to 1.0, symbolB to 2.0)
+        recipe.additionalCosts shouldBe vectorWithUnits(symbolA to 1.0, symbolB to 2.0)
     }
     test("build costs") {
         val symbol1 = Symbol("1")
@@ -118,12 +118,12 @@ class FactoryConfigKtTest : FunSpec({
             }
             recipes {
                 "advanced-circuit" {
-                    additionalCosts = vector(symbol1 to 1.0)
+                    additionalCosts = vectorWithUnits(symbol1 to 1.0)
                 }
             }
         }
         val recipe = config.allProcesses.single()
-        recipe.additionalCosts shouldBe amountVector(
+        recipe.additionalCosts shouldBe vector(
             SpaceAge.itemOfOrNull(asm2) to 1.0,
             speed2 to 2.0,
             symbol1 to 1.0

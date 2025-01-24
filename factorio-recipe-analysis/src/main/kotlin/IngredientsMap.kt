@@ -3,7 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.IngredientVector
-import glassbricks.recipeanalysis.vector
+import glassbricks.recipeanalysis.vectorWithUnits
 
 /**
  * All items should have default quality
@@ -53,5 +53,5 @@ fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<
                 minOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
         }
     }
-    return Pair(vector(products), vector(ignoreFromProductivity))
+    return Pair(vectorWithUnits(products), vectorWithUnits(ignoreFromProductivity))
 }

@@ -24,8 +24,8 @@ val Int.perMinute: Rate get() = Rate(this.toDouble() / 60.0)
 
 typealias RateVector<T> = MapVector<T, Rate>
 
-fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = vector(pairs.toMap())
-fun <T> rateVector(map: Map<T, Double>): RateVector<T> = vector(map)
+fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = vectorWithUnits(pairs.toMap())
+fun <T> rateVector(map: Map<T, Double>): RateVector<T> = vectorWithUnits(map)
 
 operator fun Double.div(time: Time): Rate = Rate(this / time.seconds)
-operator fun <T> AmountVector<T>.div(time: Time): RateVector<T> = (this / time.seconds).castUnits()
+operator fun <T> Vector<T>.div(time: Time): RateVector<T> = (this / time.seconds).castUnits()

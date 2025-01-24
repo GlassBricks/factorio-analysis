@@ -88,21 +88,21 @@ fun <T, U> emptyVector(): MapVector<T, U> = MapVector(emptyMap())
 operator fun <T, U> Double.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this
 operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector * this.toDouble()
 
-fun <U, T> vector(vararg entries: Pair<T, Double>): MapVector<T, U> =
+fun <U, T> vectorWithUnits(vararg entries: Pair<T, Double>): MapVector<T, U> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
-fun <U, T> vector(map: Map<T, Double>): MapVector<T, U> {
+fun <U, T> vectorWithUnits(map: Map<T, Double>): MapVector<T, U> {
     val filterMap = map.filterValues { it != 0.0 }
     if (filterMap.isEmpty()) return emptyVector()
     return MapVector(filterMap)
 }
 
-fun <U, T> vectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
+fun <U, T> createVectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 
-typealias AmountVector<T> = MapVector<T, Unit>
+typealias Vector<T> = MapVector<T, Unit>
 
-fun <T> amountVector(vararg entries: Pair<T, Double>): AmountVector<T> = vector(entries.toMap())
-fun <T> amountVector(entries: List<Pair<T, Double>>): AmountVector<T> = vector(entries.toMap())
-fun <T> amountVector(map: Map<T, Double>): AmountVector<T> = vector(map)
+fun <T> vector(vararg entries: Pair<T, Double>): Vector<T> = vectorWithUnits(entries.toMap())
+fun <T> vector(entries: List<Pair<T, Double>>): Vector<T> = vectorWithUnits(entries.toMap())
+fun <T> vector(map: Map<T, Double>): Vector<T> = vectorWithUnits(map)
 
-fun <T> basisVec(key: T): AmountVector<T> = vector(key to 1.0)
+fun <T> basisVec(key: T): Vector<T> = vectorWithUnits(key to 1.0)

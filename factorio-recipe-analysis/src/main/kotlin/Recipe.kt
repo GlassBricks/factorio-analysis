@@ -93,9 +93,9 @@ class Recipe private constructor(
             return Recipe(
                 prototype = prototype,
                 inputQuality = quality,
-                baseIngredients = vector(ingredients),
+                baseIngredients = vectorWithUnits(ingredients),
                 baseProducts = products,
-                baseProductsIgnoreProd = vector(ignoreFromProductivity),
+                baseProductsIgnoreProd = vectorWithUnits(ignoreFromProductivity),
                 allowedModuleEffects = allowedModuleEffects
             )
         }
@@ -103,7 +103,7 @@ class Recipe private constructor(
 }
 
 private inline fun IngredientVector.vectorMapKeys(transform: (Ingredient) -> Ingredient): IngredientVector =
-    vectorUnsafe(this.mapKeys { transform(it.key) })
+    createVectorUnsafe(this.mapKeys { transform(it.key) })
 
 fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
     is Item -> this.withQuality(quality)

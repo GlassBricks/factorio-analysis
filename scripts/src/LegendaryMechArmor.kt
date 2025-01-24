@@ -117,7 +117,7 @@ fun main() {
         }
         for ((prev, next) in gridVars.values.zipWithNext()) {
             customProcess("doubling $prev") {
-                ingredientRate = vector(prev to -2.0, next to 1.0)
+                ingredientRate = vectorWithUnits(prev to -2.0, next to 1.0)
                 cost = 0.0
             }
         }
@@ -125,8 +125,8 @@ fun main() {
         val fullArmorGrid = Ingredient("full armor")
         val (grid1x1, grid1x2, grid2x2, grid2x4, grid4x4) = gridVars.values.toList()
         customProcess("full armor") {
-            ingredientRate += vector(fullArmorGrid to 1.0)
-            ingredientRate -= vector(
+            ingredientRate += vectorWithUnits(fullArmorGrid to 1.0)
+            ingredientRate -= vectorWithUnits(
                 grid4x4 to 12.0,
                 grid2x4 to 4.0,
                 grid1x2 to 8.0,
@@ -142,8 +142,8 @@ fun main() {
                 val size = Size(shape.width.toInt(), shape.height.toInt())
                 val grid = gridVars[size] ?: continue
                 customProcess("grid $item") {
-                    ingredientRate += vector(grid to 1.0)
-                    ingredientRate -= vector(item.withQuality(legendary) to 1.0)
+                    ingredientRate += vectorWithUnits(grid to 1.0)
+                    ingredientRate -= vectorWithUnits(item.withQuality(legendary) to 1.0)
                 }
             }
         }

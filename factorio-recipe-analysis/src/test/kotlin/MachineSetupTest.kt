@@ -47,7 +47,7 @@ class MachineSetupTest : FunSpec({
         setup.cycleOutputs shouldBe mapOf(
             item("electronic-circuit") to 1.0,
         )
-        setup.netRate shouldBe vector(
+        setup.netRate shouldBe vectorWithUnits(
             item("iron-plate") to -1.5,
             item("copper-cable") to -4.5,
             item("electronic-circuit") to 1.5,
@@ -60,7 +60,7 @@ class MachineSetupTest : FunSpec({
         withSpeed.cycleTime.seconds shouldBe near(1 / 1.8)
         withSpeed.cycleInputs shouldBe setup.cycleInputs
         withSpeed.cycleOutputs shouldBe setup.cycleOutputs
-        withSpeed.netRate.round1e6() shouldBe vector(
+        withSpeed.netRate.round1e6() shouldBe vectorWithUnits(
             item("iron-plate") to -1.8,
             item("copper-cable") to -5.4,
             item("electronic-circuit") to 1.8,
@@ -74,7 +74,7 @@ class MachineSetupTest : FunSpec({
         withProd.cycleInputs shouldBe setup.cycleInputs
         withProd.cycleOutputs.round1e6() shouldBe setup.cycleOutputs * 1.04
 
-        withProd.netRate.round1e6() shouldBe vector<Rate, RealIngredient>(
+        withProd.netRate.round1e6() shouldBe vectorWithUnits<Rate, RealIngredient>(
             item("iron-plate") to -1.5 * 0.95,
             item("copper-cable") to -4.5 * 0.95,
             item("electronic-circuit") to 1.482,
@@ -92,7 +92,7 @@ class MachineSetupTest : FunSpec({
         setup.cycleOutputs shouldBe mapOf(
             item("transport-belt") to 3.0,
         )
-        setup.netRate shouldBe vector(
+        setup.netRate shouldBe vectorWithUnits(
             item("iron-plate") to -8.0,
             item("iron-gear-wheel") to -8.0,
             item("transport-belt") to 24.0
@@ -108,7 +108,7 @@ class MachineSetupTest : FunSpec({
         setup.cycleOutputs shouldBe mapOf(
             item("electronic-circuit").maybeWithQuality(legendary) to 1.0,
         )
-        setup.netRate shouldBe vector(
+        setup.netRate shouldBe vectorWithUnits(
             item("iron-plate").maybeWithQuality(legendary) to -1.5,
             item("copper-cable").maybeWithQuality(legendary) to -4.5,
             item("electronic-circuit").maybeWithQuality(legendary) to 1.5,
