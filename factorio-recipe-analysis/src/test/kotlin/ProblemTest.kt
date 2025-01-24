@@ -316,7 +316,7 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        integral = true
+                        integral()
                     }
                 }
                 recipes {
@@ -387,6 +387,28 @@ class ProblemTest : FunSpec({
         solution.status shouldBe LpResultStatus.Optimal
         println(solution.recipeSolution!!.recipeUsage.display())
 
+    }
+
+    test("semi-continuous") {
+        val problem = problem {
+            factory {
+                machines {
+                    "assembling-machine-3" {
+                        semiContinuous(lowerBound = 2.0)
+                    }
+                }
+                recipes {
+                    "iron-gear-wheel" {}
+                }
+            }
+            input(ironPlate)
+            output(ironGearWheel, 0.01.perSecond)
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        val usage = solution.amountUsed(problem.recipes.keys.single())
+        usage shouldBe 2.0
+        println(solution.recipeSolution!!.recipeUsage.display())
     }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge

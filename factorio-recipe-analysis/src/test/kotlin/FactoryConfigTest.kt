@@ -2,6 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.VariableType
 import glassbricks.recipeanalysis.vector
 import glassbricks.recipeanalysis.vectorWithUnits
 import io.kotest.assertions.assertSoftly
@@ -27,6 +28,7 @@ class FactoryConfigKtTest : FunSpec({
                 "assembling-machine-2" {
                     qualities += uncommon
                     moduleConfig(fill = prod2)
+                    integral()
                 }
             }
             recipes {
@@ -39,12 +41,19 @@ class FactoryConfigKtTest : FunSpec({
                     qualities += rare
                     upperBound = 1.3
                 }
-                "transport-belt" {
-                    integral = true
-                }
+                "transport-belt" {}
             }
         }
         val advCircuit = recipe("advanced-circuit")
+        val allProcesses = config.allProcesses
+        allProcesses.forAll {
+            it.cost shouldBe 1.2
+            var process = it.process as MachineSetup<*>
+            val recipe = process.process
+            it.upperBound shouldBe if ((recipe as? Recipe)?.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
+            it.variableType shouldBe if (process.machine.prototype == asm2.prototype) VariableType.Integer else VariableType.Continuous
+        }
+
         val transportBelt = recipe("transport-belt")
         val recipes = listOf(
             advCircuit.withQuality(uncommon),
@@ -59,13 +68,7 @@ class FactoryConfigKtTest : FunSpec({
         val expectedRecipes = machines.flatMap { machine ->
             recipes.mapNotNull { machine.processingOrNull(it) }
         }.toSet()
-        val allProcesses = config.allProcesses
-        allProcesses.forAll {
-            it.cost shouldBe 1.2
-            val recipe = (it.process as MachineSetup<*>).process
-            it.upperBound shouldBe if ((recipe as? Recipe)?.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
-            it.integral shouldBe (recipe == transportBelt)
-        }
+
         val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineSetup<*> }
         val extra = expectedRecipes - actualRecipes
         val missing = actualRecipes - expectedRecipes

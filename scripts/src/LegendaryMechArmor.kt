@@ -44,8 +44,12 @@ fun main() {
                 }
             }
             bigMiningDrill {}
-            electromagneticPlant()
-            assemblingMachine3()
+            electromagneticPlant {
+                semiContinuous(0.2)
+            }
+            assemblingMachine3 {
+                semiContinuous(0.2)
+            }
             foundry()
             recycler() // not integral as we can easily share recyclers
             chemicalPlant()
@@ -161,8 +165,8 @@ fun main() {
         )
 
         lpOptions = LpOptions(
-            solver = OrToolsLp("GLOP"),
-            timeLimit = 15.minutes,
+            solver = OrToolsLp("SCIP"),
+            timeLimit = 2.minutes,
             epsilon = 1e-5
         )
     }

@@ -64,7 +64,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
             solution = if (!hasSolution) null else {
                 val assignment = variables.mapValuesNotNull {
                     it.value.solutionValue()
-                        .let { if (it < epsilon) null else it }
+                        .let { if (it in -epsilon..epsilon) 0.0 else it }
                 }
                 val objective = solver.objective().value()
                 LpSolution(vectorWithUnits(assignment), objective)
@@ -82,14 +82,75 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         }
         Loader.loadNativeLibraries()
         val solverId = solverId ?: when {
-            variables.all { it.integral } -> "SAT"
-            variables.any { it.integral } -> "SCIP"
+            variables.all { it.type == VariableType.Integer } -> "SAT"
+            variables.any { it.type != VariableType.Continuous } -> "SCIP"
             else -> "GLOP"
         }
         val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
         solver.setTimeLimit(options.timeLimit.inWholeMilliseconds)
 
-        val mpVariables = variables.associateWith { solver.makeVar(it.lowerBound, it.upperBound, it.integral, it.name) }
+        val mpVariables = variables.associateWith<_, MPVariable> { variable ->
+            when (variable.type) {
+                VariableType.Continuous, VariableType.Integer -> solver.makeVar(
+                    variable.lowerBound,
+                    variable.upperBound,
+                    variable.type == VariableType.Integer,
+                    variable.name
+                )
+
+                VariableType.SemiContinuous -> if (0.0 in variable.lowerBound..variable.upperBound) {
+                    // simple continuous variable
+                    solver.makeVar(
+                        variable.lowerBound,
+                        variable.upperBound,
+                        false,
+                        variable.name
+                    )
+                } else {
+                    // create auxiliary variable
+                    // min*aux <= variable <= max*aux
+                    val mpVariable = solver.makeVar(
+                        variable.lowerBound.coerceAtMost(0.0),
+                        variable.upperBound.coerceAtLeast(0.0),
+                        false,
+                        variable.name
+                    )
+                    val minCoeff: Double
+                    val maxCoeff: Double
+                    val auxUb: Double
+                    if (variable.upperBound == Double.POSITIVE_INFINITY) {
+                        // min*aux <= variable <= (min*3)*aux; aux any integer
+                        minCoeff = variable.lowerBound
+                        maxCoeff = variable.lowerBound * 3
+                        auxUb = Double.POSITIVE_INFINITY
+                    } else if (variable.lowerBound == Double.NEGATIVE_INFINITY) {
+                        // (max*3)*aux <= variable <= max*aux; aux any integer
+                        minCoeff = variable.upperBound * 3
+                        maxCoeff = variable.upperBound
+                        auxUb = Double.POSITIVE_INFINITY
+                    } else {
+                        // min*aux <= variable <= max*aux; aux binary
+                        minCoeff = variable.lowerBound
+                        maxCoeff = variable.upperBound
+                        auxUb = 1.0
+                    }
+                    val aux: MPVariable = solver.makeIntVar(0.0, auxUb, "${variable.name}_aux")
+                    // min*aux <= variable
+                    // variable - min*aux >= 0
+                    solver.makeConstraint(0.0, Double.POSITIVE_INFINITY).apply {
+                        setCoefficient(mpVariable, 1.0)
+                        setCoefficient(aux, -minCoeff)
+                    }
+                    // variable <= max*aux
+                    // variable - max*aux <= 0
+                    solver.makeConstraint(Double.NEGATIVE_INFINITY, 0.0).apply {
+                        setCoefficient(mpVariable, 1.0)
+                        setCoefficient(aux, -maxCoeff)
+                    }
+                    mpVariable
+                }
+            }
+        }
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {

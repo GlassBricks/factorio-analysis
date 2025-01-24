@@ -18,7 +18,7 @@ data class MachineConfig(
     val machine: AnyMachine<*>,
     val includeBuildCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
-    val integral: Boolean,
+    val variableConfig: VariableConfig,
 )
 
 class MachineConfigScope(
@@ -33,7 +33,16 @@ class MachineConfigScope(
     }
 
     var additionalCosts: Vector<Symbol> = emptyVector()
-    var integral = false
+    val variableConfig = VariableConfigBuilder()
+    fun integral() {
+        variableConfig.type = VariableType.Integer
+    }
+
+    fun semiContinuous(lowerBound: Double = 0.0) {
+        variableConfig.type = VariableType.SemiContinuous
+        variableConfig.lowerBound = lowerBound
+        variableConfig.upperBound = 1e9
+    }
 
     val moduleConfigs = mutableListOf<ModuleConfig>()
     fun emptyModuleConfig() {
@@ -63,7 +72,7 @@ class MachineConfigScope(
                             machine = it,
                             includeBuildCosts = includeBuildCosts,
                             additionalCosts = additionalCosts,
-                            integral = integral
+                            variableConfig = variableConfig.build(),
                         )
                     }
             }
@@ -82,7 +91,6 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
 
     var cost: Double = 1.0
     var upperBound: Double = Double.POSITIVE_INFINITY
-    var integral: Boolean = false
 
     var additionalCosts: Vector<Symbol> = emptyVector()
 
@@ -98,11 +106,13 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
             val additionalCosts: Vector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
+            val variableConfig = machine.variableConfig
             val lpProcess = LpProcess(
                 process = machineSetup,
-                cost = cost,
-                upperBound = upperBound,
-                integral = machine.integral || this.integral,
+                lowerBound = machine.variableConfig.lowerBound,
+                upperBound = minOf(machine.variableConfig.upperBound, upperBound),
+                cost = cost + machine.variableConfig.cost,
+                variableType = variableConfig.type,
                 additionalCosts = additionalCosts,
             )
             list.add(lpProcess)

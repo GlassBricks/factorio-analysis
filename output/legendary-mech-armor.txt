@@ -41,7 +41,7 @@ electromagnetic-plant[quality-module-2(uncommon)*5] --> substation(uncommon)    
 electromagnetic-plant[quality-module-2(rare)*5] --> big-electric-pole(rare)                                        |    0.19757
 electromagnetic-plant[quality-module-2(rare)*5] --> big-electric-pole(epic)                                        |    0.04040
 electromagnetic-plant[quality-module-2(rare)*5] --> substation(uncommon)                                           |    0.02097
-assembling-machine-3 --> night-vision-equipment(legendary)                                                         |    0.12444
+assembling-machine-3 --> energy-shield-equipment(legendary)                                                        |    0.12444
 assembling-machine-3 --> solar-panel-equipment(legendary)                                                          |    0.03333
 assembling-machine-3 --> pipe(uncommon)                                                                            |    5.06060
 assembling-machine-3 --> power-armor-mk2(epic)                                                                     |    0.01052
@@ -134,7 +134,7 @@ CustomProcess(doubling Ingredient(grid 2x4), cost=0.000000e+00) |    0.00333
 CustomProcess(full armor, cost=0.000000e+00)                    |    0.00028
 CustomProcess(grid solar-panel-equipment, cost=0.000000e+00)    |    0.00417
 CustomProcess(grid battery-equipment, cost=0.000000e+00)        |    0.00222
-CustomProcess(grid night-vision-equipment, cost=0.000000e+00)   |    0.01556
+CustomProcess(grid energy-shield-equipment, cost=0.000000e+00)  |    0.01556
 
 Surpluses:
 superconductor(legendary)  |    0.00501
