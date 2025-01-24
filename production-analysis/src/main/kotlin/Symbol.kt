@@ -9,8 +9,7 @@ interface Equals {
  * Inherits of this type indicate that their instances are identify something uniquely.
  */
 interface Symbol : Equals {
-    override fun equals(other: Any?): Boolean
-    override fun hashCode(): Int
+    override fun toString(): String
 }
 
 data class StrSymbol(val name: String) : Symbol {

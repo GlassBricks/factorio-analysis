@@ -10,11 +10,11 @@ class Problem(
     val factory: FactoryConfig,
     inputs: List<Input>,
     outputs: List<Output>,
-    val additionalConstraints: List<SymbolConstraint>,
-    val symbolCosts: Map<Symbol, Double>,
+    customProcesses: List<PseudoProcess>,
+    val constraints: List<SymbolConstraint>,
+    val symbolConfigs: Map<Symbol, VariableConfig>,
     surplusCost: Double,
     lpOptions: LpOptions,
-    customProcesses: List<PseudoProcess>,
 ) {
 
     val inputs: Map<Ingredient, List<Input>> = inputs
@@ -33,8 +33,8 @@ class Problem(
         ),
         surplusCost = surplusCost,
         lpOptions = lpOptions,
-        additionalConstraints = additionalConstraints,
-        symbolCosts = symbolCosts,
+        constraints = constraints,
+        symbolConfigs = symbolConfigs,
     )
 
     fun solve(): Solution = Solution(this, recipeLp.solve())
@@ -50,18 +50,18 @@ class Solution(
     val lpSolution: LpSolution? get() = lpResult.solution
     fun outputRate(ingredient: Ingredient): Rate? {
         val output = problem.outputs[ingredient] ?: return null
-        val usage = recipeSolution?.recipes ?: return null
+        val usage = recipeSolution?.recipeUsage ?: return null
         return Rate(output.sumOf { usage[it] })
     }
 
     fun inputRate(ingredient: Ingredient): Rate? {
         val input = problem.inputs[ingredient] ?: return null
-        val usage = recipeSolution?.recipes ?: return null
+        val usage = recipeSolution?.recipeUsage ?: return null
         return Rate(input.sumOf { usage[it] })
     }
 
     fun amountUsed(recipe: MachineSetup<*>): Double? {
-        val usage = recipeSolution?.recipes ?: return 0.0
+        val usage = recipeSolution?.recipeUsage ?: return 0.0
         val lpProcess = problem.recipes[recipe] ?: return 0.0
         return usage[lpProcess]
     }
@@ -119,24 +119,25 @@ class ProblemBuilder(
     }
 
     val symbolConstraints: MutableList<SymbolConstraint> = mutableListOf()
-    val symbolCosts: MutableMap<Symbol, Double> = mutableMapOf()
+    val symbolConfigs: MutableMap<Symbol, VariableConfigBuilder> = mutableMapOf()
 
     inline fun costs(block: CostsScope.() -> Unit) {
         CostsScope().apply(block)
     }
 
-    inner class CostsScope : ConstraintDsl {
-        override val constraints: MutableList<SymbolConstraint> get() = this@ProblemBuilder.symbolConstraints
+    inner class CostsScope : ConstraintDsl<Symbol> {
+        override val constraints get() = this@ProblemBuilder.symbolConstraints
+
+        fun getConfig(symbol: Symbol): VariableConfigBuilder {
+            return symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
+        }
+
         fun limit(symbol: Symbol, value: Number) {
             basisVec(symbol) leq value
         }
 
-        fun limit(itemName: String, value: Number) {
-            limit(this@ProblemBuilder.prototypes.item(itemName), value)
-        }
-
         fun costOf(symbol: Symbol, value: Number) {
-            symbolCosts[symbol] = value.toDouble()
+            getConfig(symbol).cost = value.toDouble()
         }
     }
 
@@ -152,11 +153,11 @@ class ProblemBuilder(
         inputs = inputs,
         outputs = outputs,
         factory = factory ?: error("Factory not set"),
-        surplusCost = surplusCost,
-        additionalConstraints = symbolConstraints,
-        lpOptions = lpOptions,
-        symbolCosts = symbolCosts,
         customProcesses = customProcesses,
+        surplusCost = surplusCost,
+        constraints = symbolConstraints,
+        lpOptions = lpOptions,
+        symbolConfigs = symbolConfigs.mapValues { it.value.build() },
     )
 }
 

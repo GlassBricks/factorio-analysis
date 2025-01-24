@@ -6,37 +6,6 @@ import com.google.ortools.linearsolver.MPVariable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-class Variable(
-    val name: String,
-    val lowerBound: Double = Double.NEGATIVE_INFINITY,
-    val upperBound: Double = Double.POSITIVE_INFINITY,
-    val integral: Boolean = false,
-) {
-    override fun toString(): String = "Variable($name)"
-}
-
-enum class ComparisonOp {
-    Leq, Geq, Eq;
-
-    fun opString() = when (this) {
-        Leq -> "<="
-        Geq -> ">="
-        Eq -> "=="
-    }
-}
-
-data class Constraint(val lhs: Map<Variable, Double>, val op: ComparisonOp, val rhs: Double) {
-    override fun toString(): String = lhs.entries.joinToString(
-        prefix = "Constraint(",
-        postfix = " ${op.opString()} $rhs)",
-        separator = " + "
-    ) { (variable, coefficient) -> "$variable * $coefficient" }
-}
-
-infix fun Map<Variable, Double>.leq(rhs: Double) = Constraint(this, ComparisonOp.Leq, rhs)
-infix fun Map<Variable, Double>.geq(rhs: Double) = Constraint(this, ComparisonOp.Geq, rhs)
-infix fun Map<Variable, Double>.eq(rhs: Double) = Constraint(this, ComparisonOp.Eq, rhs)
-
 data class Objective(
     val coefficients: Map<Variable, Double>,
     val constant: Double = 0.0,

@@ -13,6 +13,7 @@ interface PseudoProcess {
     val integral: Boolean
     val ingredientRate: IngredientRate
     val additionalCosts: Vector<Symbol> get() = emptyVector()
+    val symbol: Symbol?
 }
 
 private fun StringBuilder.commonToString(
@@ -23,6 +24,7 @@ private fun StringBuilder.commonToString(
     if (process.upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(process.upperBound))
     if (process.integral) append(", integral=true")
     if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
+    if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
 data class LpProcess(
@@ -31,6 +33,7 @@ data class LpProcess(
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
 
@@ -49,6 +52,7 @@ data class Input(
     override val upperBound: Double = Double.POSITIVE_INFINITY,
     override val integral: Boolean = false,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = vectorWithUnits(ingredient to 1.0)
     override fun toString(): String = buildString {
@@ -65,6 +69,7 @@ data class Output(
     override val lowerBound: Double,
     override val integral: Boolean = false,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val upperBound: Double get() = Double.POSITIVE_INFINITY
     override val cost get() = -weight
@@ -83,6 +88,7 @@ data class Output(
 
 data class CustomProcess(
     val name: String,
+    override val symbol: Symbol?,
     override val ingredientRate: IngredientRate,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val lowerBound: Double = 0.0,
@@ -90,125 +96,82 @@ data class CustomProcess(
     override val cost: Double = 0.0,
     override val integral: Boolean = false,
 ) : PseudoProcess {
-    override fun toString(): String = "CustomProcess($name)"
+    override fun toString(): String = buildString {
+        append("CustomProcess(")
+        append(name)
+        commonToString(this@CustomProcess)
+        append(")")
+    }
 }
 
 data class RecipeLp(
     val processes: List<PseudoProcess>,
-    val additionalConstraints: List<SymbolConstraint> = emptyList(),
+    val constraints: List<SymbolConstraint> = emptyList(),
+    val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
     val surplusCost: Double = 1e-5,
-    val symbolCosts: Map<Symbol, Double> = emptyMap(),
     val lpOptions: LpOptions = LpOptions(),
 )
 
-private inline fun <T> StringBuilder.displayLeftRight(
-    list: List<T>,
-    left: (T) -> Any,
-    right: (T) -> Double,
-) = apply {
-    val lefts = list.map { left(it).toString() }
-    val leftWidth = lefts.maxOfOrNull { it.length } ?: 0
-    for ((el, left) in list.zip(lefts)) {
-        append(left)
-        repeat(leftWidth - left.length) { append(' ') }
-        append(" | ")
-        appendLine("%10.5f".format(right(el)))
-    }
-}
-
-data class RecipeLpSolution(
-    val recipes: Vector<PseudoProcess>,
-    val surpluses: Vector<Ingredient>,
-    val additionalCosts: Vector<Symbol>,
-) {
-    fun display() = buildString {
-        appendLine("Inputs:")
-        val inputs = recipes.keys.filterIsInstance<Input>()
-        displayLeftRight(inputs, { it.ingredient }) { recipes[it] }
-        appendLine()
-
-        appendLine("Outputs:")
-        val outputs = recipes.keys.filterIsInstance<Output>()
-        displayLeftRight(outputs, { it.ingredient }) { recipes[it] }
-        appendLine()
-
-        appendLine("Recipes:")
-        val processes = recipes.keys.filterIsInstance<LpProcess>()
-        displayLeftRight(processes, { it.process }) { recipes[it] }
-        appendLine()
-
-        val otherProcesses = recipes.keys.filter {
-            it !is Input && it !is Output && it !is LpProcess
-        }
-        if (otherProcesses.isNotEmpty()) {
-            appendLine()
-            appendLine("Other processes:")
-            displayLeftRight(otherProcesses, { it }) { recipes[it] }
-        }
-
-        if (surpluses.isNotEmpty()) {
-            appendLine()
-            appendLine("Surpluses:")
-            displayLeftRight(surpluses.keys.toList(), { it }) { surpluses[it] }
-        }
-    }
-
-}
-
-data class RecipeLpResult(
-    val lpResult: LpResult,
-    val solution: RecipeLpSolution?,
-) {
-    val lpSolution: LpSolution? get() = lpResult.solution
-    val status: LpResultStatus get() = lpResult.status
-}
-
+/**
+ * Default lower bound for un-configured symbols is 0.0
+ */
 fun RecipeLp.solve(): RecipeLpResult {
-    val recipeVariables = processes.associateWith { recipe ->
+    val symbolVariables = mutableMapOf<Symbol, Variable>()
+    val processVariables = processes.associateWith { process ->
         Variable(
-            name = recipe.toString(),
-            lowerBound = recipe.lowerBound,
-            upperBound = recipe.upperBound,
-            integral = recipe.integral
-        )
+            name = "Process $process",
+            lowerBound = process.lowerBound,
+            upperBound = process.upperBound,
+            integral = process.integral
+        ).also { variable ->
+            val symbol = process.symbol
+            if (symbol != null) {
+                require(symbol !in symbolVariables) {
+                    "Symbol $symbol is used in multiple processes. " +
+                            "Use an equality constraint instead if you want 2 recipes to have the same usage."
+                }
+                symbolVariables[symbol] = variable
+            }
+
+        }
     }
+
+    for ((symbol, config) in symbolConfigs) {
+        require(symbol !in symbolVariables) { "Symbol $symbol is already used in a process" }
+        symbolVariables[symbol] = config.createVariable("Symbol $symbol")
+    }
+
     // surplus_j = sum ( recipe_i * recipe_rate_ij )
     val (recipeEquations, surplusVariables) = createMatrixEquations(
-        recipeVariables,
+        processVariables,
         { it.ingredientRate },
         { item -> Variable(name = "surplus $item", lowerBound = 0.0) },
     )
+
+    fun getOrCreateVariable(symbol: Symbol): Variable = symbolVariables.getOrPut(symbol) {
+        Variable(name = "Symbol $symbol", lowerBound = 0.0)
+    }
     // cost_j = sum ( recipe_i * recipe_cost_ij )
-    val (costEquations, costVariables) = createMatrixEquations(
-        recipeVariables,
+    val (costEquations) = createMatrixEquations(
+        processVariables,
         { it.additionalCosts },
-        { symbol -> Variable(name = "cost $symbol") },
+        { symbol -> getOrCreateVariable(symbol) },
     )
 
-    val allSymbolVars = buildSet {
-        for (constraint in additionalConstraints) {
-            addAll(constraint.lhs.keys)
-        }
-        addAll(symbolCosts.keys)
-    }.associateWith {
-        costVariables[it] ?: Variable(name = "symbol $it", lowerBound = 0.0)
-    }
-    val additionalConstraints = additionalConstraints.map { (lhs, op, rhs) ->
-        Constraint(lhs.mapKeys { allSymbolVars[it.key]!! }, op, rhs)
+    val additionalConstraints = constraints.map { (lhs, op, rhs) ->
+        Constraint(lhs.mapKeys { getOrCreateVariable(it.key) }, op, rhs)
     }
 
     val objective = Objective(
         coefficients = buildMap {
-            for ((recipe, variable) in recipeVariables) {
+            for ((recipe, variable) in processVariables) {
                 this[variable] = recipe.cost
             }
             for (variable in surplusVariables.values) {
                 this[variable] = surplusCost
             }
-            for ((symbol, variable) in allSymbolVars) {
-                symbolCosts[symbol]?.let {
-                    this[variable] = it
-                }
+            for ((symbol, config) in symbolConfigs) {
+                this[symbolVariables[symbol]!!] = config.cost
             }
         },
         maximize = false
@@ -224,9 +187,9 @@ fun RecipeLp.solve(): RecipeLpResult {
         fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
             vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
         RecipeLpSolution(
-            recipes = getAssignment(recipeVariables),
+            recipeUsage = getAssignment(processVariables),
             surpluses = getAssignment(surplusVariables),
-            additionalCosts = getAssignment(allSymbolVars),
+            symbolUsage = getAssignment(symbolVariables),
         )
     }
 

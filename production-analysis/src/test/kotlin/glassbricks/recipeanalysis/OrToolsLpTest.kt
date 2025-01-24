@@ -9,11 +9,11 @@ class OrToolsLpTest : StringSpec({
         val (xv, yv) = "xy".map { Variable(it.toString()) }
         val x = basisVec(xv)
         val y = basisVec(yv)
-        val constraints = listOf(
-            x + 2 * y leq 14.0,
-            3 * x - y geq 0.0,
+        val constraints = constraints {
+            x + 2 * y leq 14.0
+            3 * x - y geq 0.0
             x - y leq 2.0
-        )
+        }
         val objective = Objective(x + y, maximize = true)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solveLp(problem)
@@ -27,7 +27,7 @@ class OrToolsLpTest : StringSpec({
     "can have negative objective" {
         val x = Variable("x")
         val xv = basisVec(x)
-        val constraints = listOf(xv geq -1.0)
+        val constraints = constraints { xv geq -1.0 }
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solveLp(problem)
@@ -37,7 +37,7 @@ class OrToolsLpTest : StringSpec({
     "unbounded solution" {
         val x = Variable("x")
         val xv = basisVec(x)
-        val constraints = listOf(xv geq 0.0)
+        val constraints = constraints { xv geq 0.0 }
         val objective = Objective(xv, maximize = true)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp("CLP").solveLp(problem)
@@ -47,7 +47,7 @@ class OrToolsLpTest : StringSpec({
         // x >= 0.5; minimize x
         val x = Variable("x", integral = true)
         val xv = basisVec(x)
-        val constraints = listOf(xv geq 0.5)
+        val constraints = constraints { xv geq 0.5 }
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solveLp(problem)

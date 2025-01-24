@@ -129,12 +129,12 @@ oil-refinery --> coal-liquefaction                                              
 
 
 Other processes:
-CustomProcess(doubling Ingredient(grid 2x2)) |    0.00778
-CustomProcess(doubling Ingredient(grid 2x4)) |    0.00333
-CustomProcess(full armor)                    |    0.00028
-CustomProcess(grid solar-panel-equipment)    |    0.00417
-CustomProcess(grid battery-equipment)        |    0.00222
-CustomProcess(grid night-vision-equipment)   |    0.01556
+CustomProcess(doubling Ingredient(grid 2x2), cost=0.000000e+00) |    0.00778
+CustomProcess(doubling Ingredient(grid 2x4), cost=0.000000e+00) |    0.00333
+CustomProcess(full armor, cost=0.000000e+00)                    |    0.00028
+CustomProcess(grid solar-panel-equipment, cost=0.000000e+00)    |    0.00417
+CustomProcess(grid battery-equipment, cost=0.000000e+00)        |    0.00222
+CustomProcess(grid night-vision-equipment, cost=0.000000e+00)   |    0.01556
 
 Surpluses:
 superconductor(legendary)  |    0.00501
@@ -144,3 +144,24 @@ iron-stick(legendary)      |    0.20415
 iron-gear-wheel(legendary) |    0.00717
 pipe(legendary)            |    0.11020
 pipe-to-ground(legendary)  |    0.00679
+
+Symbols:
+assembling-machine-3            |   27.36278
+foundry                         |  225.52798
+recycler                        |   32.85875
+electromagnetic-plant           |   14.35340
+beacon                          |    5.68274
+big-mining-drill                |   61.05152
+speed-module                    |    2.09967
+speed-module(uncommon)          |    6.99624
+productivity-module(uncommon)   |   13.59597
+quality-module(uncommon)        |  481.24185
+speed-module-2                  |    9.26581
+productivity-module-2(uncommon) |    6.07458
+productivity-module-2(rare)     |    0.15607
+quality-module-2(uncommon)      |   67.34088
+quality-module-2(rare)          |    2.60965
+quality-module-2(epic)          |    0.64703
+quality-module-2(legendary)     |    0.30924
+chemical-plant                  |   39.94203
+oil-refinery                    |   15.05993
