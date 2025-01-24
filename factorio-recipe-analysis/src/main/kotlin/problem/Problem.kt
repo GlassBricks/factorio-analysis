@@ -68,12 +68,11 @@ class Solution(
 }
 
 object DefaultWeights {
-    const val inputCost = 1e4
-    const val inputRateCost = 1.0
+    const val INPUT_COST = 1e4
+    const val INPUT_RATE_COST = 1.0
 
-    const val maximizeWeight = 1e8
-    const val outputCost = 1.0
-    const val defaultSurplusCost: Double = 1e-4
+    const val MAXIMIZE_OUTPUT_COST = 1e8
+    const val SURPLUS_COST: Double = 1e-4
 }
 
 @RecipesConfigDsl
@@ -98,12 +97,12 @@ class ProblemBuilder(
     }
 
     val inputs = mutableListOf<Input>()
-    fun input(ingredient: Ingredient, cost: Double = DefaultWeights.inputCost, limit: Rate = Rate.infinity) {
+    fun input(ingredient: Ingredient, cost: Double = DefaultWeights.INPUT_COST, limit: Rate = Rate.infinity) {
         inputs += Input(ingredient, cost = cost, upperBound = limit.perSecond)
     }
 
     fun limit(ingredient: Ingredient, rate: Rate) {
-        input(ingredient, cost = DefaultWeights.inputRateCost, limit = rate)
+        input(ingredient, cost = DefaultWeights.INPUT_RATE_COST, limit = rate)
     }
 
     val outputs = mutableListOf<Output>()
@@ -115,7 +114,7 @@ class ProblemBuilder(
         outputs += Output(ingredient = ingredient, weight = weight, lowerBound = rate.perSecond)
     }
 
-    fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.maximizeWeight, rate: Rate = Rate.zero) {
+    fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.MAXIMIZE_OUTPUT_COST, rate: Rate = Rate.zero) {
         output(ingredient, rate = rate, weight = weight)
     }
 
@@ -146,7 +145,7 @@ class ProblemBuilder(
         customProcesses += CustomProcessBuilder(name).apply(block).build()
     }
 
-    var surplusCost: Double = DefaultWeights.defaultSurplusCost
+    var surplusCost: Double = DefaultWeights.SURPLUS_COST
     var lpOptions: LpOptions = LpOptions()
 
     fun build(): Problem = Problem(

@@ -78,6 +78,7 @@ interface LpSolver {
     fun solveLp(problem: LpProblem, options: LpOptions = LpOptions()): LpResult
 }
 
+@Suppress("FunctionName")
 fun DefaultLpSolver(): LpSolver = OrToolsLp()
 
 class OrToolsLp(val solverId: String? = null) : LpSolver {

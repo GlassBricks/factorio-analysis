@@ -1,4 +1,5 @@
 @file:OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+@file:Suppress("PropertyName", "unused")
 
 package glassbricks.factorio.prototypecodegen
 
@@ -24,7 +25,7 @@ class PrototypeApiDocs(
     val api_version: Int,
     val stage: String,
     val prototypes: List<Prototype>,
-    val types: List<Concept>
+    val types: List<Concept>,
 )
 
 sealed interface ProtoOrConcept {
@@ -54,7 +55,7 @@ class Prototype(
     val instance_limit: Int? = null,
     val deprecated: Boolean,
     override val properties: List<Property>,
-    val custom_properties: CustomProperties? = null
+    val custom_properties: CustomProperties? = null,
 ) : ProtoOrConcept {
     override fun toString(): String = "Prototype(name='$name')"
 }
@@ -71,7 +72,7 @@ class Concept(
     override val abstract: Boolean,
     val inline: Boolean,
     val type: TypeDefinition,
-    override val properties: List<Property>? = null
+    override val properties: List<Property>? = null,
 ) : ProtoOrConcept {
     override fun toString(): String = "Concept(name='$name')"
 }
@@ -89,7 +90,7 @@ class Property(
     val override: Boolean,
     var type: TypeDefinition,
     var optional: Boolean,
-    var default: DefaultValue? = null
+    var default: DefaultValue? = null,
 )
 
 @Serializable(with = DefaultValueSerializer::class)
@@ -180,11 +181,10 @@ object TypeDefinitionSerializer : KSerializer<TypeDefinition> {
     }
 }
 
-
 @Serializable
 class Image(
     val filename: String,
-    val caption: String? = null
+    val caption: String? = null,
 )
 
 @Serializable
@@ -194,9 +194,8 @@ class CustomProperties(
     val examples: List<String>? = null,
     val images: List<Image>? = null,
     val key_type: TypeDefinition,
-    val value_type: TypeDefinition
+    val value_type: TypeDefinition,
 )
-
 
 fun TypeDefinition.innerType(): TypeDefinition = when (this) {
     is TypeType -> value

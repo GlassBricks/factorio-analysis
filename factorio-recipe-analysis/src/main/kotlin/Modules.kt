@@ -210,10 +210,11 @@ fun Beacon.withModules(
     modules: List<WithModuleCount>,
     fill: Module? = null,
     sharing: Double = 1.0,
-): BeaconSetup =
-    moduleList(prototype.module_slots.toInt(), modules, fill)
-        .let { requireNotNull(it) { "Too many modules for $this" } }
-        .let { BeaconSetup(this, it, sharing) }
+): BeaconSetup {
+    val moduleList = moduleList(prototype.module_slots.toInt(), modules, fill)
+    val moduleListResult = requireNotNull(moduleList) { "Too many modules for $this" }
+    return BeaconSetup(this, moduleListResult, sharing)
+}
 
 fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null, sharing: Double = 1.0): BeaconSetup =
     withModules(modules.asList(), fill, sharing)

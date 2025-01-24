@@ -17,4 +17,5 @@ data class StrSymbol(val name: String) : Symbol {
     override fun toString(): String = "Symbol($name)"
 }
 
+@Suppress("FunctionName")
 fun Symbol(name: String): StrSymbol = StrSymbol(name)

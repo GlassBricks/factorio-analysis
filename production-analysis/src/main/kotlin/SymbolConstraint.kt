@@ -30,12 +30,3 @@ interface ConstraintDsl {
     infix fun Vector<out Symbol>.eq(rhs: Vector<out Symbol>) = (this - rhs) eq 0
     infix fun Vector<out Symbol>.geq(rhs: Vector<out Symbol>) = (this - rhs) geq 0
 }
-
-fun Vector<out Symbol>.constrainLeq(rhs: Double) =
-    SymbolConstraint(this.relaxKeyType(), ComparisonOp.Leq, rhs.toDouble())
-
-fun Vector<out Symbol>.constrainEq(rhs: Double) =
-    SymbolConstraint(this.relaxKeyType(), ComparisonOp.Eq, rhs.toDouble())
-
-fun Vector<out Symbol>.constrainGeq(rhs: Double) =
-    SymbolConstraint(this.relaxKeyType(), ComparisonOp.Geq, rhs.toDouble())

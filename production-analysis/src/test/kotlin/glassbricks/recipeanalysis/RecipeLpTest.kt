@@ -127,7 +127,8 @@ class RecipeSolverKtTest : StringSpec({
 
         val input = Input(inputIng, cost = 0.0, upperBound = 1.0)
         val output = Output(outputIng, weight = 100.0, lowerBound = 0.0)
-        val costRestr = basisVec<Symbol>(abstractCost).constrainLeq(2.0)
+        val costRestr =
+            SymbolConstraint(basisVec<Symbol>(abstractCost).relaxKeyType(), ComparisonOp.Leq, 2.0.toDouble())
 
         val processes = listOf(process1, process2, input, output)
 
