@@ -41,7 +41,7 @@ class MachineConfigScope(
     fun semiContinuous(lowerBound: Double = 0.0) {
         variableConfig.type = VariableType.SemiContinuous
         variableConfig.lowerBound = lowerBound
-        variableConfig.upperBound = 1e9
+        variableConfig.upperBound = 1e5
     }
 
     val moduleConfigs = mutableListOf<ModuleConfig>()

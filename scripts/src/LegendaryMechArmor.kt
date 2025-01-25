@@ -36,8 +36,14 @@ fun main() {
                 for (q in listOf(uncommon, rare, epic, legendary)) {
                     for (module in modules) {
                         moduleConfig(fill = module.withQuality(q))
-                        moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon(fill = speedModule)))
-                        moduleConfig(fill = module.withQuality(q), beacons = listOf(beacon(fill = speedModule2)))
+                        moduleConfig(
+                            fill = module.withQuality(q),
+                            beacons = listOf(beacon(fill = speedModule, sharing = 6.0))
+                        )
+                        moduleConfig(
+                            fill = module.withQuality(q),
+                            beacons = listOf(beacon(fill = speedModule2, sharing = 6.0))
+                        )
                     }
                     moduleConfig(fill = qualityModule.withQuality(q))
                     moduleConfig(fill = qualityModule2.withQuality(q))
@@ -45,10 +51,12 @@ fun main() {
             }
             bigMiningDrill {}
             electromagneticPlant {
+//                integral()
                 semiContinuous(0.2)
             }
             assemblingMachine3 {
-                semiContinuous(0.2)
+//                integral()
+//                semiContinuous(0.2)
             }
             foundry()
             recycler() // not integral as we can easily share recyclers
@@ -166,7 +174,7 @@ fun main() {
 
         lpOptions = LpOptions(
             solver = OrToolsLp("SCIP"),
-            timeLimit = 2.minutes,
+            timeLimit = 15.0.minutes,
             epsilon = 1e-5
         )
     }
