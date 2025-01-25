@@ -22,7 +22,7 @@ interface PseudoProcess {
 }
 
 private fun StringBuilder.commonToString(process: PseudoProcess) {
-    append(", variableConfig=").append(process.variableConfig)
+    if (process.variableConfig != VariableConfig()) append(", variableConfig=").append(process.variableConfig)
     if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
     if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
     if (process.symbol != null) append(", symbol=").append(process.symbol)

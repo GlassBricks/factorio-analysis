@@ -73,6 +73,9 @@ interface WithFactorioPrototypes {
     fun itemOf(entity: EntityPrototype): Item = itemOfOrNull(entity) ?: error("Item not found for $entity")
     fun itemOf(entity: Entity): Item = itemOfOrNull(entity) ?: error("Item not found for $entity")
     fun Entity.item(): Item = itemOrNull() ?: error("Item not found for $this")
+
+    fun recipeOf(item: Item): Recipe = recipe(item.prototype.name).withQuality(item.quality)
+    fun recipeOf(fluid: Fluid): Recipe = recipe(fluid.prototype.name)
 }
 
 val WithFactorioPrototypes.qualities get() = prototypes.qualities

@@ -44,19 +44,12 @@ class MachineConfigScope(
     var upperBound: Double = Double.POSITIVE_INFINITY
     var type: VariableType = VariableType.Continuous
 
-    fun integralRecipes() {
-        type = VariableType.Integer
-    }
-
-    fun semiContinuousRecipes(lowerBound: Double = 0.0) {
-        type = VariableType.SemiContinuous
-        this.lowerBound = lowerBound
-    }
-
+    /** When evaluating the _cost_ of using this recipe, the number of machines will be rounded up. */
     fun integralCost() {
         outputVariableConfig = VariableConfigBuilder(type = VariableType.Integer)
     }
 
+    /** When evaluating the _cost_ of using this recipe, the number of machines will be at minimum this value. */
     fun semiContinuousCost(lowerBound: Double = 0.0) {
         outputVariableConfig = VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound)
     }
@@ -115,6 +108,11 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
     val qualities = sortedSetOf(prototypes.defaultQuality)
     fun allQualities() {
         qualities.addAll(prototypes.qualities)
+    }
+
+    fun setQualities(vararg qualities: Quality) {
+        this.qualities.clear()
+        this.qualities.addAll(qualities)
     }
 
     var additionalCosts: Vector<Symbol> = emptyVector()
@@ -183,6 +181,10 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
         operator fun RecipeOrResource<*>.invoke(block: RecipeConfigFn? = null) {
             val list = recipeConfigs.getOrPut(this, ::ArrayList)
             if (block != null) list += block
+        }
+
+        operator fun Item.invoke(block: RecipeConfigFn? = null) {
+            prototypes.recipeOf(this)(block)
         }
 
         operator fun String.invoke(block: RecipeConfigFn? = null) {

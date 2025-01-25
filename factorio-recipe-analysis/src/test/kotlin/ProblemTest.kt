@@ -317,7 +317,7 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        integralRecipes()
+                        type = VariableType.Integer
                     }
                 }
                 recipes {
@@ -394,7 +394,8 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        semiContinuousRecipes(lowerBound = 2.0)
+                        type = VariableType.SemiContinuous
+                        lowerBound = 2.0
                     }
                 }
                 recipes {
@@ -410,13 +411,14 @@ class ProblemTest : FunSpec({
         usage shouldBe 2.0
         println(solution.solution!!.recipeUsage.display())
     }
-    test("using cost variable") {
+    test("using integral cost") {
         val problem = problem {
             factory {
                 machines {
                     "assembling-machine-3" {
                         cost = 10.0
                         integralCost()
+                        includeBuildCosts()
                     }
                 }
                 recipes {
@@ -430,6 +432,8 @@ class ProblemTest : FunSpec({
         solution.status shouldBe LpResultStatus.Optimal
         val usage = solution.amountUsed(problem.recipes.keys.single())!!
         usage shouldBeIn (0.001..0.1)
+        val asm3usage = solution.recipeResult.solution!!.symbolUsage[item("assembling-machine-3")]!!
+        asm3usage shouldBe 1.0
         val cost = solution.lpSolution!!.objectiveValue
         cost shouldBe 10.0
         println(solution.solution!!.recipeUsage.display())

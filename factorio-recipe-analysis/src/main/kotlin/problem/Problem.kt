@@ -45,8 +45,8 @@ class Result(
     val problem: Problem,
     val recipeResult: RecipeLpResult,
 ) {
-    val solution: RecipeLpSolution? get() = recipeResult.solution
     val status: LpResultStatus get() = recipeResult.lpResult.status
+    val solution: RecipeLpSolution? get() = recipeResult.solution
     val lpResult: LpResult get() = recipeResult.lpResult
     val lpSolution: LpSolution? get() = lpResult.solution
     fun outputRate(ingredient: Ingredient): Rate? {

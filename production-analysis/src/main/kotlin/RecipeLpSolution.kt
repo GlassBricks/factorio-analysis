@@ -53,7 +53,7 @@ data class RecipeLpSolution(
 
         if (symbolUsage.isNotEmpty()) {
             appendLine()
-            appendLine("Symbols:")
+            appendLine("Symbols used:")
             displayLeftRight(symbolUsage.keys.toList(), { it }) { symbolUsage[it] }
         }
     }

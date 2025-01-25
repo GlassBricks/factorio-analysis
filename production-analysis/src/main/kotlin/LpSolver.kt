@@ -78,6 +78,10 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val enableIncremental: Boolean = true,
     ) : AbstractIncrementalSolver<Result>() {
         override fun doSolveFor(duration: Duration): Pair<Result, Boolean> {
+            if (options.enableLogging) {
+                println("Starting solve")
+                println(solver.solverVersion())
+            }
             solver.setTimeLimit(duration.inWholeMilliseconds)
 
             val solverParams = MPSolverParameters().apply {
