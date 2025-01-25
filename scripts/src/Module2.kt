@@ -1,9 +1,9 @@
-import glassbricks.factorio.prototypes.EquipmentShapeType
 import glassbricks.factorio.recipes.*
-import glassbricks.factorio.recipes.problem.MachineConfig
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.LpOptions
+import glassbricks.recipeanalysis.OrToolsLp
+import glassbricks.recipeanalysis.perMinute
 import java.io.File
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
@@ -33,6 +33,7 @@ fun main() {
                 includeBuildCosts()
 
                 moduleConfig()
+
 
                 for (q in prototypes.qualities) {
                     for (module in modules) {
@@ -71,43 +72,12 @@ fun main() {
             allRecipes()
             calciteMining()
             coalMining()
-            remove(steelChest)
-            var noQuality: (MachineConfig) -> Boolean = {
-                it.machine.modulesUsed.none {
-                    it.prototype == qualityModule.prototype || it.prototype == qualityModule2.prototype
-                }
-            }
-            electricEngineUnit {
-                setQualities(rare)
-                filters += noQuality
-            }
-            allRecycling {
-                val process = process as Recipe
-                if (process != powerArmorMk2Recycling &&
-                    process.outputs.any {
-                        (it.key as? Item)?.prototype == electricEngineUnit.prototype
-                    }
-                ) {
-                    filters += { false }
-                }
-            }
         }
     }
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-
-        fun addWithQualities(item: Item, baseCost: Double, rocketCapacity: Double) {
-            val shippingCost = 1e7 / rocketCapacity
-            val qualityCost = 8.0
-            for ((index, quality) in qualities.withIndex()) {
-                input(item.withQuality(quality), cost = baseCost * qualityCost.pow(index) + shippingCost)
-            }
-        }
-        addWithQualities(holmiumOre, 150.0, 500.0)
-        addWithQualities(holmiumPlate, 150 / 2.5, 1000.0)
-//        addWithQualities(supercapacitor, 50.0, 500.0)
 
         costs {
             costOf(assemblingMachine3.item(), 3 + 1.0)
@@ -132,67 +102,14 @@ fun main() {
             }
         }
 
-        val targetTime = Time(60.0 * 60.0)
-
-        data class Size(val x: Int, val y: Int)
-
-        val sizes = listOf(
-            Size(1, 1),
-            Size(1, 2),
-            Size(2, 2),
-            Size(2, 4),
-            Size(4, 4)
-        )
-        val gridVars = sizes.associateWith { size ->
-            Ingredient("grid ${size.x}x${size.y}")
-        }
-        for ((prev, next) in gridVars.values.zipWithNext()) {
-            customProcess("doubling $prev") {
-                ingredientRate = vector<Ingredient>(prev to -2.0, next to 1.0) / targetTime
-            }
-        }
-
-        val fullArmorGrid = Ingredient("full armor")
-        val (grid1x1, grid1x2, _, grid2x4, grid4x4) = gridVars.values.toList()
-        customProcess("full armor") {
-            ingredientRate += vector<Ingredient>(fullArmorGrid to 1.0) / targetTime
-            ingredientRate -= vector<Ingredient>(
-                grid4x4 to 12.0,
-                grid2x4 to 4.0,
-                grid1x2 to 8.0,
-                grid1x1 to 15.0
-            ) / targetTime
-        }
-
-        for (item in prototypes.items.values) {
-            val placeResult = item.prototype.place_as_equipment_result
-            if (placeResult.isNotBlank()) {
-                val shape = prototypes.equipment[placeResult]!!.shape
-                if (shape.type == EquipmentShapeType.manual) continue
-                val size = Size(shape.width.toInt(), shape.height.toInt())
-                val grid = gridVars[size] ?: continue
-                customProcess("grid $item") {
-                    ingredientRate += vector<Ingredient>(grid to 1.0) / targetTime
-                    ingredientRate -= vector<Ingredient>(item.withQuality(legendary) to 1.0) / targetTime
-                }
-            }
-        }
-
-
         output(
-            mechArmor.withQuality(legendary),
-            rate = 1.0 / targetTime
+            qualityModule2.withQuality(epic),
+            rate = 4.perMinute
         )
-        output(
-            fullArmorGrid,
-            rate = 1.0 / targetTime
-        )
-
         lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
             timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
-//            enableLogging = true,
             epsilon = 1e-5
         )
     }
@@ -205,8 +122,8 @@ fun main() {
             (it as? MachineSetup<*>)?.process?.toString()
         })
         println(display)
-        File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(display)
+        File("output/module2.txt").writeText(display)
 
-        it.toBlueprint().exportTo(File("output/legendary-mech-armor-bp.txt"))
+        it.toBlueprint().exportTo(File("output/module2-bp.txt"))
     }
 }

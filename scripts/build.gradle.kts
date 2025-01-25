@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":factorio-recipe-analysis"))
+    api(project(":factorio-recipe-analysis"))
 }
 
 // flatten source sets to just /src

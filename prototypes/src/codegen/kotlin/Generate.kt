@@ -12,7 +12,7 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
 
 const val PACKAGE_NAME = "glassbricks.factorio.prototypes"
-const val PAR_PACKAGE_NAME = "glassbricks.factorio.blueprint"
+const val PAR_PACKAGE_NAME = "glassbricks.factorio"
 private fun String.toClassName() = ClassName(PACKAGE_NAME, this)
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -79,6 +79,8 @@ class PrototypeDeclarationsGenerator(private val input: GeneratedPrototypes) {
             AnnotationSpec.builder(UseSerializers::class)
                 .addMember("LuaListSerializer::class")
                 .addMember("DoubleAsIntSerializer::class")
+                .addMember("BoundingBoxShorthandSerializer::class")
+                .addMember("PositionShorthandSerializer::class")
                 .build()
         )
         addKotlinDefaultImports()

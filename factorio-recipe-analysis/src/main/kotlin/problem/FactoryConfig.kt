@@ -117,12 +117,15 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
 
     var additionalCosts: Vector<Symbol> = emptyVector()
 
+    val filters: MutableList<(MachineConfig) -> Boolean> = mutableListOf()
+
     private var withQualitiesList: List<RecipeOrResource<*>>? = null
     internal fun addCraftingSetups(
         list: MutableList<in LpProcess>,
         machine: MachineConfig,
         config: ResearchConfig,
     ) {
+        if (filters.any { !it(machine) }) return
         withQualitiesList = withQualitiesList ?: qualities.mapNotNull { process.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
             val machineSetup = machine.machine.craftingOrNullCast(quality, config) ?: continue
@@ -214,6 +217,14 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
             for (resource in resources) {
                 resource(resource)(config)
             }
+        }
+
+        fun remove(recipe: RecipeOrResource<*>) {
+            recipeConfigs.remove(recipe)
+        }
+
+        fun remove(item: Item) {
+            remove(prototypes.recipeOf(item))
         }
     }
 

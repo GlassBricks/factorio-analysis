@@ -20,7 +20,9 @@ data class RecipeLpSolution(
     val surpluses: Vector<Ingredient>,
     val symbolUsage: Vector<Symbol>,
 ) {
-    fun display() = buildString {
+    fun display(
+        sortProcess: Comparator<Process>? = null,
+    ) = buildString {
         appendLine("Inputs:")
         val inputs = recipeUsage.keys.filterIsInstance<Input>()
         displayLeftRight(inputs, { it.ingredient }) { recipeUsage[it] }
@@ -33,6 +35,10 @@ data class RecipeLpSolution(
 
         appendLine("Recipes:")
         val processes = recipeUsage.keys.filterIsInstance<LpProcess>()
+            .let {
+                if (sortProcess != null) it.sortedWith { a, b -> sortProcess.compare(a.process, b.process) }
+                else it
+            }
         displayLeftRight(processes, { it.process }) { recipeUsage[it] }
         appendLine()
 
@@ -57,7 +63,6 @@ data class RecipeLpSolution(
             displayLeftRight(symbolUsage.keys.toList(), { it }) { symbolUsage[it] }
         }
     }
-
 }
 
 data class RecipeLpResult(

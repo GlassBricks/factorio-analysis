@@ -52,6 +52,9 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "EntityPrototype" {
             +"placeable_by"
             +"minable"
+            +"tile_height"
+            +"tile_width"
+            +"collision_box"
         }
         "EntityWithHealthPrototype" {}
         "EntityWithOwnerPrototype" {}

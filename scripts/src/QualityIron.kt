@@ -1,28 +1,37 @@
+import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.factorio.recipes.times
 import glassbricks.recipeanalysis.LpOptions
 import glassbricks.recipeanalysis.perSecond
+import kotlin.math.pow
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
         machines {
+
+            val modules = listOf(
+                speedModule,
+                speedModule2,
+                productivityModule,
+                productivityModule2,
+            )
             default {
                 includeBuildCosts()
 
                 moduleConfig()
-                val beacon6 = beacon(fill = speedModule2, sharing = 6.0)
-                moduleConfig(fill = speedModule, beacons = listOf(beacon6))
-                moduleConfig(fill = speedModule, beacons = listOf(beacon6 * 4))
-
-                moduleConfig(fill = productivityModule2, beacons = listOf(beacon6))
-                moduleConfig(fill = productivityModule2, beacons = listOf(beacon6 * 4))
-
-                moduleConfig(fill = qualityModule2)
-                moduleConfig(fill = qualityModule2.withQuality(uncommon))
-                moduleConfig(fill = qualityModule2.withQuality(rare))
+                for (q in prototypes.qualities) {
+                    for (module in modules) {
+                        moduleConfig(fill = module.withQuality(q))
+                        moduleConfig(
+                            fill = module.withQuality(q),
+                            beacons = listOf(beacon(fill = speedModule2, sharing = 6.0))
+                        )
+                    }
+                    moduleConfig(fill = qualityModule.withQuality(q))
+                    moduleConfig(fill = qualityModule2.withQuality(q))
+                }
             }
             chemicalPlant()
             oilRefinery()
@@ -38,27 +47,41 @@ fun main() {
             }
             allRecipes()
             calciteMining()
+            coalMining()
         }
     }
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
+//        input(sulfuricAcid, cost = 0.0005)
+        input(lubricant, cost = 0.0005)
 
-        output(ironPlate.withQuality(epic), 1.0.perSecond)
+        output(ironPlate.withQuality(legendary), 1.0.perSecond)
 
         costs {
-            costOf(speedModule, 1)
-            costOf(assemblingMachine3.item(), 3)
-            costOf(speedModule2, 5)
-            costOf(productivityModule2, 5)
-            costOf(qualityModule2, 5)
-            costOf(foundry.item(), 5)
-            costOf(recycler.item(), 5)
+            costOf(assemblingMachine3.item(), 3 + 1.0)
+            costOf(foundry.item(), 5 + 2.0)
+            costOf(recycler.item(), 10 + 1.0)
+            costOf(electromagneticPlant.item(), 100)
+            costOf(beacon.item(), 4 + 1.0)
+            costOf(bigMiningDrill.item(), 5)
+
+            val qualityCostMultiplier = 5.0
+            fun addQualityCost(item: Item, baseCost: Double) {
+                for ((index, quality) in prototypes.qualities.withIndex()) {
+                    var value = baseCost * qualityCostMultiplier.pow(index)
+                    costOf(item.withQuality(quality), value)
+                }
+            }
+            for (module in listOf(speedModule, productivityModule, qualityModule)) {
+                addQualityCost(module, 1.0)
+            }
+            for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
+                addQualityCost(module, 5.0)
+            }
         }
 
-        lpOptions = LpOptions(
-            epsilon = 1e-5
-        )
+        lpOptions = LpOptions(epsilon = 1e-5)
     }
     val solution = production.solve()
     println(solution.status)

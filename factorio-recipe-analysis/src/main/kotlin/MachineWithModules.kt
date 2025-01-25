@@ -23,6 +23,7 @@ data class MachineWithModules<P>(
     }
 
     override val prototype: P get() = machine.prototype
+    override val quality: Quality get() = machine.quality
     override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed
     override fun acceptsModule(module: Module): Boolean = machine.acceptsModule(module)
 
