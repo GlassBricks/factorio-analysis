@@ -1,8 +1,9 @@
-import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
+import glassbricks.factorio.recipes.times
 import glassbricks.recipeanalysis.LpOptions
-import glassbricks.recipeanalysis.OrToolsLp
 import glassbricks.recipeanalysis.perSecond
 
 fun main() {
@@ -56,11 +57,11 @@ fun main() {
         }
 
         lpOptions = LpOptions(
-            solver = OrToolsLp("CBC"),
             epsilon = 1e-5
         )
     }
     val solution = production.solve()
     println(solution.status)
-    println(solution.recipeSolution?.display())
+    println(solution.lpResult.bestBound)
+    println(solution.solution?.display())
 }

@@ -174,7 +174,7 @@ class RecipeSolverKtTest : StringSpec({
         val result = RecipeLp(processes, symbolConfigs = symbolConfigs).solve()
 
         result.status shouldBe LpResultStatus.Optimal
-        println(result.lpSolution?.objective)
+        println(result.lpSolution?.objectiveValue)
         val usage = result.solution?.recipeUsage ?: fail("no usage")
         usage[process2] shouldBe 0.0
         usage[process1] shouldBe 1.0

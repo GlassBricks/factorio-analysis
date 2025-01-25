@@ -43,7 +43,7 @@ fun main() {
 
     val solution = production.solve()
     println(solution.status)
-    val display = solution.recipeSolution?.display()
+    val display = solution.solution?.display()
     println(display)
     display?.let {
         File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(it)

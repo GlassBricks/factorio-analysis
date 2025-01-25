@@ -16,7 +16,7 @@ class OrToolsLpTest : FreeSpec({
         }
         val objective = Objective(x + y, maximize = true)
         val problem = LpProblem(constraints, objective)
-        val result = OrToolsLp().solveLp(problem)
+        val result = OrToolsLp().solve(problem)
         result.status shouldBe LpResultStatus.Optimal
         val expectedSolution = vectorWithUnits<Unit, _>(xv to 6.0, yv to 4.0)
         val assignment = result.solution?.assignment?.let { vectorWithUnits<Unit, _>(it) } ?: fail("no solution")
@@ -30,9 +30,9 @@ class OrToolsLpTest : FreeSpec({
         val constraints = constraints { xv geq -1.0 }
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
-        val result = OrToolsLp().solveLp(problem)
+        val result = OrToolsLp().solve(problem)
         result.status shouldBe LpResultStatus.Optimal
-        result.solution!!.objective shouldBe -1.0
+        result.solution!!.objectiveValue shouldBe -1.0
     }
     "unbounded solution" {
         val x = Variable("x")
@@ -40,7 +40,7 @@ class OrToolsLpTest : FreeSpec({
         val constraints = constraints { xv geq 0.0 }
         val objective = Objective(xv, maximize = true)
         val problem = LpProblem(constraints, objective)
-        val result = OrToolsLp("CLP").solveLp(problem)
+        val result = OrToolsLp("CLP").solve(problem)
         result.status shouldBe LpResultStatus.Unbounded
     }
     "integral" {
@@ -50,7 +50,7 @@ class OrToolsLpTest : FreeSpec({
         val constraints = constraints { xv geq 0.5 }
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
-        val result = OrToolsLp().solveLp(problem)
+        val result = OrToolsLp().solve(problem)
         result.status shouldBe LpResultStatus.Optimal
         result.solution!!.assignment[x] shouldBe 1.0
     }
@@ -60,7 +60,7 @@ class OrToolsLpTest : FreeSpec({
             val xv = basisVec(x)
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(emptyList(), objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.0
         }
@@ -70,7 +70,7 @@ class OrToolsLpTest : FreeSpec({
             val xv = basisVec(x)
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(emptyList(), objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.5
         }
@@ -81,7 +81,7 @@ class OrToolsLpTest : FreeSpec({
             val constraints = constraints { xv geq 0.01 }
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(constraints, objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.2
         }
@@ -93,7 +93,7 @@ class OrToolsLpTest : FreeSpec({
             val constraints = constraints { xv geq 0.01 }
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(constraints, objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.2
         }
@@ -109,7 +109,7 @@ class OrToolsLpTest : FreeSpec({
             val constraints = constraints { xv leq -0.01 }
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(constraints, objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe -0.2
         }
@@ -119,7 +119,7 @@ class OrToolsLpTest : FreeSpec({
             val xv = basisVec(x)
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(constraints = emptyList(), objective)
-            val result = OrToolsLp().solveLp(problem)
+            val result = OrToolsLp().solve(problem)
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.0
         }

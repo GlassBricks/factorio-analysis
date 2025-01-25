@@ -3,11 +3,14 @@ import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.buffer
 import java.io.File
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-fun main() {
+suspend fun main() {
     val vulcanusFactory = SpaceAge.factory {
         /*  val beacons = listOf(
               speedModule,
@@ -52,13 +55,15 @@ fun main() {
             bigMiningDrill {}
             electromagneticPlant {
 //                integral()
-                semiContinuous(0.2)
+//                semiContinuous(0.2)
             }
             assemblingMachine3 {
 //                integral()
 //                semiContinuous(0.2)
             }
-            foundry()
+            foundry {
+                integral()
+            }
             recycler() // not integral as we can easily share recyclers
             chemicalPlant()
             oilRefinery()
@@ -172,17 +177,25 @@ fun main() {
             rate = 1.0 / time
         )
 
+        lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
-            solver = OrToolsLp("SCIP"),
-            timeLimit = 15.0.minutes,
+            timeLimit = 0.5.minutes,
+            enableLogging = true,
             epsilon = 1e-5
         )
     }
-    val solution = production.solve()
-    println(solution.status)
-    val display = solution.recipeSolution?.display()
-    println(display)
-    display?.let {
-        File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(it)
+    var i = 1
+    production.solveIncremental().asFlow(2.minutes).buffer().collect { result ->
+        println("Solution $i")
+        i++
+        println("Status: ${result.status}")
+        println("Best bound: ${result.lpResult.bestBound}")
+        result.solution?.let {
+            println("Objective: ${result.lpSolution!!.objectiveValue}")
+            val display = it.display()
+            println(display)
+            File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(display)
+        }
+        delay(1.seconds)
     }
 }

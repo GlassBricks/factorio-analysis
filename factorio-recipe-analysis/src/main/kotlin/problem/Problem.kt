@@ -37,31 +37,32 @@ class Problem(
         symbolConfigs = symbolConfigs,
     )
 
-    fun solve(): Solution = Solution(this, recipeLp.solve())
+    fun solve(): Result = Result(this, recipeLp.solve())
+    fun solveIncremental(): IncrementalSolver<Result> = recipeLp.createIncrementalSolver().map { Result(this, it) }
 }
 
-class Solution(
+class Result(
     val problem: Problem,
     val recipeResult: RecipeLpResult,
 ) {
-    val recipeSolution: RecipeLpSolution? get() = recipeResult.solution
+    val solution: RecipeLpSolution? get() = recipeResult.solution
     val status: LpResultStatus get() = recipeResult.lpResult.status
     val lpResult: LpResult get() = recipeResult.lpResult
     val lpSolution: LpSolution? get() = lpResult.solution
     fun outputRate(ingredient: Ingredient): Rate? {
         val output = problem.outputs[ingredient] ?: return null
-        val usage = recipeSolution?.recipeUsage ?: return null
+        val usage = solution?.recipeUsage ?: return null
         return Rate(output.sumOf { usage[it] })
     }
 
     fun inputRate(ingredient: Ingredient): Rate? {
         val input = problem.inputs[ingredient] ?: return null
-        val usage = recipeSolution?.recipeUsage ?: return null
+        val usage = solution?.recipeUsage ?: return null
         return Rate(input.sumOf { usage[it] })
     }
 
     fun amountUsed(recipe: MachineSetup<*>): Double? {
-        val usage = recipeSolution?.recipeUsage ?: return 0.0
+        val usage = solution?.recipeUsage ?: return 0.0
         val lpProcess = problem.recipes[recipe] ?: return 0.0
         return usage[lpProcess]
     }
@@ -147,6 +148,7 @@ class ProblemBuilder(
     }
 
     var surplusCost: Double = DefaultWeights.SURPLUS_COST
+    var lpSolver: LpSolver = DefaultLpSolver()
     var lpOptions: LpOptions = LpOptions()
 
     fun build(): Problem = Problem(

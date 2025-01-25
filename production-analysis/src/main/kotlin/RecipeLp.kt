@@ -132,13 +132,49 @@ data class RecipeLp(
     val constraints: List<SymbolConstraint> = emptyList(),
     val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
     val surplusCost: Double = 1e-5,
+    val lpSolver: LpSolver = DefaultLpSolver(),
     val lpOptions: LpOptions = LpOptions(),
 )
+
+fun RecipeLp.solve(): RecipeLpResult {
+    val problem = createAsLp()
+    val result = lpSolver.solve(problem.lp, lpOptions)
+    return problem.createResult(result)
+}
+
+fun RecipeLp.createIncrementalSolver(): IncrementalSolver<RecipeLpResult> {
+    val asLp = createAsLp()
+    val solver = lpSolver.createIncrementalSolver(asLp.lp, lpOptions)
+    return solver.map { asLp.createResult(it) }
+}
+
+private class RecipeAsLp(
+    val lp: LpProblem,
+    val processVariables: Map<PseudoProcess, Variable>,
+    val surplusVariables: Map<Ingredient, Variable>,
+    val symbolVariables: Map<Symbol, Variable>,
+) {
+    fun createResult(result: LpResult): RecipeLpResult {
+        val solution = result.solution?.let { solution ->
+            fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
+                vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
+            RecipeLpSolution(
+                recipeUsage = getAssignment(processVariables),
+                surpluses = getAssignment(surplusVariables),
+                symbolUsage = getAssignment(symbolVariables),
+            )
+        }
+        return RecipeLpResult(
+            lpResult = result,
+            solution = solution,
+        )
+    }
+}
 
 /**
  * Default lower bound for un-configured symbols is 0.0
  */
-fun RecipeLp.solve(): RecipeLpResult {
+private fun RecipeLp.createAsLp(): RecipeAsLp {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
     val processVariables = processes.associateWith { process ->
         Variable(
@@ -204,22 +240,8 @@ fun RecipeLp.solve(): RecipeLpResult {
         constraints = concat(recipeEquations, costEquations, additionalConstraints),
         objective = objective
     )
-    val result = lp.solve(lpOptions)
+    return RecipeAsLp(lp, processVariables, surplusVariables, symbolVariables)
 
-    val solution = result.solution?.let { solution ->
-        fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
-            vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
-        RecipeLpSolution(
-            recipeUsage = getAssignment(processVariables),
-            surpluses = getAssignment(surplusVariables),
-            symbolUsage = getAssignment(symbolVariables),
-        )
-    }
-
-    return RecipeLpResult(
-        lpResult = result,
-        solution = solution,
-    )
 }
 
 /**

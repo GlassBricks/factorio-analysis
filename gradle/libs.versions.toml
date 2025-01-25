@@ -7,6 +7,7 @@ kotlin = "2.0.21"
 kotlinxDatetime = "0.6.1"
 kotlinxSerializationJSON = "1.7.2"
 kotlinxCoroutines = "1.8.1"
+kotlinxAtomicfu = "0.27.0"
 kotest = "5.9.1"
 orTools = "9.11.4210"
 
@@ -27,3 +28,4 @@ kotest = ["kotest", "kotestAssertions", "kotestProperty"]
 
 [plugins]
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinxAtomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlinxAtomicfu" }
