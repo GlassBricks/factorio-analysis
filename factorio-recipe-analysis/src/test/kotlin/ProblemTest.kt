@@ -4,6 +4,7 @@ import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.ranges.shouldBeIn
 import io.kotest.matchers.shouldBe
 
 class ProblemTest : FunSpec({
@@ -19,16 +20,18 @@ class ProblemTest : FunSpec({
 
     val (normal, uncommon, rare, epic, legendary) = prototypes.qualities
 
-    val gcFactory = factory {
-        machines {
-            "assembling-machine-2" {}
-        }
-        recipes {
-            "copper-cable" {}
-            (gc.prototype.name) {}
-            (ironGearWheel.prototype.name) {}
-            // something irrelevant
-            "iron-chest" {}
+    val gcFactory by lazy {
+        factory {
+            machines {
+                "assembling-machine-2" {}
+            }
+            recipes {
+                "copper-cable" {}
+                (gc.prototype.name) {}
+                (ironGearWheel.prototype.name) {}
+                // something irrelevant
+                "iron-chest" {}
+            }
         }
     }
     test("solve maximize") {
@@ -151,7 +154,7 @@ class ProblemTest : FunSpec({
             factory = gamblingFactory
             val moltenIron = fluid("molten-iron")
             input(moltenIron)
-            output(ironPlate.withQuality(legendary), 6.perMinute)
+            output(ironPlate.withQuality(rare), 6.perMinute)
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
@@ -314,7 +317,7 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        integral()
+                        integralRecipes()
                     }
                 }
                 recipes {
@@ -391,7 +394,7 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        semiContinuous(lowerBound = 2.0)
+                        semiContinuousRecipes(lowerBound = 2.0)
                     }
                 }
                 recipes {
@@ -405,6 +408,30 @@ class ProblemTest : FunSpec({
         solution.status shouldBe LpResultStatus.Optimal
         val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBe 2.0
+        println(solution.solution!!.recipeUsage.display())
+    }
+    test("using cost variable") {
+        val problem = problem {
+            factory {
+                machines {
+                    "assembling-machine-3" {
+                        cost = 10.0
+                        integralCost()
+                    }
+                }
+                recipes {
+                    "iron-gear-wheel" {}
+                }
+            }
+            input(ironPlate, cost = 0.0)
+            output(ironGearWheel, 0.01.perSecond)
+        }
+        val solution = problem.solve()
+        solution.status shouldBe LpResultStatus.Optimal
+        val usage = solution.amountUsed(problem.recipes.keys.single())!!
+        usage shouldBeIn (0.001..0.1)
+        val cost = solution.lpSolution!!.objectiveValue
+        cost shouldBe 10.0
         println(solution.solution!!.recipeUsage.display())
     }
 }), WithFactorioPrototypes {

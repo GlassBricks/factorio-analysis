@@ -7,15 +7,24 @@ package glassbricks.recipeanalysis
  * - An actual [LpProcess] that turns inputs into outputs, possibly with constraints
  */
 interface PseudoProcess {
-    val variableConfig: VariableConfig
     val ingredientRate: IngredientRate
+    val variableConfig: VariableConfig
+
     val additionalCosts: Vector<Symbol> get() = emptyVector()
+
+    /**
+     * If set, a second variable >= the recipe's variable will be created to represent the cost.
+     *
+     * Additional costs will be associated with this variable, not the recipe's variable.
+     */
+    val costVariableConfig: VariableConfig?
     val symbol: Symbol?
 }
 
 private fun StringBuilder.commonToString(process: PseudoProcess) {
-    append(process.variableConfig)
+    append(", variableConfig=").append(process.variableConfig)
     if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
+    if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
     if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
@@ -23,6 +32,7 @@ data class LpProcess(
     val process: Process,
     override val variableConfig: VariableConfig = VariableConfig(),
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val costVariableConfig: VariableConfig? = null,
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
@@ -40,6 +50,7 @@ data class Input(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val costVariableConfig: VariableConfig? = null,
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = vectorWithUnits(ingredient to 1.0)
@@ -55,6 +66,7 @@ data class Output(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val costVariableConfig: VariableConfig? = null,
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
     init {
@@ -75,8 +87,9 @@ data class CustomProcess(
     val name: String,
     override val ingredientRate: IngredientRate,
     override val variableConfig: VariableConfig,
+    override val costVariableConfig: VariableConfig? = null,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
-    override val symbol: Symbol?,
+    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override fun toString(): String = buildString {
         append("CustomProcess(")
@@ -149,6 +162,13 @@ private class RecipeAsLp(
  */
 private fun RecipeLp.createAsLp(): RecipeAsLp {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
+    val additionalConstraints = mutableListOf<Constraint>()
+    val objectiveWeights = mutableMapOf<Variable, Double>()
+
+    fun VariableConfig.createVariable(name: String): Variable = createVariableNoCost(name).also { variable ->
+        objectiveWeights[variable] = cost
+    }
+
     val processVariables = processes.associateWith { process ->
         process.variableConfig.createVariable("Process $process").also { variable ->
             val symbol = process.symbol
@@ -162,6 +182,19 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
 
         }
     }
+    val processCostVariables = processVariables.mapValues { (process, processVar) ->
+        val costVariableConfig = process.costVariableConfig
+        costVariableConfig?.createVariable("Cost of $process")?.also { costVariable ->
+            // cost - recipe >= 0
+            additionalConstraints.add(
+                Constraint(
+                    lhs = mapOf(costVariable to 1.0, processVar to -1.0),
+                    rhs = 0.0,
+                    op = ComparisonOp.Geq
+                )
+            )
+        } ?: processVar
+    }
 
     for ((symbol, config) in symbolConfigs) {
         require(symbol !in symbolVariables) { "Symbol $symbol is already used in a process" }
@@ -172,7 +205,12 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
     val (recipeEquations, surplusVariables) = createMatrixEquations(
         processVariables,
         { it.ingredientRate },
-        { item -> Variable(name = "surplus $item", lowerBound = 0.0) },
+        { item ->
+            Variable(name = "surplus $item", lowerBound = 0.0)
+                .also {
+                    objectiveWeights[it] = surplusCost
+                }
+        },
     )
 
     fun getOrCreateVariable(symbol: Symbol): Variable = symbolVariables.getOrPut(symbol) {
@@ -180,27 +218,17 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
     }
     // cost_j = sum ( recipe_i * recipe_cost_ij )
     val (costEquations) = createMatrixEquations(
-        processVariables,
+        processCostVariables,
         { it.additionalCosts },
         { symbol -> getOrCreateVariable(symbol) },
     )
 
-    val additionalConstraints = constraints.map { (lhs, op, rhs) ->
-        Constraint(lhs.mapKeys { getOrCreateVariable(it.key) }, op, rhs)
+    constraints.forEach { constraint ->
+        additionalConstraints += constraint.mapKeys { getOrCreateVariable(it) }
     }
 
     val objective = Objective(
-        coefficients = buildMap {
-            for ((recipe, variable) in processVariables) {
-                this[variable] = recipe.variableConfig.cost
-            }
-            for (variable in surplusVariables.values) {
-                this[variable] = surplusCost
-            }
-            for ((symbol, config) in symbolConfigs) {
-                this[symbolVariables[symbol]!!] = config.cost
-            }
-        },
+        coefficients = objectiveWeights,
         maximize = false
     )
 

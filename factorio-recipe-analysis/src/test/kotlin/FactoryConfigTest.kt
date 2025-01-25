@@ -29,7 +29,7 @@ class FactoryConfigKtTest : FunSpec({
                 "assembling-machine-2" {
                     qualities += uncommon
                     moduleConfig(fill = prod2)
-                    integral()
+                    integralRecipes()
                     upperBound = 1.3
                 }
             }

@@ -179,7 +179,7 @@ class RecipeSolverKtTest : StringSpec({
         usage[process2] shouldBe 0.0
         usage[process1] shouldBe 1.0
     }
-    "symbol config to force recipe to be used" {
+    "use symbol config to force recipe to be used" {
         val inputIng = TestIngredient("input")
         val outputIng = TestIngredient("output")
         val abstractCost: Symbol = TestSymbol("abstract cost")
@@ -197,5 +197,23 @@ class RecipeSolverKtTest : StringSpec({
         result.status shouldBe LpResultStatus.Optimal
         val usage = result.solution?.recipeUsage ?: fail("no usage")
         usage[process] shouldBe 2.0
+    }
+    "use integral cost variable to raise costs" {
+        val inputIng = TestIngredient("input")
+        val outputIng = TestIngredient("output")
+        val process = recipe(
+            "process",
+            inputIng to -1.0,
+            outputIng to 1.0,
+            time = 1.0,
+        ).copy(
+            costVariableConfig = VariableConfig(cost = 1.0, type = VariableType.Integer)
+        )
+        val input = Input(inputIng, VariableConfig(cost = 0.0))
+        val output = Output(outputIng, VariableConfig(lowerBound = 0.1))
+        val result = RecipeLp(listOf(process, input, output)).solve()
+        result.status shouldBe LpResultStatus.Optimal
+        val cost = result.lpSolution?.objectiveValue
+        cost shouldBe 1.0
     }
 })

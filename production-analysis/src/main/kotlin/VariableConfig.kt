@@ -27,7 +27,7 @@ data class VariableConfig(
     val type: VariableType = VariableType.Continuous,
     val cost: Double = 0.0,
 ) {
-    fun createVariable(name: String): Variable = Variable(
+    fun createVariableNoCost(name: String): Variable = Variable(
         name = name,
         lowerBound = lowerBound,
         upperBound = upperBound,

@@ -19,6 +19,7 @@ data class MachineConfig(
     val includeBuildCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
     val variableConfig: VariableConfig,
+    val outputVariableConfig: VariableConfig?,
 )
 
 class MachineConfigScope(
@@ -33,19 +34,31 @@ class MachineConfigScope(
     }
 
     var additionalCosts: Vector<Symbol> = emptyVector()
-    val variableConfig = VariableConfigBuilder()
-    var cost by variableConfig::cost
-    var lowerBound by variableConfig::lowerBound
-    var upperBound by variableConfig::upperBound
+    var outputVariableConfig: VariableConfigBuilder? = null
 
-    fun integral() {
-        variableConfig.type = VariableType.Integer
+    /**
+     * Cost will either be applied to recipe variable or output variable, depending on if outputVariableConfig is set.
+     */
+    var cost: Double = DefaultWeights.RECIPE_COST
+    var lowerBound: Double = 0.0
+    var upperBound: Double = Double.POSITIVE_INFINITY
+    var type: VariableType = VariableType.Continuous
+
+    fun integralRecipes() {
+        type = VariableType.Integer
     }
 
-    fun semiContinuous(lowerBound: Double = 0.0) {
-        variableConfig.type = VariableType.SemiContinuous
-        variableConfig.lowerBound = lowerBound
-        variableConfig.upperBound = 1e5
+    fun semiContinuousRecipes(lowerBound: Double = 0.0) {
+        type = VariableType.SemiContinuous
+        this.lowerBound = lowerBound
+    }
+
+    fun integralCost() {
+        outputVariableConfig = VariableConfigBuilder(type = VariableType.Integer)
+    }
+
+    fun semiContinuousCost(lowerBound: Double = 0.0) {
+        outputVariableConfig = VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound)
     }
 
     val moduleConfigs = mutableListOf<ModuleConfig>()
@@ -65,22 +78,33 @@ class MachineConfigScope(
         )
     }
 
-    internal fun toMachineConfigs(): List<MachineConfig> =
-        qualities.flatMap { quality ->
+    internal fun toMachineConfigs(): List<MachineConfig> {
+        val varConfigCost = if (outputVariableConfig != null) 0.0 else cost
+        val variableConfig = VariableConfig(
+            lowerBound = lowerBound,
+            upperBound = upperBound,
+            type = type,
+            cost = varConfigCost,
+        )
+        outputVariableConfig?.cost = cost
+        val outVarConfig = outputVariableConfig?.build()
+        return qualities.flatMap { quality ->
             val machine = machine.withQuality(quality)
             val moduleConfigs = if (moduleConfigs.isEmpty()) listOf(ModuleConfig()) else moduleConfigs
             moduleConfigs.mapNotNull { (modules, fill, beacons) ->
-                machine.withModulesOrNull(modules, fill, beacons)
-                    ?.let {
-                        MachineConfig(
-                            machine = it,
-                            includeBuildCosts = includeBuildCosts,
-                            additionalCosts = additionalCosts,
-                            variableConfig = variableConfig.build(),
-                        )
-                    }
+                machine.withModulesOrNull(modules, fill, beacons)?.let {
+                    MachineConfig(
+                        machine = it,
+                        includeBuildCosts = includeBuildCosts,
+                        additionalCosts = additionalCosts,
+                        variableConfig = variableConfig,
+                        outputVariableConfig = outVarConfig,
+                    )
+                }
             }
         }
+    }
+
 }
 
 typealias MachineConfigFn = MachineConfigScope.() -> Unit
@@ -107,11 +131,11 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
             val additionalCosts: Vector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
-            val variableConfig = machine.variableConfig
             val lpProcess = LpProcess(
                 process = machineSetup,
-                variableConfig = variableConfig,
                 additionalCosts = additionalCosts,
+                costVariableConfig = machine.outputVariableConfig,
+                variableConfig = machine.variableConfig,
             )
             list.add(lpProcess)
         }
@@ -219,8 +243,7 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
         val (recipes, mining) = configs.partition { it.process is Recipe }
         val recipeConfigs = recipes.groupBy { (it.process as Recipe).prototype.category }
         val miningConfigs = mining.groupBy { (it.process as Resource).prototype.category }
-        val sizeEstimate = machines.size * configs.sumOf { it.sizeEstimate } * 1.1
-        return buildList(sizeEstimate.toInt()) {
+        return buildList {
             for (machine in machines) {
                 val prototype = machine.machine.prototype
                 if (prototype is CraftingMachinePrototype) {
