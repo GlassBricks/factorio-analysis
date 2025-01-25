@@ -1,4 +1,9 @@
-package glassbricks.recipeanalysis
+package glassbricks.recipeanalysis.lp
+
+import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.Vector
+import glassbricks.recipeanalysis.minus
+import glassbricks.recipeanalysis.relaxKeyType
 
 enum class ComparisonOp {
     Leq, Geq, Eq;

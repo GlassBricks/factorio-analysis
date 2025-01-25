@@ -1,11 +1,14 @@
 package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.FactorioPrototypes
+import glassbricks.factorio.recipes.FactorioRecipesFormatter
 import glassbricks.factorio.recipes.MachineSetup
 import glassbricks.factorio.recipes.WithFactorioPrototypes
 import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.lp.*
+import glassbricks.recipeanalysis.recipelp.*
 
-/** Wrapper around a [RecipeLp] */
+/** Wrapper around a [glassbricks.recipeanalysis.recipelp.RecipeLp] */
 class Problem(
     val factory: FactoryConfig,
     inputs: List<Input>,
@@ -41,31 +44,36 @@ class Problem(
     fun solveIncremental(): IncrementalSolver<Result> = recipeLp.createIncrementalSolver().map { Result(this, it) }
 }
 
+class Solution(
+    val problem: Problem,
+    val recipeSolution: RecipeLpSolution,
+) : Usages by recipeSolution {
+    fun display(formatter: RecipeLpFormatter = FactorioRecipesFormatter) = recipeSolution.textDisplay(formatter)
+    fun outputRate(ingredient: Ingredient): Rate {
+        val output = problem.outputs[ingredient] ?: return Rate.zero
+        return Rate(output.sumOf { recipeSolution.recipeUsage[it] })
+    }
+
+    fun inputRate(ingredient: Ingredient): Rate {
+        val input = problem.inputs[ingredient] ?: return Rate.zero
+        return Rate(input.sumOf { recipeSolution.recipeUsage[it] })
+    }
+
+    fun amountUsed(recipe: MachineSetup<*>): Double? {
+        val lpProcess = problem.recipes[recipe] ?: return 0.0
+        return recipeSolution.recipeUsage[lpProcess]
+    }
+}
+
 class Result(
     val problem: Problem,
     val recipeResult: RecipeLpResult,
 ) {
-    val status: LpResultStatus get() = recipeResult.lpResult.status
-    val solution: RecipeLpSolution? get() = recipeResult.solution
+    val solution: Solution? get() = recipeResult.solution?.let { Solution(problem, it) }
+
     val lpResult: LpResult get() = recipeResult.lpResult
     val lpSolution: LpSolution? get() = lpResult.solution
-    fun outputRate(ingredient: Ingredient): Rate? {
-        val output = problem.outputs[ingredient] ?: return null
-        val usage = solution?.recipeUsage ?: return null
-        return Rate(output.sumOf { usage[it] })
-    }
-
-    fun inputRate(ingredient: Ingredient): Rate? {
-        val input = problem.inputs[ingredient] ?: return null
-        val usage = solution?.recipeUsage ?: return null
-        return Rate(input.sumOf { usage[it] })
-    }
-
-    fun amountUsed(recipe: MachineSetup<*>): Double? {
-        val usage = solution?.recipeUsage ?: return 0.0
-        val lpProcess = problem.recipes[recipe] ?: return 0.0
-        return usage[lpProcess]
-    }
+    val status: LpResultStatus get() = lpResult.status
 }
 
 object DefaultWeights {

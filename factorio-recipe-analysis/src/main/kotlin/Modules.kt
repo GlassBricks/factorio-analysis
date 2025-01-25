@@ -222,13 +222,13 @@ fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null, sh
 operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null, sharing: Double = 1.0): BeaconSetup =
     withModules(modules.asList(), fill, sharing)
 
-data class BeaconCount(val beacon: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost {
+data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost {
     override val beaconCount: BeaconCount get() = this
-    fun getEffect(numBeacons: Int): IntEffects = beacon.getEffect(numBeacons) * count
+    fun getEffect(numBeacons: Int): IntEffects = beaconSetup.getEffect(numBeacons) * count
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        beacon.getBuildCost(prototypes) * count
+        beaconSetup.getBuildCost(prototypes) * count
 
-    override fun toString(): String = if (count == 1) beacon.toString() else "$beacon*$count"
+    override fun toString(): String = if (count == 1) beaconSetup.toString() else "$beaconSetup*$count"
 
 }
 

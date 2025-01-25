@@ -15,14 +15,3 @@ internal inline fun <K, T, R> Map<K, T>.mapValuesNotNull(transform: (Map.Entry<K
     }
     return result
 }
-
-internal inline fun <K, R, T> Map<K, T>.mapKeysNotNull(transform: (Map.Entry<K, T>) -> R?): Map<R, T> {
-    val result = LinkedHashMap<R, T>()
-    for (entry in entries) {
-        val newKey = transform(entry)
-        if (newKey != null) {
-            result[newKey] = entry.value
-        }
-    }
-    return result
-}

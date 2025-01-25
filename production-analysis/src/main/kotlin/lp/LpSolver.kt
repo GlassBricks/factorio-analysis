@@ -1,9 +1,10 @@
-package glassbricks.recipeanalysis
+package glassbricks.recipeanalysis.lp
 
 import com.google.ortools.Loader
 import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPSolverParameters
 import com.google.ortools.linearsolver.MPVariable
+import glassbricks.recipeanalysis.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -181,6 +182,14 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                 }
             }
         }
+        val hints = mpVariables.entries.mapNotNull { (variable, mpVariable) ->
+            variable.hint?.let { hint ->
+                mpVariable to hint
+            }
+        }
+        val hintVars = Array(hints.size) { hints[it].first }
+        val hintValues = DoubleArray(hints.size) { hints[it].second }
+        solver.setHint(hintVars, hintValues)
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {

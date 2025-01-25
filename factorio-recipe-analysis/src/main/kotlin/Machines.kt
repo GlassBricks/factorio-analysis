@@ -18,7 +18,7 @@ interface AnyMachine<P : MachinePrototype> : WithEffects, WithBuildCost {
     val modulesUsed: Iterable<Module>
     fun acceptsModule(module: Module): Boolean
     fun canProcess(process: RecipeOrResource<*>): Boolean
-    val quality: Quality?
+    val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
 }
 

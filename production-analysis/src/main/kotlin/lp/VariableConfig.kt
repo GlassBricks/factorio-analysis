@@ -1,4 +1,4 @@
-package glassbricks.recipeanalysis
+package glassbricks.recipeanalysis.lp
 
 enum class VariableType {
     Continuous,
@@ -17,6 +17,7 @@ class Variable(
     val lowerBound: Double = Double.NEGATIVE_INFINITY,
     val upperBound: Double = Double.POSITIVE_INFINITY,
     val type: VariableType = VariableType.Continuous,
+    val hint: Double? = null,
 ) {
     override fun toString(): String = "Variable($name)"
 }
@@ -26,12 +27,14 @@ data class VariableConfig(
     val upperBound: Double = Double.POSITIVE_INFINITY,
     val type: VariableType = VariableType.Continuous,
     val cost: Double = 0.0,
+    val hint: Double? = null,
 ) {
     fun createVariableNoCost(name: String): Variable = Variable(
         name = name,
         lowerBound = lowerBound,
         upperBound = upperBound,
-        type = type
+        type = type,
+        hint = hint
     )
 
     override fun toString(): String = buildString {
@@ -54,11 +57,13 @@ data class VariableConfigBuilder(
     var upperBound: Double = Double.POSITIVE_INFINITY,
     var type: VariableType = VariableType.Continuous,
     var cost: Double = 0.0,
+    var hint: Double? = null,
 ) {
     fun build(): VariableConfig = VariableConfig(
         lowerBound = lowerBound,
         upperBound = upperBound,
         type = type,
-        cost = cost
+        cost = cost,
+        hint = hint,
     )
 }

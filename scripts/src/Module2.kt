@@ -1,8 +1,7 @@
 import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.recipeanalysis.LpOptions
-import glassbricks.recipeanalysis.OrToolsLp
+import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
 import java.io.File
 import kotlin.math.pow
@@ -106,7 +105,7 @@ fun main() {
             qualityModule2.withQuality(epic),
             rate = 4.perMinute
         )
-        lpSolver = OrToolsLp("SCIP")
+//        lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
             timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
@@ -118,9 +117,7 @@ fun main() {
     println("Best bound: ${result.lpResult.bestBound}")
     result.solution?.let {
         println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.display(compareBy {
-            (it as? MachineSetup<*>)?.process?.toString()
-        })
+        val display = it.display()
         println(display)
         File("output/module2.txt").writeText(display)
 

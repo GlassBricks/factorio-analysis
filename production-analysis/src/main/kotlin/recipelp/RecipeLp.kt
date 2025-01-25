@@ -1,4 +1,7 @@
-package glassbricks.recipeanalysis
+package glassbricks.recipeanalysis.recipelp
+
+import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.lp.*
 
 /**
  * Can be:
@@ -43,7 +46,6 @@ data class LpProcess(
         commonToString(this@LpProcess)
         append(")")
     }
-
 }
 
 data class Input(

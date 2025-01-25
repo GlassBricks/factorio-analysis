@@ -2,7 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.VariableType
+import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.vector
 import glassbricks.recipeanalysis.vectorWithUnits
 import io.kotest.assertions.assertSoftly

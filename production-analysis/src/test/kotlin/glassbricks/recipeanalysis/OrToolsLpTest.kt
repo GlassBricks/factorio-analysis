@@ -1,5 +1,6 @@
 package glassbricks.recipeanalysis
 
+import glassbricks.recipeanalysis.lp.*
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe

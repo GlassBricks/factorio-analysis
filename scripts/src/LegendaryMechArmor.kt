@@ -4,24 +4,14 @@ import glassbricks.factorio.recipes.problem.MachineConfig
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.lp.LpOptions
+import glassbricks.recipeanalysis.lp.OrToolsLp
 import java.io.File
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
-        /*  val beacons = listOf(
-              speedModule,
-              speedModule2
-          ).flatMap { module ->
-              qualities.flatMap { q ->
-                  listOf(
-                      beacon(fill = module.withQuality(q), sharing = 8.0),
-                      beacon(fill = module.withQuality(q), sharing = 6.0) * 2,
-                  )
-              }
-          }*/
-
         val modules = listOf(
             speedModule,
             speedModule2,
@@ -44,6 +34,7 @@ fun main() {
                     }
                     moduleConfig(fill = qualityModule.withQuality(q))
                     moduleConfig(fill = qualityModule2.withQuality(q))
+//                    moduleConfig(fill = qualityModule3.withQuality(q))
                 }
             }
             bigMiningDrill {}
@@ -60,6 +51,7 @@ fun main() {
             recycler() // not integral as we can easily share recyclers
             chemicalPlant()
             oilRefinery()
+            electricFurnace()
         }
         researchConfig = ResearchConfig(
             miningProductivity = 0.2
@@ -71,7 +63,6 @@ fun main() {
             allRecipes()
             calciteMining()
             coalMining()
-            remove(steelChest)
             var noQuality: (MachineConfig) -> Boolean = {
                 it.machine.modulesUsed.none {
                     it.prototype == qualityModule.prototype || it.prototype == qualityModule2.prototype
@@ -91,23 +82,16 @@ fun main() {
                     filters += { false }
                 }
             }
+            remove(electromagneticPlant.item())
+            remove(lightningCollector)
+            remove(lightningRod)
         }
     }
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-
-        fun addWithQualities(item: Item, baseCost: Double, rocketCapacity: Double) {
-            val shippingCost = 1e7 / rocketCapacity
-            val qualityCost = 8.0
-            for ((index, quality) in qualities.withIndex()) {
-                input(item.withQuality(quality), cost = baseCost * qualityCost.pow(index) + shippingCost)
-            }
-        }
-        addWithQualities(holmiumOre, 150.0, 500.0)
-        addWithQualities(holmiumPlate, 150 / 2.5, 1000.0)
-//        addWithQualities(supercapacitor, 50.0, 500.0)
+        input(holmiumOre, cost = 200.0 + 1e7 / 500)
 
         costs {
             costOf(assemblingMachine3.item(), 3 + 1.0)
@@ -130,6 +114,9 @@ fun main() {
             for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
                 addQualityCost(module, 5.0)
             }
+//            for (module in listOf(speedModule3, productivityModule3, qualityModule3)) {
+//                addQualityCost(module, 25.0)
+//            }
         }
 
         val targetTime = Time(60.0 * 60.0)
@@ -190,9 +177,9 @@ fun main() {
 
         lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
-            timeLimit = 10.minutes,
+            timeLimit = 5.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
-//            enableLogging = true,
+            enableLogging = true,
             epsilon = 1e-5
         )
     }
@@ -201,9 +188,7 @@ fun main() {
     println("Best bound: ${result.lpResult.bestBound}")
     result.solution?.let {
         println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.display(compareBy {
-            (it as? MachineSetup<*>)?.process?.toString()
-        })
+        val display = it.display(RecipesFirst)
         println(display)
         File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(display)
 

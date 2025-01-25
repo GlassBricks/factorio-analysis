@@ -4,7 +4,14 @@ import glassbricks.factorio.prototypes.CraftingMachinePrototype
 import glassbricks.factorio.prototypes.MiningDrillPrototype
 import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.factorio.recipes.*
-import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.Vector
+import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.lp.VariableConfig
+import glassbricks.recipeanalysis.lp.VariableConfigBuilder
+import glassbricks.recipeanalysis.lp.VariableType
+import glassbricks.recipeanalysis.plus
+import glassbricks.recipeanalysis.recipelp.LpProcess
 
 @DslMarker
 annotation class RecipesConfigDsl
@@ -51,7 +58,8 @@ class MachineConfigScope(
 
     /** When evaluating the _cost_ of using this recipe, the number of machines will be at minimum this value. */
     fun semiContinuousCost(lowerBound: Double = 0.0) {
-        outputVariableConfig = VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound)
+        outputVariableConfig =
+            VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound, hint = 1.0)
     }
 
     val moduleConfigs = mutableListOf<ModuleConfig>()

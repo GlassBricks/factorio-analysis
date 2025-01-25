@@ -3,6 +3,9 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.lp.LpOptions
+import glassbricks.recipeanalysis.lp.LpResultStatus
+import glassbricks.recipeanalysis.lp.VariableType
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ranges.shouldBeIn
 import io.kotest.matchers.shouldBe

@@ -3,7 +3,7 @@ import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.recipeanalysis.LpOptions
+import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perSecond
 import kotlin.math.pow
 
