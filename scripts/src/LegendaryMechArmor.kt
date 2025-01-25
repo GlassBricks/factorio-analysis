@@ -62,7 +62,7 @@ suspend fun main() {
 //                semiContinuous(0.2)
             }
             foundry {
-                integral()
+//                integral()
             }
             recycler() // not integral as we can easily share recyclers
             chemicalPlant()
@@ -136,7 +136,6 @@ suspend fun main() {
         for ((prev, next) in gridVars.values.zipWithNext()) {
             customProcess("doubling $prev") {
                 ingredientRate = vectorWithUnits(prev to -2.0, next to 1.0)
-                cost = 0.0
             }
         }
 

@@ -99,7 +99,10 @@ class ProblemBuilder(
 
     val inputs = mutableListOf<Input>()
     fun input(ingredient: Ingredient, cost: Double = DefaultWeights.INPUT_COST, limit: Rate = Rate.infinity) {
-        inputs += Input(ingredient, cost = cost, upperBound = limit.perSecond)
+        inputs += Input(
+            ingredient,
+            variableConfig = VariableConfig(cost = cost, upperBound = limit.perSecond)
+        )
     }
 
     fun limit(ingredient: Ingredient, rate: Rate) {
@@ -112,7 +115,10 @@ class ProblemBuilder(
         rate: Rate,
         weight: Double = 0.0,
     ) {
-        outputs += Output(ingredient = ingredient, weight = weight, lowerBound = rate.perSecond)
+        outputs += Output(
+            ingredient,
+            variableConfig = VariableConfig(lowerBound = rate.perSecond, cost = -weight)
+        )
     }
 
     fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.MAXIMIZE_OUTPUT_COST, rate: Rate = Rate.zero) {

@@ -5,7 +5,6 @@ import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlin.time.Duration.Companion.seconds
 
 class ProblemTest : FunSpec({
     this as ProblemTest
@@ -153,7 +152,6 @@ class ProblemTest : FunSpec({
             val moltenIron = fluid("molten-iron")
             input(moltenIron)
             output(ironPlate.withQuality(legendary), 6.perMinute)
-            lpOptions = LpOptions(solver = OrToolsLp("CLP"))
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
@@ -296,7 +294,7 @@ class ProblemTest : FunSpec({
             input(item("spoilage"))
             input(item("carbon-fiber"))
 
-            output(item("spidertron").withQuality(legendary), 1.perMinute)
+            output(item("spidertron").withQuality(epic), (1 / 60).perMinute)
 
             costs {
                 costOf(prod3, 15)
@@ -304,7 +302,7 @@ class ProblemTest : FunSpec({
                 limit(item("recycler"), 50)
             }
             surplusCost = 0.0
-            lpOptions = LpOptions(timeLimit = 15.seconds, solver = OrToolsLp("CLP"))
+            lpOptions = LpOptions(enableLogging = true)
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
@@ -325,7 +323,6 @@ class ProblemTest : FunSpec({
             }
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
-            lpOptions = LpOptions(solver = OrToolsLp("SCIP"))
         }
         println(problem.factory.allProcesses.first())
         val solution = problem.solve()

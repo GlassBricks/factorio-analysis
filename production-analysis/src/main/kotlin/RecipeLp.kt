@@ -7,34 +7,21 @@ package glassbricks.recipeanalysis
  * - An actual [LpProcess] that turns inputs into outputs, possibly with constraints
  */
 interface PseudoProcess {
-    val lowerBound: Double get() = 0.0
-    val upperBound: Double
-    val cost: Double
-    val variableType: VariableType
+    val variableConfig: VariableConfig
     val ingredientRate: IngredientRate
     val additionalCosts: Vector<Symbol> get() = emptyVector()
     val symbol: Symbol?
 }
 
-private fun StringBuilder.commonToString(
-    process: PseudoProcess,
-    defaultCost: Double = Double.NaN,
-    defaultLowerBound: Double = 0.0,
-) {
-    if (process.lowerBound != defaultLowerBound) append(", lowerBound=").append("%e".format(process.lowerBound))
-    if (process.upperBound != Double.POSITIVE_INFINITY) append(", upperBound=").append("%e".format(process.upperBound))
-    if (process.cost != defaultCost) append(", cost=").append("%e".format(process.cost))
-    if (process.variableType != VariableType.Continuous) append(", variableType=").append(process.variableType)
+private fun StringBuilder.commonToString(process: PseudoProcess) {
+    append(process.variableConfig)
     if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
     if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
 data class LpProcess(
     val process: Process,
-    override val lowerBound: Double = 0.0,
-    override val upperBound: Double = Double.POSITIVE_INFINITY,
-    override val cost: Double = 1.0,
-    override val variableType: VariableType = VariableType.Continuous,
+    override val variableConfig: VariableConfig = VariableConfig(),
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
@@ -43,7 +30,7 @@ data class LpProcess(
     override fun toString(): String = buildString {
         append("LpProcess(")
         append(process)
-        commonToString(this@LpProcess, 1.0)
+        commonToString(this@LpProcess)
         append(")")
     }
 
@@ -51,9 +38,7 @@ data class LpProcess(
 
 data class Input(
     val ingredient: Ingredient,
-    override val cost: Double,
-    override val upperBound: Double = Double.POSITIVE_INFINITY,
-    override val variableType: VariableType = VariableType.Continuous,
+    override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
@@ -68,34 +53,28 @@ data class Input(
 
 data class Output(
     val ingredient: Ingredient,
-    val weight: Double,
-    override val lowerBound: Double,
-    override val variableType: VariableType = VariableType.Continuous,
+    override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val symbol: Symbol? = null,
 ) : PseudoProcess {
-    override val upperBound: Double get() = Double.POSITIVE_INFINITY
-    override val cost get() = -weight
+    init {
+        require(variableConfig.cost <= 0.0) { "Output cost must be negative (to optimize for!)" }
+    }
+
     override val ingredientRate: IngredientRate get() = vectorWithUnits(ingredient to -1.0)
 
     override fun toString(): String = buildString {
         append("Output(")
         append(ingredient)
-        if (weight != 1.0) append(", weight=").append("%e".format(weight))
-        if (lowerBound != 0.0) append(", lowerBound=").append("%e".format(lowerBound))
-        if (variableType != VariableType.Continuous) append(", variableType=").append(variableType)
-        if (additionalCosts.isNotEmpty()) append(", additionalCosts=").append(additionalCosts)
+        commonToString(this@Output)
         append(")")
     }
 }
 
 data class CustomProcess(
     val name: String,
-    override val lowerBound: Double = 0.0,
-    override val upperBound: Double = Double.POSITIVE_INFINITY,
-    override val cost: Double = 0.0,
-    override val variableType: VariableType = VariableType.Continuous,
     override val ingredientRate: IngredientRate,
+    override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val symbol: Symbol?,
 ) : PseudoProcess {
@@ -110,20 +89,14 @@ data class CustomProcess(
 class CustomProcessBuilder(val name: String) {
     var ingredientRate: IngredientRate = emptyVector()
     var additionalCosts: Vector<Symbol> = emptyVector()
-    var lowerBound: Double = 0.0
-    var upperBound: Double = Double.POSITIVE_INFINITY
-    var cost: Double = 0.0
-    var variableType: VariableType = VariableType.Continuous
+    val variableConfig = VariableConfigBuilder()
     var symbol: Symbol? = null
     fun build(): CustomProcess = CustomProcess(
         name = name,
         symbol = symbol,
         ingredientRate = ingredientRate,
         additionalCosts = additionalCosts,
-        lowerBound = lowerBound,
-        upperBound = upperBound,
-        cost = cost,
-        variableType = variableType,
+        variableConfig = variableConfig.build(),
     )
 }
 
@@ -177,12 +150,7 @@ private class RecipeAsLp(
 private fun RecipeLp.createAsLp(): RecipeAsLp {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
     val processVariables = processes.associateWith { process ->
-        Variable(
-            name = "Process $process",
-            lowerBound = process.lowerBound,
-            upperBound = process.upperBound,
-            type = process.variableType,
-        ).also { variable ->
+        process.variableConfig.createVariable("Process $process").also { variable ->
             val symbol = process.symbol
             if (symbol != null) {
                 require(symbol !in symbolVariables) {
@@ -224,7 +192,7 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
     val objective = Objective(
         coefficients = buildMap {
             for ((recipe, variable) in processVariables) {
-                this[variable] = recipe.cost
+                this[variable] = recipe.variableConfig.cost
             }
             for (variable in surplusVariables.values) {
                 this[variable] = surplusCost

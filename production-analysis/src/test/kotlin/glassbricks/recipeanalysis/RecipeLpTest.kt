@@ -75,9 +75,9 @@ class RecipeSolverKtTest : StringSpec({
             solidFuel to 1.0,
             time = 1.0,
         )
-        val crudeInput = Input(crudeOil, 0.0, 100.0)
-        val waterInput = Input(water, 0.0)
-        val solidFuelOutput = Output(solidFuel, 100.0, 0.0)
+        val crudeInput = Input(crudeOil, variableConfig = VariableConfig(cost = 0.0, upperBound = 100.0))
+        val waterInput = Input(water, variableConfig = VariableConfig(cost = 0.0))
+        val solidFuelOutput = Output(solidFuel, variableConfig = VariableConfig(cost = -100.0))
         val recipes = listOf(
             advancedOil,
             basicOil,
@@ -125,8 +125,8 @@ class RecipeSolverKtTest : StringSpec({
                 additionalCosts = basisVec(abstractCost) * 2.0
             )
 
-        val input = Input(inputIng, cost = 0.0, upperBound = 1.0)
-        val output = Output(outputIng, weight = 100.0, lowerBound = 0.0)
+        val input = Input(inputIng, VariableConfig(cost = 0.0, upperBound = 1.0))
+        val output = Output(outputIng, VariableConfig(cost = -100.0, lowerBound = 0.0))
         val costRestr =
             SymbolConstraint(basisVec<Symbol>(abstractCost).relaxKeyType(), ComparisonOp.Leq, 2.0.toDouble())
 
@@ -165,8 +165,8 @@ class RecipeSolverKtTest : StringSpec({
             time = 1.0,
             additionalCosts = basisVec(abstractCost)
         )
-        val input = Input(inputIng, cost = 0.0, upperBound = 1.0)
-        val output = Output(outputIng, weight = 100.0, lowerBound = 0.0)
+        val input = Input(inputIng, VariableConfig(cost = 0.0, upperBound = 1.0))
+        val output = Output(outputIng, VariableConfig(cost = -100.0, lowerBound = 0.0))
 
         val processes = listOf(process1, process2, input, output)
         val symbolConfigs = mapOf(abstractCost to VariableConfig(cost = 1e8)) // make it prohibitively expensive
@@ -190,7 +190,7 @@ class RecipeSolverKtTest : StringSpec({
             time = 1.0,
             additionalCosts = basisVec(abstractCost)
         )
-        val input = Input(inputIng, cost = 1.0)
+        val input = Input(inputIng, VariableConfig(cost = 1.0))
         val symbolConfigs = mapOf(abstractCost to VariableConfig(lowerBound = 2.0))
 
         val result = RecipeLp(listOf(process, input), symbolConfigs = symbolConfigs).solve()

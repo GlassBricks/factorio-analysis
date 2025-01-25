@@ -33,6 +33,20 @@ data class VariableConfig(
         upperBound = upperBound,
         type = type
     )
+
+    override fun toString(): String = buildString {
+        append("VariableConfig(")
+        var hasPrev = false
+        fun appendComma() = apply {
+            if (hasPrev) append(", ")
+            hasPrev = true
+        }
+        if (lowerBound != 0.0) appendComma().append("lowerBound=$lowerBound")
+        if (upperBound != Double.POSITIVE_INFINITY) appendComma().append("upperBound=$upperBound")
+        if (type != VariableType.Continuous) appendComma().append("type=$type")
+        if (cost != 0.0) appendComma().append("cost=$cost")
+        append(")")
+    }
 }
 
 data class VariableConfigBuilder(

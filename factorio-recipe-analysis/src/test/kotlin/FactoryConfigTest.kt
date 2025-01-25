@@ -24,22 +24,22 @@ class FactoryConfigKtTest : FunSpec({
                 default {
                     emptyModuleConfig()
                     moduleConfig(speed1, fill = speed2)
+                    cost = 1.2
                 }
                 "assembling-machine-2" {
                     qualities += uncommon
                     moduleConfig(fill = prod2)
                     integral()
+                    upperBound = 1.3
                 }
             }
             recipes {
                 default {
-                    cost = 1.2
                 }
                 "advanced-circuit" {
                     qualities.clear()
                     qualities += uncommon
                     qualities += rare
-                    upperBound = 1.3
                 }
                 "transport-belt" {}
             }
@@ -47,11 +47,10 @@ class FactoryConfigKtTest : FunSpec({
         val advCircuit = recipe("advanced-circuit")
         val allProcesses = config.allProcesses
         allProcesses.forAll {
-            it.cost shouldBe 1.2
+            it.variableConfig.cost shouldBe 1.2
             var process = it.process as MachineSetup<*>
-            val recipe = process.process
-            it.upperBound shouldBe if ((recipe as? Recipe)?.prototype == advCircuit.prototype) 1.3 else Double.POSITIVE_INFINITY
-            it.variableType shouldBe if (process.machine.prototype == asm2.prototype) VariableType.Integer else VariableType.Continuous
+            it.variableConfig.upperBound shouldBe if (process.machine.prototype == asm2.prototype) 1.3 else Double.POSITIVE_INFINITY
+            it.variableConfig.type shouldBe if (process.machine.prototype == asm2.prototype) VariableType.Integer else VariableType.Continuous
         }
 
         val transportBelt = recipe("transport-belt")

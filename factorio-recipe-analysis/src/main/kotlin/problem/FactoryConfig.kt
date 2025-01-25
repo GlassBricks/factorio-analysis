@@ -34,6 +34,10 @@ class MachineConfigScope(
 
     var additionalCosts: Vector<Symbol> = emptyVector()
     val variableConfig = VariableConfigBuilder()
+    var cost by variableConfig::cost
+    var lowerBound by variableConfig::lowerBound
+    var upperBound by variableConfig::upperBound
+
     fun integral() {
         variableConfig.type = VariableType.Integer
     }
@@ -89,9 +93,6 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
         qualities.addAll(prototypes.qualities)
     }
 
-    var cost: Double = 1.0
-    var upperBound: Double = Double.POSITIVE_INFINITY
-
     var additionalCosts: Vector<Symbol> = emptyVector()
 
     private var withQualitiesList: List<RecipeOrResource<*>>? = null
@@ -109,10 +110,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
             val variableConfig = machine.variableConfig
             val lpProcess = LpProcess(
                 process = machineSetup,
-                lowerBound = machine.variableConfig.lowerBound,
-                upperBound = minOf(machine.variableConfig.upperBound, upperBound),
-                cost = cost + machine.variableConfig.cost,
-                variableType = variableConfig.type,
+                variableConfig = variableConfig,
                 additionalCosts = additionalCosts,
             )
             list.add(lpProcess)
