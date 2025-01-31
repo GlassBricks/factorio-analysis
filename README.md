@@ -14,10 +14,13 @@ Currently only API, no GUI or CLI.
 
 Still todo:
 
-- Custom recipes/LP augmentations
+- Export as graph
+- Export as blueprint that doesn't suck
+- Configure machines by planet
+- Logistics modelling (tagging ingredients by location)
 - Power, fuel, nutrient requirements
 - More granular machine+recipe config
-- ILP stuff
 - Chaining builds. For example: build 1 is a mall, build 2 does final product, but build 2 must be buildable by build 1
   in X minutes
-    - To answer what's the fastest quality-quality modules upscaling strategy?
+    - To answer what's the fastest quality-quality modules upscaling strategy
+- Step by step mod support
