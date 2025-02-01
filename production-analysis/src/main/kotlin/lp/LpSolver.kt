@@ -27,7 +27,6 @@ class LpOptions(
     val checkSolution: Boolean = true,
     val epsilon: Double = 1e-5,
     val enableLogging: Boolean = false,
-    val hintFromRoundingUpSemiContinuousVars: Boolean = false,
     val numThreads: Int = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1),
 )
 

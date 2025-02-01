@@ -5,7 +5,6 @@ import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPVariable
 import glassbricks.recipeanalysis.mapValuesNotNull
 import glassbricks.recipeanalysis.vectorWithUnits
-import kotlin.math.ceil
 
 class OrToolsLp(val solverId: String? = null) : LpSolver {
     class Result(
@@ -26,10 +25,6 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
     ) {
         fun solve(): Result {
 
-            // weird optimization inserted here
-            if (options.hintFromRoundingUpSemiContinuousVars) {
-                doHintFromRoundUpSemiContVars()
-            }
             if (options.enableLogging) {
                 println("Starting solve")
                 println(solver.solverVersion())
@@ -37,53 +32,6 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
             // solve again
             val resultStatus = solver.solve()
             return createResult(resultStatus, solver, mpVariables, options)
-        }
-
-        private fun doHintFromRoundUpSemiContVars() {
-            if (options.enableLogging) {
-                println("Finding hint from relaxing semi-continuous variables")
-            }
-            // make all semi-continuous aux variables _not_ integral
-            solver.setNumThreads(1)
-            for (aux in auxVariables.values) {
-                aux.setInteger(false)
-            }
-            solver.reset()
-            // find all integer variables
-            val status1 = solver.solve()
-            if (status1 != MPSolver.ResultStatus.OPTIMAL) {
-                error("Semi continuous optimization is set, but the first solve was not optimal")
-            }
-
-            val hints = mutableMapOf<MPVariable, Double>()
-            for ((variable, mpVariable) in mpVariables) {
-                val auxVariable = auxVariables[variable]
-                if (auxVariable == null) {
-                    hints[mpVariable] = mpVariable.solutionValue()
-                } else {
-                    val value = mpVariable.solutionValue()
-                    if (value > 0.0) {
-                        hints[mpVariable] = variable.lowerBound
-                        hints[auxVariable] = ceil(auxVariable.solutionValue())
-                    } else {
-                        hints[mpVariable] = 0.0
-                        hints[auxVariable] = 0.0
-                    }
-                }
-            }
-            // prepare for next solve
-            for (aux in auxVariables.values) {
-                aux.setInteger(true)
-            }
-            solver.reset()
-            solver.setHint(
-                hints.keys.toTypedArray(),
-                hints.values.toDoubleArray()
-            )
-            setSolverOptions(solver, options)
-            if (options.enableLogging) {
-                println("Finished finding hint")
-            }
         }
     }
 

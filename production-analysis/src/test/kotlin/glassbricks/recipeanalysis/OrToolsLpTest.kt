@@ -124,21 +124,5 @@ class OrToolsLpTest : FreeSpec({
             result.status shouldBe LpResultStatus.Optimal
             result.solution!!.assignment[x] shouldBe 0.0
         }
-        "with hint" {
-            val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.2)
-            val xv = basisVec(x)
-            val constraints = constraints { xv geq 0.01 }
-            val objective = Objective(xv, maximize = false)
-            val problem = LpProblem(constraints, objective)
-            val result = OrToolsLp().solve(
-                problem,
-                options = LpOptions(
-                    hintFromRoundingUpSemiContinuousVars = true,
-                    enableLogging = true
-                )
-            )
-            result.status shouldBe LpResultStatus.Optimal
-            result.solution!!.assignment[x] shouldBe 0.2
-        }
     }
 })
