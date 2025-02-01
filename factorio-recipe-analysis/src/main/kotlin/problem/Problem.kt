@@ -17,6 +17,7 @@ class Problem(
     val constraints: List<SymbolConstraint>,
     val symbolConfigs: Map<Symbol, VariableConfig>,
     surplusCost: Double,
+    lpSolver: LpSolver,
     lpOptions: LpOptions,
 ) {
 
@@ -35,13 +36,13 @@ class Problem(
             customProcesses,
         ),
         surplusCost = surplusCost,
+        lpSolver = lpSolver,
         lpOptions = lpOptions,
         constraints = constraints,
         symbolConfigs = symbolConfigs,
     )
 
     fun solve(): Result = Result(this, recipeLp.solve())
-    fun solveIncremental(): IncrementalSolver<Result> = recipeLp.createIncrementalSolver().map { Result(this, it) }
 }
 
 class Solution(
@@ -59,7 +60,7 @@ class Solution(
         return Rate(input.sumOf { recipeSolution.recipeUsage[it] })
     }
 
-    fun amountUsed(recipe: MachineSetup<*>): Double? {
+    fun amountUsed(recipe: MachineSetup<*>): Double {
         val lpProcess = problem.recipes[recipe] ?: return 0.0
         return recipeSolution.recipeUsage[lpProcess]
     }
@@ -173,6 +174,7 @@ class ProblemBuilder(
         customProcesses = customProcesses,
         surplusCost = surplusCost,
         constraints = symbolConstraints,
+        lpSolver = lpSolver,
         lpOptions = lpOptions,
         symbolConfigs = symbolConfigs.mapValues { it.value.build() },
     )

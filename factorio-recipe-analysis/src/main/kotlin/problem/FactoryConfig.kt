@@ -59,7 +59,7 @@ class MachineConfigScope(
     /** When evaluating the _cost_ of using this recipe, the number of machines will be at minimum this value. */
     fun semiContinuousCost(lowerBound: Double = 0.0) {
         outputVariableConfig =
-            VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound, hint = 1.0)
+            VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound)
     }
 
     val moduleConfigs = mutableListOf<ModuleConfig>()

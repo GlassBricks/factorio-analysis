@@ -20,12 +20,14 @@ interface Usages {
     val surpluses: Vector<Ingredient>
     val recipeUsage: Vector<PseudoProcess>
     val throughputs: Map<Ingredient, Throughput>
+    val objectiveValue: Double
 }
 
 data class RecipeLpSolution(
     override val recipeUsage: Vector<PseudoProcess>,
     override val surpluses: Vector<Ingredient>,
     override val symbolUsage: Vector<Symbol>,
+    override val objectiveValue: Double,
 ) : Usages {
     override val throughputs by lazy {
         val consumption = mutableMapOf<Ingredient, Double>()

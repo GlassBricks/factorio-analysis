@@ -1,9 +1,6 @@
 package glassbricks.recipeanalysis
 
-import glassbricks.recipeanalysis.lp.ComparisonOp
-import glassbricks.recipeanalysis.lp.LpResultStatus
-import glassbricks.recipeanalysis.lp.VariableConfig
-import glassbricks.recipeanalysis.lp.VariableType
+import glassbricks.recipeanalysis.lp.*
 import glassbricks.recipeanalysis.recipelp.*
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec

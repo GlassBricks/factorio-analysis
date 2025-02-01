@@ -44,7 +44,7 @@ class ProblemTest : FunSpec({
             limit(ironPlate, 3.perSecond)
             maximize(gc)
         }
-        val solution = problem.solve()
+        val solution = problem.solve().solution!!
         solution.outputRate(gc) shouldBe 2.perSecond
         solution.inputRate(ironPlate) shouldBe 2.perSecond
         solution.inputRate(copperPlate) shouldBe 3.perSecond
@@ -56,7 +56,7 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output(gc, 2.perSecond)
         }
-        val solution = problem.solve()
+        val solution = problem.solve().solution!!
         solution.outputRate(gc) shouldBe 2.perSecond
         solution.inputRate(ironPlate) shouldBe 2.perSecond
         solution.inputRate(copperPlate) shouldBe 3.0.perSecond
@@ -182,14 +182,11 @@ class ProblemTest : FunSpec({
                 limit(item("assembling-machine-1"), 1.0)
             }
         }
-        val solution = problem.solve()
-        solution.status shouldBe LpResultStatus.Optimal
+        val solution = problem.solve().solution!!
 
-        println(solution.lpSolution?.objectiveValue)
-
-        val inputRate = solution.inputRate(ironPlate)!!
+        val inputRate = solution.inputRate(ironPlate)
         inputRate shouldBe 2.perSecond
-        val outputRate = solution.outputRate(ironGearWheel)!!
+        val outputRate = solution.outputRate(ironGearWheel)
         outputRate shouldBe 1.perSecond
 
         val recipe = problem.recipes.keys.single()
@@ -249,8 +246,7 @@ class ProblemTest : FunSpec({
                 costOf(foo, 1e5) // heavily penalize assembling-machine-2
             }
         }
-        val solution = problem.solve()
-        solution.status shouldBe LpResultStatus.Optimal
+        val solution = problem.solve().solution!!
 
         val asm2Recipe = problem.recipes.keys.find {
             it.machine.prototype.name == "assembling-machine-2"
@@ -331,8 +327,7 @@ class ProblemTest : FunSpec({
             output(ironGearWheel, 0.01.perSecond)
         }
         println(problem.factory.allProcesses.first())
-        val solution = problem.solve()
-        solution.status shouldBe LpResultStatus.Optimal
+        val solution = problem.solve().solution!!
         val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBe 1.0
     }
@@ -408,11 +403,10 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
-        val solution = problem.solve()
-        solution.status shouldBe LpResultStatus.Optimal
+        val solution = problem.solve().solution!!
         val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBe 2.0
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.recipeUsage.display())
     }
     test("using integral cost") {
         val problem = problem {
@@ -431,15 +425,14 @@ class ProblemTest : FunSpec({
             input(ironPlate, cost = 0.0)
             output(ironGearWheel, 0.01.perSecond)
         }
-        val solution = problem.solve()
-        solution.status shouldBe LpResultStatus.Optimal
-        val usage = solution.amountUsed(problem.recipes.keys.single())!!
+        val solution = problem.solve().solution!!
+        val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBeIn (0.001..0.1)
-        val asm3usage = solution.recipeResult.solution!!.symbolUsage[item("assembling-machine-3")]!!
+        val asm3usage = solution.recipeSolution.symbolUsage[item("assembling-machine-3")]!!
         asm3usage shouldBe 1.0
-        val cost = solution.lpSolution!!.objectiveValue
+        val cost = solution.recipeSolution.objectiveValue
         cost shouldBe 10.0
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.recipeUsage.display())
     }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge

@@ -25,9 +25,9 @@ interface PseudoProcess {
 }
 
 private fun StringBuilder.commonToString(process: PseudoProcess) {
-    if (process.variableConfig != VariableConfig()) append(", variableConfig=").append(process.variableConfig)
-    if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
-    if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
+//    if (process.variableConfig != VariableConfig()) append(", variableConfig=").append(process.variableConfig)
+//    if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
+//    if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
     if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
@@ -119,7 +119,7 @@ data class RecipeLp(
     val processes: List<PseudoProcess>,
     val constraints: List<SymbolConstraint> = emptyList(),
     val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
-    val surplusCost: Double = 1e-5,
+    val surplusCost: Double = 0.0,
     val lpSolver: LpSolver = DefaultLpSolver(),
     val lpOptions: LpOptions = LpOptions(),
 )
@@ -128,12 +128,6 @@ fun RecipeLp.solve(): RecipeLpResult {
     val problem = createAsLp()
     val result = lpSolver.solve(problem.lp, lpOptions)
     return problem.createResult(result)
-}
-
-fun RecipeLp.createIncrementalSolver(): IncrementalSolver<RecipeLpResult> {
-    val asLp = createAsLp()
-    val solver = lpSolver.createIncrementalSolver(asLp.lp, lpOptions)
-    return solver.map { asLp.createResult(it) }
 }
 
 private class RecipeAsLp(
@@ -150,6 +144,7 @@ private class RecipeAsLp(
                 recipeUsage = getAssignment(processVariables),
                 surpluses = getAssignment(surplusVariables),
                 symbolUsage = getAssignment(symbolVariables),
+                objectiveValue = solution.objectiveValue,
             )
         }
         return RecipeLpResult(

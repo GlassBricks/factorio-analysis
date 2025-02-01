@@ -40,7 +40,7 @@ fun main() {
             bigMiningDrill {}
             electromagneticPlant {
 //                integralCost()
-//                semiContinuousCost(1.0)
+                semiContinuousCost(1.0)
             }
             assemblingMachine3 {
 //                integralCost()
@@ -177,9 +177,10 @@ fun main() {
 
         lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
-            timeLimit = 5.minutes,
+            timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             enableLogging = true,
+//            hintFromRoundingUpSemiContinuousVars = true,
             epsilon = 1e-5
         )
     }
