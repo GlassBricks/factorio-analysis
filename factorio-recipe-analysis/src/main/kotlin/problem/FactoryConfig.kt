@@ -114,6 +114,7 @@ typealias MachineConfigFn = MachineConfigScope.() -> Unit
 class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process: RecipeOrResource<*>) :
     WithFactorioPrototypes {
     val qualities = sortedSetOf(prototypes.defaultQuality)
+    var cost: Double = 0.0
     fun allQualities() {
         qualities.addAll(prototypes.qualities)
     }
@@ -144,7 +145,9 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
                 process = machineSetup,
                 additionalCosts = additionalCosts,
                 costVariableConfig = machine.outputVariableConfig,
-                variableConfig = machine.variableConfig,
+                variableConfig = machine.variableConfig.copy(
+                    cost = machine.variableConfig.cost + cost,
+                ),
             )
             list.add(lpProcess)
         }
