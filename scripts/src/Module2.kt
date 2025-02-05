@@ -4,8 +4,6 @@ import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
 import java.io.File
-import kotlin.math.pow
-import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
@@ -70,13 +68,24 @@ fun main() {
             }
             allRecipes()
             calciteMining()
-            coalMining()
+            coalMining {
+                cost = 25.0 // coal is scarce
+            }
+            remove(substation)
         }
     }
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
+//        output(
+//            qualityModule3.withQuality(epic),
+//            rate = 5.perMinute
+//        )
+        output(
+            qualityModule2.withQuality(epic),
+            rate = 8.perMinute
+        )
 
         costs {
             costOf(assemblingMachine3.item(), 3 + 1.0)
@@ -86,12 +95,13 @@ fun main() {
             costOf(beacon.item(), 4 + 1.0)
             costOf(bigMiningDrill.item(), 5 + 2)
 
-            val qualityCostMultiplier = 5.0
+            //            val qualityCostMultiplier = 5.0
             fun addQualityCost(item: Item, baseCost: Double) {
-                for ((index, quality) in qualities.withIndex()) {
-                    var value = baseCost * qualityCostMultiplier.pow(index)
-                    costOf(item.withQuality(quality), value)
-                }
+                costOf(item, baseCost)
+                costOf(item.withQuality(uncommon), baseCost * 5)
+                costOf(item.withQuality(rare), baseCost * 5 * 4)
+                costOf(item.withQuality(epic), baseCost * 5 * 4 * 3)
+                costOf(item.withQuality(legendary), baseCost * 5 * 4 * 3 * 3)
             }
             for (module in listOf(speedModule, productivityModule, qualityModule)) {
                 addQualityCost(module, 1.0)
@@ -101,13 +111,8 @@ fun main() {
             }
         }
 
-        output(
-            qualityModule2.withQuality(epic),
-            rate = 4.perMinute
-        )
 //        lpSolver = OrToolsLp("SCIP")
         lpOptions = LpOptions(
-            timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             epsilon = 1e-5
         )
@@ -117,7 +122,7 @@ fun main() {
     println("Best bound: ${result.lpResult.bestBound}")
     result.solution?.let {
         println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.display()
+        val display = it.display(RecipesFirst)
         println(display)
         File("output/module2.txt").writeText(display)
 
