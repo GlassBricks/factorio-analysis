@@ -76,6 +76,10 @@ interface WithFactorioPrototypes {
 
     fun recipeOf(item: Item): Recipe = recipe(item.prototype.name).withQuality(item.quality)
     fun recipeOf(fluid: Fluid): Recipe = recipe(fluid.prototype.name)
+    fun RealIngredient.recipe(): Recipe = when (this) {
+        is Item -> recipeOf(this)
+        is Fluid -> recipeOf(this)
+    }
 }
 
 val WithFactorioPrototypes.qualities get() = prototypes.qualities

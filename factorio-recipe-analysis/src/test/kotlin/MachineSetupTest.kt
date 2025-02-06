@@ -28,7 +28,7 @@ class MachineSetupTest : FunSpec({
         val beltRecipe = recipe("transport-belt")
         asm2.processing(beltRecipe) shouldBe MachineSetup(
             machine = asm2,
-            process = beltRecipe,
+            recipe = beltRecipe,
         )
 
     }

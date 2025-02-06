@@ -84,14 +84,14 @@ fun main() {
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-//        output(
-//            qualityModule3.withQuality(epic),
-//            rate = 5.perMinute
-//        )
         output(
-            electronicCircuit.withQuality(uncommon),
-            rate = 8.perMinute
+            qualityModule2.withQuality(epic),
+            rate = 5.perMinute
         )
+//        output(
+//            electronicCircuit.withQuality(uncommon),
+//            rate = 8.perMinute
+//        )
 
         costs {
             costOf(assemblingMachine3.item(), 3 + 1.0)
@@ -137,7 +137,9 @@ fun main() {
     val dotFile = File("output/module2.dot")
     solution.toFancyDotGraph {
         clusterItemsByQuality()
-        unconstrainEdgesForMachine(recycler)
+        clusterRecipesByQuality()
+//        dotGraph.enforceEdgeTopBottom()
+        flipEdgesForMachine(recycler)
     }.writeTo(dotFile)
 
     File("output/module2.txt").writeText(display)

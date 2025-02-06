@@ -33,7 +33,11 @@ interface FactorioShorthandFormatter : FactorioRecipesFormatter {
 
 interface FactorioGraphExportFormatter : FactorioShorthandFormatter {
     override fun formatSetup(setup: MachineSetup<*>): String =
-        formatProcess(setup.process) + "\n" + formatMachine(setup.machine)
+        formatRecipeOrResource(setup.recipe) + "\n" + formatMachine(setup.machine)
+
+    override fun formatMachineWithModules(machine: MachineWithModules<*>): String {
+        return formatBaseMachine(machine.machine) + "\n" + formatModuleSet(machine.moduleSet)
+    }
 
     companion object Default : FactorioGraphExportFormatter
 }
@@ -49,11 +53,12 @@ data class DotGraphExportOptions(
 ) {
     companion object {
         val default = DotGraphExportOptions(
-            // light gray filled box
             recipeNodeAttributes = mapOf(
                 "shape" to "box",
                 "style" to "filled",
-                "fillcolor" to "#eeeeee",
+                "color" to Color.getHSBColor(0.8f, 0.7f, 0.6f).toHex(),
+                // light blue
+                "fillcolor" to "#cceeff",
             ),
             ingredientNodeAttributes = mapOf(
                 "shape" to "box",
@@ -83,6 +88,7 @@ data class ThroughputDotGraphExport(
     val edgeMap: Map<EdgeInfo<ThroughputGraphNode, Double>, DotGraphEdge>,
     val solution: Solution,
     val formatter: FactorioRecipesFormatter,
+    val options: DotGraphExportOptions = DotGraphExportOptions.default,
 ) : WithFactorioPrototypes {
     override val prototypes get() = solution.prototypes
     val reverseNodeMap = nodeMap.entries.associate { (k, v) -> v.id to k }
@@ -132,42 +138,107 @@ fun Solution.toFancyDotGraph(
     return export.dotGraph
 }
 
+inline fun <T> DotGraph.createClusters(
+    keys: Collection<T>,
+    getNodes: (T) -> List<DotGraphNode>,
+    clusterName: (T) -> String,
+    clusterAttributes: (T) -> Map<String, Any>,
+    nodeAttributes: (T, DotGraphNode) -> Map<String, Any>,
+) {
+    val nodeToSubgraph = mutableMapOf<String, String>()
+    for (key in keys) {
+        val clusterName = clusterName(key)
+        val subgraph = DotGraph(type = "subgraph", name = clusterName)
+        for (node in getNodes(key)) {
+            nodeToSubgraph[node.id] = clusterName
+            subgraph.nodes[node.id] = DotGraphNode(
+                id = node.id,
+                attributes = nodeAttributes(key, node).toMutableMap()
+            )
+        }
+        subgraph.attributes += clusterAttributes(key)
+        this.subgraphs.add(subgraph)
+    }
+    // set ltail and lhead attributes for edges
+    for (edge in this.edges) {
+        this.nodes[edge.from]?.id?.let { nodeToSubgraph[it] }
+            ?.let { edge.attributes["ltail"] = it }
+        this.nodes[edge.to]?.id?.let { nodeToSubgraph[it] }
+            ?.let { edge.attributes["lhead"] = it }
+    }
+}
+
 fun ThroughputDotGraphExport.clusterItemsByQuality() {
     val itemsByPrototype = nodeMap.keys
         .mapNotNull { (it as? ThroughputNode)?.ingredient as? Item }
         .groupBy { it.prototype }
         .filterValues { it.size > 1 }
         .mapValues { it.value.sortedBy { it.quality.level } }
-    val nodeToSubgraph = mutableMapOf<String, String>()
-    for ((prototype, items) in itemsByPrototype) {
-        val clusterName = "cluster_" + prototype.name.replace("-", "_")
-        val subgraph = DotGraph(type = "subgraph", name = clusterName)
-        for (item in items) {
-            val node = nodeMap[ThroughputNode(item)]!!
-            nodeToSubgraph[node.id] = clusterName
-            subgraph.nodes[node.id] = DotGraphNode(
-                id = node.id,
-                attributes = mutableMapOf(
-                    "label" to formatter.formatQualityName(item.quality.prototype) +
-                            "\\n" + formatter.formatThroughput(
-                        solution.recipeSolution.throughputs[item]!!
-                    ),
-                )
+    dotGraph.createClusters(
+        itemsByPrototype.keys,
+        getNodes = { prototype ->
+            itemsByPrototype[prototype]!!.map { nodeMap[ThroughputNode(it)]!! }
+        },
+        clusterName = { prototype -> "cluster_item_" + prototype.name.replace("-", "_") },
+        clusterAttributes = { prototype ->
+            mapOf(
+                "label" to formatter.formatItemName(prototype),
+                "labeljust" to attr("l"),
+            )
+        },
+        nodeAttributes = { _, node ->
+            val item = (reverseNodeMap[node.id]!! as ThroughputNode).ingredient as Item
+            mutableMapOf(
+                "label" to formatter.formatQualityName(item.quality.prototype) +
+                        "\\n" + formatter.formatThroughput(
+                    solution.throughputs[item]!!
+                ),
             )
         }
-        subgraph.attributes += mapOf(
-            "label" to formatter.formatItemName(prototype),
-            "labeljust" to attr("l"),
-        )
-        dotGraph.subgraphs.add(subgraph)
-    }
-    // point edges to subgraph instead
-    for (edge in dotGraph.edges) {
-        dotGraph.nodes[edge.from]?.id?.let { nodeToSubgraph[it] }
-            ?.let { edge.attributes["ltail"] = it }
-        dotGraph.nodes[edge.to]?.id?.let { nodeToSubgraph[it] }
-            ?.let { edge.attributes["lhead"] = it }
-    }
+    )
+}
+
+fun ThroughputDotGraphExport.clusterRecipesByQuality() {
+    val recipesByPrototype = nodeMap.keys
+        // todo: do something about this nesting
+        .mapNotNull {
+            ((it as? RecipeNode)?.process as? LpProcess)?.let { process ->
+                ((process.process as? MachineSetup<*>)?.recipe as? Recipe)?.let { recipe ->
+                    process to recipe
+                }
+            }
+        }
+        .groupBy { (_, recipe) -> recipe.prototype }
+        .filterValues { it.size > 1 }
+        .mapValues { it.value.sortedBy { it.second.inputQuality.level } }
+    dotGraph.createClusters(
+        recipesByPrototype.keys,
+        getNodes = { recipe ->
+            recipesByPrototype[recipe]!!.map { nodeMap[RecipeNode(it.first)]!! }
+        },
+        clusterName = { recipe -> "cluster_recipe_" + recipe.name.replace("-", "_") },
+        clusterAttributes = { recipe ->
+            mapOf(
+                "label" to formatter.formatRecipeName(recipe),
+                "labeljust" to attr("l"),
+                "fill" to "#eeeeff",
+            )
+        },
+        nodeAttributes = { _, node ->
+            val lpProcess = (reverseNodeMap[node.id]!! as RecipeNode).process as LpProcess
+            val process = lpProcess.process as MachineSetup<*>
+            mutableMapOf(
+                "label" to (
+                        formatter.formatQualityName(process.recipe.inputQuality.prototype) + "\\n" +
+                                formatter.formatMachine(process.machine) + "\\n" +
+                                formatter.formatMachineUsage(solution.processUsage[lpProcess])),
+            )
+        }
+    )
+}
+
+fun ThroughputDotGraphExport.flipEdgesForMachine(machine: CraftingMachine) {
+    flipEdgesForMachineIf { it.machine.prototype == machine.prototype }
 }
 
 private fun <K, V> MutableMap<K, V>.putOrRemove(key: K, value: V?) {
@@ -178,23 +249,35 @@ private fun <K, V> MutableMap<K, V>.putOrRemove(key: K, value: V?) {
     }
 }
 
-fun ThroughputDotGraphExport.unconstrainEdgesForMachine(machine: CraftingMachine) {
+private fun <K, V : Any> MutableMap<K, V>.swapKeys(key1: K, key2: K) {
+    val value1 = this[key1]
+    val value2 = this[key2]
+    putOrRemove(key1, value2)
+    putOrRemove(key2, value1)
+}
+
+/** Add headport and tailport attributes to edges */
+fun DotGraph.enforceEdgeTopBottom() {
+    for (edge in edges) {
+        edge.attributes["headport"] = "n"
+//        edge.attributes["tailport"] = "s"
+    }
+}
+
+/**
+ * Should be done last
+ */
+fun ThroughputDotGraphExport.flipEdgesForMachineIf(predicate: (MachineSetup<*>) -> Boolean) {
     val processes = nodeMap.filter { (node) ->
-        (node as? RecipeNode)?.let { recipeNode ->
-            (recipeNode.process as? LpProcess)?.let { lpProcess ->
-                (lpProcess.process as? MachineSetup<*>)?.machine?.prototype
-            }
-        } == machine.prototype
+        node is RecipeNode && ((node.process as? LpProcess)?.process as? MachineSetup<*>)?.let { predicate(it) } == true
     }
     val processIds = processes.values.map { it.id }.toSet()
     for (edge in dotGraph.edges) {
         if (edge.from in processIds || edge.to in processIds) {
             edge.from = edge.to.also { edge.to = edge.from }
             edge.attributes["dir"] = attr("back")
-            val tail = edge.attributes["ltail"]
-            val head = edge.attributes["lhead"]
-            edge.attributes.putOrRemove("ltail", head)
-            edge.attributes.putOrRemove("lhead", tail)
+            edge.attributes.swapKeys("ltail", "lhead")
+//            edge.attributes.swapKeys("headport", "tailport")
         }
     }
 }

@@ -66,12 +66,12 @@ fun MachineSetup<*>.toBlueprintEntity(
     position: Position,
 ): BlueprintEntity? {
     val machine = machine
-    val recipe = process as? Recipe
+    val recipe = recipe as? Recipe
 
     val items = if (machine !is MachineWithModules<*>) null else {
         moduleItems(machine.moduleSet).let {
             if (machine.prototype is FurnacePrototype) {
-                val inputItem = this.process.inputs.keys.single { it is Item } as Item
+                val inputItem = this.recipe.inputs.keys.single { it is Item } as Item
                 // add one item to main invetory
                 it.plusElement(
                     BlueprintInsertPlan(
@@ -146,7 +146,7 @@ fun Map<MachineSetup<*>, Double>.toBlueprint(): BlueprintJson {
     var curHeight = 0.0
     var curRowMaxHeight = 0.0
     val keys = this.keys.sortedBy {
-        it.process.toString()
+        it.recipe.toString()
     }
     val entities = keys.flatMap { setup ->
         val count = this[setup]!!

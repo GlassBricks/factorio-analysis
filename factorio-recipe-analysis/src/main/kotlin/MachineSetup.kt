@@ -11,7 +11,7 @@ data class ResearchConfig(
 
 data class MachineSetup<M : AnyMachine<*>>(
     val machine: M,
-    val process: RecipeOrResource<M>,
+    val recipe: RecipeOrResource<M>,
     val maxQuality: Quality? = null,
     val extraProductivity: Double = 0.0,
 ) : Process {
@@ -30,23 +30,23 @@ data class MachineSetup<M : AnyMachine<*>>(
     )
 
     init {
-        require(machine.canProcess(process)) { "$machine does not accept $process" }
+        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
     }
 
     val effectsUsed: IntEffects = machine.effects.let {
         if (extraProductivity != 0.0) it + IntEffects(productivity = extraProductivity.toFloat().toIntEffect()) else it
     }
-    val cycleTime: Time = process.craftingTime / machine.finalCraftingSpeed
-    val cycleOutputs = process.outputs.applyProdAndQuality(
+    val cycleTime: Time = recipe.craftingTime / machine.finalCraftingSpeed
+    val cycleOutputs = recipe.outputs.applyProdAndQuality(
         effectsUsed,
-        process.outputsToIgnoreProductivity,
-        process.inputQuality,
+        recipe.outputsToIgnoreProductivity,
+        recipe.inputQuality,
         maxQuality,
     )
-    val cycleInputs get() = process.inputs
+    val cycleInputs get() = recipe.inputs
     override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
 
-    override fun toString(): String = "$machine --> $process"
+    override fun toString(): String = "$machine --> $recipe"
 }
 
 fun <M : AnyMachine<*>> M.processing(
