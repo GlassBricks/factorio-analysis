@@ -95,7 +95,7 @@ class RecipeSolverKtTest : StringSpec({
         val lp = RecipeLp(recipes)
         val result = lp.solve()
         result.status shouldBe LpResultStatus.Optimal
-        val usage = result.solution?.recipeUsage ?: fail("no usage")
+        val usage = result.solution?.processUsage ?: fail("no usage")
         usage[basicOil] shouldBe 0.0
         usage[solidHeavy] shouldBe 0.0
         usage[advancedOil] shouldBe 5.0
@@ -137,7 +137,7 @@ class RecipeSolverKtTest : StringSpec({
         // no constraint should use process2 * 2
         val result1 = RecipeLp(processes).solve()
         result1.status shouldBe LpResultStatus.Optimal
-        val usage = result1.solution?.recipeUsage ?: fail("no usage")
+        val usage = result1.solution?.processUsage ?: fail("no usage")
         usage[process2] shouldBe 2.0
         usage[process1] shouldBe 0.0
         usage[output] shouldBe 1.2
@@ -145,7 +145,7 @@ class RecipeSolverKtTest : StringSpec({
         // constraint should use process1 * 1
         val result2 = RecipeLp(processes, listOf(costRestr)).solve()
         result2.status shouldBe LpResultStatus.Optimal
-        val usage2 = result2.solution?.recipeUsage ?: fail("no usage")
+        val usage2 = result2.solution?.processUsage ?: fail("no usage")
         usage2[process1] shouldBe 1
         usage2[process2] shouldBe 0.0
         usage2[output] shouldBe 1.0
@@ -177,7 +177,7 @@ class RecipeSolverKtTest : StringSpec({
 
         result.status shouldBe LpResultStatus.Optimal
         println(result.lpSolution?.objectiveValue)
-        val usage = result.solution?.recipeUsage ?: fail("no usage")
+        val usage = result.solution?.processUsage ?: fail("no usage")
         usage[process2] shouldBe 0.0
         usage[process1] shouldBe 1.0
     }
@@ -197,7 +197,7 @@ class RecipeSolverKtTest : StringSpec({
 
         val result = RecipeLp(listOf(process, input), symbolConfigs = symbolConfigs).solve()
         result.status shouldBe LpResultStatus.Optimal
-        val usage = result.solution?.recipeUsage ?: fail("no usage")
+        val usage = result.solution?.processUsage ?: fail("no usage")
         usage[process] shouldBe 2.0
     }
     "use integral cost variable to raise costs" {

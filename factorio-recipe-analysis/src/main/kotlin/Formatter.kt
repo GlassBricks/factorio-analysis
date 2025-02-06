@@ -1,5 +1,8 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.prototypes.BeaconPrototype
+import glassbricks.factorio.prototypes.ItemPrototype
+import glassbricks.factorio.prototypes.QualityPrototype
 import glassbricks.recipeanalysis.Process
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.recipelp.LpProcess
@@ -15,7 +18,9 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
         else -> error("Unknown machine type: $machine")
     }
 
-    fun formatBaseMachine(machine: BaseMachine<*>): String = machine.prototype.name + formatQuality(machine.quality)
+    fun formatBaseMachine(machine: BaseMachine<*>): String =
+        machine.prototype.name + formatQualitySuffix(machine.quality)
+
     fun formatMachineWithModules(machine: MachineWithModules<*>): String =
         formatBaseMachine(machine.machine) + formatModuleSet(machine.moduleSet)
 
@@ -32,30 +37,38 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatModuleList(modules: ModuleList): String =
         modules.moduleCounts.joinToString(", ") { formatModuleCount(it) }
 
-    fun formatModuleCount(moduleCount: ModuleCount): String =
-        formatModule(moduleCount.module) + " x${moduleCount.count}"
+    fun formatModuleCount(moduleCount: ModuleCount): String {
+        if (moduleCount.count == 1) return formatModule(moduleCount.module)
+        return formatModule(moduleCount.module) + " x${moduleCount.count}"
+    }
 
-    fun formatModule(module: Module): String = module.prototype.name + formatQuality(module.quality)
+    fun formatModule(module: Module): String = formatItem(module)
 
     fun formatBeaconList(beacons: BeaconList): String =
         beacons.beaconCounts.joinToString(", ") { formatBeaconCount(it) }
 
-    fun formatBeaconCount(beaconCount: BeaconCount): String =
-        "${formatBeaconSetup(beaconCount.beaconSetup)}x${beaconCount.count}"
+    fun formatBeaconCount(beaconCount: BeaconCount): String {
+        if (beaconCount.count == 1) return formatBeaconSetup(beaconCount.beaconSetup)
+        return formatBeaconSetup(beaconCount.beaconSetup) + " x${beaconCount.count}"
+    }
 
     fun formatBeaconSetup(beaconSetup: BeaconSetup): String =
         "${formatBeacon(beaconSetup.beacon)}[${formatModuleList(beaconSetup.modules)}]"
 
-    fun formatBeacon(beacon: Beacon): String = beacon.prototype.name + formatQuality(beacon.quality)
+    fun formatBeaconName(prototype: BeaconPrototype): String = prototype.name
+    fun formatBeacon(beacon: Beacon): String = formatBeaconName(beacon.prototype) + formatQualitySuffix(beacon.quality)
 
     fun formatProcess(process: RecipeOrResource<*>): String = when (process) {
         is Recipe -> formatRecipe(process)
         is Resource -> formatResource(process)
     }
 
-    fun formatRecipe(recipe: Recipe): String = recipe.prototype.name + formatQuality(recipe.inputQuality)
+    fun formatRecipe(recipe: Recipe): String = recipe.prototype.name + formatQualitySuffix(recipe.inputQuality)
     fun formatResource(resource: Resource): String = resource.prototype.name
-    fun formatQuality(quality: Quality): String = if (quality.level == 0) "" else "(${quality.prototype.name})"
+    fun formatQualitySuffix(quality: Quality): String =
+        if (quality.level == 0) "" else "(${formatQualityName(quality.prototype)})"
+
+    fun formatQualityName(prototype: QualityPrototype): String = prototype.name
 
     override fun formatSymbol(symbol: Symbol): String = when (symbol) {
         is Item -> formatItem(symbol)
@@ -63,7 +76,8 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
         else -> symbol.toString()
     }
 
-    fun formatItem(item: Item): String = item.prototype.name + formatQuality(item.quality)
+    fun formatItemName(prototype: ItemPrototype): String = prototype.name
+    fun formatItem(item: Item): String = formatItemName(item.prototype) + formatQualitySuffix(item.quality)
     fun formatFluid(fluid: Fluid): String = fluid.prototype.name
 
     override fun formatProcess(process: LpProcess): String = when (val process = process.process) {
@@ -74,7 +88,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     companion object Default : FactorioRecipesFormatter
 }
 
-interface RecipesFirst : FactorioRecipesFormatter {
+interface RecipesFirst : FactorioShorthandFormatter {
     override fun formatSetup(setup: MachineSetup<*>): String =
         "${formatProcess(setup.process)} --> ${formatMachine(setup.machine)}"
 

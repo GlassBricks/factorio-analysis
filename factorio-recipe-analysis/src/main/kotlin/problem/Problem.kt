@@ -20,6 +20,7 @@ class Problem(
     lpSolver: LpSolver,
     lpOptions: LpOptions,
 ) {
+    val prototypes get() = factory.prototypes
 
     val inputs: Map<Ingredient, List<Input>> = inputs
         .groupBy { it.ingredient }
@@ -49,20 +50,21 @@ class Solution(
     val problem: Problem,
     val recipeSolution: RecipeLpSolution,
 ) : Usages by recipeSolution {
+    val prototypes get() = problem.prototypes
     fun display(formatter: RecipeLpFormatter = FactorioRecipesFormatter) = recipeSolution.textDisplay(formatter)
     fun outputRate(ingredient: Ingredient): Rate {
         val output = problem.outputs[ingredient] ?: return Rate.zero
-        return Rate(output.sumOf { recipeSolution.recipeUsage[it] })
+        return Rate(output.sumOf { recipeSolution.processUsage[it] })
     }
 
     fun inputRate(ingredient: Ingredient): Rate {
         val input = problem.inputs[ingredient] ?: return Rate.zero
-        return Rate(input.sumOf { recipeSolution.recipeUsage[it] })
+        return Rate(input.sumOf { recipeSolution.processUsage[it] })
     }
 
     fun amountUsed(recipe: MachineSetup<*>): Double {
         val lpProcess = problem.recipes[recipe] ?: return 0.0
-        return recipeSolution.recipeUsage[lpProcess]
+        return recipeSolution.processUsage[lpProcess]
     }
 }
 

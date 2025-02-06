@@ -16,15 +16,15 @@ data class Throughput(
 }
 
 interface Usages {
-    val symbolUsage: Vector<Symbol>
+    val processUsage: Vector<PseudoProcess>
     val surpluses: Vector<Ingredient>
-    val recipeUsage: Vector<PseudoProcess>
+    val symbolUsage: Vector<Symbol>
     val throughputs: Map<Ingredient, Throughput>
     val objectiveValue: Double
 }
 
 data class RecipeLpSolution(
-    override val recipeUsage: Vector<PseudoProcess>,
+    override val processUsage: Vector<PseudoProcess>,
     override val surpluses: Vector<Ingredient>,
     override val symbolUsage: Vector<Symbol>,
     override val objectiveValue: Double,
@@ -32,7 +32,7 @@ data class RecipeLpSolution(
     override val throughputs by lazy {
         val consumption = mutableMapOf<Ingredient, Double>()
         val production = mutableMapOf<Ingredient, Double>()
-        for ((process, usage) in recipeUsage) {
+        for ((process, usage) in processUsage) {
             for ((ingredient, baseRate) in process.ingredientRate) {
                 val rate = baseRate * usage
                 val thisConsumption = consumption.getOrPut(ingredient) { 0.0 }

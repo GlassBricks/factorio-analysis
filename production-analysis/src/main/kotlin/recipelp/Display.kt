@@ -3,25 +3,27 @@ package glassbricks.recipeanalysis.recipelp
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Process
 import glassbricks.recipeanalysis.Symbol
+import kotlin.math.absoluteValue
 
 interface RecipeLpFormatter {
     fun formatInput(input: Input): String = formatIngredient(input.ingredient)
     fun formatOutput(output: Output): String = formatIngredient(output.ingredient)
     fun formatProcess(process: LpProcess): String = formatOtherProcess(process)
     fun formatOtherProcess(process: PseudoProcess): String = process.toString()
-    fun formatAnyProcess(process: PseudoProcess): String = when (process) {
+    fun formatAnyPseudoProcess(process: PseudoProcess): String = when (process) {
         is Input -> formatInput(process)
         is Output -> formatOutput(process)
         is LpProcess -> formatProcess(process)
         else -> formatOtherProcess(process)
     }
 
-    fun formatRate(rate: Double): String = "%.5f".format(rate)
+    fun formatRate(rate: Double): String = "%.5f".format(rate) + "/s"
     fun formatInputOutputRate(rate: Double): String = formatRate(rate)
     fun formatMachineUsage(usage: Double): String = "%.5f".format(usage)
     fun formatSymbolUsage(usage: Double): String = "%.5f".format(usage)
-    fun formatThroughput(throughput: Throughput): String = if (throughput.net < 1e-6) formatRate(throughput.min)
-    else formatRate(throughput.min) + " (${formatRate(throughput.net)})"
+    fun formatThroughput(throughput: Throughput): String =
+        if (throughput.net.absoluteValue < 1e-6) formatRate(throughput.min)
+        else formatRate(throughput.min) + " (${formatRate(throughput.net)})"
 
     fun formatSurplusIngredient(ingredient: Ingredient): String = formatIngredient(ingredient)
     fun formatIngredient(ingredient: Ingredient): String = formatSymbol(ingredient)
@@ -60,21 +62,21 @@ private inline fun <T> StringBuilder.displayLeftRight(
 
 fun RecipeLpSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter): String = buildString {
     appendLine("Inputs:")
-    val inputs = recipeUsage.keys.filterIsInstance<Input>().maybeSort(formatter.inputComparator)
-    displayLeftRight(inputs, formatter::formatInput, { formatter.formatInputOutputRate(recipeUsage[it]) })
+    val inputs = processUsage.keys.filterIsInstance<Input>().maybeSort(formatter.inputComparator)
+    displayLeftRight(inputs, formatter::formatInput, { formatter.formatInputOutputRate(processUsage[it]) })
     appendLine()
 
     appendLine("Outputs:")
-    val outputs = recipeUsage.keys.filterIsInstance<Output>().maybeSort(formatter.outputComparator)
-    displayLeftRight(outputs, formatter::formatOutput, { formatter.formatInputOutputRate(recipeUsage[it]) })
+    val outputs = processUsage.keys.filterIsInstance<Output>().maybeSort(formatter.outputComparator)
+    displayLeftRight(outputs, formatter::formatOutput, { formatter.formatInputOutputRate(processUsage[it]) })
     appendLine()
 
     appendLine("Recipes:")
-    val processes = recipeUsage.keys.filterIsInstance<LpProcess>().maybeSort(formatter.lpProcessComparator)
-    displayLeftRight(processes, formatter::formatProcess, { formatter.formatMachineUsage(recipeUsage[it]) })
+    val processes = processUsage.keys.filterIsInstance<LpProcess>().maybeSort(formatter.lpProcessComparator)
+    displayLeftRight(processes, formatter::formatProcess, { formatter.formatMachineUsage(processUsage[it]) })
     appendLine()
 
-    val otherProcesses = recipeUsage.keys.filter {
+    val otherProcesses = processUsage.keys.filter {
         it !is Input && it !is Output && it !is LpProcess
     }.maybeSort(formatter.otherProcessComparator)
     if (otherProcesses.isNotEmpty()) {
@@ -83,7 +85,7 @@ fun RecipeLpSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatte
         displayLeftRight(
             otherProcesses,
             formatter::formatOtherProcess,
-            { formatter.formatMachineUsage(recipeUsage[it]) })
+            { formatter.formatMachineUsage(processUsage[it]) })
     }
     val throughputs = throughputs
     if (throughputs.isNotEmpty()) {
@@ -125,8 +127,8 @@ fun RecipeLpSolution.dotDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter
         val name = ingredient.toString()
         appendLine("  \"$name\" [label=\"$ingredientStr\\n$throughputStr\"]")
     }
-    for ((process, amount) in recipeUsage) {
-        val processStr = formatter.formatAnyProcess(process)
+    for ((process, amount) in processUsage) {
+        val processStr = formatter.formatAnyPseudoProcess(process)
         val amountStr = formatter.formatMachineUsage(amount)
         val name = process.toString()
         appendLine("  \"$name\" [label=\"$processStr\\n$amountStr\"]")

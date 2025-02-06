@@ -85,7 +85,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("can cast pipe") {
@@ -105,7 +105,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
     test("can have excess") {
         val problem = problem {
@@ -122,7 +122,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("underground pipes casting is better") {
@@ -161,7 +161,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("constrain machines") {
@@ -218,7 +218,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("cost on symbol") {
@@ -308,7 +308,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("integral") {
@@ -348,7 +348,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
     test("moduled mining") {
         val problem = problem {
@@ -366,7 +366,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
     }
 
     test("purely custom") {
@@ -383,7 +383,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.recipeUsage.display())
+        println(solution.solution!!.processUsage.display())
 
     }
 
@@ -406,7 +406,7 @@ class ProblemTest : FunSpec({
         val solution = problem.solve().solution!!
         val usage = solution.amountUsed(problem.recipes.keys.single())
         usage shouldBe 2.0
-        println(solution.recipeUsage.display())
+        println(solution.processUsage.display())
     }
     test("using integral cost") {
         val problem = problem {
@@ -432,7 +432,7 @@ class ProblemTest : FunSpec({
         asm3usage shouldBe 1.0
         val cost = solution.recipeSolution.objectiveValue
         cost shouldBe 10.0
-        println(solution.recipeUsage.display())
+        println(solution.processUsage.display())
     }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge

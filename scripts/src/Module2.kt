@@ -1,8 +1,10 @@
+import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
+import glassbricks.recipeanalysis.writeTo
 import java.io.File
 
 fun main() {
@@ -60,7 +62,11 @@ fun main() {
             oilRefinery()
         }
         researchConfig = ResearchConfig(
-            miningProductivity = 0.2
+            miningProductivity = 0.2,
+            recipeProductivity = mapOf(
+                RecipeID(castingLowDensityStructure.prototype.name) to 0.2,
+            ),
+            maxQuality = epic
         )
         recipes {
             default {
@@ -69,7 +75,7 @@ fun main() {
             allRecipes()
             calciteMining()
             coalMining {
-                cost = 25.0 // coal is scarce
+                cost = 30.0 // coal is scarce
             }
             remove(substation)
         }
@@ -83,7 +89,7 @@ fun main() {
 //            rate = 5.perMinute
 //        )
         output(
-            qualityModule2.withQuality(epic),
+            electronicCircuit.withQuality(uncommon),
             rate = 8.perMinute
         )
 
@@ -120,12 +126,24 @@ fun main() {
     val result = production.solve()
     println("Status: ${result.status}")
     println("Best bound: ${result.lpResult.bestBound}")
-    result.solution?.let {
-        println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.display(RecipesFirst)
-        println(display)
-        File("output/module2.txt").writeText(display)
+    val solution = result.solution
+    if (solution == null) return
 
-        it.toBlueprint().exportTo(File("output/module2-bp.txt"))
-    }
+    println("Objective: ${result.lpSolution!!.objectiveValue}")
+
+    val display = solution.display(RecipesFirst)
+    println(display)
+
+    val dotFile = File("output/module2.dot")
+    solution.toFancyDotGraph {
+        clusterItemsByQuality()
+        unconstrainEdgesForMachine(recycler)
+    }.writeTo(dotFile)
+
+    File("output/module2.txt").writeText(display)
+
+    solution.toBlueprint().exportTo(File("output/module2-bp.txt"))
 }
+
+// command to generate pdf from dot file
+// dot -Tpdf module2.dot -o module2.pdf
