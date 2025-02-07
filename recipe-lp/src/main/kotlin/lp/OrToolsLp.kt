@@ -21,7 +21,6 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val solver: MPSolver,
         val options: LpOptions,
         val mpVariables: Map<Variable, MPVariable>,
-        val auxVariables: Map<Variable, MPVariable>,
     ) {
         fun solve(): Result {
 
@@ -141,8 +140,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         return IncrementalSolver(
             solver = solver,
             options = options,
-            mpVariables = mpVariables,
-            auxVariables = auxVariables
+            mpVariables = mpVariables
         )
     }
 

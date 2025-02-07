@@ -2,7 +2,6 @@ package glassbricks.recipeanalysis.lp
 
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.Vector
-import glassbricks.recipeanalysis.minus
 import glassbricks.recipeanalysis.relaxKeyType
 
 enum class ComparisonOp {
@@ -43,10 +42,6 @@ interface ConstraintDsl<T> {
     infix fun Vector<out T>.geq(rhs: Number) {
         constraints += KeyedConstraint(this.relaxKeyType(), ComparisonOp.Geq, rhs.toDouble())
     }
-
-    infix fun Vector<out T>.leq(rhs: Vector<out T>) = (this - rhs) leq 0
-    infix fun Vector<out T>.eq(rhs: Vector<out T>) = (this - rhs) eq 0
-    infix fun Vector<out T>.geq(rhs: Vector<out T>) = (this - rhs) geq 0
 }
 
 class ConstraintDslImpl<T> : ConstraintDsl<T> {

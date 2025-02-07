@@ -153,7 +153,6 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
         }
     }
 
-    internal val sizeEstimate: Int get() = qualities.size
 }
 typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 

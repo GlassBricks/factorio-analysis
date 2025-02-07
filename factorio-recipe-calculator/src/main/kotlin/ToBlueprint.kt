@@ -3,7 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.factorio.prototypes.FurnacePrototype
 import glassbricks.factorio.recipes.problem.Solution
-import glassbricks.recipeanalysis.recipelp.LpProcess
+import glassbricks.recipeanalysis.vectorMapKeysNotNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -100,7 +100,7 @@ fun MachineSetup<*>.toBlueprintEntity(
         entity_number = entityNumber,
         position = position,
         name = machine.prototype.name,
-        quality = machine.quality?.prototype?.name,
+        quality = machine.quality.prototype.name,
         recipe = recipe?.prototype?.name,
         recipe_quality = recipe?.inputQuality?.prototype?.name,
         items = items,
@@ -187,7 +187,7 @@ internal val bpJson = Json {
 }
 
 @Serializable
-class BlueprintProxy(
+data class BlueprintProxy(
     val blueprint: BlueprintJson,
 )
 
@@ -215,13 +215,7 @@ fun BlueprintJson.exportTo(file: File) {
 
 fun Solution.toBlueprint(): BlueprintJson {
     val machines = this.processes
-        .filterKeys { key ->
-            key is LpProcess && key.process is MachineSetup<*>
-        }
-        .mapKeys { (key, _) ->
-            (key as LpProcess).process as MachineSetup<*>
-        }
-
+        .vectorMapKeysNotNull { it as? MachineSetup<*> }
     return machines.toBlueprint()
 }
 

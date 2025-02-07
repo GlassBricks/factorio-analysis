@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class MachineTest : FunSpec({
     this as MachineTest
-    val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
+    val (_, uncommon, _, _, legendary) = SpaceAge.qualities
     val speed1 = SpaceAge.module("speed-module")
     test("assembling machine 2 and modules") {
         val asm2 = craftingMachine("assembling-machine-2")

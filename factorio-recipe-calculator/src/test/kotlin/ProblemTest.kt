@@ -21,7 +21,7 @@ class ProblemTest : FunSpec({
     val prod3 = module("productivity-module-2")
     val qual3 = module("quality-module-3")
 
-    val (normal, uncommon, rare, epic, legendary) = prototypes.qualities
+    val (_, _, rare, epic, legendary) = prototypes.qualities
 
     val gcFactory by lazy {
         factory {
@@ -426,9 +426,9 @@ class ProblemTest : FunSpec({
             output(ironGearWheel, 0.01.perSecond)
         }
         val solution = problem.solve().solution!!
-        val usage = solution.processes[problem.recipes.keys.single()]
+        val usage = solution.processes.entries.single().value
         usage shouldBeIn (0.001..0.1)
-        val asm3usage = solution.recipeSolution.symbolUsage[item("assembling-machine-3")]!!
+        val asm3usage = solution.recipeSolution.symbolUsage[item("assembling-machine-3")]
         asm3usage shouldBe 1.0
         val cost = solution.recipeSolution.objectiveValue
         cost shouldBe 10.0

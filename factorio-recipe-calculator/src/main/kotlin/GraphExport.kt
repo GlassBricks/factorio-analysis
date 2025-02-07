@@ -123,7 +123,7 @@ fun Solution.toFancyDotGraph(
             } else {
                 exportOptions.outputEdgeAttributes
             }
-//                .plus("label" to label)
+                .plus("label" to label)
         },
         graphAttributes = exportOptions.graphAttributes,
     )
@@ -254,14 +254,6 @@ private fun <K, V : Any> MutableMap<K, V>.swapKeys(key1: K, key2: K) {
     val value2 = this[key2]
     putOrRemove(key1, value2)
     putOrRemove(key2, value1)
-}
-
-/** Add headport and tailport attributes to edges */
-fun DotGraph.enforceEdgeTopBottom() {
-    for (edge in edges) {
-        edge.attributes["headport"] = "n"
-//        edge.attributes["tailport"] = "s"
-    }
 }
 
 /**

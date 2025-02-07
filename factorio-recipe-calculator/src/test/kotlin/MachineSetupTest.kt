@@ -13,7 +13,7 @@ class MachineSetupTest : FunSpec({
     val prod1 = module("productivity-module")
     val speed1 = module("speed-module")
     val quality3 = module("quality-module-3")
-    val (normal, uncommon, rare, epic, legendary) = SpaceAge.qualities
+    val (_, uncommon, _, epic, legendary) = SpaceAge.qualities
     test("withModules") {
         asm2.withModules() shouldBe asm2
         asm2.withModules(speed1) shouldBe MachineWithModules(

@@ -10,7 +10,8 @@ data class Shorthand(
 fun toCamelCase(s: String): String {
     return s.split("-")
         .let {
-            it.first() + it.drop(1).joinToString("") { it.capitalize() }
+            it.first() + it.drop(1)
+                .joinToString("") { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
         }
 }
 
@@ -22,12 +23,12 @@ fun main() = with(SpaceAge) {
         map: Map<K, T>,
         suffix: String = "",
     ) {
-        for ((protoName, el) in map) {
+        for ((protoName, _) in map) {
             val protoName = protoName.toString()
             val propName = toCamelCase(protoName) + suffix
             shorthands[propName] = Shorthand(
                 property = propName,
-                type = fnName.capitalize(),
+                type = fnName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                 function = fnName,
                 protoName = protoName,
             )

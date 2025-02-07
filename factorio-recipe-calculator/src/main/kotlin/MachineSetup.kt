@@ -70,9 +70,6 @@ fun <M : AnyMachine<*>> M.craftingOrNullCast(
     if (!this.canProcess(process)) null
     else MachineSetup(this, process as RecipeOrResource<M>, config)
 
-typealias CraftingSetup = MachineSetup<AnyCraftingMachine>
-typealias MiningSetup = MachineSetup<AnyMiningDrill>
-
 internal fun IngredientVector.applyProductivity(
     productsIgnoredFromProductivity: IngredientVector?,
     multiplier: Float,

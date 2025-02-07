@@ -2,7 +2,6 @@ package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.FactorioPrototypes
 import glassbricks.factorio.recipes.FactorioRecipesFormatter
-import glassbricks.factorio.recipes.MachineSetup
 import glassbricks.factorio.recipes.WithFactorioPrototypes
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
@@ -21,14 +20,6 @@ class Problem(
     lpOptions: LpOptions,
 ) {
     val prototypes get() = factory.prototypes
-
-    val inputs: Map<Ingredient, List<Input>> = inputs
-        .groupBy { it.ingredient }
-    val outputs: Map<Ingredient, List<Output>> = outputs
-        .groupBy { it.ingredient }
-    val recipes: Map<MachineSetup<*>, LpProcess> =
-        factory.allProcesses.associateBy { it.process as MachineSetup<*> }
-
     val recipeLp = RecipeLp(
         processes = concat(
             inputs,

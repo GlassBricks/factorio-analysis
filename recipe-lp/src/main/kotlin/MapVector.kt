@@ -108,9 +108,6 @@ fun <T> vector(map: Map<T, Double>): Vector<T> = vectorWithUnits(map)
 
 fun <T> basisVec(key: T): Vector<T> = vectorWithUnits(key to 1.0)
 
-inline fun <T, T2, U> MapVector<T, U>.vectorMapKeys(transform: (T) -> T2): MapVector<T2, U> =
-    MapVector(mapKeys { transform(it.key) })
-
 inline fun <T, T2 : Any, U> MapVector<T, U>.vectorMapKeysNotNull(transform: (T) -> T2?): MapVector<T2, U> =
     MapVector(mapKeysNotNull { transform(it.key) })
 

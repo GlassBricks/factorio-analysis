@@ -47,7 +47,6 @@ data class CraftingMachine(
     }
 }
 typealias AnyCraftingMachine = AnyMachine<CraftingMachinePrototype>
-typealias CraftingMachineWithModules = MachineWithModules<CraftingMachinePrototype>
 
 data class MiningDrill(
     override val prototype: MiningDrillPrototype,
@@ -60,7 +59,6 @@ data class MiningDrill(
         process is Resource && process.prototype.category in this.prototype.resource_categories
 }
 typealias AnyMiningDrill = AnyMachine<MiningDrillPrototype>
-typealias MiningDrillWithModules = MachineWithModules<MiningDrillPrototype>
 
 sealed class BaseMachine<P> : AnyMachine<P>, Entity
         where P : MachinePrototype, P : EntityPrototype {
