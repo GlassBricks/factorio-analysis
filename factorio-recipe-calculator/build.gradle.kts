@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":production-analysis"))
+    api(project(":recipe-lp"))
     api(project(":prototypes"))
     testImplementation(libs.bundles.kotest)
     testImplementation(kotlin("test"))
