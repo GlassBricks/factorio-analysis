@@ -29,7 +29,7 @@ private class RecipeAsLp(
             fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
                 vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
             RecipeLpSolution(
-                processUsage = getAssignment(processVariables),
+                lpProcesses = getAssignment(processVariables),
                 surpluses = getAssignment(surplusVariables),
                 symbolUsage = getAssignment(symbolVariables),
                 objectiveValue = solution.objectiveValue,

@@ -45,9 +45,9 @@ class ProblemTest : FunSpec({
             maximize(gc)
         }
         val solution = problem.solve().solution!!
-        solution.outputRate(gc) shouldBe 2.perSecond
-        solution.inputRate(ironPlate) shouldBe 2.perSecond
-        solution.inputRate(copperPlate) shouldBe 3.perSecond
+        Rate(solution.outputs[gc]) shouldBe 2.perSecond
+        Rate(solution.inputs[ironPlate]) shouldBe 2.perSecond
+        Rate(solution.inputs[copperPlate]) shouldBe 3.perSecond
     }
     test("solve limit") {
         val problem = problem {
@@ -57,9 +57,9 @@ class ProblemTest : FunSpec({
             output(gc, 2.perSecond)
         }
         val solution = problem.solve().solution!!
-        solution.outputRate(gc) shouldBe 2.perSecond
-        solution.inputRate(ironPlate) shouldBe 2.perSecond
-        solution.inputRate(copperPlate) shouldBe 3.0.perSecond
+        Rate(solution.outputs[gc]) shouldBe 2.perSecond
+        Rate(solution.inputs[ironPlate]) shouldBe 2.perSecond
+        Rate(solution.inputs[copperPlate]) shouldBe 3.0.perSecond
     }
 
     test("basic gambling") {
@@ -85,7 +85,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("can cast pipe") {
@@ -105,7 +105,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
     test("can have excess") {
         val problem = problem {
@@ -122,7 +122,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("underground pipes casting is better") {
@@ -161,7 +161,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("constrain machines") {
@@ -184,14 +184,14 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve().solution!!
 
-        val inputRate = solution.inputRate(ironPlate)
+        val inputRate = Rate(solution.inputs[ironPlate])
         inputRate shouldBe 2.perSecond
-        val outputRate = solution.outputRate(ironGearWheel)
+        val outputRate = Rate(solution.outputs[ironGearWheel])
         outputRate shouldBe 1.perSecond
 
         val recipe = problem.recipes.keys.single()
 
-        val recipeUsage = solution.amountUsed(recipe)
+        val recipeUsage = solution.processes[recipe]
         recipeUsage shouldBe 1.0
     }
 
@@ -218,7 +218,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("cost on symbol") {
@@ -254,8 +254,8 @@ class ProblemTest : FunSpec({
         val asm1Recipe = problem.recipes.keys.find {
             it.machine.prototype.name == "assembling-machine-1"
         }
-        val asm2Usage = solution.amountUsed(asm2Recipe!!)
-        val asm1Usage = solution.amountUsed(asm1Recipe!!)
+        val asm2Usage = solution.processes[asm2Recipe!!]
+        val asm1Usage = solution.processes[asm1Recipe!!]
         asm2Usage shouldBe 0.0
         asm1Usage shouldBe 1.0
     }
@@ -308,7 +308,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("integral") {
@@ -328,7 +328,7 @@ class ProblemTest : FunSpec({
         }
         println(problem.factory.allProcesses.first())
         val solution = problem.solve().solution!!
-        val usage = solution.amountUsed(problem.recipes.keys.single())
+        val usage = solution.processes[problem.recipes.keys.single()]
         usage shouldBe 1.0
     }
 
@@ -348,7 +348,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
     test("moduled mining") {
         val problem = problem {
@@ -366,7 +366,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
     }
 
     test("purely custom") {
@@ -383,7 +383,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve()
         solution.status shouldBe LpResultStatus.Optimal
-        println(solution.solution!!.processUsage.display())
+        println(solution.solution!!.processes.display())
 
     }
 
@@ -404,9 +404,9 @@ class ProblemTest : FunSpec({
             output(ironGearWheel, 0.01.perSecond)
         }
         val solution = problem.solve().solution!!
-        val usage = solution.amountUsed(problem.recipes.keys.single())
+        val usage = solution.processes[problem.recipes.keys.single()]
         usage shouldBe 2.0
-        println(solution.processUsage.display())
+        println(solution.processes.display())
     }
     test("using integral cost") {
         val problem = problem {
@@ -426,13 +426,13 @@ class ProblemTest : FunSpec({
             output(ironGearWheel, 0.01.perSecond)
         }
         val solution = problem.solve().solution!!
-        val usage = solution.amountUsed(problem.recipes.keys.single())
+        val usage = solution.processes[problem.recipes.keys.single()]
         usage shouldBeIn (0.001..0.1)
         val asm3usage = solution.recipeSolution.symbolUsage[item("assembling-machine-3")]!!
         asm3usage shouldBe 1.0
         val cost = solution.recipeSolution.objectiveValue
         cost shouldBe 10.0
-        println(solution.processUsage.display())
+        println(solution.processes.display())
     }
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge

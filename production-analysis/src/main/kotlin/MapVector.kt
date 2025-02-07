@@ -4,6 +4,7 @@ import kotlin.math.abs
 
 @JvmInline
 value class MapVector<T, out Units>
+@PublishedApi
 internal constructor(internal val map: Map<T, Double>) : Map<T, Double> by map {
     override operator fun get(key: T): Double = map.getOrDefault(key, 0.0)
 
@@ -106,3 +107,12 @@ fun <T> vector(entries: List<Pair<T, Double>>): Vector<T> = vectorWithUnits(entr
 fun <T> vector(map: Map<T, Double>): Vector<T> = vectorWithUnits(map)
 
 fun <T> basisVec(key: T): Vector<T> = vectorWithUnits(key to 1.0)
+
+inline fun <T, T2, U> MapVector<T, U>.vectorMapKeys(transform: (T) -> T2): MapVector<T2, U> =
+    MapVector(mapKeys { transform(it.key) })
+
+inline fun <T, T2 : Any, U> MapVector<T, U>.vectorMapKeysNotNull(transform: (T) -> T2?): MapVector<T2, U> =
+    MapVector(mapKeysNotNull { transform(it.key) })
+
+inline fun <T, U> MapVector<T, U>.vectorFilterKeys(predicate: (T) -> Boolean): MapVector<T, U> =
+    MapVector(filterKeys { predicate(it) })

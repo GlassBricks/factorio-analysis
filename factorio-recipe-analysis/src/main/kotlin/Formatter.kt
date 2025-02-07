@@ -6,7 +6,6 @@ import glassbricks.factorio.prototypes.QualityPrototype
 import glassbricks.factorio.prototypes.RecipePrototype
 import glassbricks.recipeanalysis.Process
 import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.recipelp.LpProcess
 import glassbricks.recipeanalysis.recipelp.RecipeLpFormatter
 
 interface FactorioRecipesFormatter : RecipeLpFormatter {
@@ -85,7 +84,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatItem(item: Item): String = formatItemName(item.prototype) + formatQualityQualifier(item.quality)
     fun formatFluid(fluid: Fluid): String = fluid.prototype.name
 
-    override fun formatProcess(process: LpProcess): String = when (val process = process.process) {
+    override fun formatProcess(process: Process): String = when (process) {
         is MachineSetup<*> -> formatSetup(process)
         else -> process.toString()
     }

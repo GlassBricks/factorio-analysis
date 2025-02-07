@@ -52,20 +52,6 @@ class Solution(
 ) : Usages by recipeSolution {
     val prototypes get() = problem.prototypes
     fun display(formatter: RecipeLpFormatter = FactorioRecipesFormatter) = recipeSolution.textDisplay(formatter)
-    fun outputRate(ingredient: Ingredient): Rate {
-        val output = problem.outputs[ingredient] ?: return Rate.zero
-        return Rate(output.sumOf { recipeSolution.processUsage[it] })
-    }
-
-    fun inputRate(ingredient: Ingredient): Rate {
-        val input = problem.inputs[ingredient] ?: return Rate.zero
-        return Rate(input.sumOf { recipeSolution.processUsage[it] })
-    }
-
-    fun amountUsed(recipe: MachineSetup<*>): Double {
-        val lpProcess = problem.recipes[recipe] ?: return 0.0
-        return recipeSolution.processUsage[lpProcess]
-    }
 }
 
 class Result(

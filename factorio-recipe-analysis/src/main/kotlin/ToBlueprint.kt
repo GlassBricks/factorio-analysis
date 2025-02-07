@@ -214,7 +214,7 @@ fun BlueprintJson.exportTo(file: File) {
 }
 
 fun Solution.toBlueprint(): BlueprintJson {
-    val machines = this.processUsage
+    val machines = this.processes
         .filterKeys { key ->
             key is LpProcess && key.process is MachineSetup<*>
         }
