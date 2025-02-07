@@ -3,7 +3,10 @@ package glassbricks.factorio.recipes.problem
 import glassbricks.factorio.recipes.FactorioPrototypes
 import glassbricks.factorio.recipes.WithFactorioPrototypes
 import glassbricks.recipeanalysis.*
-import glassbricks.recipeanalysis.lp.*
+import glassbricks.recipeanalysis.lp.ConstraintDsl
+import glassbricks.recipeanalysis.lp.SymbolConstraint
+import glassbricks.recipeanalysis.lp.VariableConfig
+import glassbricks.recipeanalysis.lp.VariableConfigBuilder
 import glassbricks.recipeanalysis.recipelp.*
 
 object DefaultWeights {
@@ -93,8 +96,6 @@ class ProblemBuilder(
     }
 
     var surplusCost: Double = DefaultWeights.SURPLUS_COST
-    var lpSolver: LpSolver = DefaultLpSolver()
-    var lpOptions: LpOptions = LpOptions()
 
     fun build(): RecipeLp = RecipeLp(
         processes = concat(
@@ -105,8 +106,6 @@ class ProblemBuilder(
         ),
         surplusCost = surplusCost,
         constraints = symbolConstraints,
-        lpSolver = lpSolver,
-        lpOptions = lpOptions,
         symbolConfigs = symbolConfigs.mapValues { it.value.build() },
     )
 }

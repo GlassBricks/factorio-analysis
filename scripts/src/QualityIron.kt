@@ -1,3 +1,4 @@
+import glassbricks.factorio.recipes.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.invoke
@@ -5,6 +6,7 @@ import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perSecond
+import glassbricks.recipeanalysis.recipelp.textDisplay
 import kotlin.math.pow
 
 fun main() {
@@ -81,10 +83,11 @@ fun main() {
             }
         }
 
-        lpOptions = LpOptions(epsilon = 1e-5)
     }
-    val solution = production.solve()
+    val solution = production.solve(
+        options = LpOptions(epsilon = 1e-5)
+    )
     println(solution.status)
     println(solution.lpResult.bestBound)
-    println(solution.solution?.display())
+    println(solution.solution?.textDisplay(FactorioShorthandFormatter))
 }

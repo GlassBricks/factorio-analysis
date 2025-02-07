@@ -1,7 +1,9 @@
+import glassbricks.factorio.recipes.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
+import glassbricks.recipeanalysis.recipelp.textDisplay
 import java.io.File
 
 fun main() {
@@ -41,9 +43,9 @@ fun main() {
 //        )
     }
 
-    val solution = production.solve()
-    println(solution.status)
-    val display = solution.solution?.display()
+    val result = production.solve()
+    println(result.status)
+    val display = result.solution?.textDisplay(FactorioShorthandFormatter)
     println(display)
     display?.let {
         File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(it)

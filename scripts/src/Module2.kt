@@ -4,6 +4,7 @@ import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
+import glassbricks.recipeanalysis.recipelp.textDisplay
 import glassbricks.recipeanalysis.writeTo
 import java.io.File
 
@@ -117,13 +118,14 @@ fun main() {
             }
         }
 
-//        lpSolver = OrToolsLp("SCIP")
-        lpOptions = LpOptions(
+    }
+    val result = production.solve(
+        options = LpOptions(
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             epsilon = 1e-5
         )
-    }
-    val result = production.solve()
+
+    )
     println("Status: ${result.status}")
     println("Best bound: ${result.lpResult.bestBound}")
     val solution = result.solution
@@ -131,7 +133,7 @@ fun main() {
 
     println("Objective: ${result.lpSolution!!.objectiveValue}")
 
-    val display = solution.display(RecipesFirst)
+    val display = solution.textDisplay(RecipesFirst)
     println(display)
 
     val dotFile = File("output/module2.dot")
@@ -139,7 +141,7 @@ fun main() {
         clusterItemsByQuality()
         clusterRecipesByQuality()
 //        dotGraph.enforceEdgeTopBottom()
-        flipEdgesForMachine(recycler)
+        flipEdgesForMachine(SpaceAge.recycler)
     }.writeTo(dotFile)
 
     File("output/module2.txt").writeText(display)

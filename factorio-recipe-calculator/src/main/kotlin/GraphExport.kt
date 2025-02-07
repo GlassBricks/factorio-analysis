@@ -28,6 +28,8 @@ interface FactorioShorthandFormatter : FactorioRecipesFormatter {
         if (prototype.name == "beacon") return "b"
         return super.formatBeaconName(prototype)
     }
+
+    companion object Default : FactorioShorthandFormatter
 }
 
 interface FactorioGraphExportFormatter : FactorioShorthandFormatter {

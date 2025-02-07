@@ -6,6 +6,7 @@ import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.OrToolsLp
+import glassbricks.recipeanalysis.recipelp.textDisplay
 import java.io.File
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
@@ -175,21 +176,22 @@ fun main() {
             rate = 1.0 / targetTime
         )
 
-        lpSolver = OrToolsLp("SCIP")
-        lpOptions = LpOptions(
+    }
+
+    val result = production.solve(
+        OrToolsLp("SCIP"), LpOptions(
             timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             enableLogging = true,
-//            hintFromRoundingUpSemiContinuousVars = true,
+            //            hintFromRoundingUpSemiContinuousVars = true,
             epsilon = 1e-5
         )
-    }
-    val result = production.solve()
+    )
     println("Status: ${result.status}")
     println("Best bound: ${result.lpResult.bestBound}")
     result.solution?.let {
         println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.display(RecipesFirst)
+        val display = it.textDisplay(RecipesFirst)
         println(display)
         File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(display)
 

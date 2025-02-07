@@ -303,9 +303,10 @@ class ProblemTest : FunSpec({
                 limit(item("recycler"), 50)
             }
             surplusCost = 0.0
-            lpOptions = LpOptions(enableLogging = true)
         }
-        val solution = problem.solve()
+        val solution = problem.solve(
+            options = LpOptions(enableLogging = true)
+        )
         solution.status shouldBe LpResultStatus.Optimal
         println(solution.solution!!.processes.display())
     }

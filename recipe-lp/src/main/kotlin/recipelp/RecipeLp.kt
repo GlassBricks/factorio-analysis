@@ -8,13 +8,11 @@ data class RecipeLp(
     val constraints: List<SymbolConstraint> = emptyList(),
     val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
     val surplusCost: Double = 0.0,
-    val lpSolver: LpSolver = DefaultLpSolver(),
-    val lpOptions: LpOptions = LpOptions(),
 ) {
 
-    fun solve(): RecipeResult {
+    fun solve(solver: LpSolver = DefaultLpSolver(), options: LpOptions = LpOptions()): RecipeResult {
         val problem = createAsLp()
-        val result = lpSolver.solve(problem.lp, lpOptions)
+        val result = solver.solve(problem.lp, options)
         return problem.createResult(result)
     }
 }
