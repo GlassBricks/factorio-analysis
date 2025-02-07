@@ -25,7 +25,7 @@ interface Usages {
     val objectiveValue: Double
 }
 
-data class RecipeLpSolution(
+data class RecipeSolution(
     override val lpProcesses: Vector<PseudoProcess>,
     override val surpluses: Vector<Ingredient>,
     override val symbolUsage: Vector<Symbol>,
@@ -58,9 +58,9 @@ data class RecipeLpSolution(
     }
 }
 
-data class RecipeLpResult(
+data class RecipeResult(
     val lpResult: LpResult,
-    val solution: RecipeLpSolution?,
+    val solution: RecipeSolution?,
 ) {
     val lpSolution: LpSolution? get() = lpResult.solution
     val status: LpResultStatus get() = lpResult.status

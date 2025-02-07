@@ -1,60 +1,10 @@
 package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.FactorioPrototypes
-import glassbricks.factorio.recipes.FactorioRecipesFormatter
 import glassbricks.factorio.recipes.WithFactorioPrototypes
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
 import glassbricks.recipeanalysis.recipelp.*
-
-/** Wrapper around a [glassbricks.recipeanalysis.recipelp.RecipeLp] */
-class Problem(
-    val factory: FactoryConfig,
-    inputs: List<Input>,
-    outputs: List<Output>,
-    customProcesses: List<PseudoProcess>,
-    val constraints: List<SymbolConstraint>,
-    val symbolConfigs: Map<Symbol, VariableConfig>,
-    surplusCost: Double,
-    lpSolver: LpSolver,
-    lpOptions: LpOptions,
-) {
-    val prototypes get() = factory.prototypes
-    val recipeLp = RecipeLp(
-        processes = concat(
-            inputs,
-            outputs,
-            factory.allProcesses,
-            customProcesses,
-        ),
-        surplusCost = surplusCost,
-        lpSolver = lpSolver,
-        lpOptions = lpOptions,
-        constraints = constraints,
-        symbolConfigs = symbolConfigs,
-    )
-
-    fun solve(): Result = Result(this, recipeLp.solve())
-}
-
-class Solution(
-    val problem: Problem,
-    val recipeSolution: RecipeLpSolution,
-) : Usages by recipeSolution {
-    val prototypes get() = problem.prototypes
-    fun display(formatter: RecipeLpFormatter = FactorioRecipesFormatter) = recipeSolution.textDisplay(formatter)
-}
-
-class Result(
-    val problem: Problem,
-    val recipeResult: RecipeLpResult,
-) {
-    val solution: Solution? get() = recipeResult.solution?.let { Solution(problem, it) }
-
-    val lpResult: LpResult get() = recipeResult.lpResult
-    val lpSolution: LpSolution? get() = lpResult.solution
-    val status: LpResultStatus get() = lpResult.status
-}
 
 object DefaultWeights {
     const val RECIPE_COST = 1.0
@@ -146,11 +96,13 @@ class ProblemBuilder(
     var lpSolver: LpSolver = DefaultLpSolver()
     var lpOptions: LpOptions = LpOptions()
 
-    fun build(): Problem = Problem(
-        inputs = inputs,
-        outputs = outputs,
-        factory = factory ?: error("Factory not set"),
-        customProcesses = customProcesses,
+    fun build(): RecipeLp = RecipeLp(
+        processes = concat(
+            inputs,
+            outputs,
+            (factory ?: error("Factory not set")).allProcesses,
+            customProcesses,
+        ),
         surplusCost = surplusCost,
         constraints = symbolConstraints,
         lpSolver = lpSolver,
@@ -159,8 +111,8 @@ class ProblemBuilder(
     )
 }
 
-inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): Problem =
+inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): RecipeLp =
     ProblemBuilder(prototypes).apply(block).build()
 
-inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): Problem =
+inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): RecipeLp =
     ProblemBuilder(this).apply(block).build()

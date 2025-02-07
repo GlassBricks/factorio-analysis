@@ -10,12 +10,13 @@ data class RecipeLp(
     val surplusCost: Double = 0.0,
     val lpSolver: LpSolver = DefaultLpSolver(),
     val lpOptions: LpOptions = LpOptions(),
-)
+) {
 
-fun RecipeLp.solve(): RecipeLpResult {
-    val problem = createAsLp()
-    val result = lpSolver.solve(problem.lp, lpOptions)
-    return problem.createResult(result)
+    fun solve(): RecipeResult {
+        val problem = createAsLp()
+        val result = lpSolver.solve(problem.lp, lpOptions)
+        return problem.createResult(result)
+    }
 }
 
 private class RecipeAsLp(
@@ -24,18 +25,18 @@ private class RecipeAsLp(
     val surplusVariables: Map<Ingredient, Variable>,
     val symbolVariables: Map<Symbol, Variable>,
 ) {
-    fun createResult(result: LpResult): RecipeLpResult {
+    fun createResult(result: LpResult): RecipeResult {
         val solution = result.solution?.let { solution ->
             fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
                 vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
-            RecipeLpSolution(
+            RecipeSolution(
                 lpProcesses = getAssignment(processVariables),
                 surpluses = getAssignment(surplusVariables),
                 symbolUsage = getAssignment(symbolVariables),
                 objectiveValue = solution.objectiveValue,
             )
         }
-        return RecipeLpResult(
+        return RecipeResult(
             lpResult = result,
             solution = solution,
         )

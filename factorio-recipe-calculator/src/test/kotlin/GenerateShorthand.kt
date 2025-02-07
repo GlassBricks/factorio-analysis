@@ -1,5 +1,7 @@
 package glassbricks.factorio.recipes
 
+import java.util.*
+
 data class Shorthand(
     val property: String,
     val type: String,

@@ -59,7 +59,7 @@ private inline fun <T> StringBuilder.displayLeftRight(
     }
 }
 
-fun RecipeLpSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter): String = buildString {
+fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter): String = buildString {
     appendLine("Inputs:")
     val inputList = inputs.keys.maybeSort(formatter.inputComparator)
     displayLeftRight(inputList, formatter::formatInput, { formatter.formatInputOutputRate(inputs[it]) })

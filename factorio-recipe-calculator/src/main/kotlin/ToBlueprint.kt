@@ -2,7 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.factorio.prototypes.FurnacePrototype
-import glassbricks.factorio.recipes.problem.Solution
+import glassbricks.recipeanalysis.recipelp.RecipeSolution
 import glassbricks.recipeanalysis.vectorMapKeysNotNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -213,7 +213,7 @@ fun BlueprintJson.exportTo(file: File) {
     this.exportTo(file.outputStream().buffered())
 }
 
-fun Solution.toBlueprint(): BlueprintJson {
+fun RecipeSolution.toBlueprint(): BlueprintJson {
     val machines = this.processes
         .vectorMapKeysNotNull { it as? MachineSetup<*> }
     return machines.toBlueprint()

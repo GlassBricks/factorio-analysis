@@ -189,9 +189,7 @@ class ProblemTest : FunSpec({
         val outputRate = Rate(solution.outputs[ironGearWheel])
         outputRate shouldBe 1.perSecond
 
-        val recipe = problem.recipes.keys.single()
-
-        val recipeUsage = solution.processes[recipe]
+        val recipeUsage = solution.processes.values.single()
         recipeUsage shouldBe 1.0
     }
 
@@ -248,14 +246,15 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve().solution!!
 
-        val asm2Recipe = problem.recipes.keys.find {
-            it.machine.prototype.name == "assembling-machine-2"
-        }
-        val asm1Recipe = problem.recipes.keys.find {
-            it.machine.prototype.name == "assembling-machine-1"
-        }
-        val asm2Usage = solution.processes[asm2Recipe!!]
-        val asm1Usage = solution.processes[asm1Recipe!!]
+        val processes = solution.processes.vectorMapKeysNotNull { it as? MachineSetup<*> }
+//        val asm2Recipe = problem.recipes.keys.find {
+//            it.machine.prototype.name == "assembling-machine-2"
+//        }
+//        val asm1Recipe = problem.recipes.keys.find {
+//            it.machine.prototype.name == "assembling-machine-1"
+//        }
+        val asm2Usage = processes.entries.find { it.key.machine.prototype.name == "assembling-machine-2" }?.value ?: 0.0
+        val asm1Usage = processes.entries.find { it.key.machine.prototype.name == "assembling-machine-1" }?.value ?: 0.0
         asm2Usage shouldBe 0.0
         asm1Usage shouldBe 1.0
     }
@@ -326,9 +325,8 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
-        println(problem.factory.allProcesses.first())
         val solution = problem.solve().solution!!
-        val usage = solution.processes[problem.recipes.keys.single()]
+        val usage = solution.processes.entries.single().value
         usage shouldBe 1.0
     }
 
@@ -404,7 +402,7 @@ class ProblemTest : FunSpec({
             output(ironGearWheel, 0.01.perSecond)
         }
         val solution = problem.solve().solution!!
-        val usage = solution.processes[problem.recipes.keys.single()]
+        val usage = solution.processes.entries.single().value
         usage shouldBe 2.0
         println(solution.processes.display())
     }
@@ -428,9 +426,9 @@ class ProblemTest : FunSpec({
         val solution = problem.solve().solution!!
         val usage = solution.processes.entries.single().value
         usage shouldBeIn (0.001..0.1)
-        val asm3usage = solution.recipeSolution.symbolUsage[item("assembling-machine-3")]
+        val asm3usage = solution.symbolUsage[item("assembling-machine-3")]
         asm3usage shouldBe 1.0
-        val cost = solution.recipeSolution.objectiveValue
+        val cost = solution.objectiveValue
         cost shouldBe 10.0
         println(solution.processes.display())
     }

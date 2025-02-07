@@ -9,7 +9,7 @@ sealed interface ThroughputGraphNode
 data class ThroughputNode(val ingredient: Ingredient) : ThroughputGraphNode
 data class ProcessNode(val process: PseudoProcess) : ThroughputGraphNode
 
-fun RecipeLpSolution.toThroughputGraph(): Graph<ThroughputGraphNode, Double> {
+fun RecipeSolution.toThroughputGraph(): Graph<ThroughputGraphNode, Double> {
     val graph = DirectedHashGraph<ThroughputGraphNode, Double>()
     for ((recipe, usage) in lpProcesses) {
         val node = ProcessNode(recipe)

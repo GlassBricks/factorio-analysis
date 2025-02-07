@@ -3,7 +3,6 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.BeaconPrototype
 import glassbricks.factorio.prototypes.ItemPrototype
 import glassbricks.factorio.prototypes.ModulePrototype
-import glassbricks.factorio.recipes.problem.Solution
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.recipelp.*
 import java.awt.Color
@@ -86,20 +85,19 @@ data class ThroughputDotGraphExport(
     val dotGraph: DotGraph,
     val nodeMap: Map<ThroughputGraphNode, DotGraphNode>,
     val edgeMap: Map<EdgeInfo<ThroughputGraphNode, Double>, DotGraphEdge>,
-    val solution: Solution,
+    val solution: RecipeSolution,
     val formatter: FactorioRecipesFormatter,
     val options: DotGraphExportOptions = DotGraphExportOptions.default,
-) : WithFactorioPrototypes {
-    override val prototypes get() = solution.prototypes
+) {
     val reverseNodeMap = nodeMap.entries.associate { (k, v) -> v.id to k }
 }
 
-fun Solution.toFancyDotGraph(
+fun RecipeSolution.toFancyDotGraph(
     formatter: FactorioRecipesFormatter = FactorioGraphExportFormatter,
     exportOptions: DotGraphExportOptions = DotGraphExportOptions.default,
     modify: ThroughputDotGraphExport.() -> Unit = {},
 ): DotGraph {
-    val export = recipeSolution.toThroughputGraph().toDotGraph(
+    val export = toThroughputGraph().toDotGraph(
         nodeAttributes = { node ->
             val label = when (node) {
                 is ProcessNode -> formatter.formatAnyPseudoProcess(node.process) + "\n" +
