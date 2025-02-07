@@ -118,7 +118,6 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
         objective = objective
     )
     return RecipeAsLp(lp, processVariables, surplusVariables, symbolVariables)
-
 }
 
 /**

@@ -1,10 +1,14 @@
 package glassbricks.recipeanalysis
 
+import kotlin.time.Duration
+
 // kinda like Duration except we use a Float
 @JvmInline
 value class Time(val seconds: Double)
 
 operator fun Time.div(value: Double): Time = Time(seconds / value)
+
+fun Duration.asTime(): Time = Time(inWholeNanoseconds / 1e9)
 
 /**
  * Inverse of time

@@ -1,7 +1,10 @@
 package glassbricks.recipeanalysis
 
 import glassbricks.recipeanalysis.lp.*
-import glassbricks.recipeanalysis.recipelp.*
+import glassbricks.recipeanalysis.recipelp.Input
+import glassbricks.recipeanalysis.recipelp.LpProcess
+import glassbricks.recipeanalysis.recipelp.Output
+import glassbricks.recipeanalysis.recipelp.RecipeLp
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.doubles.beGreaterThan

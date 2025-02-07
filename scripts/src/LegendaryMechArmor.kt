@@ -9,6 +9,7 @@ import glassbricks.recipeanalysis.lp.OrToolsLp
 import glassbricks.recipeanalysis.recipelp.textDisplay
 import java.io.File
 import kotlin.math.pow
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 fun main() {
@@ -120,7 +121,7 @@ fun main() {
 //            }
         }
 
-        val targetTime = Time(60.0 * 60.0)
+        val targetTime = 1.hours.asTime()
 
         data class Size(val x: Int, val y: Int)
 
