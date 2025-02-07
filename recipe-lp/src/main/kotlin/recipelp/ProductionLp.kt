@@ -3,7 +3,7 @@ package glassbricks.recipeanalysis.recipelp
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
 
-data class RecipeLp(
+data class ProductionLp(
     val processes: List<PseudoProcess>,
     val constraints: List<SymbolConstraint> = emptyList(),
     val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
@@ -17,7 +17,7 @@ data class RecipeLp(
     }
 }
 
-private class RecipeAsLp(
+private class AsLp(
     val lp: LpProblem,
     val processVariables: Map<PseudoProcess, Variable>,
     val surplusVariables: Map<Ingredient, Variable>,
@@ -41,7 +41,7 @@ private class RecipeAsLp(
     }
 }
 
-private fun RecipeLp.createAsLp(): RecipeAsLp {
+private fun ProductionLp.createAsLp(): AsLp {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
     val additionalConstraints = mutableListOf<Constraint>()
     val objectiveWeights = mutableMapOf<Variable, Double>()
@@ -117,7 +117,7 @@ private fun RecipeLp.createAsLp(): RecipeAsLp {
         constraints = concat(recipeEquations, costEquations, additionalConstraints),
         objective = objective
     )
-    return RecipeAsLp(lp, processVariables, surplusVariables, symbolVariables)
+    return AsLp(lp, processVariables, surplusVariables, symbolVariables)
 }
 
 /**

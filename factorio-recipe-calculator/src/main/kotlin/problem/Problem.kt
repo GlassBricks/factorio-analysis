@@ -97,7 +97,7 @@ class ProblemBuilder(
 
     var surplusCost: Double = DefaultWeights.SURPLUS_COST
 
-    fun build(): RecipeLp = RecipeLp(
+    fun build(): ProductionLp = ProductionLp(
         processes = concat(
             inputs,
             outputs,
@@ -110,8 +110,8 @@ class ProblemBuilder(
     )
 }
 
-inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): RecipeLp =
+inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
     ProblemBuilder(prototypes).apply(block).build()
 
-inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): RecipeLp =
+inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
     ProblemBuilder(this).apply(block).build()

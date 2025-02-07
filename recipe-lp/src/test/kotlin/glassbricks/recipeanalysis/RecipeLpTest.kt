@@ -4,7 +4,7 @@ import glassbricks.recipeanalysis.lp.*
 import glassbricks.recipeanalysis.recipelp.Input
 import glassbricks.recipeanalysis.recipelp.LpProcess
 import glassbricks.recipeanalysis.recipelp.Output
-import glassbricks.recipeanalysis.recipelp.RecipeLp
+import glassbricks.recipeanalysis.recipelp.ProductionLp
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.doubles.beGreaterThan
@@ -95,7 +95,7 @@ class RecipeSolverKtTest : StringSpec({
             waterInput,
             solidFuelOutput,
         )
-        val lp = RecipeLp(recipes)
+        val lp = ProductionLp(recipes)
         val result = lp.solve()
         result.status shouldBe LpResultStatus.Optimal
         val usage = result.solution?.lpProcesses ?: fail("no usage")
@@ -138,7 +138,7 @@ class RecipeSolverKtTest : StringSpec({
         val processes = listOf(process1, process2, input, output)
 
         // no constraint should use process2 * 2
-        val result1 = RecipeLp(processes).solve()
+        val result1 = ProductionLp(processes).solve()
         result1.status shouldBe LpResultStatus.Optimal
         val usage = result1.solution?.lpProcesses ?: fail("no usage")
         usage[process2] shouldBe 2.0
@@ -146,7 +146,7 @@ class RecipeSolverKtTest : StringSpec({
         usage[output] shouldBe 1.2
 
         // constraint should use process1 * 1
-        val result2 = RecipeLp(processes, listOf(costRestr)).solve()
+        val result2 = ProductionLp(processes, listOf(costRestr)).solve()
         result2.status shouldBe LpResultStatus.Optimal
         val usage2 = result2.solution?.lpProcesses ?: fail("no usage")
         usage2[process1] shouldBe 1
@@ -176,7 +176,7 @@ class RecipeSolverKtTest : StringSpec({
         val processes = listOf(process1, process2, input, output)
         val symbolConfigs = mapOf(abstractCost to VariableConfig(cost = 1e8)) // make it prohibitively expensive
 
-        val result = RecipeLp(processes, symbolConfigs = symbolConfigs).solve()
+        val result = ProductionLp(processes, symbolConfigs = symbolConfigs).solve()
 
         result.status shouldBe LpResultStatus.Optimal
         println(result.lpSolution?.objectiveValue)
@@ -198,7 +198,7 @@ class RecipeSolverKtTest : StringSpec({
         val input = Input(inputIng, VariableConfig(cost = 1.0))
         val symbolConfigs = mapOf(abstractCost to VariableConfig(lowerBound = 2.0))
 
-        val result = RecipeLp(listOf(process, input), symbolConfigs = symbolConfigs).solve()
+        val result = ProductionLp(listOf(process, input), symbolConfigs = symbolConfigs).solve()
         result.status shouldBe LpResultStatus.Optimal
         val usage = result.solution?.lpProcesses ?: fail("no usage")
         usage[process] shouldBe 2.0
@@ -216,7 +216,7 @@ class RecipeSolverKtTest : StringSpec({
         )
         val input = Input(inputIng, VariableConfig(cost = 0.0))
         val output = Output(outputIng, VariableConfig(lowerBound = 0.1))
-        val result = RecipeLp(listOf(process, input, output)).solve()
+        val result = ProductionLp(listOf(process, input, output)).solve()
         result.status shouldBe LpResultStatus.Optimal
         val cost = result.lpSolution?.objectiveValue
         cost shouldBe 1.0
