@@ -6,6 +6,8 @@ import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.LpResultStatus
 import glassbricks.recipeanalysis.lp.VariableType
+import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
+import glassbricks.recipeanalysis.recipelp.toStage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ranges.shouldBeIn
 import io.kotest.matchers.shouldBe
@@ -278,7 +280,7 @@ class ProblemTest : FunSpec({
                     "electromagnetic-plant" {}
                 }
                 recipes {
-                    allRecipes()
+                    allCraftingRecipes()
                     default {
                         allQualities()
                     }
@@ -433,6 +435,31 @@ class ProblemTest : FunSpec({
         cost shouldBe 10.0
         println(solution.processes.display())
     }
+
+    context("Multi stage problem") {
+        test("sanity check") {
+            val problem = problem {
+                factory {
+                    machines {
+                        "assembling-machine-1" {}
+                    }
+                    recipes {
+                        ironGearWheel {}
+                    }
+                }
+                input(ironPlate)
+                output(ironGearWheel, 1.perSecond)
+            }
+            val stage = problem.toStage()
+            val multiProblem = MultiStageProductionLp(stages = listOf(stage))
+            val result = multiProblem.solve()
+            result.status shouldBe LpResultStatus.Optimal
+            val stage1Solution = result.solutions!![stage]!!
+            stage1Solution.processes.values.single() shouldBe 1.0
+        }
+
+    }
+
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }

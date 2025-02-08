@@ -13,7 +13,7 @@ interface RecipeLpFormatter {
     fun formatAnyPseudoProcess(process: PseudoProcess): String = when (process) {
         is Input -> formatInput(process.ingredient)
         is Output -> formatOutput(process.ingredient)
-        is LpProcess -> formatProcess(process.process)
+        is RealProcess -> formatProcess(process.process)
         else -> formatOtherProcess(process)
     }
 

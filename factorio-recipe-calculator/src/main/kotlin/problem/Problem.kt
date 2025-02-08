@@ -1,13 +1,18 @@
 package glassbricks.factorio.recipes.problem
 
+import glassbricks.factorio.recipes.Entity
 import glassbricks.factorio.recipes.FactorioPrototypes
 import glassbricks.factorio.recipes.WithFactorioPrototypes
-import glassbricks.recipeanalysis.*
-import glassbricks.recipeanalysis.lp.ConstraintDsl
+import glassbricks.recipeanalysis.Ingredient
+import glassbricks.recipeanalysis.Rate
+import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.lp.SymbolConstraint
 import glassbricks.recipeanalysis.lp.VariableConfig
 import glassbricks.recipeanalysis.lp.VariableConfigBuilder
+import glassbricks.recipeanalysis.lp.leq
 import glassbricks.recipeanalysis.recipelp.*
+import glassbricks.recipeanalysis.uvec
+import kotlin.math.min
 
 object DefaultWeights {
     const val RECIPE_COST = 1.0
@@ -63,6 +68,14 @@ class ProblemBuilder(
         )
     }
 
+    fun optionalOutput(
+        ingredient: Ingredient,
+        rate: Rate = Rate.zero,
+        weight: Double = 0.0,
+    ) {
+        output(ingredient, rate = rate, weight = weight)
+    }
+
     fun maximize(ingredient: Ingredient, weight: Double = DefaultWeights.MAXIMIZE_OUTPUT_COST, rate: Rate = Rate.zero) {
         output(ingredient, rate = rate, weight = weight)
     }
@@ -74,19 +87,69 @@ class ProblemBuilder(
         CostsScope().apply(block)
     }
 
-    inner class CostsScope : ConstraintDsl<Symbol> {
-        override val constraints get() = this@ProblemBuilder.symbolConstraints
+    @RecipesConfigDsl
+    inner class CostsScope : WithFactorioPrototypes by this@ProblemBuilder {
 
         fun getConfig(symbol: Symbol): VariableConfigBuilder {
-            return symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
+            return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
         }
 
         fun limit(symbol: Symbol, value: Number) {
-            uvec(symbol) leq value
+            val config = getConfig(symbol)
+            config.upperBound = min(value.toDouble(), config.upperBound)
+        }
+
+        fun limit(entity: Entity, value: Number) {
+            limit(entity.item(), value)
         }
 
         fun costOf(symbol: Symbol, value: Number) {
             getConfig(symbol).cost = value.toDouble()
+        }
+
+        fun costOf(entity: Entity, value: Number) {
+            costOf(entity.item(), value)
+        }
+
+        fun forbidIfNotSpecified(symbol: Symbol) {
+            if (symbol !in this@ProblemBuilder.symbolConfigs) {
+                limit(symbol, 0.0)
+            }
+        }
+
+        fun forbidUnspecifiedEntities() {
+            for (machine in prototypes.craftingMachines.values) {
+                forbidIfNotSpecified(machine.item())
+            }
+            for (drill in prototypes.miningDrills.values) {
+                forbidIfNotSpecified(drill.item())
+            }
+            for (beacon in prototypes.beacons.values) {
+                limit(beacon.item(), 0.0)
+            }
+        }
+
+        fun forbidUnspecifiedModules() {
+            for (module in prototypes.modules.values) {
+                forbidIfNotSpecified(module)
+            }
+        }
+
+        fun forbidAllUnspecified() {
+            forbidUnspecifiedEntities()
+            forbidUnspecifiedModules()
+        }
+
+        infix fun Ingredient.producedBy(production: ProductionOverTime) {
+            // usage of symbol <= (stage.output of symbol) * time
+            this@ProblemBuilder.symbolConstraints +=
+                uvec(this) leq production.productionOf(this)
+            // get config so forbidAllUnspecified() doesn't remove it
+            getConfig(this)
+        }
+
+        infix fun Entity.producedBy(production: ProductionOverTime) {
+            item() producedBy production
         }
     }
 
@@ -98,12 +161,10 @@ class ProblemBuilder(
     var surplusCost: Double = DefaultWeights.SURPLUS_COST
 
     fun build(): ProductionLp = ProductionLp(
-        processes = concat(
-            inputs,
-            outputs,
-            (factory ?: error("Factory not set")).allProcesses,
-            customProcesses,
-        ),
+        inputs = inputs,
+        outputs = outputs,
+        processes = (factory ?: error("Factory not set")).allProcesses,
+        otherProcesses = customProcesses,
         surplusCost = surplusCost,
         constraints = symbolConstraints,
         symbolConfigs = symbolConfigs.mapValues { it.value.build() },
@@ -115,3 +176,9 @@ inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): Pro
 
 inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
     ProblemBuilder(this).apply(block).build()
+
+inline fun FactoryConfig.stage(
+    name: String? = null,
+    block: ProblemBuilder.() -> Unit,
+): ProductionStage =
+    problem(block).toStage(name)

@@ -31,3 +31,10 @@ internal inline fun <K, K2, V> Map<K, V>.mapKeysNotNull(transform: (Map.Entry<K,
     }
     return result
 }
+
+internal inline fun <T, K, V> Iterable<T>.associateNotNull(pairSelector: (T) -> Pair<K, V>?): Map<K, V> = buildMap {
+    for (item in this@associateNotNull) {
+        val (key, value) = pairSelector(item) ?: continue
+        put(key, value)
+    }
+}

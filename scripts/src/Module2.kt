@@ -10,18 +10,6 @@ import java.io.File
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
-        /*  val beacons = listOf(
-              speedModule,
-              speedModule2
-          ).flatMap { module ->
-              qualities.flatMap { q ->
-                  listOf(
-                      beacon(fill = module.withQuality(q), sharing = 8.0),
-                      beacon(fill = module.withQuality(q), sharing = 6.0) * 2,
-                  )
-              }
-          }*/
-
         val modules = listOf(
             speedModule,
             speedModule2,
@@ -31,9 +19,7 @@ fun main() {
         machines {
             default {
                 includeBuildCosts()
-
                 moduleConfig()
-
 
                 for (q in prototypes.qualities) {
                     for (module in modules) {
@@ -73,7 +59,7 @@ fun main() {
             default {
                 allQualities()
             }
-            allRecipes()
+            allCraftingRecipes()
             calciteMining()
             coalMining {
                 cost = 30.0 // coal is scarce
@@ -84,7 +70,7 @@ fun main() {
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
-        input(sulfuricAcid, cost = 0.0005)
+        input(sulfuricAcid, cost = 0.005)
         output(
             qualityModule2.withQuality(epic),
             rate = 5.perMinute

@@ -31,11 +31,11 @@ data class RecipeSolution(
     override val symbolUsage: Vector<Symbol>,
     override val objectiveValue: Double,
 ) : Usages {
-    override val processes: Vector<Process> = lpProcesses.vectorMapKeysNotNull { (it as? LpProcess)?.process }
+    override val processes: Vector<Process> = lpProcesses.vectorMapKeysNotNull { (it as? RealProcess)?.process }
     override val inputs: Vector<Ingredient> = lpProcesses.vectorMapKeysNotNull { (it as? Input)?.ingredient }
     override val outputs: Vector<Ingredient> = lpProcesses.vectorMapKeysNotNull { (it as? Output)?.ingredient }
     override val otherProcesses: Vector<PseudoProcess> =
-        lpProcesses.vectorFilterKeys { !(it is Input || it is Output || it is LpProcess) }
+        lpProcesses.vectorFilterKeys { !(it is Input || it is Output || it is RealProcess) }
 
     override val throughputs: Map<Ingredient, Throughput> by lazy {
         val consumption = mutableMapOf<Ingredient, Double>()

@@ -34,4 +34,5 @@ fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = vectorWithUni
 fun <T> rateVector(map: Map<T, Double>): RateVector<T> = vectorWithUnits(map)
 
 operator fun Double.div(time: Time): Rate = Rate(this / time.seconds)
+operator fun Int.div(time: Time): Rate = Rate(this / time.seconds)
 operator fun <T> Vector<T>.div(time: Time): RateVector<T> = (this / time.seconds).castUnits()

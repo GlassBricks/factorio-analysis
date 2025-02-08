@@ -25,7 +25,7 @@ fun main() {
             default {
                 allQualities()
             }
-            allRecipes()
+            allCraftingRecipes()
         }
     }
 

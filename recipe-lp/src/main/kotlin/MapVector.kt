@@ -92,7 +92,7 @@ operator fun <T, U> Int.times(vector: MapVector<T, U>): MapVector<T, U> = vector
 fun <U, T> vectorWithUnits(vararg entries: Pair<T, Double>): MapVector<T, U> =
     MapVector(entries.toMap().filterValues { it != 0.0 })
 
-fun <U, T> vectorWithUnits(map: Map<T, Double>): MapVector<T, U> {
+fun <U, T> vectorWithUnits(map: Map<out T, Double>): MapVector<T, U> {
     val filterMap = map.filterValues { it != 0.0 }
     if (filterMap.isEmpty()) return emptyVector()
     return MapVector(filterMap)
@@ -105,7 +105,7 @@ typealias AnyVector<T> = MapVector<T, *>
 
 fun <T> vector(vararg entries: Pair<T, Double>): Vector<T> = vectorWithUnits(entries.toMap())
 fun <T> vector(entries: List<Pair<T, Double>>): Vector<T> = vectorWithUnits(entries.toMap())
-fun <T> vector(map: Map<T, Double>): Vector<T> = vectorWithUnits(map)
+fun <T> vector(map: Map<out T, Double>): Vector<T> = vectorWithUnits(map)
 
 fun <T> uvec(key: T): Vector<T> = vectorWithUnits(key to 1.0)
 

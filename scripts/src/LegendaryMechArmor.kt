@@ -62,7 +62,7 @@ fun main() {
             default {
                 allQualities()
             }
-            allRecipes()
+            allCraftingRecipes()
             calciteMining()
             coalMining()
             var noQuality: (MachineConfig) -> Boolean = {

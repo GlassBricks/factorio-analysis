@@ -103,7 +103,7 @@ fun RecipeSolution.toFancyDotGraph(
         nodeAttributes = { node ->
             val label = when (node) {
                 is ProcessNode -> formatter.formatAnyPseudoProcess(node.process) + "\n" +
-                        formatter.formatAnyPseudoProcess(node.process)
+                        formatter.formatMachineUsage(lpProcesses[node.process])
 
                 is ThroughputNode -> formatter.formatSymbol(node.ingredient) + "\n" +
                         formatter.formatThroughput(throughputs[node.ingredient]!!)
@@ -202,7 +202,7 @@ fun ThroughputDotGraphExport.clusterRecipesByQuality() {
     val recipesByPrototype = nodeMap.keys
         // todo: do something about this nesting
         .mapNotNull {
-            ((it as? ProcessNode)?.process as? LpProcess)?.let { process ->
+            ((it as? ProcessNode)?.process as? RealProcess)?.let { process ->
                 ((process.process as? MachineSetup<*>)?.recipe as? Recipe)?.let { recipe ->
                     process to recipe
                 }
@@ -225,13 +225,13 @@ fun ThroughputDotGraphExport.clusterRecipesByQuality() {
             )
         },
         nodeAttributes = { _, node ->
-            val lpProcess = (reverseNodeMap[node.id]!! as ProcessNode).process as LpProcess
-            val process = lpProcess.process as MachineSetup<*>
+            val realProcess = (reverseNodeMap[node.id]!! as ProcessNode).process as RealProcess
+            val process = realProcess.process as MachineSetup<*>
             mutableMapOf(
                 "label" to (
                         formatter.formatQualityName(process.recipe.inputQuality.prototype) + "\\n" +
                                 formatter.formatMachine(process.machine) + "\\n" +
-                                formatter.formatMachineUsage(solution.lpProcesses[lpProcess])),
+                                formatter.formatMachineUsage(solution.lpProcesses[realProcess])),
             )
         }
     )
@@ -261,7 +261,7 @@ private fun <K, V : Any> MutableMap<K, V>.swapKeys(key1: K, key2: K) {
  */
 fun ThroughputDotGraphExport.flipEdgesForMachineIf(predicate: (MachineSetup<*>) -> Boolean) {
     val processes = nodeMap.filter { (node) ->
-        node is ProcessNode && ((node.process as? LpProcess)?.process as? MachineSetup<*>)?.let { predicate(it) } == true
+        node is ProcessNode && ((node.process as? RealProcess)?.process as? MachineSetup<*>)?.let { predicate(it) } == true
     }
     val processIds = processes.values.map { it.id }.toSet()
     for (edge in dotGraph.edges) {

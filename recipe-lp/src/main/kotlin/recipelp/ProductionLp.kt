@@ -4,11 +4,22 @@ import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
 
 data class ProductionLp(
-    val processes: List<PseudoProcess>,
+    val inputs: List<Input>,
+    val outputs: List<Output>,
+    val processes: List<RealProcess>,
+    val otherProcesses: List<PseudoProcess> = emptyList(),
     val constraints: List<SymbolConstraint> = emptyList(),
     val symbolConfigs: Map<Symbol, VariableConfig> = emptyMap(),
     val surplusCost: Double = 0.0,
 ) {
+
+    val allProcesses by lazy {
+        concat(inputs, outputs, processes, otherProcesses)
+    }
+
+    val inputsByIngredient by lazy { inputs.groupBy { it.ingredient } }
+    val outputsByIngredient by lazy { outputs.groupBy { it.ingredient } }
+    val processMap by lazy { processes.groupBy { it.process } }
 
     fun solve(solver: LpSolver = DefaultLpSolver(), options: LpOptions = LpOptions()): RecipeResult {
         val problem = createVarsAndConstraints()
@@ -20,6 +31,36 @@ data class ProductionLp(
             lpResult = result,
             solution = solution,
         )
+    }
+
+    override fun toString(): String = buildString {
+        append("ProductionLp(")
+        if (inputs.isNotEmpty()) {
+            append(inputs.size)
+            append(" inputs, ")
+        }
+        if (outputs.isNotEmpty()) {
+            append(outputs.size)
+            append(" outputs, ")
+        }
+        if (processes.isNotEmpty()) {
+            append(processes.size)
+            append(" processes, ")
+        }
+        if (otherProcesses.isNotEmpty()) {
+            append(otherProcesses.size)
+            append(" other processes, ")
+        }
+        if (constraints.isNotEmpty()) {
+            append(constraints.size)
+            append(" constraints, ")
+        }
+        if (symbolConfigs.isNotEmpty()) {
+            append(symbolConfigs.size)
+            append(" symbol configs, ")
+        }
+        append("surplusCost=", surplusCost)
+        append(")")
     }
 }
 
@@ -61,13 +102,13 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
         if (existing != null) return existing
         if (symbol is ReferenceSymbol) {
             val stageVars = existingVars[symbol.stage]
-                ?: error("A referenced stage ${symbol.stage} not found. Make sure all stages are passed in together.")
+                ?: error("A referenced stage ${symbol.stage} not found. Make sure all stages are specified in the problem.")
             return symbol.resolveVariable(stageVars).also { symbolVariables[symbol] = it }
         }
         return null
     }
 
-    val processVariables = processes.associateWith { process ->
+    val processVariables = allProcesses.associateWith { process ->
         process.variableConfig.createVariable("Process $process").also { variable ->
             val symbol = process.symbol
             if (symbol != null) {

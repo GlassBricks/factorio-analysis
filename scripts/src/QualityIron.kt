@@ -47,7 +47,7 @@ fun main() {
             default {
                 allQualities()
             }
-            allRecipes()
+            allCraftingRecipes()
             calciteMining()
             coalMining()
         }

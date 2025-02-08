@@ -1,12 +1,18 @@
 package glassbricks.recipeanalysis.recipelp
 
-import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.flattenMaps
+import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
-class ProductionStage(val productionLp: ProductionLp)
+class ProductionStage(
+    val productionLp: ProductionLp,
+    val name: String? = null,
+) {
+    override fun toString(): String = name ?: productionLp.toString()
+}
 
-fun ProductionLp.toStage(): ProductionStage = ProductionStage(this)
+fun ProductionLp.toStage(name: String? = null): ProductionStage = ProductionStage(this, name)
 
 /**
  * A symbol, that when converted to a variable in RecipeLp, will actually be a reference to a variable in another stage.
@@ -28,6 +34,10 @@ data class ProcessReference(
 ) : ReferenceSymbol {
     override fun resolveVariable(stageVars: ProductionLpVars): Variable =
         stageVars.processVariables[process] ?: error("No variable for $process in $stage")
+
+    override fun toString(): String {
+        return "($stage):$process"
+    }
 }
 
 fun ProductionStage.ref(process: PseudoProcess): ProcessReference = ProcessReference(this, process)
@@ -82,3 +92,21 @@ data class MultiStageRecipeResult(
     val lpSolution: LpSolution? get() = lpResult.solution
     val status: LpResultStatus get() = lpResult.status
 }
+
+/** A DSL construct */
+class ProductionOverTime(val factories: MapVector<ProductionStage, Time>) {
+    fun productionOf(ingredient: Ingredient): Vector<ReferenceSymbol> {
+        val amounts = factories.entries.associateNotNull { (stage, time) ->
+            val outputs = stage.productionLp.outputsByIngredient[ingredient] ?: return@associateNotNull null
+            val output = outputs.singleOrNull() ?: error("Multiple outputs for $ingredient in $stage")
+            stage.ref(output) to time
+        }
+        return vector(amounts)
+    }
+
+    operator fun plus(otherProduction: ProductionOverTime): ProductionOverTime =
+        ProductionOverTime(factories + otherProduction.factories)
+}
+
+fun ProductionStage.runningFor(time: Duration): ProductionOverTime =
+    ProductionOverTime(vectorWithUnits<Time, ProductionStage>(this to time.toDouble(DurationUnit.SECONDS)))

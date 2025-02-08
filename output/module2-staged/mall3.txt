@@ -1,0 +1,294 @@
+Inputs:
+lava          | 6229.82734/s
+sulfuric-acid | 2044.56743/s
+
+Outputs:
+qual2(epic) | 0.13333/s
+
+Recipes:
+acid-neutralisation --> chemical-plant                                                    | 8.35341
+advanced-circuit --> assembling-machine-2[qual x2]                                        | 129.74911
+advanced-circuit(epic) --> electromagnetic-plant[prod(legendary) x5, b[speed2 x2]]        | 1.19882
+advanced-circuit(rare) --> electromagnetic-plant[prod(rare) x5, b[speed2 x2]]             | 1.12320
+advanced-circuit(uncommon) --> assembling-machine-3[qual2 x4]                             | 9.36697
+calcite --> big-mining-drill[speed x4, b[speed2 x2]]                                      | 1.74449
+carbon --> chemical-plant[qual x3]                                                        | 21.87351
+casting-copper-cable --> foundry[speed2 x4, b[speed2 x2]]                                 | 5.17362
+casting-iron --> foundry[speed2 x4, b[speed2 x2]]                                         | 21.70932
+casting-iron-gear-wheel --> foundry[speed2 x4, b[speed2 x2]]                              | 10.11485
+casting-low-density-structure(rare) --> foundry[qual2(uncommon) x4]                       | 4.92378
+casting-low-density-structure(uncommon) --> foundry[qual2 x4]                             | 2.78078
+casting-pipe --> foundry[speed2 x4, b[speed2 x2]]                                         | 5.44798
+casting-pipe-to-ground(epic) --> foundry[speed2 x4, b[speed2 x2]]                         | 0.01723
+casting-pipe-to-ground(rare) --> foundry[qual2(epic) x4]                                  | 0.19988
+casting-pipe-to-ground(uncommon) --> foundry[qual2(rare) x4]                              | 0.96426
+coal --> big-mining-drill[qual2 x4]                                                       | 85.16437
+coal-liquefaction --> oil-refinery[speed x3]                                              | 43.53390
+coal-liquefaction(legendary) --> oil-refinery[speed x3]                                   | 0.00519
+coal-synthesis --> chemical-plant[qual x3]                                                | 8.48692
+coal-synthesis(epic) --> chemical-plant[prod2(legendary) x3, b[speed2 x2]]                | 0.00125
+coal-synthesis(rare) --> chemical-plant[qual2(rare) x3]                                   | 0.02362
+coal-synthesis(uncommon) --> chemical-plant[qual2 x3]                                     | 0.23623
+copper-cable(epic) --> electromagnetic-plant[prod(legendary) x5, b[speed2 x2]]            | 0.17648
+copper-cable(epic) --> electromagnetic-plant[prod2(epic) x5, b[speed2 x2]]                | 0.08119
+copper-cable(rare) --> assembling-machine-3[qual2 x4]                                     | 0.16158
+copper-cable(rare) --> electromagnetic-plant[prod(rare) x5, b[speed2 x2]]                 | 0.45158
+copper-cable(rare) --> electromagnetic-plant[qual2(uncommon) x5]                          | 1.04366
+copper-cable(uncommon) --> assembling-machine-3[prod2 x4, b[speed2 x2]]                   | 1.09155
+electronic-circuit --> assembling-machine-2[qual x2]                                      | 33.10405
+electronic-circuit(epic) --> electromagnetic-plant[prod2(legendary) x5, b[speed2 x2]]     | 0.29995
+electronic-circuit(rare) --> electromagnetic-plant[qual2(rare) x5]                        | 1.89548
+electronic-circuit(uncommon) --> electromagnetic-plant[prod(rare) x5, b[speed2 x2]]       | 0.18491
+express-splitter --> foundry[qual2(rare) x4]                                              | 1.25067
+express-splitter(uncommon) --> foundry[qual2(epic) x4]                                    | 0.25512
+express-splitter-recycling --> recycler[qual2(rare) x4]                                   | 0.81794
+express-splitter-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]          | 0.00086
+express-splitter-recycling(rare) --> recycler[qual2(legendary) x4]                        | 0.03698
+express-splitter-recycling(uncommon) --> recycler[qual2(epic) x4]                         | 0.27032
+fast-splitter --> foundry[qual2(uncommon) x4]                                             | 0.66522
+fast-splitter-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]             | 0.00097
+fast-splitter-recycling(rare) --> recycler[qual2(epic) x4]                                | 0.02367
+heavy-oil-cracking --> chemical-plant                                                     | 35.64355
+iron-gear-wheel-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]           | 0.00814
+iron-gear-wheel-recycling(rare) --> recycler[qual2(rare) x4]                              | 0.19673
+iron-gear-wheel-recycling(uncommon) --> recycler[qual2(uncommon) x4]                      | 0.58508
+light-oil-cracking --> chemical-plant                                                     | 21.44862
+light-oil-cracking --> chemical-plant[speed x3]                                           | 17.19298
+light-oil-cracking --> chemical-plant[prod x3]                                            | 6.19157
+low-density-structure-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]     | 0.08339
+low-density-structure-recycling(rare) --> recycler[qual2(rare) x4]                        | 3.45895
+low-density-structure-recycling(uncommon) --> recycler[speed2(uncommon) x4, b[speed2 x2]] | 0.44364
+lubricant --> chemical-plant                                                              | 19.27423
+molten-copper-from-lava --> foundry[speed2 x4, b[speed2 x2]]                              | 2.51759
+molten-iron-from-lava --> foundry[speed2 x4, b[speed2 x2]]                                | 13.55938
+pipe(uncommon) --> assembling-machine-3[qual2 x4]                                         | 8.94063
+pipe-to-ground-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]            | 0.01824
+pipe-to-ground-recycling(rare) --> recycler[qual2(epic) x4]                               | 0.21043
+pipe-to-ground-recycling(uncommon) --> recycler[qual2(rare) x4]                           | 0.63062
+plastic-bar --> chemical-plant[qual x3]                                                   | 17.70379
+plastic-bar(epic) --> chemical-plant[prod2(legendary) x3, b[speed2 x2]]                   | 0.09438
+plastic-bar(rare) --> chemical-plant[qual2(rare) x3]                                      | 1.75985
+plastic-bar(uncommon) --> chemical-plant[qual2(uncommon) x3]                              | 17.53902
+processing-unit(epic) --> electromagnetic-plant[prod2(epic) x5, b[speed2 x2]]             | 0.52864
+processing-unit(rare) --> electromagnetic-plant[qual2(uncommon) x5]                       | 1.53467
+processing-unit(rare) --> electromagnetic-plant[qual2(rare) x5]                           | 0.19243
+quality-module(epic) --> electromagnetic-plant[speed2(uncommon) x5, b[speed2 x2]]         | 0.31666
+quality-module(rare) --> electromagnetic-plant[qual2(uncommon) x5]                        | 2.06456
+quality-module-2(epic) --> electromagnetic-plant[speed2(uncommon) x5, b[speed2 x2]]       | 0.28528
+quality-module-2(rare) --> electromagnetic-plant[qual2(epic) x5]                          | 1.83250
+quality-module-2-recycling(rare) --> recycler[qual2(rare) x4]                             | 0.52183
+splitter --> foundry[qual2(uncommon) x4]                                                  | 0.24748
+splitter-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]                  | 0.00026
+splitter-recycling(rare) --> recycler[qual2(legendary) x4]                                | 0.00425
+splitter-recycling(uncommon) --> recycler[qual2(rare) x4]                                 | 0.01737
+steam-condensation --> chemical-plant[speed x3]                                           | 10.00637
+steam-engine --> assembling-machine-3[qual2(uncommon) x4]                                 | 12.59301
+steam-engine-recycling --> recycler[qual2(rare) x4]                                       | 1.76302
+steam-engine-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]              | 0.00043
+steam-engine-recycling(rare) --> recycler[qual2(legendary) x4]                            | 0.01842
+steam-engine-recycling(uncommon) --> recycler[qual2(legendary) x4]                        | 0.18417
+substation(uncommon) --> electromagnetic-plant[qual2(epic) x5]                            | 0.01802
+substation-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]                | 0.00003
+substation-recycling(rare) --> recycler[qual2(legendary) x4]                              | 0.00108
+substation-recycling(uncommon) --> recycler[qual2(legendary) x4]                          | 0.00513
+sulfur --> chemical-plant[qual x3]                                                        | 2.18735
+transport-belt --> foundry[speed2 x4, b[speed2 x2]]                                       | 0.04258
+transport-belt-recycling(epic) --> recycler[speed2(uncommon) x4, b[speed2 x2]]            | 0.00024
+transport-belt-recycling(rare) --> recycler[qual2(uncommon) x4]                           | 0.00270
+transport-belt-recycling(uncommon) --> recycler[speed2(uncommon) x4, b[speed2 x2]]        | 0.00175
+
+
+Throughputs:
+advanced-circuit                 | 20.01080/s
+advanced-circuit(epic)           | 1.47490/s
+advanced-circuit(legendary)      | 0.01387/s (0.01387/s)
+advanced-circuit(rare)           | 2.00854/s
+advanced-circuit(uncommon)       | 4.35236/s
+calcite                          | 14.13034/s
+carbon                           | 18.03471/s
+carbon(epic)                     | 0.00502/s
+carbon(legendary)                | 0.00056/s (0.00056/s)
+carbon(rare)                     | 0.05020/s
+carbon(uncommon)                 | 0.50200/s
+coal                             | 191.54168/s
+coal(epic)                       | 0.15100/s
+coal(legendary)                  | 0.01662/s
+coal(rare)                       | 1.49588/s
+coal(uncommon)                   | 14.90817/s
+copper-cable                     | 192.45850/s
+copper-cable(epic)               | 7.67654/s
+copper-cable(legendary)          | 0.12789/s (0.12789/s)
+copper-cable(rare)               | 19.53037/s
+copper-cable(uncommon)           | 10.23025/s
+copper-plate(epic)               | 1.61949/s
+copper-plate(legendary)          | 0.09445/s (0.09445/s)
+copper-plate(rare)               | 6.43456/s
+copper-plate(uncommon)           | 4.09331/s
+electronic-circuit               | 43.79666/s
+electronic-circuit(epic)         | 5.09185/s
+electronic-circuit(legendary)    | 0.14110/s (0.14110/s)
+electronic-circuit(rare)         | 7.44911/s
+electronic-circuit(uncommon)     | 3.12232/s
+express-splitter                 | 2.61741/s
+express-splitter(epic)           | 0.01183/s
+express-splitter(legendary)      | 0.00131/s (0.00131/s)
+express-splitter(rare)           | 0.11834/s
+express-splitter(uncommon)       | 0.86502/s
+fast-splitter                    | 2.00108/s
+fast-splitter(epic)              | 0.01349/s
+fast-splitter(legendary)         | 0.00117/s (0.00117/s)
+fast-splitter(rare)              | 0.07573/s
+fast-splitter(uncommon)          | 0.40820/s
+heavy-oil                        | 905.61324/s
+iron-gear-wheel                  | 233.19835/s
+iron-gear-wheel(epic)            | 0.45052/s
+iron-gear-wheel(legendary)       | 0.03760/s (0.03760/s)
+iron-gear-wheel(rare)            | 2.51811/s
+iron-gear-wheel(uncommon)        | 11.57099/s
+iron-plate                       | 301.56621/s
+iron-plate(epic)                 | 1.67971/s
+iron-plate(legendary)            | 0.08375/s (0.08375/s)
+iron-plate(rare)                 | 5.68645/s
+iron-plate(uncommon)             | 19.10164/s
+lava                             | 6229.82734/s
+light-oil                        | 813.30340/s
+low-density-structure(epic)      | 0.15388/s
+low-density-structure(legendary) | 0.01710/s (0.01710/s)
+low-density-structure(rare)      | 1.47582/s
+low-density-structure(uncommon)  | 0.81866/s
+lubricant                        | 192.74234/s
+molten-copper                    | 731.67440/s
+molten-iron                      | 3940.69611/s
+petroleum-gas                    | 687.84279/s
+pipe                             | 125.93011/s
+pipe(epic)                       | 2.13608/s
+pipe(legendary)                  | 0.09380/s (0.09380/s)
+pipe(rare)                       | 6.39611/s
+pipe(uncommon)                   | 30.85624/s
+pipe-to-ground(epic)             | 1.00996/s
+pipe-to-ground(legendary)        | 0.04102/s (0.04102/s)
+pipe-to-ground(rare)             | 2.69356/s
+pipe-to-ground(uncommon)         | 8.07199/s
+plastic-bar                      | 29.19355/s
+plastic-bar(epic)                | 1.31871/s
+plastic-bar(legendary)           | 0.07649/s (0.07649/s)
+plastic-bar(rare)                | 6.48755/s
+plastic-bar(uncommon)            | 29.32659/s (23.23810/s)
+processing-unit(epic)            | 0.36611/s
+processing-unit(legendary)       | 0.00696/s (0.00696/s)
+processing-unit(rare)            | 0.45813/s
+qual(epic)                       | 0.29288/s
+qual(legendary)                  | 0.00545/s (0.00545/s)
+qual(rare)                       | 0.36650/s
+qual2(epic)                      | 0.13333/s
+qual2(legendary)                 | 0.00261/s (0.00261/s)
+qual2(rare)                      | 0.11132/s
+splitter                         | 1.06435/s
+splitter(epic)                   | 0.00707/s
+splitter(legendary)              | 0.00041/s (0.00041/s)
+splitter(rare)                   | 0.02717/s
+splitter(uncommon)               | 0.11119/s
+steam                            | 16706.82408/s
+steam-engine                     | 22.56668/s
+steam-engine(epic)               | 0.02357/s
+steam-engine(legendary)          | 0.00262/s (0.00262/s)
+steam-engine(rare)               | 0.23574/s
+steam-engine(uncommon)           | 2.35741/s
+steel-plate(epic)                | 0.17461/s (0.17461/s)
+steel-plate(legendary)           | 0.01047/s (0.01047/s)
+steel-plate(rare)                | 0.70076/s (0.70076/s)
+steel-plate(uncommon)            | 0.54073/s
+stone                            | 201.52831/s (201.52831/s)
+substation(epic)                 | 0.00139/s
+substation(legendary)            | 0.00015/s (0.00015/s)
+substation(rare)                 | 0.01387/s
+substation(uncommon)             | 0.06570/s
+sulfur                           | 3.60694/s
+sulfur(epic)                     | 0.00100/s
+sulfur(legendary)                | 0.00011/s (0.00011/s)
+sulfur(rare)                     | 0.01004/s
+sulfur(uncommon)                 | 0.10040/s
+sulfuric-acid                    | 2044.56743/s
+transport-belt                   | 3.16770/s
+transport-belt(epic)             | 0.01325/s
+transport-belt(legendary)        | 0.00069/s (0.00069/s)
+transport-belt(rare)             | 0.03455/s
+transport-belt(uncommon)         | 0.09695/s
+water                            | 1440.91787/s
+
+Surpluses:
+advanced-circuit(legendary)      | 0.01387/s
+carbon(legendary)                | 0.00056/s
+copper-cable(legendary)          | 0.12789/s
+copper-plate(legendary)          | 0.09445/s
+electronic-circuit(legendary)    | 0.14110/s
+express-splitter(legendary)      | 0.00131/s
+fast-splitter(legendary)         | 0.00117/s
+iron-gear-wheel(legendary)       | 0.03760/s
+iron-plate(legendary)            | 0.08375/s
+low-density-structure(legendary) | 0.01710/s
+pipe(legendary)                  | 0.09380/s
+pipe-to-ground(legendary)        | 0.04102/s
+plastic-bar(legendary)           | 0.07649/s
+plastic-bar(uncommon)            | 23.23810/s
+processing-unit(legendary)       | 0.00696/s
+qual(legendary)                  | 0.00545/s
+qual2(legendary)                 | 0.00261/s
+splitter(legendary)              | 0.00041/s
+steam-engine(legendary)          | 0.00262/s
+steel-plate(epic)                | 0.17461/s
+steel-plate(legendary)           | 0.01047/s
+steel-plate(rare)                | 0.70076/s
+stone                            | 201.52831/s
+substation(legendary)            | 0.00015/s
+sulfur(legendary)                | 0.00011/s
+transport-belt(legendary)        | 0.00069/s
+
+Symbols used:
+(mall1):Output(assembling-machine-2)             | 0.09047
+(mall1):Output(assembling-machine-3)             | 0.01786
+(mall1):Output(beacon)                           | 0.00618
+(mall1):Output(big-mining-drill)                 | 0.04828
+(mall1):Output(chemical-plant)                   | 0.10445
+(mall1):Output(electric-furnace)                 | 0.00075
+(mall1):Output(foundry)                          | 0.03882
+(mall1):Output(oil-refinery)                     | 0.02419
+(mall1):Output(productivity-module)              | 0.01032
+(mall1):Output(quality-module)                   | 0.27706
+(mall1):Output(speed-module)                     | 0.12177
+(mall2):Output(productivity-module(legendary))   | 0.00382
+(mall2):Output(productivity-module(rare))        | 0.00489
+(mall2):Output(productivity-module-2(epic))      | 0.00169
+(mall2):Output(productivity-module-2(legendary)) | 0.00099
+(mall2):Output(productivity-module-2)            | 0.00243
+(mall2):Output(quality-module-2(epic))           | 0.00727
+(mall2):Output(quality-module-2(legendary))      | 0.00056
+(mall2):Output(quality-module-2(rare))           | 0.03015
+(mall2):Output(quality-module-2(uncommon))       | 0.08439
+(mall2):Output(quality-module-2)                 | 0.23687
+(mall2):Output(speed-module-2(uncommon))         | 0.00291
+(mall2):Output(speed-module-2)                   | 0.14254
+assembling-machine-2                             | 162.85316
+assembling-machine-3                             | 32.15374
+beacon                                           | 11.11981
+big-mining-drill                                 | 86.90886
+chemical-plant                                   | 188.01667
+electromagnetic-plant                            | 13.22804
+foundry                                          | 69.86974
+oil-refinery                                     | 43.53910
+prod                                             | 18.57472
+prod(legendary)                                  | 6.87654
+prod(rare)                                       | 8.79842
+prod2                                            | 4.36620
+prod2(epic)                                      | 3.04917
+prod2(legendary)                                 | 1.78664
+qual                                             | 476.46102
+qual2                                            | 426.36603
+qual2(epic)                                      | 13.09031
+qual2(legendary)                                 | 1.00014
+qual2(rare)                                      | 54.27560
+qual2(uncommon)                                  | 151.90055
+recycler                                         | 9.30663
+speed                                            | 219.19330
+speed2                                           | 256.56978
+speed2(uncommon)                                 | 5.24143

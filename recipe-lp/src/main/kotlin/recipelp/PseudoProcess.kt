@@ -8,7 +8,7 @@ import glassbricks.recipeanalysis.lp.VariableConfigBuilder
  * Can be:
  * - [Input], in absolute amounts (given) or with cost per unit (minimize)
  * - [Output], in absolute amounts (required) or with weight per unit (maximize)
- * - An actual [LpProcess] that turns inputs into outputs, possibly with constraints
+ * - An actual [RealProcess] that turns inputs into outputs, possibly with constraints
  */
 interface PseudoProcess {
     val ingredientRate: IngredientRate
@@ -32,7 +32,7 @@ private fun StringBuilder.commonToString(process: PseudoProcess) {
     if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
-class LpProcess(
+class RealProcess(
     val process: Process,
     override val variableConfig: VariableConfig = VariableConfig(),
     override val additionalCosts: Vector<Symbol> = emptyVector(),
@@ -44,7 +44,7 @@ class LpProcess(
     override fun toString(): String = buildString {
         append("LpProcess(")
         append(process)
-        commonToString(this@LpProcess)
+        commonToString(this@RealProcess)
         append(")")
     }
 }

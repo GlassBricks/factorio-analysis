@@ -22,8 +22,8 @@ class MultiStageProductionLpTest : StringSpec({
         val bIn2 = Input(b, variableConfig = VariableConfig())
         val cOut = Output(c, variableConfig = VariableConfig(lowerBound = 1.0))
 
-        val stage1 = ProductionLp(processes = listOf(aIn, processA, bOut1)).toStage()
-        val stage2 = ProductionLp(processes = listOf(bIn2, processB, cOut)).toStage()
+        val stage1 = ProductionLp(inputs = listOf(aIn), outputs = listOf(bOut1), processes = listOf(processA)).toStage()
+        val stage2 = ProductionLp(inputs = listOf(bIn2), outputs = listOf(cOut), processes = listOf(processB)).toStage()
         val bConstraint = uvec(stage1.ref(bOut1)) eq uvec(stage2.ref(bIn2))
 
         val problem = MultiStageProductionLp(

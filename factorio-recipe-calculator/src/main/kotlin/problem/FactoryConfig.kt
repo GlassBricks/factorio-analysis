@@ -11,14 +11,14 @@ import glassbricks.recipeanalysis.lp.VariableConfig
 import glassbricks.recipeanalysis.lp.VariableConfigBuilder
 import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.plus
-import glassbricks.recipeanalysis.recipelp.LpProcess
+import glassbricks.recipeanalysis.recipelp.RealProcess
 
 @DslMarker
 annotation class RecipesConfigDsl
 
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
-    val allProcesses: List<LpProcess>,
+    val allProcesses: List<RealProcess>,
 ) : WithFactorioPrototypes
 
 data class MachineConfig(
@@ -130,7 +130,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
 
     private var withQualitiesList: List<RecipeOrResource<*>>? = null
     internal fun addCraftingSetups(
-        list: MutableList<in LpProcess>,
+        list: MutableList<in RealProcess>,
         machine: MachineConfig,
         config: ResearchConfig,
     ) {
@@ -141,7 +141,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
             val additionalCosts: Vector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
-            val lpProcess = LpProcess(
+            val realProcess = RealProcess(
                 process = machineSetup,
                 additionalCosts = additionalCosts,
                 costVariableConfig = machine.outputVariableConfig,
@@ -149,7 +149,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
                     cost = machine.variableConfig.cost + cost,
                 ),
             )
-            list.add(lpProcess)
+            list.add(realProcess)
         }
     }
 
@@ -204,7 +204,7 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
             recipe(this)(block)
         }
 
-        fun allRecipes(config: RecipeConfigFn? = null) {
+        fun allCraftingRecipes(config: RecipeConfigFn? = null) {
             for (recipe in prototypes.recipes.values) {
                 recipe(config)
             }
@@ -260,7 +260,7 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
         }
     }
 
-    private fun getAllProcesses(): List<LpProcess> {
+    private fun getAllProcesses(): List<RealProcess> {
         val machines = getAllMachines()
         val configs = getAllRecipeConfigs()
         val (recipes, mining) = configs.partition { it.process is Recipe }
