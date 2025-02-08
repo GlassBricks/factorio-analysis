@@ -8,13 +8,13 @@ import io.kotest.matchers.shouldBe
 class OrToolsLpTest : FreeSpec({
     "basic lp test" {
         val (xv, yv) = "xy".map { Variable(it.toString()) }
-        val x = basisVec(xv)
-        val y = basisVec(yv)
-        val constraints = constraints {
-            x + 2 * y leq 14.0
-            3 * x - y geq 0.0
-            x - y leq 2.0
-        }
+        val x = uvec(xv)
+        val y = uvec(yv)
+        val constraints = listOf(
+            x + 2 * y leq 14.0,
+            3 * x - y geq 0.0,
+            x - y leq 2.0,
+        )
         val objective = Objective(x + y, maximize = true)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solve(problem)
@@ -27,8 +27,8 @@ class OrToolsLpTest : FreeSpec({
     }
     "can have negative objective" {
         val x = Variable("x")
-        val xv = basisVec(x)
-        val constraints = constraints { xv geq -1.0 }
+        val xv = uvec(x)
+        val constraints = listOf(xv geq -1.0)
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solve(problem)
@@ -37,8 +37,8 @@ class OrToolsLpTest : FreeSpec({
     }
     "unbounded solution" {
         val x = Variable("x")
-        val xv = basisVec(x)
-        val constraints = constraints { xv geq 0.0 }
+        val xv = uvec(x)
+        val constraints = listOf(xv geq 0.0)
         val objective = Objective(xv, maximize = true)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp("CLP").solve(problem)
@@ -47,8 +47,8 @@ class OrToolsLpTest : FreeSpec({
     "integral" {
         // x >= 0.5; minimize x
         val x = Variable("x", type = VariableType.Integer)
-        val xv = basisVec(x)
-        val constraints = constraints { xv geq 0.5 }
+        val xv = uvec(x)
+        val constraints = listOf(xv geq 0.5)
         val objective = Objective(xv, maximize = false)
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solve(problem)
@@ -58,7 +58,7 @@ class OrToolsLpTest : FreeSpec({
     "semi-continuous" - {
         "zero" {
             val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.2)
-            val xv = basisVec(x)
+            val xv = uvec(x)
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(emptyList(), objective)
             val result = OrToolsLp().solve(problem)
@@ -68,7 +68,7 @@ class OrToolsLpTest : FreeSpec({
 
         "at upper bound" {
             val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.2, upperBound = 0.5)
-            val xv = basisVec(x)
+            val xv = uvec(x)
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(emptyList(), objective)
             val result = OrToolsLp().solve(problem)
@@ -78,8 +78,8 @@ class OrToolsLpTest : FreeSpec({
 
         "at lower bound" {
             val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.2, upperBound = 0.5)
-            val xv = basisVec(x)
-            val constraints = constraints { xv geq 0.01 }
+            val xv = uvec(x)
+            val constraints = listOf(xv geq 0.01)
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(constraints, objective)
             val result = OrToolsLp().solve(problem)
@@ -90,8 +90,8 @@ class OrToolsLpTest : FreeSpec({
         // case 3: add constraint x > 0.01; x = 0.1
         "at lower bound, no upper bound" {
             val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.2)
-            val xv = basisVec(x)
-            val constraints = constraints { xv geq 0.01 }
+            val xv = uvec(x)
+            val constraints = listOf(xv geq 0.01)
             val objective = Objective(xv, maximize = false)
             val problem = LpProblem(constraints, objective)
             val result = OrToolsLp().solve(problem)
@@ -106,8 +106,8 @@ class OrToolsLpTest : FreeSpec({
                 upperBound = -0.2,
                 lowerBound = Double.NEGATIVE_INFINITY
             )
-            val xv = basisVec(x)
-            val constraints = constraints { xv leq -0.01 }
+            val xv = uvec(x)
+            val constraints = listOf(xv leq -0.01)
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(constraints, objective)
             val result = OrToolsLp().solve(problem)
@@ -117,7 +117,7 @@ class OrToolsLpTest : FreeSpec({
 
         "upper bound < lower bound, but zero valid" {
             val x = Variable("x", type = VariableType.SemiContinuous, lowerBound = 0.5, upperBound = 0.2)
-            val xv = basisVec(x)
+            val xv = uvec(x)
             val objective = Objective(xv, maximize = true)
             val problem = LpProblem(constraints = emptyList(), objective)
             val result = OrToolsLp().solve(problem)

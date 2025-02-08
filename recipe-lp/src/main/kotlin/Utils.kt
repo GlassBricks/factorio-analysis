@@ -5,6 +5,10 @@ fun <T> concat(vararg items: Collection<T>): List<T> =
         for (item in items) addAll(item)
     }
 
+fun <K, V> Iterable<Map<K, V>>.flattenMaps(): Map<K, V> = buildMap {
+    for (map in this@flattenMaps) putAll(map)
+}
+
 internal inline fun <K, T, R> Map<K, T>.mapValuesNotNull(transform: (Map.Entry<K, T>) -> R?): Map<K, R> {
     val result = LinkedHashMap<K, R>()
     for (entry in entries) {

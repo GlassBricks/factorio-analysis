@@ -32,7 +32,7 @@ private fun StringBuilder.commonToString(process: PseudoProcess) {
     if (process.symbol != null) append(", symbol=").append(process.symbol)
 }
 
-data class LpProcess(
+class LpProcess(
     val process: Process,
     override val variableConfig: VariableConfig = VariableConfig(),
     override val additionalCosts: Vector<Symbol> = emptyVector(),
@@ -49,7 +49,7 @@ data class LpProcess(
     }
 }
 
-data class Input(
+class Input(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
@@ -65,7 +65,7 @@ data class Input(
     }
 }
 
-data class Output(
+class Output(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
@@ -86,7 +86,7 @@ data class Output(
     }
 }
 
-data class CustomProcess(
+class CustomProcess(
     val name: String,
     override val ingredientRate: IngredientRate,
     override val variableConfig: VariableConfig,

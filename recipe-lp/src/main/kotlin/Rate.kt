@@ -4,7 +4,9 @@ import kotlin.time.Duration
 
 // kinda like Duration except we use a Float
 @JvmInline
-value class Time(val seconds: Double)
+value class Time(val seconds: Double) {
+    override fun toString(): String = "${seconds}s"
+}
 
 operator fun Time.div(value: Double): Time = Time(seconds / value)
 

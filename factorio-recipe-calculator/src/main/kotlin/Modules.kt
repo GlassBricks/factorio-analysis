@@ -201,7 +201,7 @@ data class BeaconSetup(
     override fun toString(): String = "$beacon[$modules]"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
         val moduleCost = modules.getBuildCost(prototypes)
-        val baseCost = prototypes.itemOfOrNull(beacon)?.let { moduleCost + basisVec(it) } ?: moduleCost
+        val baseCost = prototypes.itemOfOrNull(beacon)?.let { moduleCost + uvec(it) } ?: moduleCost
         return baseCost / sharing
     }
 }

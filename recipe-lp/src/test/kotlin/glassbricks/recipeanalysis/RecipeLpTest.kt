@@ -16,12 +16,14 @@ fun recipe(
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
     additionalCosts: Vector<Symbol>? = null,
+    costVariableConfig: VariableConfig? = null,
 ): LpProcess = LpProcess(
     object : Process {
         override val netRate: IngredientRate = vector(inOut.toMap()) / Time(time)
         override fun toString(): String = name
     },
     additionalCosts = additionalCosts ?: emptyVector(),
+    costVariableConfig = costVariableConfig,
 )
 
 class RecipeSolverKtTest : StringSpec({
@@ -118,7 +120,7 @@ class RecipeSolverKtTest : StringSpec({
             inputIng to -1.0,
             outputIng to 1.0,
             time = 1.0,
-            additionalCosts = basisVec(abstractCost) * 2.0
+            additionalCosts = uvec(abstractCost) * 2.0
         )
         // more efficient, but lower throughput
         val process2 =
@@ -127,13 +129,13 @@ class RecipeSolverKtTest : StringSpec({
                 inputIng to -0.5,
                 outputIng to 0.6,
                 time = 1.0,
-                additionalCosts = basisVec(abstractCost) * 2.0
+                additionalCosts = uvec(abstractCost) * 2.0
             )
 
         val input = Input(inputIng, VariableConfig(cost = 0.0, upperBound = 1.0))
         val output = Output(outputIng, VariableConfig(cost = -100.0, lowerBound = 0.0))
         val costRestr =
-            SymbolConstraint(basisVec<Symbol>(abstractCost).relaxKeyType(), ComparisonOp.Leq, 2.0.toDouble())
+            SymbolConstraint(uvec<Symbol>(abstractCost).relaxKeyType(), ComparisonOp.Leq, 2.0.toDouble())
 
         val processes = listOf(process1, process2, input, output)
 
@@ -168,7 +170,7 @@ class RecipeSolverKtTest : StringSpec({
             inputIng to -0.5,
             outputIng to 0.6,
             time = 1.0,
-            additionalCosts = basisVec(abstractCost)
+            additionalCosts = uvec(abstractCost)
         )
         val input = Input(inputIng, VariableConfig(cost = 0.0, upperBound = 1.0))
         val output = Output(outputIng, VariableConfig(cost = -100.0, lowerBound = 0.0))
@@ -193,7 +195,7 @@ class RecipeSolverKtTest : StringSpec({
             inputIng to -1.0,
             outputIng to 1.0,
             time = 1.0,
-            additionalCosts = basisVec(abstractCost)
+            additionalCosts = uvec(abstractCost)
         )
         val input = Input(inputIng, VariableConfig(cost = 1.0))
         val symbolConfigs = mapOf(abstractCost to VariableConfig(lowerBound = 2.0))
@@ -211,7 +213,6 @@ class RecipeSolverKtTest : StringSpec({
             inputIng to -1.0,
             outputIng to 1.0,
             time = 1.0,
-        ).copy(
             costVariableConfig = VariableConfig(cost = 1.0, type = VariableType.Integer)
         )
         val input = Input(inputIng, VariableConfig(cost = 0.0))

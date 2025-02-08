@@ -11,28 +11,10 @@ data class ProductionLp(
 ) {
 
     fun solve(solver: LpSolver = DefaultLpSolver(), options: LpOptions = LpOptions()): RecipeResult {
-        val problem = createAsLp()
-        val result = solver.solve(problem.lp, options)
-        return problem.createResult(result)
-    }
-}
-
-private class AsLp(
-    val lp: LpProblem,
-    val processVariables: Map<PseudoProcess, Variable>,
-    val surplusVariables: Map<Ingredient, Variable>,
-    val symbolVariables: Map<Symbol, Variable>,
-) {
-    fun createResult(result: LpResult): RecipeResult {
+        val problem = createVarsAndConstraints()
+        val result = solver.solve(problem.createSingleLp(), options)
         val solution = result.solution?.let { solution ->
-            fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
-                vector(variables.mapValuesNotNull { (_, variable) -> solution.assignment[variable] })
-            RecipeSolution(
-                lpProcesses = getAssignment(processVariables),
-                surpluses = getAssignment(surplusVariables),
-                symbolUsage = getAssignment(symbolVariables),
-                objectiveValue = solution.objectiveValue,
-            )
+            problem.createSolution(solution)
         }
         return RecipeResult(
             lpResult = result,
@@ -41,7 +23,31 @@ private class AsLp(
     }
 }
 
-private fun ProductionLp.createAsLp(): AsLp {
+class ProductionLpVars(
+    val processVariables: Map<PseudoProcess, Variable>,
+    val surplusVariables: Map<Ingredient, Variable>,
+    val symbolVariables: Map<Symbol, Variable>,
+    val constraints: List<Constraint>,
+    val objectiveWeights: Map<Variable, Double>,
+) {
+    fun createSingleLp(): LpProblem = LpProblem(
+        constraints = constraints,
+        objective = Objective(objectiveWeights, maximize = false),
+    )
+
+    internal fun createSolution(solution: LpSolution): RecipeSolution {
+        fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
+            vector(variables.mapValues { (_, variable) -> solution.assignment[variable] })
+        return RecipeSolution(
+            lpProcesses = getAssignment(processVariables),
+            surpluses = getAssignment(surplusVariables),
+            symbolUsage = getAssignment(symbolVariables),
+            objectiveValue = solution.objectiveValue,
+        )
+    }
+}
+
+internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionStage, ProductionLpVars> = emptyMap()): ProductionLpVars {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
     val additionalConstraints = mutableListOf<Constraint>()
     val objectiveWeights = mutableMapOf<Variable, Double>()
@@ -50,11 +56,23 @@ private fun ProductionLp.createAsLp(): AsLp {
         objectiveWeights[variable] = cost
     }
 
+    fun getSymbolVar(symbol: Symbol): Variable? {
+        val existing = symbolVariables[symbol]
+        if (existing != null) return existing
+        if (symbol is ReferenceSymbol) {
+            val stageVars = existingVars[symbol.stage]
+                ?: error("A referenced stage ${symbol.stage} not found. Make sure all stages are passed in together.")
+            return symbol.resolveVariable(stageVars).also { symbolVariables[symbol] = it }
+        }
+        return null
+    }
+
     val processVariables = processes.associateWith { process ->
         process.variableConfig.createVariable("Process $process").also { variable ->
             val symbol = process.symbol
             if (symbol != null) {
-                require(symbol !in symbolVariables) {
+                val existingVar = getSymbolVar(symbol)
+                require(existingVar == null) {
                     "Symbol $symbol is used in multiple processes. " +
                             "Use an equality constraint instead if you want 2 recipes to have the same usage."
                 }
@@ -78,7 +96,8 @@ private fun ProductionLp.createAsLp(): AsLp {
     }
 
     for ((symbol, config) in symbolConfigs) {
-        require(symbol !in symbolVariables) { "Symbol $symbol is already used in a process" }
+        val existingVar = getSymbolVar(symbol)
+        require(existingVar == null) { "Symbol $symbol specified in symbolConfigs is already configured somewhere else." }
         symbolVariables[symbol] = config.createVariable("Symbol $symbol")
     }
 
@@ -94,30 +113,27 @@ private fun ProductionLp.createAsLp(): AsLp {
         },
     )
 
-    fun getOrCreateVariable(symbol: Symbol): Variable = symbolVariables.getOrPut(symbol) {
-        Variable(name = "Symbol $symbol", lowerBound = 0.0)
-    }
+    fun getOrCreateSymbolVar(symbol: Symbol): Variable =
+        getSymbolVar(symbol) ?: Variable(name = "Symbol $symbol", lowerBound = 0.0).also {
+            symbolVariables[symbol] = it
+        }
     // cost_j = sum ( recipe_i * recipe_cost_ij )
     val (costEquations) = createMatrixEquations(
         processCostVariables,
         { it.additionalCosts },
-        { symbol -> getOrCreateVariable(symbol) },
+        { symbol -> getOrCreateSymbolVar(symbol) },
     )
 
-    constraints.forEach { constraint ->
-        additionalConstraints += constraint.mapKeys { getOrCreateVariable(it) }
+    for (constraint in constraints) {
+        additionalConstraints += constraint.mapKeys { getOrCreateSymbolVar(it) }
     }
-
-    val objective = Objective(
-        coefficients = objectiveWeights,
-        maximize = false
-    )
-
-    val lp = LpProblem(
+    return ProductionLpVars(
+        processVariables,
+        surplusVariables,
+        symbolVariables,
         constraints = concat(recipeEquations, costEquations, additionalConstraints),
-        objective = objective
+        objectiveWeights = objectiveWeights,
     )
-    return AsLp(lp, processVariables, surplusVariables, symbolVariables)
 }
 
 /**

@@ -2,8 +2,8 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.IngredientVector
-import glassbricks.recipeanalysis.basisVec
 import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.uvec
 import java.util.*
 
 /**
@@ -88,7 +88,7 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
         val itemCost =
             prototypes.itemOfOrNull(prototype as EntityPrototype)?.withQuality(quality) ?: return emptyVector()
-        return basisVec(itemCost)
+        return uvec(itemCost)
     }
 
     abstract override fun withQuality(quality: Quality): BaseMachine<P>

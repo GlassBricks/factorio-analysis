@@ -82,7 +82,7 @@ class ProblemBuilder(
         }
 
         fun limit(symbol: Symbol, value: Number) {
-            basisVec(symbol) leq value
+            uvec(symbol) leq value
         }
 
         fun costOf(symbol: Symbol, value: Number) {

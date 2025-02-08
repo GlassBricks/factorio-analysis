@@ -101,12 +101,13 @@ fun <U, T> vectorWithUnits(map: Map<T, Double>): MapVector<T, U> {
 fun <U, T> createVectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 
 typealias Vector<T> = MapVector<T, Unit>
+typealias AnyVector<T> = MapVector<T, *>
 
 fun <T> vector(vararg entries: Pair<T, Double>): Vector<T> = vectorWithUnits(entries.toMap())
 fun <T> vector(entries: List<Pair<T, Double>>): Vector<T> = vectorWithUnits(entries.toMap())
 fun <T> vector(map: Map<T, Double>): Vector<T> = vectorWithUnits(map)
 
-fun <T> basisVec(key: T): Vector<T> = vectorWithUnits(key to 1.0)
+fun <T> uvec(key: T): Vector<T> = vectorWithUnits(key to 1.0)
 
 inline fun <T, T2 : Any, U> MapVector<T, U>.vectorMapKeysNotNull(transform: (T) -> T2?): MapVector<T2, U> =
     MapVector(mapKeysNotNull { transform(it.key) })
