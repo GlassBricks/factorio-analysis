@@ -1,29 +1,15 @@
-import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.ResearchConfig
+import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.stage
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.runningFor
-import glassbricks.recipeanalysis.recipelp.textDisplay
-import glassbricks.recipeanalysis.writeTo
-import java.io.File
 import kotlin.time.Duration.Companion.minutes
 
 fun main() = with(SpaceAge) {
-    val module1s = listOf(
-        speedModule,
-        productivityModule,
-        qualityModule
-    )
-    val module2s = listOf(
-        speedModule2,
-        productivityModule2,
-        qualityModule2
-    )
-    val allModules = module1s + module2s
-    val allModulesAllQuality = allModules.flatMap { qualities.map { q -> it.withQuality(q) } }
-
     val vulcanusMachines = listOf(
         bigMiningDrill,
         assemblingMachine2,
@@ -34,11 +20,11 @@ fun main() = with(SpaceAge) {
         electricFurnace,
     )
     val vulcanusEntities = vulcanusMachines + beacon
-    val importedMachines = listOf(
+    val vulcImportedMachines = listOf(
         recycler,
         electromagneticPlant
     )
-    val allMachines = vulcanusMachines + importedMachines
+    val allMachines = vulcanusMachines + vulcImportedMachines
 
     fun vulcFactory(
         coalMiningCost: Double = 5000.0,
@@ -49,7 +35,7 @@ fun main() = with(SpaceAge) {
             default {
                 includeBuildCosts()
                 moduleConfig() // no modules
-                for (module in allModulesAllQuality) {
+                for (module in module12sAllQualities) {
                     moduleConfig(fill = module)
                     if (module.effects.quality <= 0) {
                         moduleConfig(fill = module, beacons = listOf(beacon(fill = speedModule2, sharing = 6.0)))
@@ -108,14 +94,14 @@ fun main() = with(SpaceAge) {
 
         val mall1Production = mall1.runningFor(30.minutes)
 
-        for (module in allModulesAllQuality) {
+        for (module in module12sAllQualities) {
             optionalOutput(module)
         }
         costs {
             for (entity in vulcanusEntities) {
                 entity.item() producedBy mall1Production
             }
-            for (module in allModulesAllQuality) {
+            for (module in module12sAllQualities) {
                 module producedBy mall1Production
             }
             limit(electromagneticPlant, 10.0)
@@ -137,10 +123,10 @@ fun main() = with(SpaceAge) {
             for (entity in vulcanusEntities) {
                 entity.item() producedBy mall12Production
             }
-            for (module in allModulesAllQuality) {
+            for (module in module12sAllQualities) {
                 module producedBy mall12Production
             }
-            for (importedMachine in importedMachines) {
+            for (importedMachine in vulcImportedMachines) {
                 costOf(importedMachine, 500.0)
             }
         }
@@ -159,29 +145,10 @@ fun main() = with(SpaceAge) {
     )
 
     println("Status: ${result.status}")
-    println("Best bound: ${result.lpResult.bestBound}")
-    val solution = result.solutions
-    if (solution == null) return
+    val solution = result.solutions ?: return
 
     println("Objective: ${result.lpSolution!!.objectiveValue}")
 
-    for ((stage, solution) in solution) {
-        println("Stage: $stage")
-        println("-".repeat(100))
-        println(solution.textDisplay(RecipesFirst))
-        println()
-    }
-
-    val dotFilePath = File("output/module2-staged")
-    dotFilePath.mkdirs()
-    for ((stage, solution) in solution) {
-        val dotFile = dotFilePath.resolve("${stage.name}.dot")
-        solution.toFancyDotGraph {
-            clusterItemsByQuality()
-            clusterRecipesByQuality()
-            flipEdgesForMachine(SpaceAge.recycler)
-        }.writeTo(dotFile)
-//        File("output/${stage.name}.txt").writeText(solution.textDisplay(RecipesFirst))
-        dotFilePath.resolve("${stage.name}.txt").writeText(solution.textDisplay(RecipesFirst))
-    }
+    val pathName = "output/module2-staged"
+    printAndExportStagedSolution(pathName, solution)
 }

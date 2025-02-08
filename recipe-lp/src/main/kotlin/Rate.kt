@@ -1,6 +1,7 @@
 package glassbricks.recipeanalysis
 
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 // kinda like Duration except we use a Float
 @JvmInline
@@ -10,7 +11,7 @@ value class Time(val seconds: Double) {
 
 operator fun Time.div(value: Double): Time = Time(seconds / value)
 
-fun Duration.asTime(): Time = Time(inWholeNanoseconds / 1e9)
+fun Duration.asTime(): Time = Time(toDouble(DurationUnit.SECONDS))
 
 /**
  * Inverse of time
@@ -35,4 +36,6 @@ fun <T> rateVector(map: Map<T, Double>): RateVector<T> = vectorWithUnits(map)
 
 operator fun Double.div(time: Time): Rate = Rate(this / time.seconds)
 operator fun Int.div(time: Time): Rate = Rate(this / time.seconds)
+operator fun Double.div(duration: Duration): Rate = this / duration.asTime()
+operator fun Int.div(duration: Duration): Rate = this / duration.asTime()
 operator fun <T> Vector<T>.div(time: Time): RateVector<T> = (this / time.seconds).castUnits()

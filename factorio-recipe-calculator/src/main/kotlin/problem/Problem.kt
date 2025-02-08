@@ -118,20 +118,24 @@ class ProblemBuilder(
         }
 
         fun forbidUnspecifiedEntities() {
-            for (machine in prototypes.craftingMachines.values) {
-                forbidIfNotSpecified(machine.item())
-            }
-            for (drill in prototypes.miningDrills.values) {
-                forbidIfNotSpecified(drill.item())
-            }
-            for (beacon in prototypes.beacons.values) {
-                limit(beacon.item(), 0.0)
+            for (quality in prototypes.qualities) {
+                for (machine in prototypes.craftingMachines.values) {
+                    forbidIfNotSpecified(machine.item().withQuality(quality))
+                }
+                for (drill in prototypes.miningDrills.values) {
+                    forbidIfNotSpecified(drill.item().withQuality(quality))
+                }
+                for (beacon in prototypes.beacons.values) {
+                    forbidIfNotSpecified(beacon.item().withQuality(quality))
+                }
             }
         }
 
         fun forbidUnspecifiedModules() {
             for (module in prototypes.modules.values) {
-                forbidIfNotSpecified(module)
+                for (quality in prototypes.qualities) {
+                    forbidIfNotSpecified(module.withQuality(quality))
+                }
             }
         }
 
