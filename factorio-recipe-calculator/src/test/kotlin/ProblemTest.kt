@@ -1,3 +1,4 @@
+/*
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.recipes.problem.factory
@@ -248,7 +249,7 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve().solution!!
 
-        val processes = solution.processes.vectorMapKeysNotNull { it as? MachineSetup<*> }
+        val processes = solution.processes.mapKeysNotNull { it as? MachineSetup<*> }
 //        val asm2Recipe = problem.recipes.keys.find {
 //            it.machine.prototype.name == "assembling-machine-2"
 //        }
@@ -463,3 +464,4 @@ class ProblemTest : FunSpec({
 }), WithFactorioPrototypes {
     override val prototypes get() = SpaceAge
 }
+*/

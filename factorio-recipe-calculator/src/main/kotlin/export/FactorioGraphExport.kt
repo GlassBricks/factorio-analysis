@@ -26,7 +26,6 @@ val shorthandMap = mapOf(
     "advanced-circuit" to "RC",
     "processing-unit" to "BC",
     "low-density-structure" to "LDS",
-    "-recycling" to "\\nrecycling",
     "pipe-to-ground" to "UG pipe"
 )
 

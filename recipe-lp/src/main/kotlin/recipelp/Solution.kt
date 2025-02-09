@@ -13,11 +13,6 @@ data class Throughput(
     val min: Double get() = maxOf(production, consumption)
 }
 
-class ThroughputVector(
-    val inputs: Vector<Ingredient>,
-    val outputs: Vector<Ingredient>,
-)
-
 interface Usages {
     val lpProcesses: Vector<PseudoProcess>
     val processes: Vector<Process>
@@ -36,11 +31,11 @@ data class RecipeSolution(
     override val symbolUsage: Vector<Symbol>,
     override val objectiveValue: Double,
 ) : Usages {
-    override val processes: Vector<Process> = lpProcesses.vectorMapKeysNotNull { (it as? RealProcess)?.process }
-    override val inputs: Vector<Ingredient> = lpProcesses.vectorMapKeysNotNull { (it as? Input)?.ingredient }
-    override val outputs: Vector<Ingredient> = lpProcesses.vectorMapKeysNotNull { (it as? Output)?.ingredient }
+    override val processes: Vector<Process> = lpProcesses.mapKeysNotNull { (it as? RealProcess)?.process }
+    override val inputs: Vector<Ingredient> = lpProcesses.mapKeysNotNull { (it as? Input)?.ingredient }
+    override val outputs: Vector<Ingredient> = lpProcesses.mapKeysNotNull { (it as? Output)?.ingredient }
     override val otherProcesses: Vector<PseudoProcess> =
-        lpProcesses.vectorFilterKeys { !(it is Input || it is Output || it is RealProcess) }
+        lpProcesses.filterKeys { !(it is Input || it is Output || it is RealProcess) }
 
     override val throughputs: Map<Ingredient, Throughput> by lazy {
         val consumption = mutableMapOf<Ingredient, Double>()

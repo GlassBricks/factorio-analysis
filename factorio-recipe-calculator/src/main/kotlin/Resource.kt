@@ -32,13 +32,13 @@ class Resource private constructor(
             val minable = requireNotNull(prototype.minable) { "Resource $prototype has no minable" }
             val inputs = minable.required_fluid?.let { fluidId ->
                 val fluid = ingredientsMap.get(fluidId)
-                vector<Ingredient>(fluid to minable.fluid_amount)
+                vectorOf<Ingredient>(fluid to minable.fluid_amount)
             } ?: emptyVector()
             val (products, prod) = minable.results?.let { products ->
                 ingredientsMap.getProductsVector(products)
             } ?: run {
                 val item = ingredientsMap.get(minable.result!!)
-                vector<Ingredient>(item to minable.count.toDouble()) to emptyVector()
+                vectorOf<Ingredient>(item to minable.count.toDouble()) to emptyVector()
             }
             return Resource(
                 prototype = prototype,

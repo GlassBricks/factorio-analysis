@@ -27,9 +27,9 @@ class Recipe private constructor(
     private val allowedModuleEffects: EnumSet<EffectType>,
 ) : RecipeOrResource<AnyCraftingMachine> {
     override val craftingTime: Time get() = Time(prototype.energy_required)
-    override val inputs get() = baseIngredients.withItemsQuality(inputQuality)
-    override val outputs get() = baseProducts.withItemsQuality(inputQuality)
-    override val outputsToIgnoreProductivity get() = baseProductsIgnoreProd.withItemsQuality(inputQuality)
+    override val inputs = baseIngredients.withItemsQuality(inputQuality)
+    override val outputs = baseProducts.withItemsQuality(inputQuality)
+    override val outputsToIgnoreProductivity = baseProductsIgnoreProd.withItemsQuality(inputQuality)
 
     override fun withQualityOrNull(quality: Quality): Recipe? {
         if (quality == this.inputQuality) return this
@@ -79,10 +79,10 @@ class Recipe private constructor(
             quality: Quality,
             map: IngredientsMap,
         ): Recipe {
-            val ingredients = buildMap {
+            val ingredients = buildVector {
                 for (ingredient in prototype.ingredients.orEmpty()) {
                     val ingredientAmount = map.getIngredientAmount(ingredient)
-                    put(ingredientAmount.ingredient, ingredientAmount.amount)
+                    set(ingredientAmount.ingredient, ingredientAmount.amount)
                 }
             }
             val (products, ignoreFromProductivity) = map.getProductsVector(prototype.results)
@@ -96,17 +96,14 @@ class Recipe private constructor(
             return Recipe(
                 prototype = prototype,
                 inputQuality = quality,
-                baseIngredients = vectorWithUnits(ingredients),
+                baseIngredients = ingredients,
                 baseProducts = products,
-                baseProductsIgnoreProd = vectorWithUnits(ignoreFromProductivity),
+                baseProductsIgnoreProd = ignoreFromProductivity,
                 allowedModuleEffects = allowedModuleEffects
             )
         }
     }
 }
-
-private inline fun Vector<Ingredient>.vectorMapKeys(transform: (Ingredient) -> Ingredient): Vector<Ingredient> =
-    createVectorUnsafe(this.mapKeys { transform(it.key) })
 
 fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
     is Item -> this.withQuality(quality)
@@ -114,5 +111,4 @@ fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
 }
 
 internal fun Vector<Ingredient>.withItemsQuality(quality: Quality): Vector<Ingredient> =
-    if (quality.level == 0) this else
-        vectorMapKeys { it.maybeWithQuality(quality) }
+    if (quality.level == 0) this else mapKeys { it.maybeWithQuality(quality) }

@@ -5,6 +5,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
+fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = pairs.toMap().toVectorWithUnits()
+
 class MachineSetupTest : FunSpec({
     this as MachineSetupTest
     val asm2 = craftingMachine("assembling-machine-2")
@@ -40,14 +42,14 @@ class MachineSetupTest : FunSpec({
     }
     test("basic recipe") {
         val setup = asm2.processing(recipe("electronic-circuit"))
-        setup.cycleInputs shouldBe mapOf(
+        setup.cycleInputs shouldBe vectorOf(
             item("copper-cable") to 3.0,
             item("iron-plate") to 1.0,
         )
-        setup.cycleOutputs shouldBe mapOf(
+        setup.cycleOutputs shouldBe vectorOf(
             item("electronic-circuit") to 1.0,
         )
-        setup.netRate shouldBe vectorWithUnits(
+        setup.netRate shouldBe vectorOfWithUnits(
             item("iron-plate") to -1.5,
             item("copper-cable") to -4.5,
             item("electronic-circuit") to 1.5,
@@ -60,7 +62,7 @@ class MachineSetupTest : FunSpec({
         withSpeed.cycleTime.seconds shouldBe near(1 / 1.8)
         withSpeed.cycleInputs shouldBe setup.cycleInputs
         withSpeed.cycleOutputs shouldBe setup.cycleOutputs
-        withSpeed.netRate.round1e6() shouldBe vectorWithUnits(
+        withSpeed.netRate.round1e6() shouldBe vectorOfWithUnits(
             item("iron-plate") to -1.8,
             item("copper-cable") to -5.4,
             item("electronic-circuit") to 1.8,
@@ -74,7 +76,7 @@ class MachineSetupTest : FunSpec({
         withProd.cycleInputs shouldBe setup.cycleInputs
         withProd.cycleOutputs.round1e6() shouldBe setup.cycleOutputs * 1.04
 
-        withProd.netRate.round1e6() shouldBe vectorWithUnits<Rate, RealIngredient>(
+        withProd.netRate.round1e6() shouldBe vectorOfWithUnits<Rate, RealIngredient>(
             item("iron-plate") to -1.5 * 0.95,
             item("copper-cable") to -4.5 * 0.95,
             item("electronic-circuit") to 1.482,
@@ -85,14 +87,14 @@ class MachineSetupTest : FunSpec({
     test("with intrinsic prod") {
         val setup = foundry.processing(recipe("transport-belt"))
 
-        setup.cycleInputs shouldBe mapOf(
+        setup.cycleInputs shouldBe vectorOf(
             item("iron-plate") to 1.0,
             item("iron-gear-wheel") to 1.0,
         )
-        setup.cycleOutputs shouldBe mapOf(
+        setup.cycleOutputs shouldBe vectorOf(
             item("transport-belt") to 3.0,
         )
-        setup.netRate shouldBe vectorWithUnits(
+        setup.netRate shouldBe vectorOfWithUnits(
             item("iron-plate") to -8.0,
             item("iron-gear-wheel") to -8.0,
             item("transport-belt") to 24.0
@@ -101,14 +103,14 @@ class MachineSetupTest : FunSpec({
 
     test("crafting different quality") {
         val setup = asm2.processing(recipe("electronic-circuit").withQuality(legendary))
-        setup.cycleInputs shouldBe mapOf(
+        setup.cycleInputs shouldBe vectorOf(
             item("copper-cable").maybeWithQuality(legendary) to 3.0,
             item("iron-plate").maybeWithQuality(legendary) to 1.0,
         )
-        setup.cycleOutputs shouldBe mapOf(
+        setup.cycleOutputs shouldBe vectorOf(
             item("electronic-circuit").maybeWithQuality(legendary) to 1.0,
         )
-        setup.netRate shouldBe vectorWithUnits(
+        setup.netRate shouldBe vectorOfWithUnits(
             item("iron-plate").maybeWithQuality(legendary) to -1.5,
             item("copper-cable").maybeWithQuality(legendary) to -4.5,
             item("electronic-circuit").maybeWithQuality(legendary) to 1.5,

@@ -1,7 +1,7 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.vector
-import glassbricks.recipeanalysis.vectorWithUnits
+import glassbricks.recipeanalysis.vectorOf
+import glassbricks.recipeanalysis.vectorOfWithUnits
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -127,16 +127,16 @@ class ModulesKtTest : FunSpec({
 
     context("buildCosts") {
         test("modules") {
-            (prod1 * 3).getBuildCost(SpaceAge) shouldBe vectorWithUnits(prod1 to 3.0)
-            ModuleList(prod1 * 2, speed1 * 3).getBuildCost(SpaceAge) shouldBe vectorWithUnits(
+            (prod1 * 3).getBuildCost(SpaceAge) shouldBe vectorOfWithUnits(prod1 to 3.0)
+            ModuleList(prod1 * 2, speed1 * 3).getBuildCost(SpaceAge) shouldBe vectorOfWithUnits(
                 prod1 to 2.0,
                 speed1 to 3.0,
             )
         }
         test("beacon") {
             val beaconItem = item("beacon")
-            beacon(speed1 * 2).getBuildCost(SpaceAge) shouldBe vectorWithUnits(beaconItem to 1.0, speed1 to 2.0)
-            beacon(speed1 * 2, sharing = 2.0).getBuildCost(SpaceAge) shouldBe vector(
+            beacon(speed1 * 2).getBuildCost(SpaceAge) shouldBe vectorOfWithUnits(beaconItem to 1.0, speed1 to 2.0)
+            beacon(speed1 * 2, sharing = 2.0).getBuildCost(SpaceAge) shouldBe vectorOf(
                 beaconItem to 1.0,
                 speed1 to 2.0
             ) / 2.0
@@ -144,7 +144,7 @@ class ModulesKtTest : FunSpec({
             BeaconList(
                 beacon(speed1 * 2),
                 beacon(speed2 * 2, sharing = 2.0),
-            ).getBuildCost(SpaceAge) shouldBe vector(
+            ).getBuildCost(SpaceAge) shouldBe vectorOf(
                 beaconItem to 1.5,
                 speed1 to 2.0,
                 speed2 to 1.0
@@ -153,7 +153,7 @@ class ModulesKtTest : FunSpec({
         test("machine") {
             val asm2 = craftingMachine("assembling-machine-2")
             val machine = asm2.withModules(prod1 * 2, beacons = listOf(beacon(speed1 * 2)))
-            machine.getBuildCost(SpaceAge) shouldBe vectorWithUnits(
+            machine.getBuildCost(SpaceAge) shouldBe vectorOfWithUnits(
                 SpaceAge.itemOfOrNull(asm2) to 1.0,
                 prod1 to 2.0,
                 SpaceAge.itemOfOrNull(beacon) to 1.0,

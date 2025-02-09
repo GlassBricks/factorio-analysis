@@ -1,9 +1,10 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
+import glassbricks.recipeanalysis.AnyVectorBuilder
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Vector
-import glassbricks.recipeanalysis.vectorWithUnits
+import glassbricks.recipeanalysis.buildVector
 
 /**
  * All items should have default quality
@@ -44,14 +45,14 @@ fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount
 }
 
 fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<Vector<Ingredient>, Vector<Ingredient>> {
-    val ignoreFromProductivity = mutableMapOf<Ingredient, Double>()
-    val products = buildMap {
+    val ignoreFromProductivity = AnyVectorBuilder<Ingredient, Unit>()
+    val products = buildVector {
         for (product in prototypes.orEmpty()) {
             val productAmount = this@getProductsVector.getProductAmount(product)
-            put(productAmount.ingredient, productAmount.amount)
+            this[productAmount.ingredient] = productAmount.amount
             ignoreFromProductivity[productAmount.ingredient] =
                 minOf(productAmount.ignoredByProductivityAmount, productAmount.amount)
         }
     }
-    return Pair(vectorWithUnits(products), vectorWithUnits(ignoreFromProductivity))
+    return Pair(products, ignoreFromProductivity.build())
 }

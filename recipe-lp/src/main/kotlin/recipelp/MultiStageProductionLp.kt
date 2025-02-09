@@ -77,7 +77,7 @@ class MultiStageProductionLp(
                 it.resolveVariable(stageVars)
             })
         }
-        val allObjectiveWeights = lpVars.values.map { it.objectiveWeights }.flattenMaps()
+        val allObjectiveWeights = lpVars.values.sumVectorsPresized { it.objectiveWeights }
         return LpProblem(
             constraints = allConstraints,
             objective = Objective(allObjectiveWeights, maximize = false)
@@ -94,14 +94,13 @@ data class MultiStageRecipeResult(
 }
 
 /** A DSL construct */
-class ProductionOverTime(val factories: MapVector<ProductionStage, Time>) {
-    fun productionOf(ingredient: Ingredient): Vector<ReferenceSymbol> {
-        val amounts = factories.entries.associateNotNull { (stage, time) ->
-            val outputs = stage.productionLp.outputsByIngredient[ingredient] ?: return@associateNotNull null
+class ProductionOverTime(val factories: AnyVector<ProductionStage, Time>) {
+    fun productionOf(ingredient: Ingredient): Vector<ReferenceSymbol> = buildVector {
+        for ((stage, time) in factories) {
+            val outputs = stage.productionLp.outputsByIngredient[ingredient] ?: continue
             val output = outputs.singleOrNull() ?: error("Multiple outputs for $ingredient in $stage")
-            stage.ref(output) to time
+            this[stage.ref(output)] += time
         }
-        return vector(amounts)
     }
 
     operator fun plus(otherProduction: ProductionOverTime): ProductionOverTime =
@@ -109,4 +108,4 @@ class ProductionOverTime(val factories: MapVector<ProductionStage, Time>) {
 }
 
 fun ProductionStage.runningFor(time: Duration): ProductionOverTime =
-    ProductionOverTime(vectorWithUnits<Time, ProductionStage>(this to time.toDouble(DurationUnit.SECONDS)))
+    ProductionOverTime(vectorOfWithUnits<Time, ProductionStage>(this to time.toDouble(DurationUnit.SECONDS)))

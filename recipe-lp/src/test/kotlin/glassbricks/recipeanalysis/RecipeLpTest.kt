@@ -19,7 +19,7 @@ fun recipe(
     costVariableConfig: VariableConfig? = null,
 ): RealProcess = RealProcess(
     object : Process {
-        override val netRate: IngredientRate = vector(inOut.toMap()) / Time(time)
+        override val netRate: IngredientRate = inOut.toMap().toVector() / Time(time)
         override fun toString(): String = name
     },
     additionalCosts = additionalCosts ?: emptyVector(),

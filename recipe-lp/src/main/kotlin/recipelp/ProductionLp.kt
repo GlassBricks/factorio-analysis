@@ -2,6 +2,7 @@ package glassbricks.recipeanalysis.recipelp
 
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.*
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 
 data class ProductionLp(
     val inputs: List<Input>,
@@ -69,7 +70,7 @@ class ProductionLpVars(
     val surplusVariables: Map<Ingredient, Variable>,
     val symbolVariables: Map<Symbol, Variable>,
     val constraints: List<Constraint>,
-    val objectiveWeights: Map<Variable, Double>,
+    val objectiveWeights: Vector<Variable>,
 ) {
     fun createSingleLp(): LpProblem = LpProblem(
         constraints = constraints,
@@ -78,7 +79,7 @@ class ProductionLpVars(
 
     internal fun createSolution(solution: LpSolution): RecipeSolution {
         fun <T> getAssignment(variables: Map<T, Variable>): Vector<T> =
-            vector(variables.mapValues { (_, variable) -> solution.assignment[variable] })
+            variables.mapValuesToVector { (_, variable) -> solution.assignment[variable] }
         return RecipeSolution(
             lpProcesses = getAssignment(processVariables),
             surpluses = getAssignment(surplusVariables),
@@ -91,7 +92,7 @@ class ProductionLpVars(
 internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionStage, ProductionLpVars> = emptyMap()): ProductionLpVars {
     val symbolVariables = mutableMapOf<Symbol, Variable>()
     val additionalConstraints = mutableListOf<Constraint>()
-    val objectiveWeights = mutableMapOf<Variable, Double>()
+    val objectiveWeights = VectorBuilder<Variable>()
 
     fun VariableConfig.createVariable(name: String = ""): Variable = createVariableNoCost(name).also { variable ->
         objectiveWeights[variable] = cost
@@ -109,7 +110,7 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
     }
 
     val processVariables = allProcesses.associateWith { process ->
-        process.variableConfig.createVariable("Process $process").also { variable ->
+        process.variableConfig.createVariable().also { variable ->
             val symbol = process.symbol
             if (symbol != null) {
                 val existingVar = getSymbolVar(symbol)
@@ -128,7 +129,7 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
             // cost - recipe >= 0
             additionalConstraints.add(
                 Constraint(
-                    lhs = mapOf(costVariable to 1.0, processVar to -1.0),
+                    lhs = vectorOf(costVariable to 1.0, processVar to -1.0),
                     rhs = 0.0,
                     op = ComparisonOp.Geq
                 )
@@ -173,7 +174,7 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
         surplusVariables,
         symbolVariables,
         constraints = concat(recipeEquations, costEquations, additionalConstraints),
-        objectiveWeights = objectiveWeights,
+        objectiveWeights = objectiveWeights.build(),
     )
 }
 
@@ -185,34 +186,25 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
  * ```
  */
 private inline fun <R, K> createMatrixEquations(
-    recipeVars: Map<R, Variable>,
-    weight: (R) -> MapVector<K, *>,
-    createVariable: (K) -> Variable,
-    op: ComparisonOp = ComparisonOp.Eq,
+    vars: Map<R, Variable>,
+    weight: (R) -> AnyVector<K, *>,
+    crossinline createVariable: (K) -> Variable,
 ): Pair<List<Constraint>, Map<K, Variable>> {
-    val elementsByKeys = recipeVars.entries.groupByMulti { weight(it.key).keys }
-    val allKeys = elementsByKeys.keys
-    val keyToVar = LinkedHashMap<K, Variable>(allKeys.size)
-    val constraints = mutableListOf<Constraint>()
-    for ((key, entries) in elementsByKeys) {
-        val keyVar = createVariable(key)
-        keyToVar[key] = keyVar
-        val coeffs = buildMap {
-            for ((element, elementVar) in entries) {
-                this[elementVar] = weight(element)[key]
-            }
-            this[keyVar] = -1.0
+    // performance hotspot!
+    val variables = Object2ObjectLinkedOpenHashMap<K, Variable>(2_000)
+    val keyToCoeffs = Object2ObjectLinkedOpenHashMap<K, VectorBuilder<Variable>>(2_000)
+    for ((row, rowVar) in vars) {
+        for ((key, coeff) in weight(row)) {
+            keyToCoeffs.getOrPut(key) {
+                val newVariable = createVariable(key)
+                VectorBuilder<Variable>().apply { this[newVariable] = -1.0 }
+            }[rowVar] = coeff
         }
-        constraints.add(Constraint(coeffs, op, 0.0))
     }
-    return constraints to keyToVar
-}
 
-private inline fun <T, K> Iterable<T>.groupByMulti(getKeys: (T) -> Iterable<K>): Map<K, List<T>> =
-    buildMap<K, MutableList<T>> {
-        for (element in this@groupByMulti) {
-            for (ingredient in getKeys(element)) {
-                this.getOrPut(ingredient, ::mutableListOf).add(element)
-            }
-        }
+    val constraints = keyToCoeffs.map { (_, coeffs) ->
+        Constraint(lhs = coeffs.build(), rhs = 0.0, op = ComparisonOp.Eq)
     }
+
+    return constraints to variables
+}

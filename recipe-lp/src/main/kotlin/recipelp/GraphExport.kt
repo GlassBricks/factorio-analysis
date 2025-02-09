@@ -34,20 +34,17 @@ interface ThroughputGraph {
         processes: Set<PseudoProcess>,
         ingredients: Set<Ingredient>,
         wantPositive: Boolean = true,
-    ): Vector<Ingredient> {
-        val result = mutableMapOf<Ingredient, Double>()
+    ): Vector<Ingredient> = buildVector {
         for (process in processes) {
             val processUsage = solution.lpProcesses[process]
             for ((ingredient, rawRate) in process.ingredientRate) {
                 val rate = rawRate * processUsage
                 if ((rate > 0) == wantPositive && ingredient in ingredients) {
-                    result[ingredient] = (result[ingredient] ?: 0.0) + rate
+                    this[ingredient] += rate
                 }
             }
         }
-        return vector(result)
     }
-
 }
 
 fun RecipeSolution.toMutableThroughputGraph(): ThroughputGraphBuilder {
@@ -56,8 +53,8 @@ fun RecipeSolution.toMutableThroughputGraph(): ThroughputGraphBuilder {
     val ingredientToNode = throughputs.mapValuesTo(mutableMapOf()) { (ingredient) ->
         IngredientNode(setOf(ingredient)).also { graph.addNode(it) }
     }
-    val processToNode = lpProcesses.mapValuesTo(mutableMapOf()) { (process) ->
-        ProcessNode(setOf(process)).also { graph.addNode(it) }
+    val processToNode = lpProcesses.keys.associateWithTo(mutableMapOf()) {
+        ProcessNode(setOf(it)).also { graph.addNode(it) }
     }
 
     for ((recipe, usage) in lpProcesses) {

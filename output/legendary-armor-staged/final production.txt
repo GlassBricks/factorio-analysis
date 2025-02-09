@@ -1,21 +1,21 @@
 Inputs:
-Lava              | 8981.2024/s
-Sulfuric acid     | 453.1014/s
-Holmium ore       | 0.0057/s
-Holmium plate(Q4) | 0.5556/s
 Holmium plate(Q5) | 0.0556/s
+Holmium plate(Q4) | 0.5556/s
+Sulfuric acid     | 453.1014/s
+Lava              | 8981.2024/s
+Holmium ore       | 0.0057/s
 
 Outputs:
-Mech armor(Q5)       | 0.0006/s
-Ingredient(grid 4x4) | 0.0067/s
-Ingredient(grid 2x4) | 0.0022/s
 Ingredient(grid 1x2) | 0.0044/s
+Mech armor(Q5)       | 0.0006/s
+Ingredient(grid 2x4) | 0.0022/s
 Ingredient(grid 1x1) | 0.0083/s
+Ingredient(grid 4x4) | 0.0067/s
 
 Recipes:
 Acid neutralisation --> Chem plant[Speed x3]                                    | 1.4052
-BC(Q4) --> EMP[Prod(Q5) x5, Beacon[Speed 2 x2]]                                 | 0.1608
 BC(Q4) --> EMP[Prod 2(Q4) x5, Beacon[Speed 2 x2]]                               | 0.0495
+BC(Q4) --> EMP[Prod(Q5) x5, Beacon[Speed 2 x2]]                                 | 0.1608
 BC(Q5) --> EMP[Prod 2(Q5) x5, Beacon[Speed 2 x2]]                               | 0.0670
 Battery equipment(Q4) --> Asm 3[Qual 2(Q3) x4]                                  | 0.3472
 Battery equipment\nrecycling(Q4) --> Recycler[Qual 2(Q4) x4]                    | 0.0473
@@ -105,8 +105,8 @@ Power armor mk2(Q5) --> Asm 2[Speed x2]                                         
 RC(Q2) --> Asm 2[Qual x2]                                                       | 30.1980
 RC(Q3) --> EMP[Prod(Q3) x5, Beacon[Speed 2 x2]]                                 | 0.6393
 RC(Q4) --> EMP[Prod(Q5) x5, Beacon[Speed 2 x2]]                                 | 0.5449
-RC(Q5) --> EMP[Prod 2(Q4) x5, Beacon[Speed 2 x2]]                               | 0.1005
 RC(Q5) --> EMP[Prod 2(Q5) x5, Beacon[Speed 2 x2]]                               | 0.0438
+RC(Q5) --> EMP[Prod 2(Q4) x5, Beacon[Speed 2 x2]]                               | 0.1005
 Solar panel equipment(Q4) --> Asm 3[Qual 2(Q4) x4]                              | 0.0568
 Solar panel equipment(Q5) --> Asm 2[Speed x2]                                   | 0.0711
 Solar panel equipment\nrecycling(Q4) --> Recycler[Qual 2(Q4) x4]                | 0.0075
@@ -135,11 +135,11 @@ UG pipe\nrecycling(Q5) --> Recycler[Speed(Q2) x4, Beacon[Speed 2 x2]]           
 
 
 Other processes:
-CustomProcess(doubling Ingredient(grid 2x2)) | 28.0000
-CustomProcess(doubling Ingredient(grid 2x4)) | 12.0000
-CustomProcess(grid solar-panel-equipment)    | 15.0000
 CustomProcess(grid battery-equipment)        | 8.0000
+CustomProcess(doubling Ingredient(grid 2x2)) | 28.0000
 CustomProcess(grid energy-shield-equipment)  | 56.0000
+CustomProcess(grid solar-panel-equipment)    | 15.0000
+CustomProcess(doubling Ingredient(grid 2x4)) | 12.0000
 
 Throughputs:
 Ingredient(grid 1x1)        | 0.0083/s
@@ -274,14 +274,6 @@ Supercapacitor(Q5)          | 0.0186/s
 Superconductor(Q4)          | 0.1245/s
 Superconductor(Q5)          | 0.0252/s
 Water                       | 391.1874/s
-
-Surpluses:
-Copper cable(Q3) | 6.1163/s
-Explosives(Q4)   | 0.0042/s
-Explosives(Q5)   | 0.0006/s
-Explosives(Q3)   | 0.0282/s
-Explosives(Q2)   | 0.1795/s
-Stone            | 283.0516/s
 
 Symbols used:
 (modules):Output(productivity-module(epic))        | 0.0005

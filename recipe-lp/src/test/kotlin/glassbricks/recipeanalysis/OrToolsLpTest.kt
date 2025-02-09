@@ -19,8 +19,8 @@ class OrToolsLpTest : FreeSpec({
         val problem = LpProblem(constraints, objective)
         val result = OrToolsLp().solve(problem)
         result.status shouldBe LpResultStatus.Optimal
-        val expectedSolution = vectorWithUnits<Unit, _>(xv to 6.0, yv to 4.0)
-        val assignment = result.solution?.assignment?.let { vectorWithUnits<Unit, _>(it) } ?: fail("no solution")
+        val expectedSolution = vectorOfWithUnits<Unit, _>(xv to 6.0, yv to 4.0)
+        val assignment = result.solution?.assignment ?: fail("no solution")
         if (!assignment.closeTo(expectedSolution, 1e-6)) {
             fail("Solution $assignment is not close to $expectedSolution")
         }

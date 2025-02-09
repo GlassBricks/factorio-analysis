@@ -3,8 +3,8 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.lp.VariableType
-import glassbricks.recipeanalysis.vector
-import glassbricks.recipeanalysis.vectorWithUnits
+import glassbricks.recipeanalysis.vectorOf
+import glassbricks.recipeanalysis.vectorOfWithUnits
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
@@ -97,17 +97,17 @@ class FactoryConfigKtTest : FunSpec({
         val config = SpaceAge.factory {
             machines {
                 "assembling-machine-2" {
-                    additionalCosts = vectorWithUnits(symbolA to 1.0)
+                    additionalCosts = vectorOfWithUnits(symbolA to 1.0)
                 }
             }
             recipes {
                 "advanced-circuit" {
-                    additionalCosts = vectorWithUnits(symbolB to 2.0)
+                    additionalCosts = vectorOfWithUnits(symbolB to 2.0)
                 }
             }
         }
         val recipe = config.allProcesses.single()
-        recipe.additionalCosts shouldBe vectorWithUnits(symbolA to 1.0, symbolB to 2.0)
+        recipe.additionalCosts shouldBe vectorOfWithUnits(symbolA to 1.0, symbolB to 2.0)
     }
     test("build costs") {
         val symbol1 = Symbol("1")
@@ -120,12 +120,12 @@ class FactoryConfigKtTest : FunSpec({
             }
             recipes {
                 "advanced-circuit" {
-                    additionalCosts = vectorWithUnits(symbol1 to 1.0)
+                    additionalCosts = vectorOfWithUnits(symbol1 to 1.0)
                 }
             }
         }
         val recipe = config.allProcesses.single()
-        recipe.additionalCosts shouldBe vector(
+        recipe.additionalCosts shouldBe vectorOf(
             SpaceAge.itemOfOrNull(asm2) to 1.0,
             speed2 to 2.0,
             symbol1 to 1.0

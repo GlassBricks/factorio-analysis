@@ -4,7 +4,8 @@ import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.stage
-import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.asTime
+import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.OrToolsLp
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
@@ -103,6 +104,7 @@ fun main(): Unit = with(SpaceAge) {
         )
     )
     println("Status: ${result.status}")
-    val solution = result.solutions ?: return
-    printAndExportStagedSolution("output/legendary-armor-staged", solution)
+    result.solutions?.let {
+        printAndExportStagedSolution("output/legendary-armor-staged", it)
+    }
 }

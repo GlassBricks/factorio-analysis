@@ -9,7 +9,7 @@ data class StrIngredient(val name: String) : Ingredient {
 @Suppress("FunctionName")
 fun Ingredient(name: String): StrIngredient = StrIngredient(name)
 
-typealias IngredientRate = MapVector<Ingredient, Rate>
+typealias IngredientRate = AnyVector<Ingredient, Rate>
 typealias IngredientVector = Vector<Ingredient>
 
 interface Process {

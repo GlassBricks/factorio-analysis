@@ -91,7 +91,7 @@ fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Time) {
     }
     for ((prev, next) in gridVars.values.zipWithNext()) {
         customProcess("doubling $prev") {
-            ingredientRate = vector<Ingredient>(prev to -2.0, next to 1.0) / targetTime
+            ingredientRate = vectorOf<Ingredient>(prev to -2.0, next to 1.0) / targetTime
         }
     }
 
@@ -104,8 +104,8 @@ fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Time) {
         val size = Size(shape.width.toInt(), shape.height.toInt())
         val grid = gridVars[size] ?: continue
         customProcess("grid $item") {
-            ingredientRate += vector(grid to 1.0) / targetTime
-            ingredientRate -= vector(item.withQuality(legendary) to 1.0) / targetTime
+            ingredientRate += vectorOf(grid to 1.0) / targetTime
+            ingredientRate -= vectorOf(item.withQuality(legendary) to 1.0) / targetTime
         }
     }
     output(mechArmor.withQuality(legendary), rate = 1.0 / targetTime)

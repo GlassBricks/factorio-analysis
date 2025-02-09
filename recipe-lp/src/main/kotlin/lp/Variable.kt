@@ -18,6 +18,7 @@ class Variable(
     val upperBound: Double = Double.POSITIVE_INFINITY,
     val type: VariableType = VariableType.Continuous,
 ) {
+    internal var realizedVariable: Any? = null
     override fun toString(): String = "Variable($name)"
 }
 

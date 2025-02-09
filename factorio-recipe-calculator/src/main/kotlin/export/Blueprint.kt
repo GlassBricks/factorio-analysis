@@ -3,8 +3,9 @@ package glassbricks.factorio.recipes.export
 import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.factorio.prototypes.FurnacePrototype
 import glassbricks.factorio.recipes.*
+import glassbricks.recipeanalysis.Vector
+import glassbricks.recipeanalysis.mapKeysNotNull
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
-import glassbricks.recipeanalysis.vectorMapKeysNotNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -141,16 +142,16 @@ data class BlueprintJson(
     val entities: List<BlueprintEntity>? = null,
 )
 
-fun Map<MachineSetup<*>, Double>.toBlueprint(): BlueprintJson {
+fun Vector<MachineSetup<*>>.toBlueprint(): BlueprintJson {
     var entityNum = 1
     var curCol = 0.0
     var curHeight = 0.0
     var curRowMaxHeight = 0.0
-    val keys = this.keys.sortedBy {
+    val keys = keys.sortedBy {
         it.recipe.toString()
     }
     val entities = keys.flatMap { setup ->
-        val count = this[setup]!!
+        val count = this[setup]
         val prototype = setup.machine.prototype as EntityPrototype
         val height = prototype.tile_height ?: prototype.collision_box?.height?.let(::ceil)?.toInt()
         ?: error("No height for $prototype")
@@ -216,7 +217,7 @@ fun BlueprintJson.exportTo(file: File) {
 
 fun RecipeSolution.toBlueprint(): BlueprintJson {
     val machines = this.processes
-        .vectorMapKeysNotNull { it as? MachineSetup<*> }
+        .mapKeysNotNull { it as? MachineSetup<*> }
     return machines.toBlueprint()
 }
 

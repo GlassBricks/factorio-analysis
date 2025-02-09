@@ -5,7 +5,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 data class Objective(
-    val coefficients: Map<Variable, Double>,
+    val coefficients: Vector<Variable>,
     val constant: Double = 0.0,
     val maximize: Boolean = true,
 )

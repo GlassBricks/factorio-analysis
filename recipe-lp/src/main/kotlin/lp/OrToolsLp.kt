@@ -3,8 +3,9 @@ package glassbricks.recipeanalysis.lp
 import com.google.ortools.Loader
 import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPVariable
-import glassbricks.recipeanalysis.mapValuesNotNull
-import glassbricks.recipeanalysis.vectorWithUnits
+import glassbricks.recipeanalysis.buildVector
+import glassbricks.recipeanalysis.component1
+import glassbricks.recipeanalysis.component2
 
 class OrToolsLp(val solverId: String? = null) : LpSolver {
     class Result(
@@ -20,7 +21,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
     inner class IncrementalSolver(
         val solver: MPSolver,
         val options: LpOptions,
-        val mpVariables: Map<Variable, MPVariable>,
+        val variables: Set<Variable>,
     ) {
         fun solve(): Result {
             if (options.enableLogging) {
@@ -28,7 +29,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                 println(solver.solverVersion())
             }
             val resultStatus = solver.solve()
-            return createResult(resultStatus, solver, mpVariables, options)
+            return createResult(resultStatus, solver, variables, options)
         }
     }
 
@@ -49,8 +50,8 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
 
         val auxVariables = mutableMapOf<Variable, MPVariable>()
-        val mpVariables = variables.associateWith<_, MPVariable> { variable ->
-            when (variable.type) {
+        for (variable in variables) {
+            val mpVariable = when (variable.type) {
                 VariableType.Continuous, VariableType.Integer -> solver.makeVar(
                     variable.lowerBound,
                     variable.upperBound,
@@ -111,12 +112,12 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                     mpVariable
                 }
             }
+            variable.realizedVariable = mpVariable
         }
         for (constraint in constraints) {
             val ct = solver.makeConstraint(0.0, 0.0)
             for ((variable, coefficient) in constraint.lhs) {
-                val mpVariable = mpVariables[variable]!!
-                ct.setCoefficient(mpVariable, coefficient)
+                ct.setCoefficient(variable.realizedVariable as MPVariable, coefficient)
             }
             when (constraint.op) {
                 ComparisonOp.Leq -> ct.setBounds(Double.NEGATIVE_INFINITY, constraint.rhs)
@@ -128,7 +129,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val mpObjective = solver.objective()!!
         mpObjective.setOptimizationDirection(objective.maximize)
         for ((variable, coefficient) in objective.coefficients) {
-            val mpVariable = mpVariables[variable]!!
+            val mpVariable = variable.realizedVariable as MPVariable
             mpObjective.setCoefficient(mpVariable, coefficient)
         }
         mpObjective.setOffset(objective.constant)
@@ -138,7 +139,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         return IncrementalSolver(
             solver = solver,
             options = options,
-            mpVariables = mpVariables
+            variables = variables
         )
     }
 
@@ -156,7 +157,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
     private fun createResult(
         resultStatus: MPSolver.ResultStatus?,
         solver: MPSolver,
-        mpVariables: Map<Variable, MPVariable>,
+        variables: Set<Variable>,
         options: LpOptions,
     ): Result {
         val status = when (resultStatus) {
@@ -177,12 +178,16 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
                 solver.verifySolution(epsilon, true)
             }
 
-            val assignment = mpVariables.mapValuesNotNull {
-                it.value.solutionValue()
-                    .let { if (it in -epsilon..epsilon) 0.0 else it }
+            val assignment = buildVector {
+                for (variable in variables) {
+                    val value = (variable.realizedVariable as MPVariable).solutionValue()
+                    if (value !in -epsilon..epsilon) {
+                        this[variable] = value
+                    }
+                }
             }
             val objective = solver.objective().value()
-            LpSolution(vectorWithUnits(assignment), objective)
+            LpSolution(assignment, objective)
         }
         val bestBound = solver.objective().bestBound()
         return Result(status, bestBound, solution)

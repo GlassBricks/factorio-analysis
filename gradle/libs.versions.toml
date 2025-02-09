@@ -10,6 +10,7 @@ kotlinxCoroutines = "1.8.1"
 kotlinxAtomicfu = "0.27.0"
 kotest = "5.9.1"
 orTools = "9.11.4210"
+fastutil = "8.5.15"
 
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -20,6 +21,7 @@ kotest = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotestAssertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotestProperty = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 orTools = { module = "com.google.ortools:ortools-java", version.ref = "orTools" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 
 # Libraries can be bundled together for easier import
 [bundles]

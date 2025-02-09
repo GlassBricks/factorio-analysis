@@ -44,7 +44,12 @@ data class MachineSetup<M : AnyMachine<*>>(
         maxQuality,
     )
     val cycleInputs get() = recipe.inputs
-    override val netRate: IngredientRate = (cycleOutputs - cycleInputs) / cycleTime
+
+    override val netRate: IngredientRate = buildVector {
+        this += cycleOutputs
+        this -= cycleInputs
+        this.mapValuesInPlace { it.doubleValue / cycleTime.seconds }
+    }.castUnits()
 
     override fun toString(): String = "$machine --> $recipe"
 }
@@ -71,15 +76,12 @@ fun <M : AnyMachine<*>> M.craftingOrNullCast(
     else MachineSetup(this, process as RecipeOrResource<M>, config)
 
 internal fun Vector<Ingredient>.applyProductivity(
-    productsIgnoredFromProductivity: Vector<Ingredient>?,
+    productsIgnoredFromProductivity: Vector<Ingredient>,
     multiplier: Float,
 ): Vector<Ingredient> {
-    if (multiplier == 1f) return this
-    val productsToMultiply =
-        if (productsIgnoredFromProductivity != null) this - productsIgnoredFromProductivity else this
-
-    return (productsToMultiply * multiplier.toDouble())
-        .let { if (productsIgnoredFromProductivity != null) it + productsIgnoredFromProductivity else it }
+    // performance: already handles case if productsIgnoredFromProductivity is empty or multiplier is 1.0
+    val productsToMultiply = this - productsIgnoredFromProductivity
+    return productsToMultiply * multiplier.toDouble() + productsIgnoredFromProductivity
 }
 
 internal fun Vector<Ingredient>.applyQualityRolling(
@@ -87,6 +89,7 @@ internal fun Vector<Ingredient>.applyQualityRolling(
     finalQuality: Quality?,
     qualityChance: Float,
 ): Vector<Ingredient> {
+    if (qualityChance == 0f) return this
     if (qualityChance > 1) TODO("Quality chance > 100%")
     var result: Vector<Ingredient> = emptyVector()
     var curQuality = startingQuality
@@ -104,7 +107,7 @@ internal fun Vector<Ingredient>.applyQualityRolling(
 
 internal fun Vector<Ingredient>.applyProdAndQuality(
     effects: IntEffects,
-    productsIgnoredFromProductivity: Vector<Ingredient>?,
+    productsIgnoredFromProductivity: Vector<Ingredient>,
     startingQuality: Quality,
     finalQuality: Quality?,
 ): Vector<Ingredient> = applyProductivity(

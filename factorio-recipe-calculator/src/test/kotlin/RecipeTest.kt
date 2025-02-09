@@ -1,8 +1,8 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.recipeanalysis.emptyVector
-import glassbricks.recipeanalysis.vector
-import glassbricks.recipeanalysis.vectorWithUnits
+import glassbricks.recipeanalysis.vectorOf
+import glassbricks.recipeanalysis.vectorOfWithUnits
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -12,24 +12,24 @@ class RecipeTest : FunSpec({
         test("iron gear") {
             val recipe = recipe("iron-gear-wheel")
             recipe.prototype.name shouldBe "iron-gear-wheel"
-            recipe.inputs shouldBe vectorWithUnits(item("iron-plate") to 2.0)
-            recipe.outputs shouldBe vectorWithUnits(item("iron-gear-wheel") to 1.0)
+            recipe.inputs shouldBe vectorOfWithUnits(item("iron-plate") to 2.0)
+            recipe.outputs shouldBe vectorOfWithUnits(item("iron-gear-wheel") to 1.0)
             recipe.outputsToIgnoreProductivity shouldBe emptyVector()
         }
         test("kovarex") {
             val recipe = recipe("kovarex-enrichment-process")
             recipe.prototype.name shouldBe "kovarex-enrichment-process"
-            recipe.inputs shouldBe vectorWithUnits(item("uranium-235") to 40.0, item("uranium-238") to 5.0)
-            recipe.outputs shouldBe vectorWithUnits(item("uranium-235") to 41.0, item("uranium-238") to 2.0)
-            recipe.outputsToIgnoreProductivity shouldBe vectorWithUnits(
+            recipe.inputs shouldBe vectorOfWithUnits(item("uranium-235") to 40.0, item("uranium-238") to 5.0)
+            recipe.outputs shouldBe vectorOfWithUnits(item("uranium-235") to 41.0, item("uranium-238") to 2.0)
+            recipe.outputsToIgnoreProductivity shouldBe vectorOfWithUnits(
                 item("uranium-235") to 40.0,
                 item("uranium-238") to 2.0
             )
         }
         test("belt recycling") {
             val recipe = recipe("transport-belt-recycling")
-            recipe.inputs shouldBe vectorWithUnits(item("transport-belt") to 1.0)
-            recipe.outputs shouldBe vector(
+            recipe.inputs shouldBe vectorOfWithUnits(item("transport-belt") to 1.0)
+            recipe.outputs shouldBe vectorOf(
                 item("iron-plate") to 1.0,
                 item("iron-gear-wheel") to 1.0
             ) / 8
@@ -38,11 +38,11 @@ class RecipeTest : FunSpec({
         test("legendary night vision equipment") {
             val legendary = SpaceAge.qualityMap["legendary"]!!
             val recipe = recipe("night-vision-equipment").withQuality(legendary)
-            recipe.inputs shouldBe vectorWithUnits(
+            recipe.inputs shouldBe vectorOfWithUnits(
                 item("steel-plate").maybeWithQuality(legendary) to 10.0,
                 item("advanced-circuit").maybeWithQuality(legendary) to 5.0,
             )
-            recipe.outputs shouldBe vectorWithUnits(
+            recipe.outputs shouldBe vectorOfWithUnits(
                 item("night-vision-equipment").maybeWithQuality(legendary) to 1.0,
             )
         }
