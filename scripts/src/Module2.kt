@@ -1,5 +1,7 @@
 import glassbricks.factorio.prototypes.RecipeID
-import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.Item
+import glassbricks.factorio.recipes.ResearchConfig
+import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.*
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
@@ -12,44 +14,7 @@ import java.io.File
 
 fun main() {
     val vulcanusFactory = SpaceAge.factory {
-        val modules = listOf(
-            speedModule,
-            speedModule2,
-            productivityModule,
-            productivityModule2,
-        )
-        machines {
-            default {
-                includeBuildCosts()
-                moduleConfig()
-
-                for (q in prototypes.qualities) {
-                    for (module in modules) {
-                        moduleConfig(fill = module.withQuality(q))
-                        moduleConfig(
-                            fill = module.withQuality(q),
-                            beacons = listOf(beacon(fill = speedModule2, sharing = 6.0))
-                        )
-                    }
-                    moduleConfig(fill = qualityModule.withQuality(q))
-                    moduleConfig(fill = qualityModule2.withQuality(q))
-                }
-            }
-            bigMiningDrill {}
-            electromagneticPlant {
-//                integralCost()
-//                semiContinuousCost(1.0)
-            }
-            assemblingMachine3 {
-//                integralCost()
-            }
-            foundry {
-//                integral()
-            }
-            recycler() // not integral as we can easily share recyclers
-            chemicalPlant()
-            oilRefinery()
-        }
+        vulcanusMachines()
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(
@@ -58,15 +23,11 @@ fun main() {
             maxQuality = epic
         )
         recipes {
-            default {
-                allQualities()
-            }
+            default { allQualities() }
             allCraftingRecipes()
             calciteMining()
-            coalMining {
-                cost = 30.0 // coal is scarce
-            }
-            remove(substation)
+            coalMining { cost = 35.0 /* coal is scarce */ }
+            tungstenOreMining { cost = 10.0 }
         }
     }
 
@@ -77,12 +38,9 @@ fun main() {
             qualityModule2.withQuality(epic),
             rate = 5.perMinute
         )
-//        output(
-//            electronicCircuit.withQuality(uncommon),
-//            rate = 8.perMinute
-//        )
 
         costs {
+            costOf(assemblingMachine2.item(), 1 + 1.0)
             costOf(assemblingMachine3.item(), 3 + 1.0)
             costOf(foundry.item(), 5 + 2.0)
             costOf(recycler.item(), 10 + 1.0)
@@ -98,12 +56,13 @@ fun main() {
                 costOf(item.withQuality(epic), baseCost * 5 * 4 * 3)
                 costOf(item.withQuality(legendary), baseCost * 5 * 4 * 3 * 3)
             }
-            for (module in listOf(speedModule, productivityModule, qualityModule)) {
+            for (module in module1s) {
                 addQualityCost(module, 1.0)
             }
-            for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
+            for (module in module2s) {
                 addQualityCost(module, 5.0)
             }
+            forbidUnspecifiedModules()
         }
 
     }
@@ -127,16 +86,9 @@ fun main() {
     val graph = solution.toThroughputGraph {
         mergeItemsByQuality()
         mergeRecipesByQuality()
-    }.toFancyDotGraph(
-        formatter = object : FactorioGraphExportFormatter {
-            override fun defaultNumberFormat(value: Double): String = "%.4f".format(value)
-            override fun formatBeaconSetup(beaconSetup: BeaconSetup): String = "b"
-        }
-    )
-    File("output/module2.dot").writeDotGraph(graph)
-
+    }.toFancyDotGraph()
     File("output/module2.txt").writeText(display)
-
+    File("output/module2.dot").writeDotGraph(graph)
     solution.toBlueprint().exportTo(File("output/module2-bp.txt"))
 }
 

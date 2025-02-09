@@ -80,19 +80,24 @@ val module12sAllQualities = module12s.flatMap { SpaceAge.qualities.map { q -> it
 val module123AllQualities =
     module12sAllQualities + module3s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
 
-val sharedSpeed2Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule2, sharing = 6.0)
-val sharedSpeed3Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule3, sharing = 6.0)
-val lessSharedSpeed2Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule2, sharing = 4.0) * 3
-val lessSharedSpeed3Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule3, sharing = 4.0) * 3
+val speed2Beacons = SpaceAge.run {
+    listOf<WithBeaconCount>(
+        beacon(fill = speedModule2, sharing = 6.0),
+        beacon(fill = speedModule2, sharing = 6.0) * 2,
+        beacon(fill = speedModule2, sharing = 4.0) * 3
+    )
+}
+val speed3Beacons = SpaceAge.run {
+    listOf<WithBeaconCount>(
+        beacon(fill = speedModule3, sharing = 6.0),
+        beacon(fill = speedModule3, sharing = 6.0) * 2,
+        beacon(fill = speedModule3, sharing = 4.0) * 3
+    )
+}
 
 fun FactoryConfigBuilder.vulcanusMachines(
     modules: List<Module> = module123AllQualities,
-    beacons: List<List<WithBeaconCount>> = listOf(
-        listOf(sharedSpeed2Beacon),
-        listOf(sharedSpeed3Beacon),
-        listOf(lessSharedSpeed2Beacon),
-        listOf(lessSharedSpeed3Beacon),
-    ),
+    beacons: List<List<WithBeaconCount>> = (speed2Beacons + speed3Beacons).map { listOf(it) },
 ) {
     machines {
         default {

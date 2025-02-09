@@ -4,6 +4,7 @@ import glassbricks.factorio.prototypes.*
 import glassbricks.factorio.recipes.Fluid
 import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.MachineSetup
+import glassbricks.factorio.recipes.RealIngredient
 import glassbricks.factorio.recipes.problem.machine
 import glassbricks.factorio.recipes.problem.recipe
 import glassbricks.recipeanalysis.DotGraph
@@ -67,8 +68,8 @@ interface FactorioGraphExportFormatter : FactorioShorthandFormatter {
     override fun formatSetup(setup: MachineSetup<*>): String =
         formatRecipeOrResource(setup.recipe) + "|" + formatMachine(setup.machine)
 
-    override fun formatInput(input: Ingredient): String = "Input|" + super.formatInput(input)
-    override fun formatOutput(output: Ingredient): String = "Output|" + super.formatOutput(output)
+    override fun formatInput(input: Ingredient): String = super.formatInput(input) + "|Input"
+    override fun formatOutput(output: Ingredient): String = super.formatOutput(output) + "|Output"
 
     companion object Default : FactorioGraphExportFormatter
 }
@@ -318,14 +319,15 @@ private fun ThroughputGraph.formatEdgeLabel(
 
     val multiplier = if (isInput) -1 else 1
     fun getRateStr(item: Ingredient) = formatter.formatIngredientRate(item, rate[item] * multiplier)
+    val needsItemLabel = ingNode.ingredients.isUnique { (it as? RealIngredient)?.prototype } == null
 
-    val needsItemLabel = ingNode.ingredients.isUnique { (it as? Item)?.prototype } == null
     return buildString {
         val ingItemsByProto = rate.keys.filterIsInstance<Item>().groupBy { it.prototype }
         for ((proto, items) in ingItemsByProto) {
             if (needsItemLabel) appendLine(formatter.formatItemName(proto))
+            val nodesWithProto = ingNode.ingredients.count { (it as? Item)?.prototype == proto }
             for (item in items.sortedBy { it.quality }) {
-                if (items.size > 1) {
+                if (items.size > 1 || nodesWithProto > 1) {
                     append(formatter.formatQualityName(item.quality.prototype) + "\t")
                 }
                 appendLine(getRateStr(item))
