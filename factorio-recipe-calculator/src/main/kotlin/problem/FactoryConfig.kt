@@ -236,6 +236,10 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
         fun remove(item: Item) {
             remove(prototypes.recipeOf(item))
         }
+
+        fun remove(entity: Entity) {
+            remove(entity.item())
+        }
     }
 
     var researchConfig: ResearchConfig = ResearchConfig()

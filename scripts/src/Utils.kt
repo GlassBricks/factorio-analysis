@@ -1,8 +1,11 @@
 import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.WithBeaconCount
 import glassbricks.factorio.recipes.export.RecipesFirst
 import glassbricks.factorio.recipes.export.mergeItemsByQuality
 import glassbricks.factorio.recipes.export.mergeRecipesByQuality
 import glassbricks.factorio.recipes.export.toFancyDotGraph
+import glassbricks.factorio.recipes.invoke
+import glassbricks.factorio.recipes.problem.FactoryConfigBuilder
 import glassbricks.recipeanalysis.recipelp.ProductionStage
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
 import glassbricks.recipeanalysis.recipelp.textDisplay
@@ -69,3 +72,34 @@ val module2s = SpaceAge.run {
 }
 val module12s = module1s + module2s
 val module12sAllQualities = module12s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
+
+val sharedSpeed2Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule2, sharing = 6.0)
+
+fun FactoryConfigBuilder.vulcanusMachines(
+    beaconConfigs: List<List<WithBeaconCount>> = listOf(listOf(sharedSpeed2Beacon)),
+) {
+    machines {
+        default {
+            includeBuildCosts()
+
+            moduleConfig() // no modules
+            for (module in module12sAllQualities) {
+                moduleConfig(fill = module)
+                if (module.effects.quality <= 0) {
+                    for (beaconConfig in beaconConfigs) {
+                        moduleConfig(fill = module, beacons = beaconConfig)
+                    }
+                }
+            }
+        }
+        assemblingMachine3()
+        assemblingMachine2()
+        chemicalPlant()
+        oilRefinery()
+        foundry()
+        bigMiningDrill()
+        electricFurnace()
+        recycler()
+        electromagneticPlant()
+    }
+}

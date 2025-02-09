@@ -23,12 +23,10 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val mpVariables: Map<Variable, MPVariable>,
     ) {
         fun solve(): Result {
-
             if (options.enableLogging) {
                 println("Starting solve")
                 println(solver.solverVersion())
             }
-            // solve again
             val resultStatus = solver.solve()
             return createResult(resultStatus, solver, mpVariables, options)
         }

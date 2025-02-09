@@ -6,7 +6,7 @@ import kotlin.math.abs
 value class MapVector<T, out Units>
 @PublishedApi
 internal constructor(internal val map: Map<T, Double>) : Map<T, Double> by map {
-    override operator fun get(key: T): Double = map.getOrDefault(key, 0.0)
+    override operator fun get(key: T): Double = map[key] ?: 0.0
 
     @Suppress("UNCHECKED_CAST")
     fun <U> castUnits(): MapVector<T, U> = this as MapVector<T, U>

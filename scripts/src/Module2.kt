@@ -127,7 +127,6 @@ fun main() {
     val graph = solution.toThroughputGraph {
         mergeItemsByQuality()
         mergeRecipesByQuality()
-
     }.toFancyDotGraph(
         formatter = object : FactorioGraphExportFormatter {
             override fun defaultNumberFormat(value: Double): String = "%.4f".format(value)

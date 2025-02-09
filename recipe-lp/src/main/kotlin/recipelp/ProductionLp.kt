@@ -93,7 +93,7 @@ internal fun ProductionLp.createVarsAndConstraints(existingVars: Map<ProductionS
     val additionalConstraints = mutableListOf<Constraint>()
     val objectiveWeights = mutableMapOf<Variable, Double>()
 
-    fun VariableConfig.createVariable(name: String): Variable = createVariableNoCost(name).also { variable ->
+    fun VariableConfig.createVariable(name: String = ""): Variable = createVariableNoCost(name).also { variable ->
         objectiveWeights[variable] = cost
     }
 
