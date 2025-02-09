@@ -7,8 +7,8 @@ class Quality(
     val nextQuality: Quality?,
 ) : Comparable<Quality> {
     val level = prototype.level.toInt()
-    override fun toString(): String = prototype.name
     override fun compareTo(other: Quality): Int = level.compareTo(other.level)
+    override fun toString(): String = prototype.name
 }
 
 fun loadQualities(qualities: Map<String, QualityPrototype>): Map<String, Quality> {

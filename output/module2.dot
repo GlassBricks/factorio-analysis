@@ -1,909 +1,320 @@
-digraph  {
-  layout="dot"
-  compound=true
-  ranksep=1.0
-  0 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="lava
-lava"]
-  1 [shape="box"; color="#006400"; label="lava
-8681.13457/s"]
-  2 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="sulfuric-acid
-sulfuric-acid"]
-  3 [shape="box"; color="#006400"; label="sulfuric-acid
-408.70124/s"]
-  4 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="qual2(epic)
-qual2(epic)"]
-  5 [shape="box"; color="#006400"; label="qual2(epic)
-0.08333/s"]
-  6 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="calcite
-big-mining-drill
-[speed x4, b[speed2 x2]]
-calcite
-big-mining-drill
-[speed x4, b[speed2 x2]]"]
-  7 [shape="box"; color="#006400"; label="calcite
-17.76937/s"]
-  8 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="coal
-big-mining-drill
-[qual2 x4]
-coal
-big-mining-drill
-[qual2 x4]"]
-  9 [shape="box"; color="#006400"; label="coal
-81.14771/s"]
-  10 [shape="box"; color="#006400"; label="coal(uncommon)
-7.54560/s"]
-  11 [shape="box"; color="#006400"; label="coal(rare)
-0.75456/s"]
-  12 [shape="box"; color="#006400"; label="coal(epic)
-0.08384/s"]
-  13 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="copper-cable(rare)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]
-copper-cable(rare)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]"]
-  14 [shape="box"; color="#006400"; label="copper-cable(rare)
-20.15735/s"]
-  15 [shape="box"; color="#006400"; label="copper-plate(rare)
-8.71851/s"]
-  16 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="quality-module(epic)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]
-quality-module(epic)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]"]
-  17 [shape="box"; color="#006400"; label="qual(epic)
-0.17741/s"]
-  18 [shape="box"; color="#006400"; label="electronic-circuit(epic)
-3.06151/s"]
-  19 [shape="box"; color="#006400"; label="advanced-circuit(epic)
-0.87108/s"]
-  20 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="quality-module-2(epic)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]
-quality-module-2(epic)
-electromagnetic-plant
-[speed x5, b[speed2 x2]]"]
-  21 [shape="box"; color="#006400"; label="processing-unit(epic)
-0.22176/s"]
-  22 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="electronic-circuit(rare)
-electromagnetic-plant
-[prod2 x5, b[speed2 x2]]
-electronic-circuit(rare)
-electromagnetic-plant
-[prod2 x5, b[speed2 x2]]"]
-  23 [shape="box"; color="#006400"; label="electronic-circuit(rare)
-7.88096/s"]
-  24 [shape="box"; color="#006400"; label="iron-plate(rare)
-5.07934/s"]
-  25 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="copper-cable(epic)
-electromagnetic-plant
-[prod2 x5, b[speed2 x2]]
-copper-cable(epic)
-electromagnetic-plant
-[prod2 x5, b[speed2 x2]]"]
-  26 [shape="box"; color="#006400"; label="copper-cable(epic)
-5.73546/s"]
-  27 [shape="box"; color="#006400"; label="copper-plate(epic)
-1.46976/s"]
-  28 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="electronic-circuit(rare)
-electromagnetic-plant
-[qual2 x5]
-electronic-circuit(rare)
-electromagnetic-plant
-[qual2 x5]"]
-  29 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="advanced-circuit(rare)
-electromagnetic-plant
-[qual2 x5]
-advanced-circuit(rare)
-electromagnetic-plant
-[qual2 x5]"]
-  30 [shape="box"; color="#006400"; label="advanced-circuit(rare)
-1.78624/s"]
-  31 [shape="box"; color="#006400"; label="plastic-bar(rare)
-4.01229/s"]
-  32 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="quality-module(rare)
-electromagnetic-plant
-[qual2 x5]
-quality-module(rare)
-electromagnetic-plant
-[qual2 x5]"]
-  33 [shape="box"; color="#006400"; label="qual(rare)
-0.34473/s"]
-  34 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="processing-unit(rare)
-electromagnetic-plant
-[qual2 x5]
-processing-unit(rare)
-electromagnetic-plant
-[qual2 x5]"]
-  35 [shape="box"; color="#006400"; label="processing-unit(rare)
-0.43091/s"]
-  36 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="electronic-circuit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]
-electronic-circuit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]"]
-  37 [shape="box"; color="#006400"; label="iron-plate(epic)
-1.42751/s"]
-  38 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="advanced-circuit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]
-advanced-circuit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]"]
-  39 [shape="box"; color="#006400"; label="plastic-bar(epic)
-0.72647/s"]
-  40 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="processing-unit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]
-processing-unit(epic)
-electromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]"]
-  41 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="quality-module-2(rare)
-electromagnetic-plant
-[qual2(uncommon) x5]
-quality-module-2(rare)
-electromagnetic-plant
-[qual2(uncommon) x5]"]
-  42 [shape="box"; color="#006400"; label="qual2(rare)
-0.11247/s"]
-  43 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="pipe(uncommon)
-assembling-machine-3
-[speed x4, b[speed2 x2]]
-pipe(uncommon)
-assembling-machine-3
-[speed x4, b[speed2 x2]]"]
-  44 [shape="box"; color="#006400"; label="pipe(uncommon)
-70.41892/s"]
-  45 [shape="box"; color="#006400"; label="iron-plate(uncommon)
-24.83724/s"]
-  46 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="iron-chest
-assembling-machine-3
-[qual x4]
-iron-chest
-assembling-machine-3
-[qual x4]"]
-  47 [shape="box"; color="#006400"; label="iron-chest
-11.64843/s"]
-  48 [shape="box"; color="#006400"; label="iron-chest(uncommon)
-0.43682/s"]
-  49 [shape="box"; color="#006400"; label="iron-chest(rare)
-0.04368/s"]
-  50 [shape="box"; color="#006400"; label="iron-chest(epic)
-0.00485/s"]
-  51 [shape="box"; color="#006400"; label="iron-plate
-97.07023/s"]
-  52 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="copper-cable(rare)
-assembling-machine-3
-[qual x4]
-copper-cable(rare)
-assembling-machine-3
-[qual x4]"]
-  53 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="heat-exchanger(uncommon)
-assembling-machine-3
-[qual2 x4]
-heat-exchanger(uncommon)
-assembling-machine-3
-[qual2 x4]"]
-  54 [shape="box"; color="#006400"; label="heat-exchanger(uncommon)
-0.36942/s"]
-  55 [shape="box"; color="#006400"; label="heat-exchanger(rare)
-0.02891/s"]
-  56 [shape="box"; color="#006400"; label="heat-exchanger(epic)
-0.00321/s"]
-  57 [shape="box"; color="#006400"; label="steel-plate(uncommon)
-4.01541/s"]
-  58 [shape="box"; color="#006400"; label="copper-plate(uncommon)
-40.15406/s"]
-  59 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="molten-iron-from-lava
-foundry
-[speed x4, b[speed2 x2]]
-molten-iron-from-lava
-foundry
-[speed x4, b[speed2 x2]]"]
-  60 [shape="box"; color="#006400"; label="molten-iron
-5325.44478/s"]
-  61 [shape="box"; color="#006400"; label="stone
-284.14216/s (284.14216/s)"]
-  62 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="molten-copper-from-lava
-foundry
-[speed x4, b[speed2 x2]]
-molten-copper-from-lava
-foundry
-[speed x4, b[speed2 x2]]"]
-  63 [shape="box"; color="#006400"; label="molten-copper
-1185.40615/s"]
-  64 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-pipe
-foundry
-[speed x4, b[speed2 x2]]
-casting-pipe
-foundry
-[speed x4, b[speed2 x2]]"]
-  65 [shape="box"; color="#006400"; label="pipe
-476.60443/s"]
-  66 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-pipe-to-ground(epic)
-foundry
-[speed x4, b[speed2 x2]]
-casting-pipe-to-ground(epic)
-foundry
-[speed x4, b[speed2 x2]]"]
-  67 [shape="box"; color="#006400"; label="pipe-to-ground(epic)
-1.34208/s"]
-  68 [shape="box"; color="#006400"; label="pipe(epic)
-2.78887/s"]
-  69 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-pipe-to-ground
-foundry
-[qual2 x4]
-casting-pipe-to-ground
-foundry
-[qual2 x4]"]
-  70 [shape="box"; color="#006400"; label="pipe-to-ground
-131.54283/s"]
-  71 [shape="box"; color="#006400"; label="pipe-to-ground(uncommon)
-28.62202/s"]
-  72 [shape="box"; color="#006400"; label="pipe-to-ground(rare)
-5.12789/s"]
-  73 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-pipe-to-ground(uncommon)
-foundry
-[qual2 x4]
-casting-pipe-to-ground(uncommon)
-foundry
-[qual2 x4]"]
-  74 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-pipe-to-ground(rare)
-foundry
-[qual2 x4]
-casting-pipe-to-ground(rare)
-foundry
-[qual2 x4]"]
-  75 [shape="box"; color="#006400"; label="pipe(rare)
-9.65258/s"]
-  76 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-low-density-structure(uncommon)
-foundry
-[qual2 x4]
-casting-low-density-structure(uncommon)
-foundry
-[qual2 x4]"]
-  77 [shape="box"; color="#006400"; label="low-density-structure(uncommon)
-6.93024/s"]
-  78 [shape="box"; color="#006400"; label="low-density-structure(rare)
-1.02803/s"]
-  79 [shape="box"; color="#006400"; label="low-density-structure(epic)
-0.10249/s"]
-  80 [shape="box"; color="#006400"; label="plastic-bar(uncommon)
-22.15550/s"]
-  81 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="casting-low-density-structure(rare)
-foundry
-[qual2 x4]
-casting-low-density-structure(rare)
-foundry
-[qual2 x4]"]
-  82 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="pipe-to-ground-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]
-pipe-to-ground-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]"]
-  83 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="iron-chest-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]
-iron-chest-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]"]
-  84 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="low-density-structure-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]
-low-density-structure-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]"]
-  85 [shape="box"; color="#006400"; label="steel-plate(epic)
-0.14698/s (0.14698/s)"]
-  86 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="heat-exchanger-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]
-heat-exchanger-recycling(epic)
-recycler
-[speed x4, b[speed2 x2]]"]
-  87 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="pipe-to-ground-recycling
-recycler
-[qual2 x4]
-pipe-to-ground-recycling
-recycler
-[qual2 x4]"]
-  88 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="pipe-to-ground-recycling(uncommon)
-recycler
-[qual2 x4]
-pipe-to-ground-recycling(uncommon)
-recycler
-[qual2 x4]"]
-  89 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="iron-chest-recycling
-recycler
-[qual2 x4]
-iron-chest-recycling
-recycler
-[qual2 x4]"]
-  90 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="low-density-structure-recycling(uncommon)
-recycler
-[qual2 x4]
-low-density-structure-recycling(uncommon)
-recycler
-[qual2 x4]"]
-  91 [shape="box"; color="#006400"; label="steel-plate(rare)
-0.87185/s (0.87185/s)"]
-  92 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="low-density-structure-recycling(rare)
-recycler
-[qual2 x4]
-low-density-structure-recycling(rare)
-recycler
-[qual2 x4]"]
-  93 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="coal-recycling
-recycler
-[qual2 x4]
-coal-recycling
-recycler
-[qual2 x4]"]
-  94 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="pipe-to-ground-recycling(rare)
-recycler
-[qual2(uncommon) x4]
-pipe-to-ground-recycling(rare)
-recycler
-[qual2(uncommon) x4]"]
-  95 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="iron-chest-recycling(uncommon)
-recycler
-[qual2(uncommon) x4]
-iron-chest-recycling(uncommon)
-recycler
-[qual2(uncommon) x4]"]
-  96 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="iron-chest-recycling(rare)
-recycler
-[qual2(uncommon) x4]
-iron-chest-recycling(rare)
-recycler
-[qual2(uncommon) x4]"]
-  97 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="heat-exchanger-recycling(uncommon)
-recycler
-[qual2(uncommon) x4]
-heat-exchanger-recycling(uncommon)
-recycler
-[qual2(uncommon) x4]"]
-  98 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="quality-module-2-recycling(rare)
-recycler
-[qual2(uncommon) x4]
-quality-module-2-recycling(rare)
-recycler
-[qual2(uncommon) x4]"]
-  99 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="heat-exchanger-recycling(rare)
-recycler
-[qual2(rare) x4]
-heat-exchanger-recycling(rare)
-recycler
-[qual2(rare) x4]"]
-  100 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="acid-neutralisation
-chemical-plant
-acid-neutralisation
-chemical-plant"]
-  101 [shape="box"; color="#006400"; label="steam
-4071.03546/s"]
-  102 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="steam-condensation
-chemical-plant
-steam-condensation
-chemical-plant"]
-  103 [shape="box"; color="#006400"; label="water
-352.87869/s"]
-  104 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="heavy-oil-cracking
-chemical-plant
-heavy-oil-cracking
-chemical-plant"]
-  105 [shape="box"; color="#006400"; label="light-oil
-206.47157/s"]
-  106 [shape="box"; color="#006400"; label="heavy-oil
-195.20949/s"]
-  107 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="light-oil-cracking
-chemical-plant
-light-oil-cracking
-chemical-plant"]
-  108 [shape="box"; color="#006400"; label="petroleum-gas
-167.67994/s"]
-  109 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="plastic-bar(uncommon)
-chemical-plant
-[qual2 x3]
-plastic-bar(uncommon)
-chemical-plant
-[qual2 x3]"]
-  110 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="plastic-bar(rare)
-chemical-plant
-[qual2(uncommon) x3]
-plastic-bar(rare)
-chemical-plant
-[qual2(uncommon) x3]"]
-  111 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="plastic-bar(epic)
-chemical-plant
-[prod(legendary) x3, b[speed2 x2]]
-plastic-bar(epic)
-chemical-plant
-[prod(legendary) x3, b[speed2 x2]]"]
-  112 [shape="box"; style="filled"; color="#842e99"; fillcolor="#cceeff"; label="coal-liquefaction
-oil-refinery
-coal-liquefaction
-oil-refinery"]
-  0 -> 1 [color="#0f4699"; label="8681.13457/s"]
-  1 -> 59 [color="#99620f"; label="7100.59304/s"]
-  1 -> 62 [color="#99620f"; label="1580.54153/s"]
-  2 -> 3 [color="#0f4699"; label="408.70124/s"]
-  3 -> 34 [color="#99620f"; label="1.12944/s"; lhead="cluster_recipe_processing_unit"]
-  3 -> 40 [color="#99620f"; label="0.46826/s"; lhead="cluster_recipe_processing_unit"]
-  3 -> 100 [color="#99620f"; label="407.10355/s"]
-  5 -> 4 [color="#99620f"; label="0.08333/s"; ltail="cluster_item_quality_module_2"]
-  6 -> 7 [color="#0f4699"; label="17.76937/s"]
-  7 -> 59 [color="#99620f"; label="14.20119/s"]
-  7 -> 62 [color="#99620f"; label="3.16108/s"]
-  7 -> 100 [color="#99620f"; label="0.40710/s"]
-  8 -> 9 [color="#0f4699"; label="81.14771/s"; lhead="cluster_item_coal"]
-  8 -> 10 [color="#0f4699"; label="6.35069/s"; lhead="cluster_item_coal"]
-  8 -> 11 [color="#0f4699"; label="0.63507/s"; lhead="cluster_item_coal"]
-  8 -> 12 [color="#0f4699"; label="0.07056/s"; lhead="cluster_item_coal"]
-  93 -> 9 [color="#99620f"; label="51.11548/s"; dir=back; lhead="cluster_item_coal"]
-  9 -> 112 [color="#99620f"; label="30.03223/s"; ltail="cluster_item_coal"]
-  10 -> 109 [color="#99620f"; label="7.54560/s"; ltail="cluster_item_coal"; lhead="cluster_recipe_plastic_bar"]
-  11 -> 110 [color="#99620f"; label="0.75456/s"; ltail="cluster_item_coal"; lhead="cluster_recipe_plastic_bar"]
-  12 -> 111 [color="#99620f"; label="0.08384/s"; ltail="cluster_item_coal"; lhead="cluster_recipe_plastic_bar"]
-  13 -> 14 [color="#0f4699"; label="9.49393/s"; lhead="cluster_item_copper_cable"; ltail="cluster_recipe_copper_cable"]
-  14 -> 22 [color="#99620f"; label="6.82567/s"; ltail="cluster_item_copper_cable"; lhead="cluster_recipe_electronic_circuit"]
-  14 -> 28 [color="#99620f"; label="8.41235/s"; ltail="cluster_item_copper_cable"; lhead="cluster_recipe_electronic_circuit"]
-  14 -> 29 [color="#99620f"; label="4.91933/s"; ltail="cluster_item_copper_cable"; lhead="cluster_recipe_advanced_circuit"]
-  15 -> 13 [color="#99620f"; label="3.16464/s"; ltail="cluster_item_copper_plate"; lhead="cluster_recipe_copper_cable"]
-  15 -> 52 [color="#99620f"; label="5.55386/s"; ltail="cluster_item_copper_plate"; lhead="cluster_recipe_copper_cable"]
-  16 -> 17 [color="#0f4699"; label="0.13860/s"; lhead="cluster_item_quality_module"; ltail="cluster_recipe_quality_module"]
-  17 -> 20 [color="#99620f"; label="0.17741/s"; ltail="cluster_item_quality_module"; lhead="cluster_recipe_quality_module_2"]
-  18 -> 16 [color="#99620f"; label="0.46201/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_quality_module"]
-  18 -> 38 [color="#99620f"; label="0.72647/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_advanced_circuit"]
-  18 -> 40 [color="#99620f"; label="1.87303/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_processing_unit"]
-  19 -> 16 [color="#99620f"; label="0.46201/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_quality_module"]
-  19 -> 20 [color="#99620f"; label="0.22176/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_quality_module_2"]
-  19 -> 40 [color="#99620f"; label="0.18730/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_processing_unit"]
-  20 -> 5 [color="#0f4699"; label="0.06653/s"; lhead="cluster_item_quality_module_2"; ltail="cluster_recipe_quality_module_2"]
-  21 -> 20 [color="#99620f"; label="0.22176/s"; ltail="cluster_item_processing_unit"; lhead="cluster_recipe_quality_module_2"]
-  22 -> 23 [color="#0f4699"; label="4.09540/s"; lhead="cluster_item_electronic_circuit"; ltail="cluster_recipe_electronic_circuit"]
-  23 -> 29 [color="#99620f"; label="2.45966/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_advanced_circuit"]
-  23 -> 32 [color="#99620f"; label="0.90355/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_quality_module"]
-  23 -> 34 [color="#99620f"; label="4.51775/s"; ltail="cluster_item_electronic_circuit"; lhead="cluster_recipe_processing_unit"]
-  24 -> 22 [color="#99620f"; label="2.27522/s"; ltail="cluster_item_iron_plate"; lhead="cluster_recipe_electronic_circuit"]
-  24 -> 28 [color="#99620f"; label="2.80412/s"; ltail="cluster_item_iron_plate"; lhead="cluster_recipe_electronic_circuit"]
-  25 -> 26 [color="#0f4699"; label="5.29115/s"; lhead="cluster_item_copper_cable"; ltail="cluster_recipe_copper_cable"]
-  26 -> 36 [color="#99620f"; label="4.28253/s"; ltail="cluster_item_copper_cable"; lhead="cluster_recipe_electronic_circuit"]
-  26 -> 38 [color="#99620f"; label="1.45293/s"; ltail="cluster_item_copper_cable"; lhead="cluster_recipe_advanced_circuit"]
-  27 -> 25 [color="#99620f"; label="1.46976/s"; ltail="cluster_item_copper_plate"; lhead="cluster_recipe_copper_cable"]
-  28 -> 23 [color="#0f4699"; label="3.78556/s"; lhead="cluster_item_electronic_circuit"; ltail="cluster_recipe_electronic_circuit"]
-  28 -> 18 [color="#0f4699"; label="0.42062/s"; lhead="cluster_item_electronic_circuit"; ltail="cluster_recipe_electronic_circuit"]
-  29 -> 30 [color="#0f4699"; label="1.66027/s"; lhead="cluster_item_advanced_circuit"; ltail="cluster_recipe_advanced_circuit"]
-  29 -> 19 [color="#0f4699"; label="0.18447/s"; lhead="cluster_item_advanced_circuit"; ltail="cluster_recipe_advanced_circuit"]
-  30 -> 32 [color="#99620f"; label="0.90355/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_quality_module"]
-  30 -> 34 [color="#99620f"; label="0.45177/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_processing_unit"]
-  30 -> 41 [color="#99620f"; label="0.43091/s"; ltail="cluster_item_advanced_circuit"; lhead="cluster_recipe_quality_module_2"]
-  31 -> 29 [color="#99620f"; label="2.45966/s"; ltail="cluster_item_plastic_bar"; lhead="cluster_recipe_advanced_circuit"]
-  31 -> 81 [color="#99620f"; label="1.55262/s"; ltail="cluster_item_plastic_bar"; lhead="cluster_recipe_casting_low_density_structure"]
-  32 -> 33 [color="#0f4699"; label="0.24396/s"; lhead="cluster_item_quality_module"; ltail="cluster_recipe_quality_module"]
-  32 -> 17 [color="#0f4699"; label="0.02711/s"; lhead="cluster_item_quality_module"; ltail="cluster_recipe_quality_module"]
-  33 -> 41 [color="#99620f"; label="0.34473/s"; ltail="cluster_item_quality_module"; lhead="cluster_recipe_quality_module_2"]
-  34 -> 35 [color="#0f4699"; label="0.30495/s"; lhead="cluster_item_processing_unit"; ltail="cluster_recipe_processing_unit"]
-  34 -> 21 [color="#0f4699"; label="0.03388/s"; lhead="cluster_item_processing_unit"; ltail="cluster_recipe_processing_unit"]
-  35 -> 41 [color="#99620f"; label="0.43091/s"; ltail="cluster_item_processing_unit"; lhead="cluster_recipe_quality_module_2"]
-  36 -> 18 [color="#0f4699"; label="2.64089/s"; lhead="cluster_item_electronic_circuit"; ltail="cluster_recipe_electronic_circuit"]
-  37 -> 36 [color="#99620f"; label="1.42751/s"; ltail="cluster_item_iron_plate"; lhead="cluster_recipe_electronic_circuit"]
-  38 -> 19 [color="#0f4699"; label="0.67198/s"; lhead="cluster_item_advanced_circuit"; ltail="cluster_recipe_advanced_circuit"]
-  39 -> 38 [color="#99620f"; label="0.72647/s"; ltail="cluster_item_plastic_bar"; lhead="cluster_recipe_advanced_circuit"]
-  40 -> 21 [color="#0f4699"; label="0.17326/s"; lhead="cluster_item_processing_unit"; ltail="cluster_recipe_processing_unit"]
-  41 -> 42 [color="#0f4699"; label="0.11247/s"; lhead="cluster_item_quality_module_2"; ltail="cluster_recipe_quality_module_2"]
-  41 -> 5 [color="#0f4699"; label="0.01681/s"; lhead="cluster_item_quality_module_2"; ltail="cluster_recipe_quality_module_2"]
-  98 -> 42 [color="#99620f"; label="0.11247/s"; dir=back; lhead="cluster_item_quality_module_2"]
-  43 -> 44 [color="#0f4699"; label="24.83724/s"; lhead="cluster_item_pipe"]
-  44 -> 53 [color="#99620f"; label="4.01541/s"; ltail="cluster_item_pipe"]
-  44 -> 73 [color="#99620f"; label="66.40351/s"; ltail="cluster_item_pipe"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  45 -> 43 [color="#99620f"; label="24.83724/s"; ltail="cluster_item_iron_plate"]
-  46 -> 47 [color="#0f4699"; label="11.64843/s"; lhead="cluster_item_iron_chest"]
-  46 -> 48 [color="#0f4699"; label="0.43682/s"; lhead="cluster_item_iron_chest"]
-  46 -> 49 [color="#0f4699"; label="0.04368/s"; lhead="cluster_item_iron_chest"]
-  46 -> 50 [color="#0f4699"; label="0.00485/s"; lhead="cluster_item_iron_chest"]
-  89 -> 47 [color="#99620f"; label="11.64843/s"; ltail="cluster_recipe_iron_chest_recycling"; lhead="cluster_item_iron_chest"; dir=back]
-  95 -> 48 [color="#99620f"; label="0.43682/s"; ltail="cluster_recipe_iron_chest_recycling"; lhead="cluster_item_iron_chest"; dir=back]
-  96 -> 49 [color="#99620f"; label="0.04368/s"; ltail="cluster_recipe_iron_chest_recycling"; lhead="cluster_item_iron_chest"; dir=back]
-  83 -> 50 [color="#99620f"; label="0.00485/s"; ltail="cluster_recipe_iron_chest_recycling"; lhead="cluster_item_iron_chest"; dir=back]
-  51 -> 46 [color="#99620f"; label="97.07023/s"; ltail="cluster_item_iron_plate"]
-  52 -> 14 [color="#0f4699"; label="10.66341/s"; lhead="cluster_item_copper_cable"; ltail="cluster_recipe_copper_cable"]
-  52 -> 26 [color="#0f4699"; label="0.44431/s"; lhead="cluster_item_copper_cable"; ltail="cluster_recipe_copper_cable"]
-  53 -> 54 [color="#0f4699"; label="0.36942/s"; lhead="cluster_item_heat_exchanger"]
-  53 -> 55 [color="#0f4699"; label="0.02891/s"; lhead="cluster_item_heat_exchanger"]
-  53 -> 56 [color="#0f4699"; label="0.00321/s"; lhead="cluster_item_heat_exchanger"]
-  97 -> 54 [color="#99620f"; label="0.36942/s"; ltail="cluster_recipe_heat_exchanger_recycling"; lhead="cluster_item_heat_exchanger"; dir=back]
-  99 -> 55 [color="#99620f"; label="0.02891/s"; ltail="cluster_recipe_heat_exchanger_recycling"; lhead="cluster_item_heat_exchanger"; dir=back]
-  86 -> 56 [color="#99620f"; label="0.00321/s"; ltail="cluster_recipe_heat_exchanger_recycling"; lhead="cluster_item_heat_exchanger"; dir=back]
-  57 -> 53 [color="#99620f"; label="4.01541/s"; ltail="cluster_item_steel_plate"]
-  58 -> 53 [color="#99620f"; label="40.15406/s"; ltail="cluster_item_copper_plate"]
-  59 -> 60 [color="#0f4699"; label="5325.44478/s"]
-  59 -> 61 [color="#0f4699"; label="213.01779/s"]
-  60 -> 64 [color="#99620f"; label="2168.86786/s"]
-  60 -> 66 [color="#99620f"; label="13.94436/s"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  60 -> 69 [color="#99620f"; label="2383.02216/s"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  60 -> 73 [color="#99620f"; label="332.01755/s"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  60 -> 74 [color="#99620f"; label="48.26288/s"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  60 -> 76 [color="#99620f"; label="354.48800/s"; lhead="cluster_recipe_casting_low_density_structure"]
-  60 -> 81 [color="#99620f"; label="24.84196/s"; lhead="cluster_recipe_casting_low_density_structure"]
-  62 -> 63 [color="#0f4699"; label="1185.40615/s"]
-  62 -> 61 [color="#0f4699"; label="71.12437/s"]
-  63 -> 76 [color="#99620f"; label="1107.77501/s"; lhead="cluster_recipe_casting_low_density_structure"]
-  63 -> 81 [color="#99620f"; label="77.63113/s"; lhead="cluster_recipe_casting_low_density_structure"]
-  64 -> 65 [color="#0f4699"; label="325.33018/s"; lhead="cluster_item_pipe"]
-  65 -> 69 [color="#99620f"; label="476.60443/s"; ltail="cluster_item_pipe"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  66 -> 67 [color="#0f4699"; label="0.83666/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  82 -> 67 [color="#99620f"; label="1.34208/s"; ltail="cluster_recipe_pipe_to_ground_recycling"; lhead="cluster_item_pipe_to_ground"; dir=back]
-  68 -> 66 [color="#99620f"; label="2.78887/s"; ltail="cluster_item_pipe"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  69 -> 70 [color="#0f4699"; label="131.54283/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  69 -> 71 [color="#0f4699"; label="10.29466/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  69 -> 72 [color="#0f4699"; label="1.02947/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  69 -> 67 [color="#0f4699"; label="0.11439/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  87 -> 70 [color="#99620f"; label="131.54283/s"; ltail="cluster_recipe_pipe_to_ground_recycling"; lhead="cluster_item_pipe_to_ground"; dir=back]
-  88 -> 71 [color="#99620f"; label="28.62202/s"; ltail="cluster_recipe_pipe_to_ground_recycling"; lhead="cluster_item_pipe_to_ground"; dir=back]
-  94 -> 72 [color="#99620f"; label="5.12789/s"; ltail="cluster_recipe_pipe_to_ground_recycling"; lhead="cluster_item_pipe_to_ground"; dir=back]
-  73 -> 71 [color="#0f4699"; label="18.32737/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  73 -> 72 [color="#0f4699"; label="1.43432/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  73 -> 67 [color="#0f4699"; label="0.15937/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  74 -> 72 [color="#0f4699"; label="2.66411/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  74 -> 67 [color="#0f4699"; label="0.23166/s"; lhead="cluster_item_pipe_to_ground"; ltail="cluster_recipe_casting_pipe_to_ground"]
-  75 -> 74 [color="#99620f"; label="9.65258/s"; ltail="cluster_item_pipe"; lhead="cluster_recipe_casting_pipe_to_ground"]
-  76 -> 77 [color="#0f4699"; label="6.93024/s"; lhead="cluster_item_low_density_structure"; ltail="cluster_recipe_casting_low_density_structure"]
-  76 -> 78 [color="#0f4699"; label="0.54237/s"; lhead="cluster_item_low_density_structure"; ltail="cluster_recipe_casting_low_density_structure"]
-  76 -> 79 [color="#0f4699"; label="0.06026/s"; lhead="cluster_item_low_density_structure"; ltail="cluster_recipe_casting_low_density_structure"]
-  90 -> 77 [color="#99620f"; label="6.93024/s"; ltail="cluster_recipe_low_density_structure_recycling"; lhead="cluster_item_low_density_structure"; dir=back]
-  92 -> 78 [color="#99620f"; label="1.02803/s"; ltail="cluster_recipe_low_density_structure_recycling"; lhead="cluster_item_low_density_structure"; dir=back]
-  84 -> 79 [color="#99620f"; label="0.10249/s"; ltail="cluster_recipe_low_density_structure_recycling"; lhead="cluster_item_low_density_structure"; dir=back]
-  80 -> 76 [color="#99620f"; label="22.15550/s"; ltail="cluster_item_plastic_bar"; lhead="cluster_recipe_casting_low_density_structure"]
-  81 -> 78 [color="#0f4699"; label="0.48566/s"; lhead="cluster_item_low_density_structure"; ltail="cluster_recipe_casting_low_density_structure"]
-  81 -> 79 [color="#0f4699"; label="0.04223/s"; lhead="cluster_item_low_density_structure"; ltail="cluster_recipe_casting_low_density_structure"]
-  68 -> 82 [color="#0f4699"; label="1.67760/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  37 -> 82 [color="#0f4699"; label="0.83880/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  37 -> 83 [color="#0f4699"; label="0.00971/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  85 -> 84 [color="#0f4699"; label="0.05125/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 84 [color="#0f4699"; label="0.51247/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  39 -> 84 [color="#0f4699"; label="0.12812/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  85 -> 86 [color="#0f4699"; label="0.00803/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 86 [color="#0f4699"; label="0.08031/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  68 -> 86 [color="#0f4699"; label="0.00803/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  65 -> 87 [color="#0f4699"; label="151.27425/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  51 -> 87 [color="#0f4699"; label="75.63713/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  44 -> 87 [color="#0f4699"; label="11.83885/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  45 -> 87 [color="#0f4699"; label="5.91943/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  75 -> 87 [color="#0f4699"; label="1.18389/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  24 -> 87 [color="#0f4699"; label="0.59194/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  68 -> 87 [color="#0f4699"; label="0.13154/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  37 -> 87 [color="#0f4699"; label="0.06577/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  44 -> 88 [color="#0f4699"; label="32.91533/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  45 -> 88 [color="#0f4699"; label="16.45766/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  75 -> 88 [color="#0f4699"; label="2.57598/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  24 -> 88 [color="#0f4699"; label="1.28799/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  68 -> 88 [color="#0f4699"; label="0.28622/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  37 -> 88 [color="#0f4699"; label="0.14311/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  51 -> 89 [color="#0f4699"; label="21.43311/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  45 -> 89 [color="#0f4699"; label="1.67737/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  24 -> 89 [color="#0f4699"; label="0.16774/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  37 -> 89 [color="#0f4699"; label="0.01864/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  57 -> 90 [color="#0f4699"; label="3.18791/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  58 -> 90 [color="#0f4699"; label="31.87911/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  80 -> 90 [color="#0f4699"; label="7.96978/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  91 -> 90 [color="#0f4699"; label="0.24949/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  15 -> 90 [color="#0f4699"; label="2.49489/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  31 -> 90 [color="#0f4699"; label="0.62372/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  85 -> 90 [color="#0f4699"; label="0.02772/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 90 [color="#0f4699"; label="0.27721/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  39 -> 90 [color="#0f4699"; label="0.06930/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  91 -> 92 [color="#0f4699"; label="0.47289/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  15 -> 92 [color="#0f4699"; label="4.72892/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  31 -> 92 [color="#0f4699"; label="1.18223/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  85 -> 92 [color="#0f4699"; label="0.04112/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 92 [color="#0f4699"; label="0.41121/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  39 -> 92 [color="#0f4699"; label="0.10280/s"; lhead="cluster_recipe_low_density_structure_recycling"; ltail="cluster_item_plastic_bar"; dir=back]
-  10 -> 93 [color="#0f4699"; label="1.19491/s"; dir=back; ltail="cluster_item_coal"]
-  11 -> 93 [color="#0f4699"; label="0.11949/s"; dir=back; ltail="cluster_item_coal"]
-  12 -> 93 [color="#0f4699"; label="0.01328/s"; dir=back; ltail="cluster_item_coal"]
-  75 -> 94 [color="#0f4699"; label="5.74324/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  24 -> 94 [color="#0f4699"; label="2.87162/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  68 -> 94 [color="#0f4699"; label="0.66663/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_pipe"; dir=back]
-  37 -> 94 [color="#0f4699"; label="0.33331/s"; lhead="cluster_recipe_pipe_to_ground_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  45 -> 95 [color="#0f4699"; label="0.78277/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  24 -> 95 [color="#0f4699"; label="0.08177/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  37 -> 95 [color="#0f4699"; label="0.00909/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  24 -> 96 [color="#0f4699"; label="0.07828/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  37 -> 96 [color="#0f4699"; label="0.00909/s"; lhead="cluster_recipe_iron_chest_recycling"; ltail="cluster_item_iron_plate"; dir=back]
-  57 -> 97 [color="#0f4699"; label="0.82749/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  58 -> 97 [color="#0f4699"; label="8.27495/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  44 -> 97 [color="#0f4699"; label="0.82749/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  91 -> 97 [color="#0f4699"; label="0.08644/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  15 -> 97 [color="#0f4699"; label="0.86444/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  75 -> 97 [color="#0f4699"; label="0.08644/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  85 -> 97 [color="#0f4699"; label="0.00960/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 97 [color="#0f4699"; label="0.09605/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  68 -> 97 [color="#0f4699"; label="0.00960/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  33 -> 98 [color="#0f4699"; label="0.10077/s"; dir=back; ltail="cluster_item_quality_module"]
-  30 -> 98 [color="#0f4699"; label="0.12596/s"; dir=back; ltail="cluster_item_advanced_circuit"]
-  35 -> 98 [color="#0f4699"; label="0.12596/s"; dir=back; ltail="cluster_item_processing_unit"]
-  17 -> 98 [color="#0f4699"; label="0.01170/s"; dir=back; ltail="cluster_item_quality_module"]
-  19 -> 98 [color="#0f4699"; label="0.01462/s"; dir=back; ltail="cluster_item_advanced_circuit"]
-  21 -> 98 [color="#0f4699"; label="0.01462/s"; dir=back; ltail="cluster_item_processing_unit"]
-  91 -> 99 [color="#0f4699"; label="0.06303/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  15 -> 99 [color="#0f4699"; label="0.63026/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  75 -> 99 [color="#0f4699"; label="0.06303/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  85 -> 99 [color="#0f4699"; label="0.00925/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_steel_plate"; dir=back]
-  27 -> 99 [color="#0f4699"; label="0.09251/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_copper_plate"; dir=back]
-  68 -> 99 [color="#0f4699"; label="0.00925/s"; lhead="cluster_recipe_heat_exchanger_recycling"; ltail="cluster_item_pipe"; dir=back]
-  100 -> 101 [color="#0f4699"; label="4071.03546/s"]
-  101 -> 102 [color="#99620f"; label="3920.87431/s"]
-  101 -> 112 [color="#99620f"; label="150.16114/s"]
-  102 -> 103 [color="#0f4699"; label="352.87869/s"]
-  103 -> 104 [color="#99620f"; label="146.40712/s"]
-  103 -> 107 [color="#99620f"; label="206.47157/s"]
-  104 -> 105 [color="#0f4699"; label="146.40712/s"]
-  105 -> 107 [color="#99620f"; label="206.47157/s"]
-  106 -> 104 [color="#99620f"; label="195.20949/s"]
-  107 -> 108 [color="#0f4699"; label="137.64772/s"]
-  108 -> 109 [color="#99620f"; label="150.91195/s"; lhead="cluster_recipe_plastic_bar"]
-  108 -> 110 [color="#99620f"; label="15.09120/s"; lhead="cluster_recipe_plastic_bar"]
-  108 -> 111 [color="#99620f"; label="1.67680/s"; lhead="cluster_recipe_plastic_bar"]
-  109 -> 80 [color="#0f4699"; label="14.18572/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  109 -> 31 [color="#0f4699"; label="0.81492/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  109 -> 39 [color="#0f4699"; label="0.09055/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  110 -> 31 [color="#0f4699"; label="1.39141/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  110 -> 39 [color="#0f4699"; label="0.11771/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  111 -> 39 [color="#0f4699"; label="0.21798/s"; lhead="cluster_item_plastic_bar"; ltail="cluster_recipe_plastic_bar"]
-  112 -> 106 [color="#0f4699"; label="195.20949/s"]
-  112 -> 105 [color="#0f4699"; label="60.06446/s"]
-  112 -> 108 [color="#0f4699"; label="30.03223/s"]
-subgraph cluster_item_quality_module_2 {
-  label="qual2"
-  labeljust=l
-  42 [label="rare\n0.11247/s"]
-  5 [label="epic\n0.08333/s"]
-}
-subgraph cluster_item_coal {
-  label="coal"
-  labeljust=l
-  9 [label="normal\n81.14771/s"]
-  10 [label="uncommon\n7.54560/s"]
-  11 [label="rare\n0.75456/s"]
-  12 [label="epic\n0.08384/s"]
-}
-subgraph cluster_item_copper_cable {
-  label="copper-cable"
-  labeljust=l
-  14 [label="rare\n20.15735/s"]
-  26 [label="epic\n5.73546/s"]
-}
-subgraph cluster_item_copper_plate {
-  label="copper-plate"
-  labeljust=l
-  58 [label="uncommon\n40.15406/s"]
-  15 [label="rare\n8.71851/s"]
-  27 [label="epic\n1.46976/s"]
-}
-subgraph cluster_item_quality_module {
-  label="qual"
-  labeljust=l
-  33 [label="rare\n0.34473/s"]
-  17 [label="epic\n0.17741/s"]
-}
-subgraph cluster_item_electronic_circuit {
-  label="electronic-circuit"
-  labeljust=l
-  23 [label="rare\n7.88096/s"]
-  18 [label="epic\n3.06151/s"]
-}
-subgraph cluster_item_advanced_circuit {
-  label="advanced-circuit"
-  labeljust=l
-  30 [label="rare\n1.78624/s"]
-  19 [label="epic\n0.87108/s"]
-}
-subgraph cluster_item_processing_unit {
-  label="processing-unit"
-  labeljust=l
-  35 [label="rare\n0.43091/s"]
-  21 [label="epic\n0.22176/s"]
-}
-subgraph cluster_item_iron_plate {
-  label="iron-plate"
-  labeljust=l
-  51 [label="normal\n97.07023/s"]
-  45 [label="uncommon\n24.83724/s"]
-  24 [label="rare\n5.07934/s"]
-  37 [label="epic\n1.42751/s"]
-}
-subgraph cluster_item_plastic_bar {
-  label="plastic-bar"
-  labeljust=l
-  80 [label="uncommon\n22.15550/s"]
-  31 [label="rare\n4.01229/s"]
-  39 [label="epic\n0.72647/s"]
-}
-subgraph cluster_item_pipe {
-  label="pipe"
-  labeljust=l
-  65 [label="normal\n476.60443/s"]
-  44 [label="uncommon\n70.41892/s"]
-  75 [label="rare\n9.65258/s"]
-  68 [label="epic\n2.78887/s"]
-}
-subgraph cluster_item_iron_chest {
-  label="iron-chest"
-  labeljust=l
-  47 [label="normal\n11.64843/s"]
-  48 [label="uncommon\n0.43682/s"]
-  49 [label="rare\n0.04368/s"]
-  50 [label="epic\n0.00485/s"]
-}
-subgraph cluster_item_heat_exchanger {
-  label="heat-exchanger"
-  labeljust=l
-  54 [label="uncommon\n0.36942/s"]
-  55 [label="rare\n0.02891/s"]
-  56 [label="epic\n0.00321/s"]
-}
-subgraph cluster_item_steel_plate {
-  label="steel-plate"
-  labeljust=l
-  57 [label="uncommon\n4.01541/s"]
-  91 [label="rare\n0.87185/s (0.87185/s)"]
-  85 [label="epic\n0.14698/s (0.14698/s)"]
-}
-subgraph cluster_item_pipe_to_ground {
-  label="pipe-to-ground"
-  labeljust=l
-  70 [label="normal\n131.54283/s"]
-  71 [label="uncommon\n28.62202/s"]
-  72 [label="rare\n5.12789/s"]
-  67 [label="epic\n1.34208/s"]
-}
-subgraph cluster_item_low_density_structure {
-  label="low-density-structure"
-  labeljust=l
-  77 [label="uncommon\n6.93024/s"]
-  78 [label="rare\n1.02803/s"]
-  79 [label="epic\n0.10249/s"]
-}
-subgraph cluster_recipe_copper_cable {
-  label="copper-cable"
-  labeljust=l
-  fill="#eeeeff"
-  13 [label="rare\nelectromagnetic-plant
-[speed x5, b[speed2 x2]]\n0.27281"]
-  52 [label="rare\nassembling-machine-3
-[qual x4]\n2.77693"]
-  25 [label="epic\nelectromagnetic-plant
-[prod2 x5, b[speed2 x2]]\n0.26246"]
-}
-subgraph cluster_recipe_quality_module {
-  label="quality-module"
-  labeljust=l
-  fill="#eeeeff"
-  32 [label="rare\nelectromagnetic-plant
-[qual2 x5]\n1.80710"]
-  16 [label="epic\nelectromagnetic-plant
-[speed x5, b[speed2 x2]]\n0.23897"]
-}
-subgraph cluster_recipe_quality_module_2 {
-  label="quality-module-2"
-  labeljust=l
-  fill="#eeeeff"
-  41 [label="rare\nelectromagnetic-plant
-[qual2(uncommon) x5]\n1.72365"]
-  20 [label="epic\nelectromagnetic-plant
-[speed x5, b[speed2 x2]]\n0.22941"]
-}
-subgraph cluster_recipe_electronic_circuit {
-  label="electronic-circuit"
-  labeljust=l
-  fill="#eeeeff"
-  22 [label="rare\nelectromagnetic-plant
-[prod2 x5, b[speed2 x2]]\n0.40629"]
-  28 [label="rare\nelectromagnetic-plant
-[qual2 x5]\n0.93471"]
-  36 [label="epic\nelectromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]\n0.25491"]
-}
-subgraph cluster_recipe_advanced_circuit {
-  label="advanced-circuit"
-  labeljust=l
-  fill="#eeeeff"
-  29 [label="rare\nelectromagnetic-plant
-[qual2 x5]\n4.91933"]
-  38 [label="epic\nelectromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]\n0.77836"]
-}
-subgraph cluster_recipe_processing_unit {
-  label="processing-unit"
-  labeljust=l
-  fill="#eeeeff"
-  34 [label="rare\nelectromagnetic-plant
-[qual2 x5]\n1.50592"]
-  40 [label="epic\nelectromagnetic-plant
-[prod2(uncommon) x5, b[speed2 x2]]\n0.33447"]
-}
-subgraph cluster_recipe_casting_pipe_to_ground {
-  label="casting-pipe-to-ground"
-  labeljust=l
-  fill="#eeeeff"
-  69 [label="normal\nfoundry
-[qual2 x4]\n14.89389"]
-  73 [label="uncommon\nfoundry
-[qual2 x4]\n2.07511"]
-  74 [label="rare\nfoundry
-[qual2 x4]\n0.30164"]
-  66 [label="epic\nfoundry
-[speed x4, b[speed2 x2]]\n0.02582"]
-}
-subgraph cluster_recipe_casting_low_density_structure {
-  label="casting-low-density-structure"
-  labeljust=l
-  fill="#eeeeff"
-  76 [label="uncommon\nfoundry
-[qual2 x4]\n20.77078"]
-  81 [label="rare\nfoundry
-[qual2 x4]\n1.45558"]
-}
-subgraph cluster_recipe_pipe_to_ground_recycling {
-  label="pipe-to-ground-recycling"
-  labeljust=l
-  fill="#eeeeff"
-  87 [label="normal\nrecycler
-[qual2 x4]\n10.27678"]
-  88 [label="uncommon\nrecycler
-[qual2 x4]\n2.23610"]
-  94 [label="rare\nrecycler
-[qual2(uncommon) x4]\n0.40062"]
-  82 [label="epic\nrecycler
-[speed x4, b[speed2 x2]]\n0.03107"]
-}
-subgraph cluster_recipe_iron_chest_recycling {
-  label="iron-chest-recycling"
-  labeljust=l
-  fill="#eeeeff"
-  89 [label="normal\nrecycler
-[qual2 x4]\n0.91003"]
-  95 [label="uncommon\nrecycler
-[qual2(uncommon) x4]\n0.03413"]
-  96 [label="rare\nrecycler
-[qual2(uncommon) x4]\n0.00341"]
-  83 [label="epic\nrecycler
-[speed x4, b[speed2 x2]]\n0.00011"]
-}
-subgraph cluster_recipe_low_density_structure_recycling {
-  label="low-density-structure-recycling"
-  labeljust=l
-  fill="#eeeeff"
-  90 [label="uncommon\nrecycler
-[qual2 x4]\n16.24275"]
-  92 [label="rare\nrecycler
-[qual2 x4]\n2.40944"]
-  84 [label="epic\nrecycler
-[speed x4, b[speed2 x2]]\n0.07118"]
-}
-subgraph cluster_recipe_heat_exchanger_recycling {
-  label="heat-exchanger-recycling"
-  labeljust=l
-  fill="#eeeeff"
-  97 [label="uncommon\nrecycler
-[qual2(uncommon) x4]\n0.17316"]
-  99 [label="rare\nrecycler
-[qual2(rare) x4]\n0.01355"]
-  86 [label="epic\nrecycler
-[speed x4, b[speed2 x2]]\n0.00045"]
-}
-subgraph cluster_recipe_plastic_bar {
-  label="plastic-bar"
-  labeljust=l
-  fill="#eeeeff"
-  109 [label="uncommon\nchemical-plant
-[qual2 x3]\n8.87717"]
-  110 [label="rare\nchemical-plant
-[qual2(uncommon) x3]\n0.88772"]
-  111 [label="epic\nchemical-plant
-[prod(legendary) x3, b[speed2 x2]]\n0.04791"]
-}
+digraph {
+    layout="dot"
+    concentrate=true
+    node [shape="box"; margin=0]
+    edge [decorate=true]
+    0 [color="#006400"; label="Lava
+8681.1346/s"]
+    1 [color="#006400"; label="Sulfuric acid
+408.7012/s"]
+    2 [color="#006400"; label="Calcite
+17.7694/s"]
+    3 [color="#006400"; label="Molten iron
+5325.4448/s"]
+    4 [color="#006400"; label="Stone
+(+284.1422/s)"]
+    5 [color="#006400"; label="Molten copper
+1185.4061/s"]
+    6 [color="#006400"; label="Steam
+4071.0355/s"]
+    7 [color="#006400"; label="Water
+352.8787/s"]
+    8 [color="#006400"; label="Light oil
+206.4716/s"]
+    9 [color="#006400"; label="Heavy oil
+195.2095/s"]
+    10 [color="#006400"; label="Petroleum gas
+167.6799/s"]
+    11 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Lava
+8681.1346"]
+    12 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Sulfuric acid
+408.7012"]
+    13 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Qual 2(Q4)
+0.0833"]
+    14 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Calcite
+Big mining drill[Speed x4, b]
+2.1937"]
+    15 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Coal
+Big mining drill[Qual 2 x4]
+36.7517"]
+    16 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Pipe(Q2)
+Asm 3[Speed x4, b]
+3.6796"]
+    17 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Iron chest
+Asm 3[Qual x4]
+6.0669"]
+    18 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Heat exchanger(Q2)
+Asm 3[Qual 2 x4]
+1.2046"]
+    19 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Molten iron from lava
+Foundry[Speed x4, b]
+21.0388"]
+    20 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Molten copper from lava
+Foundry[Speed x4, b]
+4.6831"]
+    21 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Casting pipe
+Foundry[Speed x4, b]
+20.0821"]
+    22 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Coal\nrecycling
+Recycler[Qual 2 x4]
+5.1862"]
+    23 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Qual 2\nrecycling(Q3)
+Recycler[Qual 2(Q2) x4]
+0.5272"]
+    24 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Acid neutralisation
+Chem plant
+2.0355"]
+    25 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Steam condensation
+Chem plant
+3.9209"]
+    26 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Heavy oil cracking
+Chem plant
+9.7605"]
+    27 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Light oil cracking
+Chem plant
+13.7648"]
+    28 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="Coal liquefaction
+Refinery
+15.0161"]
+    29 [color="#006400"; label="{Qual 2}|{Q3|0.1125/s}|{Q4|0.0833/s}"; shape="record"]
+    30 [color="#006400"; label="{Coal}|{Q1|81.1477/s}|{Q2|7.5456/s}|{Q3|0.7546/s}|{Q4|0.0838/s}"; shape="record"]
+    31 [color="#006400"; label="{Copper cable}|{Q3|20.1573/s}|{Q4|5.7355/s}"; shape="record"]
+    32 [color="#006400"; label="{Copper plate}|{Q2|40.1541/s}|{Q3|8.7185/s}|{Q4|1.4698/s}"; shape="record"]
+    33 [color="#006400"; label="{Qual}|{Q3|0.3447/s}|{Q4|0.1774/s}"; shape="record"]
+    34 [color="#006400"; label="{GC}|{Q3|7.8810/s}|{Q4|3.0615/s}"; shape="record"]
+    35 [color="#006400"; label="{RC}|{Q3|1.7862/s}|{Q4|0.8711/s}"; shape="record"]
+    36 [color="#006400"; label="{BC}|{Q3|0.4309/s}|{Q4|0.2218/s}"; shape="record"]
+    37 [color="#006400"; label="{Iron plate}|{Q1|97.0702/s}|{Q2|24.8372/s}|{Q3|5.0793/s}|{Q4|1.4275/s}"; shape="record"]
+    38 [color="#006400"; label="{Plastic bar}|{Q2|22.1555/s}|{Q3|4.0123/s}|{Q4|0.7265/s}"; shape="record"]
+    39 [color="#006400"; label="{Pipe}|{Q1|476.6044/s}|{Q2|70.4189/s}|{Q3|9.6526/s}|{Q4|2.7889/s}"; shape="record"]
+    40 [color="#006400"; label="{Iron chest}|{Q1|11.6484/s}|{Q2|0.4368/s}|{Q3|0.0437/s}|{Q4|0.0049/s}"; shape="record"]
+    41 [color="#006400"; label="{Heat exchanger}|{Q2|0.3694/s}|{Q3|0.0289/s}|{Q4|0.0032/s}"; shape="record"]
+    42 [color="#006400"; label="{Steel plate}|{Q2|4.0154/s}|{Q3|(+0.8719/s)}|{Q4|(+0.1470/s)}"; shape="record"]
+    43 [color="#006400"; label="{UG pipe}|{Q1|131.5428/s}|{Q2|28.6220/s}|{Q3|5.1279/s}|{Q4|1.3421/s}"; shape="record"]
+    44 [color="#006400"; label="{LDS}|{Q2|6.9302/s}|{Q3|1.0280/s}|{Q4|0.1025/s}"; shape="record"]
+    45 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Copper cable}|{Q3|EMP[Speed x5, b]|0.2728}|{Q3|Asm 3[Qual x4]|2.7769}|{Q4|EMP[Prod 2 x5, b]|0.2625}"; shape="record"]
+    46 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual}|{Q3|EMP[Qual 2 x5]|1.8071}|{Q4|EMP[Speed x5, b]|0.2390}"; shape="record"]
+    47 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual 2}|{Q3|EMP[Qual 2(Q2) x5]|1.7236}|{Q4|EMP[Speed x5, b]|0.2294}"; shape="record"]
+    48 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC}|{Q3|EMP[Prod 2 x5, b]|0.4063}|{Q3|EMP[Qual 2 x5]|0.9347}|{Q4|EMP[Prod 2(Q2) x5, b]|0.2549}"; shape="record"]
+    49 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{RC}|{Q3|EMP[Qual 2 x5]|4.9193}|{Q4|EMP[Prod 2(Q2) x5, b]|0.7784}"; shape="record"]
+    50 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{BC}|{Q3|EMP[Qual 2 x5]|1.5059}|{Q4|EMP[Prod 2(Q2) x5, b]|0.3345}"; shape="record"]
+    51 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting UG pipe}|{Q1|Foundry[Qual 2 x4]|14.8939}|{Q2|Foundry[Qual 2 x4]|2.0751}|{Q3|Foundry[Qual 2 x4]|0.3016}|{Q4|Foundry[Speed x4, b]|0.0258}"; shape="record"]
+    52 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting LDS}|{Q2|Foundry[Qual 2 x4]|20.7708}|{Q3|Foundry[Qual 2 x4]|1.4556}"; shape="record"]
+    53 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{UG pipe\nrecycling}|{Q1|Recycler[Qual 2 x4]|10.2768}|{Q2|Recycler[Qual 2 x4]|2.2361}|{Q3|Recycler[Qual 2(Q2) x4]|0.4006}|{Q4|Recycler[Speed x4, b]|0.0311}"; shape="record"]
+    54 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Iron chest\nrecycling}|{Q1|Recycler[Qual 2 x4]|0.9100}|{Q2|Recycler[Qual 2(Q2) x4]|0.0341}|{Q3|Recycler[Qual 2(Q2) x4]|0.0034}|{Q4|Recycler[Speed x4, b]|0.0001}"; shape="record"]
+    55 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{LDS\nrecycling}|{Q2|Recycler[Qual 2 x4]|16.2428}|{Q3|Recycler[Qual 2 x4]|2.4094}|{Q4|Recycler[Speed x4, b]|0.0712}"; shape="record"]
+    56 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Heat exchanger\nrecycling}|{Q2|Recycler[Qual 2(Q2) x4]|0.1732}|{Q3|Recycler[Qual 2(Q3) x4]|0.0136}|{Q4|Recycler[Speed x4, b]|0.0004}"; shape="record"]
+    57 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Plastic bar}|{Q2|Chem plant[Qual 2 x3]|8.8772}|{Q3|Chem plant[Qual 2(Q2) x3]|0.8877}|{Q4|Chem plant[Prod(Q5) x3, b]|0.0479}"; shape="record"]
+    0 -> 19 [color="#99620f"; label="7100.5930/s
+"]
+    0 -> 20 [color="#99620f"; label="1580.5415/s
+"]
+    1 -> 24 [color="#99620f"; label="407.1035/s
+"]
+    1 -> 50 [color="#99620f"; label="1.5977/s
+"]
+    2 -> 19 [color="#99620f"; label="14.2012/s
+"]
+    2 -> 20 [color="#99620f"; label="3.1611/s
+"]
+    2 -> 24 [color="#99620f"; label="0.4071/s
+"]
+    3 -> 21 [color="#99620f"; label="2168.8679/s
+"]
+    3 -> 51 [color="#99620f"; label="2777.2470/s
+"]
+    3 -> 52 [color="#99620f"; label="379.3300/s
+"]
+    5 -> 52 [color="#99620f"; label="(All)"]
+    6 -> 25 [color="#99620f"; label="3920.8743/s
+"]
+    6 -> 28 [color="#99620f"; label="150.1611/s
+"]
+    7 -> 26 [color="#99620f"; label="146.4071/s
+"]
+    7 -> 27 [color="#99620f"; label="206.4716/s
+"]
+    8 -> 27 [color="#99620f"; label="(All)"]
+    9 -> 26 [color="#99620f"; label="(All)"]
+    10 -> 57 [color="#99620f"; label="(All)"]
+    11 -> 0 [color="#0f4699"; label="(All)"]
+    12 -> 1 [color="#0f4699"; label="(All)"]
+    14 -> 2 [color="#0f4699"; label="(All)"]
+    15 -> 30 [color="#0f4699"; label="Q1	81.1477/s
+Q2	6.3507/s
+Q3	0.6351/s
+Q4	0.0706/s
+"]
+    16 -> 39 [color="#0f4699"; label="24.8372/s
+"]
+    17 -> 40 [color="#0f4699"; label="(All)"]
+    18 -> 41 [color="#0f4699"; label="(All)"]
+    19 -> 3 [color="#0f4699"; label="(All)"]
+    19 -> 4 [color="#0f4699"; label="213.0178/s
+"]
+    20 -> 5 [color="#0f4699"; label="(All)"]
+    20 -> 4 [color="#0f4699"; label="71.1244/s
+"]
+    21 -> 39 [color="#0f4699"; label="325.3302/s
+"]
+    22 -> 30 [color="#0f4699"; label="Q2	1.1949/s
+Q3	0.1195/s
+Q4	0.0133/s
+"]
+    23 -> 33 [color="#0f4699"; label="Q3	0.1008/s
+Q4	0.0117/s
+"]
+    23 -> 35 [color="#0f4699"; label="Q3	0.1260/s
+Q4	0.0146/s
+"]
+    23 -> 36 [color="#0f4699"; label="Q3	0.1260/s
+Q4	0.0146/s
+"]
+    24 -> 6 [color="#0f4699"; label="(All)"]
+    25 -> 7 [color="#0f4699"; label="(All)"]
+    26 -> 8 [color="#0f4699"; label="146.4071/s
+"]
+    27 -> 10 [color="#0f4699"; label="137.6477/s
+"]
+    28 -> 9 [color="#0f4699"; label="(All)"]
+    28 -> 8 [color="#0f4699"; label="60.0645/s
+"]
+    28 -> 10 [color="#0f4699"; label="30.0322/s
+"]
+    29 -> 13 [color="#99620f"; label="0.0833/s
+"]
+    29 -> 23 [color="#99620f"; label="0.1125/s
+"]
+    30 -> 22 [color="#99620f"; label="51.1155/s
+"]
+    30 -> 28 [color="#99620f"; label="30.0322/s
+"]
+    30 -> 57 [color="#99620f"; label="Q2	7.5456/s
+Q3	0.7546/s
+Q4	0.0838/s
+"]
+    31 -> 48 [color="#99620f"; label="Q3	15.2380/s
+Q4	4.2825/s
+"]
+    31 -> 49 [color="#99620f"; label="Q3	4.9193/s
+Q4	1.4529/s
+"]
+    32 -> 18 [color="#99620f"; label="40.1541/s
+"]
+    32 -> 45 [color="#99620f"; label="Q3	8.7185/s
+Q4	1.4698/s
+"]
+    33 -> 47 [color="#99620f"; label="(All)"]
+    34 -> 46 [color="#99620f"; label="Q3	0.9035/s
+Q4	0.4620/s
+"]
+    34 -> 49 [color="#99620f"; label="Q3	2.4597/s
+Q4	0.7265/s
+"]
+    34 -> 50 [color="#99620f"; label="Q3	4.5177/s
+Q4	1.8730/s
+"]
+    35 -> 46 [color="#99620f"; label="Q3	0.9035/s
+Q4	0.4620/s
+"]
+    35 -> 47 [color="#99620f"; label="Q3	0.4309/s
+Q4	0.2218/s
+"]
+    35 -> 50 [color="#99620f"; label="Q3	0.4518/s
+Q4	0.1873/s
+"]
+    36 -> 47 [color="#99620f"; label="(All)"]
+    37 -> 16 [color="#99620f"; label="24.8372/s
+"]
+    37 -> 17 [color="#99620f"; label="97.0702/s
+"]
+    37 -> 48 [color="#99620f"; label="Q3	5.0793/s
+Q4	1.4275/s
+"]
+    38 -> 49 [color="#99620f"; label="Q3	2.4597/s
+Q4	0.7265/s
+"]
+    38 -> 52 [color="#99620f"; label="Q2	22.1555/s
+Q3	1.5526/s
+"]
+    39 -> 18 [color="#99620f"; label="4.0154/s
+"]
+    39 -> 51 [color="#99620f"; label="Q1	476.6044/s
+Q2	66.4035/s
+Q3	9.6526/s
+Q4	2.7889/s
+"]
+    40 -> 54 [color="#99620f"; label="(All)"]
+    41 -> 56 [color="#99620f"; label="(All)"]
+    42 -> 18 [color="#99620f"; label="(All)"]
+    43 -> 53 [color="#99620f"; label="(All)"]
+    44 -> 55 [color="#99620f"; label="(All)"]
+    45 -> 31 [color="#0f4699"; label="(All)"]
+    46 -> 33 [color="#0f4699"; label="Q3	0.2440/s
+Q4	0.1657/s
+"]
+    47 -> 29 [color="#0f4699"; label="(All)"]
+    48 -> 34 [color="#0f4699"; label="(All)"]
+    49 -> 35 [color="#0f4699"; label="Q3	1.6603/s
+Q4	0.8565/s
+"]
+    50 -> 36 [color="#0f4699"; label="Q3	0.3049/s
+Q4	0.2071/s
+"]
+    51 -> 43 [color="#0f4699"; label="(All)"]
+    52 -> 44 [color="#0f4699"; label="(All)"]
+    53 -> 37 [color="#0f4699"; label="Q1	75.6371/s
+Q2	22.3771/s
+Q3	4.7516/s
+Q4	1.3810/s
+"]
+    53 -> 39 [color="#0f4699"; label="Q1	151.2743/s
+Q2	44.7542/s
+Q3	9.5031/s
+Q4	2.7620/s
+"]
+    54 -> 37 [color="#0f4699"; label="Q1	21.4331/s
+Q2	2.4601/s
+Q3	0.3278/s
+Q4	0.0465/s
+"]
+    55 -> 32 [color="#0f4699"; label="Q2	31.8791/s
+Q3	7.2238/s
+Q4	1.2009/s
+"]
+    55 -> 38 [color="#0f4699"; label="Q2	7.9698/s
+Q3	1.8060/s
+Q4	0.3002/s
+"]
+    55 -> 42 [color="#0f4699"; label="Q2	3.1879/s
+Q3	0.7224/s
+Q4	0.1201/s
+"]
+    56 -> 32 [color="#0f4699"; label="Q2	8.2749/s
+Q3	1.4947/s
+Q4	0.2689/s
+"]
+    56 -> 39 [color="#0f4699"; label="Q2	0.8275/s
+Q3	0.1495/s
+Q4	0.0269/s
+"]
+    56 -> 42 [color="#0f4699"; label="Q2	0.8275/s
+Q3	0.1495/s
+Q4	0.0269/s
+"]
+    57 -> 38 [color="#0f4699"; label="Q2	14.1857/s
+Q3	2.2063/s
+Q4	0.4262/s
+"]
+    subgraph {
+        rank="source"
+        11
+        12
+        14
+        15
+    }
+    subgraph {
+        rank="sink"
+        13
+    }
 }

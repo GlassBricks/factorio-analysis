@@ -1,6 +1,6 @@
-import glassbricks.factorio.recipes.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.export.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.recipelp.textDisplay

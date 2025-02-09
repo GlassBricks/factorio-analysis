@@ -17,13 +17,17 @@ interface RecipeLpFormatter {
         else -> formatOtherProcess(process)
     }
 
-    fun formatRate(rate: Double): String = "%.5f".format(rate) + "/s"
+    fun defaultNumberFormat(value: Double): String = "%.4f".format(value)
+    fun formatRate(rate: Double): String = defaultNumberFormat(rate) + "/s"
     fun formatInputOutputRate(rate: Double): String = formatRate(rate)
-    fun formatMachineUsage(usage: Double): String = "%.5f".format(usage)
-    fun formatSymbolUsage(usage: Double): String = "%.5f".format(usage)
-    fun formatThroughput(throughput: Throughput): String =
-        if (throughput.net.absoluteValue < 1e-6) formatRate(throughput.min)
-        else formatRate(throughput.min) + " (${formatRate(throughput.net)})"
+    fun formatProcessUsage(usage: Double): String = defaultNumberFormat(usage)
+    fun formatSymbolUsage(usage: Double): String = defaultNumberFormat(usage)
+    fun formatThroughput(throughput: Throughput): String = when {
+        throughput.consumption == 0.0 -> "(+${formatRate(throughput.production)})"
+        throughput.production == 0.0 -> "(-${formatRate(throughput.consumption)})"
+        throughput.net.absoluteValue < 1e-6 -> formatRate(throughput.min)
+        else -> formatRate(throughput.min) + " (%+f)".format(throughput.net)
+    }
 
     fun formatSurplusIngredient(ingredient: Ingredient): String = formatIngredient(ingredient)
     fun formatIngredient(ingredient: Ingredient): String = formatSymbol(ingredient)
@@ -72,7 +76,7 @@ fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter)
 
     appendLine("Recipes:")
     val processList = processes.keys.maybeSort(formatter.processComparator)
-    displayLeftRight(processList, formatter::formatProcess, { formatter.formatMachineUsage(processes[it]) })
+    displayLeftRight(processList, formatter::formatProcess, { formatter.formatProcessUsage(processes[it]) })
     appendLine()
 
     val otherProcessList = otherProcesses.keys.maybeSort(formatter.otherProcessComparator)
@@ -82,7 +86,7 @@ fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter)
         displayLeftRight(
             otherProcessList,
             formatter::formatOtherProcess,
-            { formatter.formatMachineUsage(otherProcesses[it]) })
+            { formatter.formatProcessUsage(otherProcesses[it]) })
     }
     val throughputs = throughputs
     if (throughputs.isNotEmpty()) {

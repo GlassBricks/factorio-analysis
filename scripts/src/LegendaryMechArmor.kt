@@ -5,9 +5,6 @@ import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
-import glassbricks.recipeanalysis.lp.OrToolsLp
-import glassbricks.recipeanalysis.recipelp.textDisplay
-import java.io.File
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -42,7 +39,7 @@ fun main() {
             bigMiningDrill {}
             electromagneticPlant {
 //                integralCost()
-                semiContinuousCost(1.0)
+//                semiContinuousCost(1.0)
             }
             assemblingMachine3 {
 //                integralCost()
@@ -180,22 +177,17 @@ fun main() {
     }
 
     val result = production.solve(
-        OrToolsLp("SCIP"), LpOptions(
+        options = LpOptions(
             timeLimit = 10.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             enableLogging = true,
-            //            hintFromRoundingUpSemiContinuousVars = true,
             epsilon = 1e-5
         )
     )
     println("Status: ${result.status}")
     println("Best bound: ${result.lpResult.bestBound}")
     result.solution?.let {
-        println("Objective: ${result.lpSolution!!.objectiveValue}")
-        val display = it.textDisplay(RecipesFirst)
-        println(display)
-        File("output/legendary-mech-armor.txt").also { it.parentFile.mkdirs() }.writeText(display)
-
-        it.toBlueprint().exportTo(File("output/legendary-mech-armor-bp.txt"))
+        printAndExportSolution("output/legendary-mech-armor", it)
     }
+
 }

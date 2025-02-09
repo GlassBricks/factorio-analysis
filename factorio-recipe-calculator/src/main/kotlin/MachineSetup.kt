@@ -70,10 +70,10 @@ fun <M : AnyMachine<*>> M.craftingOrNullCast(
     if (!this.canProcess(process)) null
     else MachineSetup(this, process as RecipeOrResource<M>, config)
 
-internal fun IngredientVector.applyProductivity(
-    productsIgnoredFromProductivity: IngredientVector?,
+internal fun Vector<Ingredient>.applyProductivity(
+    productsIgnoredFromProductivity: Vector<Ingredient>?,
     multiplier: Float,
-): IngredientVector {
+): Vector<Ingredient> {
     if (multiplier == 1f) return this
     val productsToMultiply =
         if (productsIgnoredFromProductivity != null) this - productsIgnoredFromProductivity else this
@@ -82,13 +82,13 @@ internal fun IngredientVector.applyProductivity(
         .let { if (productsIgnoredFromProductivity != null) it + productsIgnoredFromProductivity else it }
 }
 
-internal fun IngredientVector.applyQualityRolling(
+internal fun Vector<Ingredient>.applyQualityRolling(
     startingQuality: Quality,
     finalQuality: Quality?,
     qualityChance: Float,
-): IngredientVector {
+): Vector<Ingredient> {
     if (qualityChance > 1) TODO("Quality chance > 100%")
-    var result: IngredientVector = emptyVector()
+    var result: Vector<Ingredient> = emptyVector()
     var curQuality = startingQuality
     var propRemaining = 1.0
     while (curQuality != finalQuality && curQuality.nextQuality != null) {
@@ -102,12 +102,12 @@ internal fun IngredientVector.applyQualityRolling(
     return result
 }
 
-internal fun IngredientVector.applyProdAndQuality(
+internal fun Vector<Ingredient>.applyProdAndQuality(
     effects: IntEffects,
-    productsIgnoredFromProductivity: IngredientVector?,
+    productsIgnoredFromProductivity: Vector<Ingredient>?,
     startingQuality: Quality,
     finalQuality: Quality?,
-): IngredientVector = applyProductivity(
+): Vector<Ingredient> = applyProductivity(
     productsIgnoredFromProductivity,
     effects.prodMultiplier,
 ).applyQualityRolling(

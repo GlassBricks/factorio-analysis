@@ -13,6 +13,11 @@ data class Throughput(
     val min: Double get() = maxOf(production, consumption)
 }
 
+class ThroughputVector(
+    val inputs: Vector<Ingredient>,
+    val outputs: Vector<Ingredient>,
+)
+
 interface Usages {
     val lpProcesses: Vector<PseudoProcess>
     val processes: Vector<Process>

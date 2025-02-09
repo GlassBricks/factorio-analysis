@@ -1,11 +1,13 @@
 import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.export.*
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
 import glassbricks.recipeanalysis.recipelp.textDisplay
-import glassbricks.recipeanalysis.writeTo
+import glassbricks.recipeanalysis.recipelp.toThroughputGraph
+import glassbricks.recipeanalysis.writeDotGraph
 import java.io.File
 
 fun main() {
@@ -122,13 +124,17 @@ fun main() {
     val display = solution.textDisplay(RecipesFirst)
     println(display)
 
-    val dotFile = File("output/module2.dot")
-    solution.toFancyDotGraph {
-        clusterItemsByQuality()
-        clusterRecipesByQuality()
-//        dotGraph.enforceEdgeTopBottom()
-        flipEdgesForMachine(SpaceAge.recycler)
-    }.writeTo(dotFile)
+    val graph = solution.toThroughputGraph {
+        mergeItemsByQuality()
+        mergeRecipesByQuality()
+
+    }.toFancyDotGraph(
+        formatter = object : FactorioGraphExportFormatter {
+            override fun defaultNumberFormat(value: Double): String = "%.4f".format(value)
+            override fun formatBeaconSetup(beaconSetup: BeaconSetup): String = "b"
+        }
+    )
+    File("output/module2.dot").writeDotGraph(graph)
 
     File("output/module2.txt").writeText(display)
 

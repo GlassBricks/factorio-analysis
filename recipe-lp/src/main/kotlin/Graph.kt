@@ -1,174 +1,183 @@
 package glassbricks.recipeanalysis
 
-import java.io.File
-
 // Own implementation of graph instead of jgrapht
+
+typealias DirectedEdgeInfo<N, E> = Map.Entry<N, E>
+
+internal data class MapEntry<N, E>(override val key: N, override val value: E) : Map.Entry<N, E> {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Map.Entry<*, *>) return false
+        return key == other.key && value == other.value
+    }
+
+    override fun hashCode(): Int {
+        var result = key?.hashCode() ?: 0
+        result = 31 * result + (value?.hashCode() ?: 0)
+        return result
+    }
+}
 
 interface Graph<N, E> {
     val nodes: Collection<N>
 
-    fun getEdge(from: N, to: N): E?
-    fun getDirectedEdges(from: N): Collection<EdgeInfo<N, E>>
-    fun getDirectedReverseEdges(to: N): Collection<EdgeInfo<N, E>>
+    fun outNeighbors(node: N): Collection<N>
+    fun inNeighbors(node: N): Collection<N>
+
+    /** If is a multi-graph, returns the first edge found. */
+    fun edge(from: N, to: N): E?
+    fun edgesFrom(from: N): Iterable<DirectedEdgeInfo<N, E>>
+    fun edgesTo(to: N): Iterable<DirectedEdgeInfo<N, E>>
 }
 
+interface MultiGraph<N, E> : Graph<N, E> {
+    fun edges(from: N, to: N): Collection<E>
+}
+
+interface SimpleGraph<N, E> : Graph<N, E>
+
 interface MutableGraph<N, E> : Graph<N, E> {
-    fun addNode(node: N)
+    fun addNode(node: N): Boolean
 
     /** Returns true if the edge was added, false if it already existed. */
     fun addEdge(from: N, to: N, edge: E): Boolean
 
     fun removeNode(node: N): Boolean
+
+    /**
+     * If is multi graph, removes any one edge.
+     */
     fun removeEdge(from: N, to: N): E?
 }
 
-data class EdgeInfo<N, E>(
-    val fromNode: N,
-    val toNode: N,
-    val edge: E,
-)
+interface MutableSimpleGraph<N, E> : MutableGraph<N, E>, SimpleGraph<N, E>
 
-/**
- * Directed graph, up to one edge in each direction between nodes, allows self loops.
- */
-class DirectedHashGraph<N, E> : MutableGraph<N, E> {
-    private val edges = mutableMapOf<N, MutableMap<N, EdgeInfo<N, E>>>()
-    private val reverseEdges = mutableMapOf<N, MutableMap<N, EdgeInfo<N, E>>>()
+interface MutableMultiGraph<N, E> : MutableGraph<N, E>, MultiGraph<N, E> {
+    fun removeEdge(from: N, to: N, edge: E): Boolean
+}
+
+private fun <N, E> removeNodeFromEdges(
+    edges: MutableMap<N, MutableMap<N, E>>,
+    reverseEdges: MutableMap<N, MutableMap<N, E>>,
+    node: N,
+): Boolean {
+    if (node !in edges) return false
+    for (toNode in edges[node]!!.keys) {
+        reverseEdges[toNode]?.remove(node)
+    }
+    for (fromNode in reverseEdges[node]!!.keys) {
+        edges[fromNode]?.remove(node)
+    }
+    edges.remove(node)
+    reverseEdges.remove(node)
+    return true
+}
+
+class HashDirectedGraph<N, E> : MutableSimpleGraph<N, E> {
+    private val edges = mutableMapOf<N, MutableMap<N, E>>()
+    private val reverseEdges = mutableMapOf<N, MutableMap<N, E>>()
 
     override val nodes: Collection<N> get() = edges.keys
 
-    override fun getEdge(from: N, to: N): E? = edges[from]?.get(to)?.edge
-    override fun getDirectedEdges(from: N): Collection<EdgeInfo<N, E>> = edges[from]?.values ?: emptyList()
-    override fun getDirectedReverseEdges(to: N): Collection<EdgeInfo<N, E>> = reverseEdges[to]?.values ?: emptyList()
-    override fun addNode(node: N) {
-        edges.computeIfAbsent(node) { mutableMapOf() }
-        reverseEdges.computeIfAbsent(node) { mutableMapOf() }
+    override fun outNeighbors(node: N): Collection<N> = edges[node]?.keys.orEmpty()
+    override fun inNeighbors(node: N): Collection<N> = reverseEdges[node]?.keys.orEmpty()
+    override fun edge(from: N, to: N): E? = edges[from]?.get(to)
+    override fun edgesFrom(from: N): Collection<DirectedEdgeInfo<N, E>> = edges[from]?.entries.orEmpty()
+    override fun edgesTo(to: N): Collection<DirectedEdgeInfo<N, E>> =
+        reverseEdges[to]?.entries.orEmpty()
+
+    override fun addNode(node: N): Boolean {
+        if (node in nodes) return false
+        edges[node] = mutableMapOf()
+        reverseEdges[node] = mutableMapOf()
+        return true
+    }
+
+    override fun addEdge(from: N, to: N, edge: E): Boolean {
+        require(from in nodes) { "Node not in graph: $from" }
+        require(to in nodes) { "Node not in graph: $to" }
+        val fromEdges = edges[from]!!
+        if (to in fromEdges) return false
+        fromEdges[to] = edge
+        reverseEdges[to]!![from] = edge
+        return true
+    }
+
+    override fun removeNode(node: N): Boolean = removeNodeFromEdges(edges, reverseEdges, node)
+
+    override fun removeEdge(from: N, to: N): E? {
+        val edge = edges[from]?.remove(to) ?: return null
+        reverseEdges[to]?.remove(from)
+        return edge
+    }
+}
+
+fun <N> MutableGraph<N, Unit>.addEdge(from: N, to: N): Boolean = addEdge(from, to, Unit)
+
+class HashMultiGraph<N, E> : MutableMultiGraph<N, E> {
+    private val edges = mutableMapOf<N, MutableMap<N, MutableList<E>>>()
+    private val reverseEdges = mutableMapOf<N, MutableMap<N, MutableList<E>>>()
+
+    override val nodes: Collection<N> get() = edges.keys
+
+    override fun outNeighbors(node: N): Collection<N> = edges[node]?.keys.orEmpty()
+    override fun inNeighbors(node: N): Collection<N> = reverseEdges[node]?.keys.orEmpty()
+    override fun edge(from: N, to: N): E? = edges[from]?.get(to)?.firstOrNull()
+    override fun edges(from: N, to: N): Collection<E> = edges[from]?.get(to).orEmpty()
+    override fun edgesFrom(from: N): Iterable<DirectedEdgeInfo<N, E>> =
+        edges[from]?.asSequence().orEmpty()
+            .flatMap { (to, edges) -> edges.asSequence().map { MapEntry(to, it) } }
+            .asIterable()
+
+    override fun edgesTo(to: N): Iterable<DirectedEdgeInfo<N, E>> =
+        reverseEdges[to]?.asSequence().orEmpty()
+            .flatMap { (from, edges) -> edges.asSequence().map { MapEntry(from, it) } }
+            .asIterable()
+
+    override fun addNode(node: N): Boolean {
+        if (node in nodes) return false
+        edges[node] = mutableMapOf()
+        reverseEdges[node] = mutableMapOf()
+        return true
     }
 
     override fun addEdge(from: N, to: N, edge: E): Boolean {
         require(from in nodes && to in nodes) { "Both nodes must be in the graph" }
         val fromEdges = edges[from]!!
-        if (to in fromEdges) return false
-        fromEdges[to] = EdgeInfo(from, to, edge)
-        reverseEdges[to]!![from] = EdgeInfo(from, to, edge)
+        val toEdges = reverseEdges[to]!!
+        fromEdges.computeIfAbsent(to) { mutableListOf() }.add(edge)
+        toEdges.computeIfAbsent(from) { mutableListOf() }.add(edge)
         return true
     }
 
-    override fun removeNode(node: N): Boolean {
-        if (node !in nodes) return false
-        for (toNode in edges[node]!!.keys) {
-            reverseEdges[toNode]?.remove(node)
-        }
-        for (fromNode in reverseEdges[node]!!.keys) {
-            edges[fromNode]?.remove(node)
-        }
-        edges.remove(node)
-        reverseEdges.remove(node)
-        return true
-    }
+    override fun removeNode(node: N): Boolean = removeNodeFromEdges(edges, reverseEdges, node)
 
     override fun removeEdge(from: N, to: N): E? {
-        val edge = edges[from]?.remove(to) ?: return null
-        reverseEdges[to]?.remove(from)
-        return edge.edge
+        val fromEdges = edges[from] ?: return null
+        val toEdges = reverseEdges[to] ?: return null
+        val removedEdge = fromEdges[to]?.removeLast() ?: return null
+        toEdges[from]?.remove(removedEdge)
+        return removedEdge
+    }
+
+    override fun removeEdge(from: N, to: N, edge: E): Boolean {
+        val fromEdges = edges[from] ?: return false
+        val toEdges = reverseEdges[to] ?: return false
+        val removedFrom = fromEdges[to]?.remove(edge) == true
+        val removedTo = toEdges[from]?.remove(edge) == true
+        return removedFrom || removedTo
     }
 }
 
-class DotGraphNode(
-    val id: String,
-    val attributes: MutableMap<String, Any> = mutableMapOf(),
-) {
-    fun export(): String = if (attributes.isNotEmpty()) "$id [${attributes.exportAttributes()}]" else id
-}
-
-data class LiteralAttr(val value: String) {
-    override fun toString(): String = value
-}
-
-fun attr(value: String): LiteralAttr = LiteralAttr(value)
-
-class DotGraphEdge(
-    var from: String,
-    var to: String,
-    val attributes: MutableMap<String, Any> = mutableMapOf(),
-) {
-    fun export(): String = if (attributes.isNotEmpty()) {
-        "$from -> $to [${attributes.exportAttributes()}]"
-    } else
-        "$from -> $to"
-}
-
-fun String.escape(): String = "\"${replace("\"", "\\\"")}\""
-private fun exportAttributeValue(value: Any): String = if (value is String) value.escape() else value.toString()
-private fun MutableMap<String, Any>.exportAttributes(): String = entries.joinToString("; ") { (key, value) ->
-    "${key}=${exportAttributeValue(value)}"
-}
-
-class DotGraph(
-    var type: String = "digraph",
-    var name: String = "",
-    val nodes: MutableMap<String, DotGraphNode> = mutableMapOf(),
-    val edges: MutableSet<DotGraphEdge> = mutableSetOf(),
-    val attributes: MutableMap<String, Any> = mutableMapOf(),
-    val subgraphs: MutableList<DotGraph> = mutableListOf(),
-) {
-    fun export(appendable: Appendable): Appendable = appendable.apply {
-        appendLine("$type $name {")
-        for ((key, value) in attributes) {
-            appendLine("  $key=${exportAttributeValue(value)}")
-        }
-        for ((_, node) in nodes) {
-            appendLine("  ${node.export()}")
-        }
-        for (edge in edges) {
-            appendLine("  ${edge.export()}")
-        }
-        for (subgraph in subgraphs) {
-            subgraph.export(appendable)
-        }
-        appendLine("}")
+fun <N, E> MutableGraph<N, E>.copyEdges(sourceNode: N, destNode: N) {
+    for ((toNode, edge) in edgesFrom(sourceNode)) {
+        addEdge(destNode, toNode, edge)
+    }
+    for ((fromNode, edge) in edgesTo(sourceNode)) {
+        addEdge(fromNode, destNode, edge)
     }
 }
 
-fun DotGraph.writeTo(file: File) {
-    file.printWriter().use { export(it) }
-}
-
-fun <N> idProvider(): (N) -> String {
-    var id = 0
-    return { id++.toString() }
-}
-
-data class DotGraphExport<N, E>(
-    val dotGraph: DotGraph,
-    val nodeMap: Map<N, DotGraphNode>,
-    val edgeMap: Map<EdgeInfo<N, E>, DotGraphEdge>,
-)
-
-fun <N, E> Graph<N, E>.toDotGraph(
-    idProvider: (N) -> String = idProvider(),
-    nodeAttributes: (N) -> Map<String, Any>? = { null },
-    edgeAttributes: (EdgeInfo<N, E>) -> Map<String, Any>? = { null },
-    graphAttributes: Map<String, Any> = emptyMap(),
-): DotGraphExport<N, E> {
-    val dotGraph = DotGraph()
-    dotGraph.attributes.putAll(graphAttributes)
-    val nodeMap = mutableMapOf<N, DotGraphNode>()
-    for (node in this.nodes) {
-        val id = idProvider(node)
-        val dotNode = DotGraphNode(id, nodeAttributes(node)?.toMutableMap() ?: mutableMapOf())
-        dotGraph.nodes[id] = dotNode
-        nodeMap[node] = dotNode
-    }
-    val edgeMap = mutableMapOf<EdgeInfo<N, E>, DotGraphEdge>()
-    for (fromNode in this.nodes) {
-        for (edgeInfo in this.getDirectedEdges(fromNode)) {
-            val fromId = nodeMap[edgeInfo.fromNode]!!.id
-            val toId = nodeMap[edgeInfo.toNode]!!.id
-            val edge = DotGraphEdge(fromId, toId, edgeAttributes(edgeInfo)?.toMutableMap() ?: mutableMapOf())
-            dotGraph.edges.add(edge)
-            edgeMap[edgeInfo] = edge
-        }
-    }
-    return DotGraphExport(dotGraph, nodeMap, edgeMap)
+fun <N, E> MutableGraph<N, E>.removeAllNodes(nodes: Iterable<N>) {
+    for (node in nodes) removeNode(node)
 }

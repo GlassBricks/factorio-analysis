@@ -4,10 +4,10 @@ import glassbricks.factorio.prototypes.ResourceEntityPrototype
 import glassbricks.recipeanalysis.*
 
 class Resource private constructor(
-    val prototype: ResourceEntityPrototype,
-    override val inputs: IngredientVector,
-    override val outputs: IngredientVector,
-    override val outputsToIgnoreProductivity: IngredientVector,
+    override val prototype: ResourceEntityPrototype,
+    override val inputs: Vector<Ingredient>,
+    override val outputs: Vector<Ingredient>,
+    override val outputsToIgnoreProductivity: Vector<Ingredient>,
     override val inputQuality: Quality,
 ) : RecipeOrResource<AnyMiningDrill> {
     override val craftingTime: Time

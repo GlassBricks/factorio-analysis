@@ -101,7 +101,6 @@ fun <U, T> vectorWithUnits(map: Map<out T, Double>): MapVector<T, U> {
 fun <U, T> createVectorUnsafe(map: Map<T, Double>): MapVector<T, U> = MapVector(map)
 
 typealias Vector<T> = MapVector<T, Unit>
-typealias AnyVector<T> = MapVector<T, *>
 
 fun <T> vector(vararg entries: Pair<T, Double>): Vector<T> = vectorWithUnits(entries.toMap())
 fun <T> vector(entries: List<Pair<T, Double>>): Vector<T> = vectorWithUnits(entries.toMap())

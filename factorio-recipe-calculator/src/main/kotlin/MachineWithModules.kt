@@ -2,7 +2,8 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.factorio.prototypes.MachinePrototype
-import glassbricks.recipeanalysis.IngredientVector
+import glassbricks.recipeanalysis.Ingredient
+import glassbricks.recipeanalysis.Vector
 import glassbricks.recipeanalysis.plus
 
 data class MachineWithModules<P>(
@@ -34,7 +35,7 @@ data class MachineWithModules<P>(
     }
 
     override val effects: IntEffects get() = machine.effects + moduleSet
-    override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
+    override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> =
         machine.getBuildCost(prototypes) + moduleSet.getBuildCost(prototypes)
 
     override fun withQuality(quality: Quality): MachineWithModules<P> = copy(machine = machine.withQuality(quality))

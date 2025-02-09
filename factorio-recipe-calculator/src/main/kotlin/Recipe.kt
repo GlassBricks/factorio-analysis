@@ -1,26 +1,29 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.EffectType
+import glassbricks.factorio.prototypes.Prototype
 import glassbricks.factorio.prototypes.RecipePrototype
 import glassbricks.recipeanalysis.*
+import glassbricks.recipeanalysis.Vector
 import java.util.*
 
 sealed interface RecipeOrResource<M : AnyMachine<*>> {
-    val inputs: IngredientVector
-    val outputs: IngredientVector
-    val outputsToIgnoreProductivity: IngredientVector
+    val inputs: Vector<Ingredient>
+    val outputs: Vector<Ingredient>
+    val outputsToIgnoreProductivity: Vector<Ingredient>
     val craftingTime: Time
+    val prototype: Prototype
 
     val inputQuality: Quality
     fun withQualityOrNull(quality: Quality): RecipeOrResource<M>?
 }
 
 class Recipe private constructor(
-    val prototype: RecipePrototype,
+    override val prototype: RecipePrototype,
     override val inputQuality: Quality,
-    val baseIngredients: IngredientVector,
-    val baseProducts: IngredientVector,
-    val baseProductsIgnoreProd: IngredientVector,
+    val baseIngredients: Vector<Ingredient>,
+    val baseProducts: Vector<Ingredient>,
+    val baseProductsIgnoreProd: Vector<Ingredient>,
     private val allowedModuleEffects: EnumSet<EffectType>,
 ) : RecipeOrResource<AnyCraftingMachine> {
     override val craftingTime: Time get() = Time(prototype.energy_required)
@@ -102,7 +105,7 @@ class Recipe private constructor(
     }
 }
 
-private inline fun IngredientVector.vectorMapKeys(transform: (Ingredient) -> Ingredient): IngredientVector =
+private inline fun Vector<Ingredient>.vectorMapKeys(transform: (Ingredient) -> Ingredient): Vector<Ingredient> =
     createVectorUnsafe(this.mapKeys { transform(it.key) })
 
 fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
@@ -110,6 +113,6 @@ fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
     else -> this
 }
 
-internal fun IngredientVector.withItemsQuality(quality: Quality): IngredientVector =
+internal fun Vector<Ingredient>.withItemsQuality(quality: Quality): Vector<Ingredient> =
     if (quality.level == 0) this else
         vectorMapKeys { it.maybeWithQuality(quality) }

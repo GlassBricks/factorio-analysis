@@ -1,8 +1,13 @@
-import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.export.RecipesFirst
+import glassbricks.factorio.recipes.export.mergeItemsByQuality
+import glassbricks.factorio.recipes.export.mergeRecipesByQuality
+import glassbricks.factorio.recipes.export.toFancyDotGraph
 import glassbricks.recipeanalysis.recipelp.ProductionStage
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
 import glassbricks.recipeanalysis.recipelp.textDisplay
-import glassbricks.recipeanalysis.writeTo
+import glassbricks.recipeanalysis.recipelp.toThroughputGraph
+import glassbricks.recipeanalysis.writeDotGraph
 import java.io.File
 
 fun printAndExportStagedSolution(
@@ -21,12 +26,31 @@ fun printAndExportStagedSolution(
         println()
 
         val dotFile = dotFilePath.resolve("${stage.name}.dot")
-        solution.toFancyDotGraph {
-            clusterItemsByQuality()
-            clusterRecipesByQuality()
-            flipEdgesForMachine(SpaceAge.recycler)
-        }.writeTo(dotFile)
+        val graph = solution.toThroughputGraph {
+            mergeItemsByQuality()
+            mergeRecipesByQuality()
+        }.toFancyDotGraph()
+        dotFile.writeDotGraph(graph)
+
     }
+}
+
+fun printAndExportSolution(
+    pathPrefix: String, solution: RecipeSolution,
+) {
+    val display = solution.textDisplay(RecipesFirst.Companion)
+    File("$pathPrefix.txt").apply {
+        parentFile.mkdirs()
+        writeText(display)
+    }
+    println(display)
+
+    val dotFile = File("$pathPrefix.dot")
+    val graph = solution.toThroughputGraph {
+        mergeItemsByQuality()
+        mergeRecipesByQuality()
+    }.toFancyDotGraph()
+    dotFile.writeDotGraph(graph)
 }
 
 val module1s = SpaceAge.run {

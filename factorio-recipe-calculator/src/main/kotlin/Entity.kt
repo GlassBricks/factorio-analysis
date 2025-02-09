@@ -1,7 +1,8 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.EntityPrototype
-import glassbricks.recipeanalysis.IngredientVector
+import glassbricks.recipeanalysis.Ingredient
+import glassbricks.recipeanalysis.Vector
 
 interface Entity {
     val quality: Quality
@@ -10,5 +11,5 @@ interface Entity {
 }
 
 interface WithBuildCost {
-    fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector
+    fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient>
 }

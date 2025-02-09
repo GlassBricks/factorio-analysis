@@ -2,7 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
-import glassbricks.recipeanalysis.IngredientVector
+import glassbricks.recipeanalysis.Vector
 import glassbricks.recipeanalysis.vectorWithUnits
 
 /**
@@ -43,7 +43,7 @@ fun IngredientsMap.getProductAmount(product: ProductPrototype): IngredientAmount
     is ResearchProgressProductPrototype -> TODO("research progress as product")
 }
 
-fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<IngredientVector, IngredientVector> {
+fun IngredientsMap.getProductsVector(prototypes: List<ProductPrototype>?): Pair<Vector<Ingredient>, Vector<Ingredient>> {
     val ignoreFromProductivity = mutableMapOf<Ingredient, Double>()
     val products = buildMap {
         for (product in prototypes.orEmpty()) {

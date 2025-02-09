@@ -1,9 +1,7 @@
-package glassbricks.factorio.recipes
+package glassbricks.factorio.recipes.export
 
-import glassbricks.factorio.prototypes.BeaconPrototype
-import glassbricks.factorio.prototypes.ItemPrototype
-import glassbricks.factorio.prototypes.QualityPrototype
-import glassbricks.factorio.prototypes.RecipePrototype
+import glassbricks.factorio.prototypes.*
+import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.Process
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.recipelp.RecipeLpFormatter
@@ -18,8 +16,9 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
         else -> error("Unknown machine type: $machine")
     }
 
+    fun formatEntityName(prototype: EntityPrototype): String = prototype.name
     fun formatBaseMachine(machine: BaseMachine<*>): String =
-        machine.prototype.name + formatQualityQualifier(machine.quality)
+        formatEntityName(machine.prototype) + formatQualityQualifier(machine.quality)
 
     fun formatMachineWithModules(machine: MachineWithModules<*>): String =
         formatBaseMachine(machine.machine) + formatModuleSet(machine.moduleSet)
@@ -55,7 +54,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatBeaconSetup(beaconSetup: BeaconSetup): String =
         "${formatBeacon(beaconSetup.beacon)}[${formatModuleList(beaconSetup.modules)}]"
 
-    fun formatBeaconName(prototype: BeaconPrototype): String = prototype.name
+    fun formatBeaconName(prototype: BeaconPrototype): String = formatEntityName(prototype)
     fun formatBeacon(beacon: Beacon): String =
         formatBeaconName(beacon.prototype) + formatQualityQualifier(beacon.quality)
 
@@ -64,11 +63,18 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
         is Resource -> formatResource(process)
     }
 
+    fun formatResourceOrRecipeName(prototype: Prototype) = when (prototype) {
+        is RecipePrototype -> formatRecipeName(prototype)
+        is ResourceEntityPrototype -> formatResourceName(prototype)
+        else -> error("Not a recipe or resource: $prototype")
+    }
+
     fun formatRecipeName(prototype: RecipePrototype): String = prototype.name
     fun formatRecipe(recipe: Recipe): String =
         formatRecipeName(recipe.prototype) + formatQualityQualifier(recipe.inputQuality)
 
-    fun formatResource(resource: Resource): String = resource.prototype.name
+    fun formatResourceName(prototype: ResourceEntityPrototype): String = prototype.name
+    fun formatResource(resource: Resource): String = formatResourceName(resource.prototype)
     fun formatQualityQualifier(quality: Quality): String =
         if (quality.level == 0) "" else "(${formatQualityName(quality.prototype)})"
 

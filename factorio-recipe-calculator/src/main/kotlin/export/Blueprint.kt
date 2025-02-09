@@ -1,7 +1,8 @@
-package glassbricks.factorio.recipes
+package glassbricks.factorio.recipes.export
 
 import glassbricks.factorio.prototypes.EntityPrototype
 import glassbricks.factorio.prototypes.FurnacePrototype
+import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
 import glassbricks.recipeanalysis.vectorMapKeysNotNull
 import kotlinx.serialization.ExperimentalSerializationApi

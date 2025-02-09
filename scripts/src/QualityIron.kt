@@ -1,6 +1,6 @@
-import glassbricks.factorio.recipes.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.export.FactorioShorthandFormatter
 import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
