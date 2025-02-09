@@ -21,6 +21,7 @@ interface AnyMachine<P : MachinePrototype> : WithEffects, WithBuildCost {
     fun canProcess(process: RecipeOrResource<*>): Boolean
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
+    val moduleSet: ModuleSet?
 }
 
 val AnyMachine<*>.finalCraftingSpeed get() = baseCraftingSpeed * effects.speedMultiplier
@@ -67,6 +68,7 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
     override val effects
         get() = _effects ?: prototype.effect_receiver?.base_effect?.toEffectInt(0) ?: IntEffects()
             .also { _effects = it }
+    override val moduleSet: Nothing? get() = null
     override val modulesUsed: Iterable<Module> get() = emptySet()
 
     private var _allowedEffects: EnumSet<EffectType>? = null

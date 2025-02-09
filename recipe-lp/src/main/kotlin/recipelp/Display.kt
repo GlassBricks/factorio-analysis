@@ -18,15 +18,31 @@ interface RecipeLpFormatter {
     }
 
     fun defaultNumberFormat(value: Double): String = "%.4f".format(value)
-    fun formatRate(rate: Double): String = defaultNumberFormat(rate) + "/s"
-    fun formatInputOutputRate(rate: Double): String = formatRate(rate)
-    fun formatProcessUsage(usage: Double): String = defaultNumberFormat(usage)
+    fun formatIngredientRate(
+        ingredient: Ingredient,
+        rate: Double,
+    ): String = defaultNumberFormat(rate) + "/s"
+
+    fun formatInputRate(input: Ingredient, rate: Double): String = formatIngredientRate(input, rate)
+    fun formatOutputRate(output: Ingredient, rate: Double): String = formatIngredientRate(output, rate)
+    fun formatRealProcessUsage(process: Process, rate: Double): String = defaultNumberFormat(rate)
+    fun formatOtherProcessUsage(process: PseudoProcess, rate: Double): String = defaultNumberFormat(rate)
     fun formatSymbolUsage(usage: Double): String = defaultNumberFormat(usage)
-    fun formatThroughput(throughput: Throughput): String = when {
-        throughput.consumption == 0.0 -> "(+${formatRate(throughput.production)})"
-        throughput.production == 0.0 -> "(-${formatRate(throughput.consumption)})"
-        throughput.net.absoluteValue < 1e-6 -> formatRate(throughput.min)
-        else -> formatRate(throughput.min) + " (%+f)".format(throughput.net)
+    fun formatAnyProcessUsage(
+        process: PseudoProcess,
+        rate: Double,
+    ): String = when (process) {
+        is Input -> formatInputRate(process.ingredient, rate)
+        is Output -> formatOutputRate(process.ingredient, rate)
+        is RealProcess -> formatRealProcessUsage(process.process, rate)
+        else -> formatOtherProcessUsage(process, rate)
+    }
+
+    fun formatThroughput(ingredient: Ingredient, throughput: Throughput): String = when {
+        throughput.consumption == 0.0 -> "(+${formatIngredientRate(ingredient, throughput.production)})"
+        throughput.production == 0.0 -> "(-${formatIngredientRate(ingredient, throughput.consumption)})"
+        throughput.net.absoluteValue < 1e-5 -> formatIngredientRate(ingredient, throughput.min)
+        else -> formatIngredientRate(ingredient, throughput.min) + " (%+f)".format(throughput.net)
     }
 
     fun formatSurplusIngredient(ingredient: Ingredient): String = formatIngredient(ingredient)
@@ -66,17 +82,17 @@ private inline fun <T> StringBuilder.displayLeftRight(
 fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter): String = buildString {
     appendLine("Inputs:")
     val inputList = inputs.keys.maybeSort(formatter.inputComparator)
-    displayLeftRight(inputList, formatter::formatInput, { formatter.formatInputOutputRate(inputs[it]) })
+    displayLeftRight(inputList, formatter::formatInput, { formatter.formatInputRate(it, inputs[it]) })
     appendLine()
 
     appendLine("Outputs:")
     val outputList = outputs.keys.maybeSort(formatter.outputComparator)
-    displayLeftRight(outputList, formatter::formatOutput, { formatter.formatInputOutputRate(outputs[it]) })
+    displayLeftRight(outputList, formatter::formatOutput, { formatter.formatOutputRate(it, outputs[it]) })
     appendLine()
 
     appendLine("Recipes:")
     val processList = processes.keys.maybeSort(formatter.processComparator)
-    displayLeftRight(processList, formatter::formatProcess, { formatter.formatProcessUsage(processes[it]) })
+    displayLeftRight(processList, formatter::formatProcess, { formatter.formatRealProcessUsage(it, processes[it]) })
     appendLine()
 
     val otherProcessList = otherProcesses.keys.maybeSort(formatter.otherProcessComparator)
@@ -86,16 +102,15 @@ fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter)
         displayLeftRight(
             otherProcessList,
             formatter::formatOtherProcess,
-            { formatter.formatProcessUsage(otherProcesses[it]) })
+            { formatter.formatOtherProcessUsage(it, otherProcesses[it]) })
     }
-    val throughputs = throughputs
     if (throughputs.isNotEmpty()) {
         appendLine()
         appendLine("Throughputs:")
         displayLeftRight(
             throughputs.keys.toList().maybeSort(formatter.ingredientComparator),
             formatter::formatIngredient,
-            { formatter.formatThroughput(throughputs[it]!!) })
+            { formatter.formatThroughput(it, throughputs[it]!!) })
     }
 
     if (surpluses.isNotEmpty()) {
@@ -104,7 +119,7 @@ fun RecipeSolution.textDisplay(formatter: RecipeLpFormatter = RecipeLpFormatter)
         displayLeftRight(
             surpluses.keys.toList().maybeSort(formatter.ingredientComparator),
             formatter::formatSurplusIngredient,
-            { formatter.formatRate(surpluses[it]) })
+            { formatter.formatIngredientRate(it, surpluses[it]) })
     }
 
     if (symbolUsage.isNotEmpty()) {

@@ -1,5 +1,7 @@
+import glassbricks.factorio.recipes.BeaconSetup
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.export.FactorioGraphExportFormatter
 import glassbricks.factorio.recipes.invoke
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.stage
@@ -150,5 +152,7 @@ fun main() = with(SpaceAge) {
     println("Objective: ${result.lpSolution!!.objectiveValue}")
 
     val pathName = "output/module2-staged"
-    printAndExportStagedSolution(pathName, solution)
+    printAndExportStagedSolution(pathName, solution, object : FactorioGraphExportFormatter {
+        override fun formatBeaconSetup(beaconSetup: BeaconSetup): String = "b"
+    })
 }

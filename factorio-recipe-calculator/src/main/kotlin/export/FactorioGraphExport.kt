@@ -47,11 +47,12 @@ val qualityNamesMap = mapOf(
 )
 
 interface FactorioShorthandFormatter : FactorioRecipesFormatter {
-    override fun formatItemName(prototype: ItemPrototype): String = shorthandDisplayName(prototype.name)
-    override fun formatFluid(fluid: Fluid): String = shorthandDisplayName(fluid.prototype.name)
-    override fun formatRecipeName(prototype: RecipePrototype): String = shorthandDisplayName(prototype.name)
-    override fun formatResourceName(prototype: ResourceEntityPrototype): String = shorthandDisplayName(prototype.name)
-    override fun formatEntityName(prototype: EntityPrototype): String = shorthandDisplayName(prototype.name)
+    fun formatProtoName(name: String): String = shorthandDisplayName(name)
+    override fun formatItemName(prototype: ItemPrototype): String = formatProtoName(prototype.name)
+    override fun formatFluid(fluid: Fluid): String = formatProtoName(fluid.prototype.name)
+    override fun formatRecipeName(prototype: RecipePrototype): String = formatProtoName(prototype.name)
+    override fun formatResourceName(prototype: ResourceEntityPrototype): String = formatProtoName(prototype.name)
+    override fun formatEntityName(prototype: EntityPrototype): String = formatProtoName(prototype.name)
 
     override fun formatQualityName(prototype: QualityPrototype): String =
         qualityNamesMap[prototype.name] ?: prototype.name
@@ -60,8 +61,14 @@ interface FactorioShorthandFormatter : FactorioRecipesFormatter {
 }
 
 interface FactorioGraphExportFormatter : FactorioShorthandFormatter {
+    override fun formatRecipeName(prototype: RecipePrototype): String =
+        super.formatRecipeName(prototype).replace("-recycling", "\\nrecycling")
+
     override fun formatSetup(setup: MachineSetup<*>): String =
-        formatRecipeOrResource(setup.recipe) + "\n" + formatMachine(setup.machine)
+        formatRecipeOrResource(setup.recipe) + "|" + formatMachine(setup.machine)
+
+    override fun formatInput(input: Ingredient): String = "Input|" + super.formatInput(input)
+    override fun formatOutput(output: Ingredient): String = "Output|" + super.formatOutput(output)
 
     companion object Default : FactorioGraphExportFormatter
 }
@@ -99,7 +106,7 @@ data class DotGraphExportOptions(
                 "concentrate" to true,
             ),
             nodeAttributes = mapOf(
-                "shape" to "box",
+                "shape" to "record",
                 "margin" to 0,
             ),
             edgeAttributes = mapOf(
@@ -169,7 +176,7 @@ private fun ThroughputGraph.formatIngNode(
 } else {
     mapOf(
         "label" to formatMultipleIngNode(ingredients, formatter),
-        "shape" to "record"
+//        "shape" to "record"
     )
 }
 
@@ -177,7 +184,10 @@ private fun ThroughputGraph.formatSingleIngNode(
     ingredient: Ingredient,
     formatter: FactorioRecipesFormatter,
 ): String {
-    return formatter.formatSymbol(ingredient) + "\n" + formatter.formatThroughput(solution.throughputs[ingredient]!!)
+    return "{${formatter.formatSymbol(ingredient)}|" + formatter.formatThroughput(
+        ingredient,
+        solution.throughputs[ingredient]!!
+    ) + "}"
 }
 
 private fun ThroughputGraph.formatMultipleIngNode(
@@ -188,9 +198,10 @@ private fun ThroughputGraph.formatMultipleIngNode(
     val ingItemsByProto = ingredients.filterIsInstance<Item>().groupBy { it.prototype }
     for ((proto, items) in ingItemsByProto) {
         if (items.size == 1) {
+            val item = items.single()
             table += listOf(
                 formatter.formatItemName(proto),
-                formatter.formatThroughput(solution.throughputs[items.single()]!!)
+                formatter.formatThroughput(item, solution.throughputs[item]!!)
             )
         } else {
             // header
@@ -198,7 +209,7 @@ private fun ThroughputGraph.formatMultipleIngNode(
             for (item in items.sortedBy { it.quality }) {
                 table += listOf(
                     formatter.formatQualityName(item.quality.prototype),
-                    formatter.formatThroughput(solution.throughputs[item]!!)
+                    formatter.formatThroughput(item, solution.throughputs[item]!!)
                 )
             }
         }
@@ -207,7 +218,7 @@ private fun ThroughputGraph.formatMultipleIngNode(
     for (ingredient in otherIngredients) {
         table += listOf(
             formatter.formatIngredient(ingredient),
-            formatter.formatThroughput(solution.throughputs[ingredient]!!)
+            formatter.formatThroughput(ingredient, solution.throughputs[ingredient]!!)
         )
     }
     return table.toGraphvizRecord()
@@ -229,8 +240,9 @@ private fun ThroughputGraph.formatSingleProcessNode(
     process: PseudoProcess,
     formatter: FactorioRecipesFormatter,
 ): String {
-    return formatter.formatAnyPseudoProcess(process) + "\n" +
-            formatter.formatProcessUsage(solution.lpProcesses[process])
+    return "{${formatter.formatAnyPseudoProcess(process)}|" +
+            "${formatter.formatAnyProcessUsage(process, solution.lpProcesses[process])}}"
+
 }
 
 private fun ThroughputGraph.formatMultipleProcessNode(
@@ -244,12 +256,24 @@ private fun ThroughputGraph.formatMultipleProcessNode(
     val machineSetups = processes.mapNotNull { it.machine() }
     val byRecipe = machineSetups.groupBy { it.recipe.prototype }
     for ((recipe, setups) in byRecipe) {
-        table += listOf(formatter.formatResourceOrRecipeName(recipe))
+        val samePrototype = setups.isUnique { it.machine.prototype } as EntityPrototype?
+
+
+        table += if (samePrototype != null) {
+            listOf(formatter.formatResourceOrRecipeName(recipe), formatter.formatEntityName(samePrototype))
+        } else {
+            listOf(formatter.formatResourceOrRecipeName(recipe), "(Multiple machines)")
+        }
         for (setup in setups.sortedBy { it.recipe.inputQuality }) {
+            val machineName = if (samePrototype != null) {
+                setup.machine.moduleSet?.let { formatter.formatModuleSet(it) } ?: "[none]"
+            } else {
+                formatter.formatMachine(setup.machine)
+            }
             table += listOf(
                 formatter.formatQualityName(setup.recipe.inputQuality.prototype),
-                formatter.formatMachine(setup.machine),
-                formatter.formatProcessUsage(solution.processes[setup])
+                machineName,
+                formatter.formatMachineSetupUsage(setup, solution.processes[setup])
             )
         }
     }
@@ -257,7 +281,7 @@ private fun ThroughputGraph.formatMultipleProcessNode(
     for (process in otherProcesses) {
         table += listOf(
             formatter.formatAnyPseudoProcess(process),
-            formatter.formatProcessUsage(solution.lpProcesses[process])
+            formatter.formatAnyProcessUsage(process, solution.lpProcesses[process])
         )
     }
 
@@ -293,9 +317,9 @@ private fun ThroughputGraph.formatEdgeLabel(
     }
 
     val multiplier = if (isInput) -1 else 1
-    fun getRateStr(item: Ingredient) = formatter.formatRate(rate[item] * multiplier)
+    fun getRateStr(item: Ingredient) = formatter.formatIngredientRate(item, rate[item] * multiplier)
 
-    val needsItemLabel = !ingNode.ingredients.isUnique { (it as? Item)?.prototype }
+    val needsItemLabel = ingNode.ingredients.isUnique { (it as? Item)?.prototype } == null
     return buildString {
         val ingItemsByProto = rate.keys.filterIsInstance<Item>().groupBy { it.prototype }
         for ((proto, items) in ingItemsByProto) {
@@ -315,7 +339,7 @@ private fun ThroughputGraph.formatEdgeLabel(
     }
 }
 
-private inline fun <T, V> Iterable<T>.isUnique(keySelector: (T) -> V): Boolean {
+private inline fun <T, V> Iterable<T>.isUnique(keySelector: (T) -> V): V? {
     var seen = false
     var theItem: V? = null
     for (item in this) {
@@ -324,10 +348,10 @@ private inline fun <T, V> Iterable<T>.isUnique(keySelector: (T) -> V): Boolean {
             theItem = key
             seen = true
         } else if (theItem != key) {
-            return false
+            return null
         }
     }
-    return true
+    return theItem
 }
 
 private fun ThroughputGraph.addSinkSource(graphExport: DotGraphExport<ThroughputNode, Unit>) {

@@ -95,6 +95,12 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
         else -> process.toString()
     }
 
+    fun formatMachineSetupUsage(setup: MachineSetup<*>, rate: Double): String = defaultNumberFormat(rate)
+
+    override fun formatRealProcessUsage(process: Process, rate: Double): String =
+        if (process is MachineSetup<*>) formatMachineSetupUsage(process, rate)
+        else super.formatRealProcessUsage(process, rate)
+
     companion object Default : FactorioRecipesFormatter
 }
 

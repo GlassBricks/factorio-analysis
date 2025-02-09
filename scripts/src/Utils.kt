@@ -1,10 +1,5 @@
-import glassbricks.factorio.recipes.SpaceAge
-import glassbricks.factorio.recipes.WithBeaconCount
-import glassbricks.factorio.recipes.export.RecipesFirst
-import glassbricks.factorio.recipes.export.mergeItemsByQuality
-import glassbricks.factorio.recipes.export.mergeRecipesByQuality
-import glassbricks.factorio.recipes.export.toFancyDotGraph
-import glassbricks.factorio.recipes.invoke
+import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.export.*
 import glassbricks.factorio.recipes.problem.FactoryConfigBuilder
 import glassbricks.recipeanalysis.recipelp.ProductionStage
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
@@ -16,11 +11,12 @@ import java.io.File
 fun printAndExportStagedSolution(
     pathName: String,
     solution: Map<ProductionStage, RecipeSolution>,
+    formatter: FactorioRecipesFormatter,
 ) {
     val dotFilePath = File(pathName)
     dotFilePath.mkdirs()
     for ((stage, solution) in solution) {
-        val display = solution.textDisplay(RecipesFirst.Companion)
+        val display = solution.textDisplay(RecipesFirst)
         dotFilePath.resolve("${stage.name}.txt").writeText(display)
 
         println("Stage: $stage")
@@ -32,7 +28,9 @@ fun printAndExportStagedSolution(
         val graph = solution.toThroughputGraph {
             mergeItemsByQuality()
             mergeRecipesByQuality()
-        }.toFancyDotGraph()
+        }.toFancyDotGraph(
+            formatter
+        )
         dotFile.writeDotGraph(graph)
 
     }
@@ -41,7 +39,7 @@ fun printAndExportStagedSolution(
 fun printAndExportSolution(
     pathPrefix: String, solution: RecipeSolution,
 ) {
-    val display = solution.textDisplay(RecipesFirst.Companion)
+    val display = solution.textDisplay(RecipesFirst)
     File("$pathPrefix.txt").apply {
         parentFile.mkdirs()
         writeText(display)
@@ -70,23 +68,41 @@ val module2s = SpaceAge.run {
         qualityModule2
     )
 }
+val module3s = SpaceAge.run {
+    listOf(
+        speedModule3,
+        productivityModule3,
+        qualityModule3
+    )
+}
 val module12s = module1s + module2s
 val module12sAllQualities = module12s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
+val module123AllQualities =
+    module12sAllQualities + module3s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
 
 val sharedSpeed2Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule2, sharing = 6.0)
+val sharedSpeed3Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule3, sharing = 6.0)
+val lessSharedSpeed2Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule2, sharing = 4.0) * 3
+val lessSharedSpeed3Beacon = SpaceAge.beacon(fill = SpaceAge.speedModule3, sharing = 4.0) * 3
 
 fun FactoryConfigBuilder.vulcanusMachines(
-    beaconConfigs: List<List<WithBeaconCount>> = listOf(listOf(sharedSpeed2Beacon)),
+    modules: List<Module> = module123AllQualities,
+    beacons: List<List<WithBeaconCount>> = listOf(
+        listOf(sharedSpeed2Beacon),
+        listOf(sharedSpeed3Beacon),
+        listOf(lessSharedSpeed2Beacon),
+        listOf(lessSharedSpeed3Beacon),
+    ),
 ) {
     machines {
         default {
             includeBuildCosts()
 
             moduleConfig() // no modules
-            for (module in module12sAllQualities) {
+            for (module in modules) {
                 moduleConfig(fill = module)
                 if (module.effects.quality <= 0) {
-                    for (beaconConfig in beaconConfigs) {
+                    for (beaconConfig in beacons) {
                         moduleConfig(fill = module, beacons = beaconConfig)
                     }
                 }

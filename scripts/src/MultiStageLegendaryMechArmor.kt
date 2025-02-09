@@ -1,21 +1,25 @@
 import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.export.FactorioGraphExportFormatter
 import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.stage
-import glassbricks.recipeanalysis.asTime
+import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.OrToolsLp
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.runningFor
-import kotlin.time.Duration.Companion.hours
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
 fun main(): Unit = with(SpaceAge) {
     val vulcanusFactory = factory {
         vulcanusMachines()
+        machines {
+//            electromagneticPlant { integralCost() }
+        }
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(RecipeID(castingLowDensityStructure.prototype.name) to 0.2)
@@ -37,10 +41,15 @@ fun main(): Unit = with(SpaceAge) {
             // which might be a tiny bit more optimal, but too complicated to be worth it
             remove(splitter)
             remove(transportBelt)
+            remove(holmiumPlate)
+            remove(holmiumPlateRecycling)
+            remove(supercapacitorRecycling)
+            remove(superconductorRecycling)
         }
     }
 
     fun ProblemBuilder.CostsScope.machineCosts() {
+        costOf(assemblingMachine2, 1.0 + 1.0)
         costOf(assemblingMachine3, 3 + 1.0)
         costOf(foundry, 5 + 2.0)
         costOf(beacon, 4 + 1.0)
@@ -49,31 +58,40 @@ fun main(): Unit = with(SpaceAge) {
         costOf(electromagneticPlant, 100)
     }
 
+    val mallRunTime = 30.minutes
+    val targetTime = 30.minutes
     val stage1 = vulcanusFactory.stage("modules") {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-//        input(holmiumOre, limit = 500.0 / 30.minutes)
-//        input(holmiumPlate.withQuality(epic), limit = 300.0 / 30.minutes)
-        for (q in qualities) {
-            input(superconductor.withQuality(q), cost = 0.0)
-        }
+        limit(holmiumOre, 500.0 / mallRunTime)
+        limit(holmiumPlate.withQuality(epic), 100.0 / mallRunTime)
 
-        for (module in module12sAllQualities) {
+        for (module in module1s) {
             optionalOutput(module)
         }
+        for (module in module2s + module3s) {
+            optionalOutput(module)
+            optionalOutput(module.withQuality(rare))
+            optionalOutput(module.withQuality(epic))
+            optionalOutput(module.withQuality(legendary))
+        }
+
         costs {
             machineCosts()
             for (module in module1s) {
                 costOf(module, 1.0)
             }
-            for (module in module2s) {
-                costOf(module, 5.0)
+            // make higher on purpose for now
+            val qualityMultiplierCost = 6.0
+            for ((i, q) in qualities.take(3).withIndex()) {
+                for (module in module2s) {
+                    costOf(module.withQuality(q), 5.0 * qualityMultiplierCost.pow(i))
+                }
             }
             forbidUnspecifiedModules()
         }
     }
 
-    val targetTime = 0.5.hours.asTime()
     val finalProduction = vulcanusFactory.stage("final production") {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
@@ -85,8 +103,8 @@ fun main(): Unit = with(SpaceAge) {
 
         costs {
             machineCosts()
-            for (module in module12sAllQualities) {
-                module producedBy stage1.runningFor(30.minutes)
+            for (module in module123AllQualities) {
+                module producedBy stage1.runningFor(mallRunTime)
             }
         }
     }
@@ -97,7 +115,7 @@ fun main(): Unit = with(SpaceAge) {
 
     val result = problem.solve(
         OrToolsLp(), LpOptions(
-            timeLimit = 10.minutes,
+            timeLimit = 20.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             enableLogging = true,
             epsilon = 1e-5
@@ -105,6 +123,13 @@ fun main(): Unit = with(SpaceAge) {
     )
     println("Status: ${result.status}")
     result.solutions?.let {
-        printAndExportStagedSolution("output/legendary-armor-staged", it)
+        printAndExportStagedSolution("output/legendary-armor-staged", it, object : FactorioGraphExportFormatter {
+            override fun formatIngredientRate(ingredient: Ingredient, rate: Double): String =
+                "%.2f".format(rate * 60) + "/min"
+
+            override fun defaultNumberFormat(value: Double): String =
+                if (value < 0.01) "%e".format(value)
+                else "%.3f".format(value)
+        })
     }
 }

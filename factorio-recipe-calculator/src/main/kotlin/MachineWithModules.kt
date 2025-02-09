@@ -8,7 +8,7 @@ import glassbricks.recipeanalysis.plus
 
 data class MachineWithModules<P>(
     val machine: BaseMachine<P>,
-    val moduleSet: ModuleSet,
+    override val moduleSet: ModuleSet,
 ) : AnyMachine<P> where P : MachinePrototype, P : EntityPrototype {
     init {
         val (modules, beacons) = moduleSet

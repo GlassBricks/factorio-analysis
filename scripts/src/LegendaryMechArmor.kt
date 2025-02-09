@@ -9,6 +9,7 @@ import glassbricks.factorio.recipes.qualities
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
 import kotlin.math.pow
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
@@ -57,7 +58,7 @@ fun main(): Unit = with(SpaceAge) {
                 addQualityCost(module, 5.0)
             }
         }
-        oneFullLegendaryMechArmor(1.hours.asTime())
+        oneFullLegendaryMechArmor(1.hours)
     }
 
     val result = production.solve(
@@ -76,7 +77,7 @@ fun main(): Unit = with(SpaceAge) {
 
 }
 
-fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Time) {
+fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Duration) {
     data class Size(val x: Int, val y: Int)
 
     val sizes = listOf(
