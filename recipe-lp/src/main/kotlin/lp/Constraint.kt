@@ -30,6 +30,8 @@ infix fun <T> Vector<out T>.geq(rhs: Double) = KeyedConstraint(this.relaxKeyType
 
 infix fun <T> Vector<out T>.leq(rhs: Vector<out T>) = (this - rhs).leq(0.0)
 infix fun <T> Vector<out T>.eq(rhs: Vector<out T>) = (this - rhs).eq(0.0)
+
+@Suppress("unused")
 infix fun <T> Vector<out T>.geq(rhs: Vector<out T>) = (this - rhs).geq(0.0)
 
 interface Constraint {
@@ -38,12 +40,6 @@ interface Constraint {
     operator fun set(variable: Variable, value: Double)
     var lb: Double
     var ub: Double
-
-    fun coefficientsAsVector(): Vector<Variable> = buildVector {
-        for (variable in parent.variables) {
-            this[variable] = this@Constraint[variable]
-        }
-    }
 }
 
 fun Constraint.setCoefficients(weights: Vector<out Variable>) {

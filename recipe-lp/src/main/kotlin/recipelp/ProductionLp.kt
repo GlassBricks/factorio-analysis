@@ -18,9 +18,9 @@ data class ProductionLp(
         concat(inputs, outputs, processes, otherProcesses)
     }
 
-    val inputsByIngredient by lazy { inputs.groupBy { it.ingredient } }
+    //    val inputsByIngredient by lazy { inputs.groupBy { it.ingredient } }
     val outputsByIngredient by lazy { outputs.groupBy { it.ingredient } }
-    val processMap by lazy { processes.groupBy { it.process } }
+//    val processMap by lazy { processes.groupBy { it.process } }
 
     fun solve(solver: LpSolver = DefaultLpSolver(), options: LpOptions = LpOptions()): RecipeResult {
         val vars = createVarsAndConstraints(solver)
