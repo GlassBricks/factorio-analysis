@@ -26,7 +26,31 @@ fun recipe(
     costVariableConfig = costVariableConfig,
 )
 
-class RecipeSolverKtTest : StringSpec({
+class ProductionLpTest : StringSpec({
+    "basic a->b" {
+        val a = TestIngredient("a")
+        val b = TestIngredient("b")
+        val ab = recipe(
+            "a->b",
+            a to -1.0,
+            b to 1.0,
+            time = 1.0,
+        )
+        val aInput = Input(a, variableConfig = VariableConfig(cost = 10.0))
+        val bOutput = Output(b, variableConfig = VariableConfig(lowerBound = 1.0))
+        val lp = ProductionLp(
+            inputs = listOf(aInput),
+            outputs = listOf(bOutput),
+            processes = listOf(ab),
+        )
+        val result = lp.solve()
+        result.status shouldBe LpResultStatus.Optimal
+        val usage = result.solution?.lpProcesses ?: fail("no usage")
+        usage[ab] shouldBe 1.0
+        usage[aInput] shouldBe 1.0
+        usage[bOutput] shouldBe 1.0
+    }
+
     "advanced oil solid fuel" {
         val crudeOil = TestIngredient("crude oil")
         val heavyOil = TestIngredient("heavy oil")
@@ -238,7 +262,7 @@ class RecipeSolverKtTest : StringSpec({
             inputs = listOf(input),
             outputs = listOf(output),
             processes = listOf(process),
-        ).solve()
+        ).solve(solver = OrToolsLp("SCIP"))
         result.status shouldBe LpResultStatus.Optimal
         val cost = result.lpSolution?.objectiveValue
         cost shouldBe 1.0

@@ -1,5 +1,13 @@
 package glassbricks.recipeanalysis.lp
 
+interface Variable {
+    val name: String
+    var lowerBound: Double
+    var upperBound: Double
+    val type: VariableType
+    var objectiveWeight: Double
+}
+
 enum class VariableType {
     Continuous,
     Integer,
@@ -12,15 +20,17 @@ enum class VariableType {
     SemiContinuous,
 }
 
-class Variable(
-    val name: String,
-    val lowerBound: Double = Double.NEGATIVE_INFINITY,
-    val upperBound: Double = Double.POSITIVE_INFINITY,
-    val type: VariableType = VariableType.Continuous,
-) {
-    internal var realizedVariable: Any? = null
-    override fun toString(): String = "Variable($name)"
-}
+fun LpSolver.addPositiveVariable(
+    name: String = "",
+    cost: Double = 0.0,
+    type: VariableType = VariableType.Continuous,
+): Variable = addVariable(
+    lowerBound = 0.0,
+    upperBound = Double.POSITIVE_INFINITY,
+    type = type,
+    cost = cost,
+    name = name,
+)
 
 data class VariableConfig(
     val lowerBound: Double = 0.0,
@@ -28,13 +38,6 @@ data class VariableConfig(
     val type: VariableType = VariableType.Continuous,
     val cost: Double = 0.0,
 ) {
-    fun createVariableNoCost(name: String): Variable = Variable(
-        name = name,
-        lowerBound = lowerBound,
-        upperBound = upperBound,
-        type = type,
-    )
-
     override fun toString(): String = buildString {
         append("VariableConfig(")
         var hasPrev = false
@@ -63,3 +66,11 @@ data class VariableConfigBuilder(
         cost = cost,
     )
 }
+
+fun LpSolver.addVariable(config: VariableConfig, name: String = ""): Variable = addVariable(
+    lowerBound = config.lowerBound,
+    upperBound = config.upperBound,
+    type = config.type,
+    cost = config.cost,
+    name = name,
+)

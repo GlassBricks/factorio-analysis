@@ -1,146 +1,114 @@
 package glassbricks.recipeanalysis.lp
 
 import com.google.ortools.Loader
+import com.google.ortools.linearsolver.MPConstraint
+import com.google.ortools.linearsolver.MPObjective
 import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPVariable
 import glassbricks.recipeanalysis.buildVector
-import glassbricks.recipeanalysis.component1
-import glassbricks.recipeanalysis.component2
+import glassbricks.recipeanalysis.relaxKeyType
 
-class OrToolsLp(val solverId: String? = null) : LpSolver {
-    class Result(
-        override val status: LpResultStatus,
-        override val bestBound: Double,
-        override val solution: LpSolution?,
-    ) : LpResult
-
-    override fun solve(problem: LpProblem, options: LpOptions): Result {
-        return createLpSolver(problem, options).solve()
-    }
-
-    inner class IncrementalSolver(
-        val solver: MPSolver,
-        val options: LpOptions,
-        val variables: Set<Variable>,
-    ) {
-        fun solve(): Result {
-            if (options.enableLogging) {
-                println("Starting solve")
-                println(solver.solverVersion())
-            }
-            val resultStatus = solver.solve()
-            return createResult(resultStatus, solver, variables, options)
-        }
-    }
-
-    private fun createLpSolver(problem: LpProblem, options: LpOptions): IncrementalSolver {
+class OrToolsLp(solverId: String = "GLOP") : LpSolver {
+    init {
         Loader.loadNativeLibraries()
-        val (constraints, objective) = problem
-        val variables = buildSet {
-            for (constraint in constraints) {
-                addAll(constraint.lhs.keys)
-            }
-            addAll(objective.coefficients.keys)
-        }
-        val solverId = solverId ?: when {
-            variables.all { it.type == VariableType.Integer } -> "SAT"
-            variables.any { it.type != VariableType.Continuous } -> "SCIP"
-            else -> "GLOP"
-        }
-        val solver = MPSolver.createSolver(solverId) ?: error("Solver not found")
+    }
 
-        val auxVariables = mutableMapOf<Variable, MPVariable>()
-        for (variable in variables) {
-            val mpVariable = when (variable.type) {
-                VariableType.Continuous, VariableType.Integer -> solver.makeVar(
-                    variable.lowerBound,
-                    variable.upperBound,
-                    variable.type == VariableType.Integer,
-                    variable.name
-                )
+    private val solver: MPSolver = MPSolver.createSolver(solverId) ?: error("Could not create solver $solverId")
 
-                VariableType.SemiContinuous -> if (0.0 in variable.lowerBound..variable.upperBound) {
-                    // simple continuous variable
-                    solver.makeVar(
-                        variable.lowerBound,
-                        variable.upperBound,
-                        false,
-                        variable.name
-                    )
-                } else {
-                    val mpVariable = solver.makeVar(
-                        variable.lowerBound.coerceAtMost(0.0),
-                        variable.upperBound.coerceAtLeast(0.0),
-                        false,
-                        variable.name
-                    )
-                    val minCoeff: Double
-                    val maxCoeff: Double
-                    val auxUb: Double
-                    // create auxiliary variable
-                    // min*aux <= variable <= max*aux
-                    if (variable.upperBound == Double.POSITIVE_INFINITY) {
-                        // min*aux <= variable <= (min*3)*aux; aux any integer
-                        minCoeff = variable.lowerBound
-                        maxCoeff = variable.lowerBound * 3
-                        auxUb = Double.POSITIVE_INFINITY
-                    } else if (variable.lowerBound == Double.NEGATIVE_INFINITY) {
-                        // (max*3)*aux <= variable <= max*aux; aux any integer
-                        minCoeff = variable.upperBound * 3
-                        maxCoeff = variable.upperBound
-                        auxUb = Double.POSITIVE_INFINITY
-                    } else {
-                        // min*aux <= variable <= max*aux; aux binary
-                        minCoeff = variable.lowerBound
-                        maxCoeff = variable.upperBound
-                        auxUb = 1.0
-                    }
-                    val aux: MPVariable = solver.makeIntVar(0.0, auxUb, "${variable.name}_aux")
-                    auxVariables[variable] = aux
-                    // min*aux <= variable
-                    // variable - min*aux >= 0
-                    solver.makeConstraint(0.0, Double.POSITIVE_INFINITY).apply {
-                        setCoefficient(mpVariable, 1.0)
-                        setCoefficient(aux, -minCoeff)
-                    }
-                    // variable <= max*aux
-                    // variable - max*aux <= 0
-                    solver.makeConstraint(Double.NEGATIVE_INFINITY, 0.0).apply {
-                        setCoefficient(mpVariable, 1.0)
-                        setCoefficient(aux, -maxCoeff)
-                    }
-                    mpVariable
-                }
+    override val supportsIntegerPrograms: Boolean get() = "INTEGER" in solver.problemType().toString()
+
+    private inner class VariableImpl(
+        val variable: MPVariable,
+        override val type: VariableType,
+    ) : Variable {
+        override val name: String get() = variable.name()
+        override var lowerBound: Double
+            get() = variable.lb()
+            set(value) = variable.setLb(value)
+        override var upperBound: Double
+            get() = variable.ub()
+            set(value) = variable.setUb(value)
+        override var objectiveWeight: Double
+            get() = solver.objective().getCoefficient(variable)
+            set(value) = solver.objective().setCoefficient(variable, value)
+
+        override fun toString(): String =
+            "Variable(name=\"$name\", type=$type, lowerBound=$lowerBound, upperBound=$upperBound)"
+    }
+
+    private val _variables = mutableListOf<VariableImpl>()
+    override val variables: List<Variable> get() = _variables
+
+    override fun addVariable(
+        lowerBound: Double,
+        upperBound: Double,
+        name: String,
+        type: VariableType,
+        cost: Double,
+    ): Variable {
+        val variable = when (type) {
+            VariableType.Continuous -> solver.makeNumVar(lowerBound, upperBound, name)
+            VariableType.Integer -> {
+                require(supportsIntegerPrograms) { "Solver ${solver.solverVersion()} does not support integer programs" }
+                solver.makeIntVar(lowerBound, upperBound, name)
             }
-            variable.realizedVariable = mpVariable
+
+            VariableType.SemiContinuous -> TODO("SemiContinuous")
         }
-        for (constraint in constraints) {
-            val ct = solver.makeConstraint(0.0, 0.0)
-            for ((variable, coefficient) in constraint.lhs) {
-                ct.setCoefficient(variable.realizedVariable as MPVariable, coefficient)
+        return VariableImpl(variable, type).also {
+            objective[it] = cost
+            _variables.add(it)
+        }
+    }
+
+    private inner class ConstraintImpl(val constraint: MPConstraint) : Constraint {
+        override val parent: LpSolver get() = this@OrToolsLp
+        override var lb: Double
+            get() = constraint.lb()
+            set(value) = constraint.setLb(value)
+        override var ub: Double
+            get() = constraint.ub()
+            set(value) = constraint.setUb(value)
+
+        override fun get(variable: Variable): Double =
+            constraint.getCoefficient((variable as VariableImpl).variable)
+
+        override fun set(variable: Variable, value: Double) =
+            constraint.setCoefficient((variable as VariableImpl).variable, value)
+    }
+
+    private val _constraints = mutableListOf<ConstraintImpl>()
+    override val constraints: List<Constraint> get() = _constraints
+
+    override fun addConstraint(lb: Double, ub: Double, name: String): Constraint {
+        val constraint = solver.makeConstraint(lb, ub, name)
+        return ConstraintImpl(constraint).also { _constraints.add(it) }
+    }
+
+    private inner class ObjectiveImpl(val objective: MPObjective) : Objective {
+        override val parent: LpSolver get() = this@OrToolsLp
+
+        override var maximize: Boolean
+            get() = objective.maximization()
+            set(value) {
+                if (value) objective.setMaximization() else objective.setMinimization()
             }
-            when (constraint.op) {
-                ComparisonOp.Leq -> ct.setBounds(Double.NEGATIVE_INFINITY, constraint.rhs)
-                ComparisonOp.Geq -> ct.setBounds(constraint.rhs, Double.POSITIVE_INFINITY)
-                ComparisonOp.Eq -> ct.setBounds(constraint.rhs, constraint.rhs)
-            }
+
+        override fun set(variable: Variable, weight: Double) {
+            objective.setCoefficient((variable as VariableImpl).variable, weight)
         }
 
-        val mpObjective = solver.objective()!!
-        mpObjective.setOptimizationDirection(objective.maximize)
-        for ((variable, coefficient) in objective.coefficients) {
-            val mpVariable = variable.realizedVariable as MPVariable
-            mpObjective.setCoefficient(mpVariable, coefficient)
-        }
-        mpObjective.setOffset(objective.constant)
+        override fun get(variable: Variable): Double =
+            objective.getCoefficient((variable as VariableImpl).variable)
 
+    }
+
+    override val objective: Objective = ObjectiveImpl(solver.objective())
+
+    override fun solve(options: LpOptions): LpResult {
         setSolverOptions(solver, options)
-
-        return IncrementalSolver(
-            solver = solver,
-            options = options,
-            variables = variables
-        )
+        val resultStatus = solver.solve()
+        return createResult(resultStatus, options)
     }
 
     private fun setSolverOptions(
@@ -154,12 +122,7 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         }
     }
 
-    private fun createResult(
-        resultStatus: MPSolver.ResultStatus?,
-        solver: MPSolver,
-        variables: Set<Variable>,
-        options: LpOptions,
-    ): Result {
+    private fun createResult(resultStatus: MPSolver.ResultStatus?, options: LpOptions): LpResult {
         val status = when (resultStatus) {
             MPSolver.ResultStatus.OPTIMAL -> LpResultStatus.Optimal
             MPSolver.ResultStatus.FEASIBLE -> LpResultStatus.Feasible
@@ -173,23 +136,22 @@ class OrToolsLp(val solverId: String? = null) : LpSolver {
         val hasSolution = status == LpResultStatus.Optimal || status == LpResultStatus.Feasible
         val epsilon = options.epsilon
         val solution = if (!hasSolution) null else {
-
             if (options.checkSolution) {
                 solver.verifySolution(epsilon, true)
             }
-
-            val assignment = buildVector {
-                for (variable in variables) {
-                    val value = (variable.realizedVariable as MPVariable).solutionValue()
+            val assignment = buildVector(_variables.size) {
+                for (variable in _variables) {
+                    val value = variable.variable.solutionValue()
                     if (value !in -epsilon..epsilon) {
                         this[variable] = value
                     }
                 }
             }
             val objective = solver.objective().value()
-            LpSolution(assignment, objective)
+            LpSolution(assignment.relaxKeyType(), objective)
         }
         val bestBound = solver.objective().bestBound()
-        return Result(status, bestBound, solution)
+        return LpResult(status, solution, bestBound)
     }
+
 }

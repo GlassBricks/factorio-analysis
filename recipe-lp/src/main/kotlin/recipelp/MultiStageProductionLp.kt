@@ -42,14 +42,25 @@ data class ProcessReference(
 
 fun ProductionStage.ref(process: PseudoProcess): ProcessReference = ProcessReference(this, process)
 
+fun maybeResolveReferenceVar(
+    symbol: Symbol,
+    vars: Map<ProductionStage, ProductionLpVars>,
+): Variable? = when (symbol) {
+    is ReferenceSymbol -> symbol.resolveVariablesIn(vars)
+    else -> null
+}
+
+private fun ReferenceSymbol.resolveVariablesIn(vars: Map<ProductionStage, ProductionLpVars>): Variable =
+    resolveVariable(vars[stage] ?: error("Stage $stage not found"))
+
 class MultiStageProductionLp(
     val stages: List<ProductionStage>,
     val additionalConstraints: List<KeyedConstraint<ReferenceSymbol>> = emptyList(),
 ) {
     fun solve(solver: LpSolver = DefaultLpSolver(), options: LpOptions = LpOptions()): MultiStageRecipeResult {
-        val lpVars = createVars(stages)
-        val lp = createLp(lpVars)
-        val result = solver.solve(lp, options)
+        val lpVars = createVars(solver, stages)
+        addAdditionalConstraints(solver, lpVars)
+        val result = solver.solve(options)
         val solutions = result.solution?.let {
             lpVars.mapValues { (_, lpVars) -> lpVars.createSolution(it) }
         }
@@ -59,29 +70,25 @@ class MultiStageProductionLp(
         )
     }
 
-    private fun createVars(stages: List<ProductionStage>): Map<ProductionStage, ProductionLpVars> =
-        buildMap {
-            for (stage in stages) {
-                if (stage in this) {
-                    error("There cannot be duplicates in multi-stage recipe")
-                }
-                this[stage] = stage.productionLp.createVarsAndConstraints(this)
+    private fun createVars(
+        solver: LpSolver,
+        stages: List<ProductionStage>,
+    ): Map<ProductionStage, ProductionLpVars> = buildMap {
+        for (stage in stages) {
+            if (stage in this@buildMap) {
+                error("There cannot be duplicates in multi-stage recipe")
             }
+            this[stage] = stage.productionLp.createVarsAndConstraints(solver, this)
         }
+    }
 
-    private fun createLp(lpVars: Map<ProductionStage, ProductionLpVars>): LpProblem {
-        val allConstraints = lpVars.values.flatMapTo(mutableListOf()) { it.constraints }
+    private fun addAdditionalConstraints(
+        solver: LpSolver,
+        lpVars: Map<ProductionStage, ProductionLpVars>,
+    ) {
         for (constraint in additionalConstraints) {
-            allConstraints.add(constraint.mapKeys {
-                val stageVars = lpVars[it.stage] ?: error("Referenced stage ${it.stage} not found")
-                it.resolveVariable(stageVars)
-            })
+            solver += constraint.mapKeys { it.resolveVariablesIn(lpVars) }
         }
-        val allObjectiveWeights = lpVars.values.sumVectorsPresized { it.objectiveWeights }
-        return LpProblem(
-            constraints = allConstraints,
-            objective = Objective(allObjectiveWeights, maximize = false)
-        )
     }
 }
 

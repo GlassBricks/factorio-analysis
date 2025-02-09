@@ -4,23 +4,28 @@ import glassbricks.recipeanalysis.Vector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-data class Objective(
-    val coefficients: Vector<Variable>,
-    val constant: Double = 0.0,
-    val maximize: Boolean = true,
-)
-
-data class LpProblem(
-    val constraints: List<Constraint>,
-    val objective: Objective,
-)
-
 interface LpSolver {
-    fun solve(problem: LpProblem, options: LpOptions = LpOptions()): LpResult
+    val variables: List<Variable>
+    fun addVariable(
+        lowerBound: Double,
+        upperBound: Double,
+        name: String = "",
+        type: VariableType = VariableType.Continuous,
+        cost: Double = 0.0,
+    ): Variable
+
+    val constraints: List<Constraint>
+    fun addConstraint(lb: Double, ub: Double, name: String = ""): Constraint
+
+    val objective: Objective
+
+    val supportsIntegerPrograms: Boolean
+
+    fun solve(options: LpOptions = LpOptions()): LpResult
 }
 
 @Suppress("FunctionName")
-fun DefaultLpSolver(): LpSolver = OrToolsLp()
+fun DefaultLpSolver(): LpSolver = OrToolsLp("GLOP")
 
 class LpOptions(
     val timeLimit: Duration = 1.minutes,
@@ -30,11 +35,7 @@ class LpOptions(
     val numThreads: Int = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1),
 )
 
-interface LpResult {
-    val status: LpResultStatus
-    val bestBound: Double
-    val solution: LpSolution?
-}
+data class LpResult(val status: LpResultStatus, val solution: LpSolution?, val bestBound: Double)
 
 enum class LpResultStatus {
     Optimal,

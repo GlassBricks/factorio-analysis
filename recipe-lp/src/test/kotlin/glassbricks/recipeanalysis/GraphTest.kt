@@ -5,19 +5,23 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlin.properties.ReadOnlyProperty
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 fun <T : Any> TestConfiguration.createEach(
     create: () -> T,
-): ReadOnlyProperty<Any?, T> {
-    var value: T? = null
-    beforeEach {
-        value = create()
+): ReadWriteProperty<Any?, T> {
+    var theValue: T? = null
+    beforeEach { theValue = create() }
+    afterEach { theValue = null }
+    return object: ReadWriteProperty<Any?, T> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): T =
+            theValue ?: error("Value not yet initialized")
+
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+            theValue = value
+        }
     }
-    afterEach {
-        value = null
-    }
-    return ReadOnlyProperty { _, _ -> value ?: error("Value accessed before initialization") }
 }
 
 class HashGraphTest : StringSpec({
