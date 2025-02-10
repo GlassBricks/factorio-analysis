@@ -2,25 +2,25 @@
 
 Calculates optimal Factorio factory production, like FactorioLab, but better on:
 
-- Can customize the LP a lot, allowing you to almost add any other bells and whistles (variables and constraints)
-- Can have constraints based on build materials, not just input/output
-- ^ makes it actually good for quality upcycling builds
-- Hackable (can mess with the code)
+- Can consider multiple ways to produce a recipe at the same time: which machines, modules, etc. to use
+- Can customize the LP a lot, allowing you to add other bells and whistles (processes, variables, and constraints)
+- More constraints, like "I have only 8 quality 3 modules"
+- Can optimize multiple factories together in stages, with constraints connecting them: E.g. mall 1 will must produce in
+  30 minutes all the modules that mall 2 uses.
+- Hackable
+- Export to graphviz graph
+- Very rudimentary export as blueprint
 
-Runnable stuff is in `/scripts/src`.
-For example usages, see there or `/factorio-recipe-analysis/src/test/kotlin/ProblemTest.kt`
+All the above makes it particularly good for optimal quality upcycling builds.
+See the runnable stuff in `/scripts/src`, or `ProblemTest.kt` for examples.
 
-Currently only API, no GUI or CLI.
+Currently just API, no GUI or CLI.
 
 Still todo:
 
-- Export as graph
-- Export as blueprint that doesn't suck
-- Configure machines by planet
+- Export as blueprint that sucks less
 - Logistics modelling (tagging ingredients by location)
+- Planet requirements, multi-planet optimization, space logistics modelling
 - Power, fuel, nutrient requirements
 - More granular machine+recipe config
-- Chaining builds. For example: build 1 is a mall, build 2 does final product, but build 2 must be buildable by build 1
-  in X minutes
-    - To answer what's the fastest quality-quality modules upscaling strategy
-- Step by step mod support
+- Better mod support?
