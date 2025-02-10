@@ -10,7 +10,6 @@ import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
 import kotlin.math.pow
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 fun main(): Unit = with(SpaceAge) {
@@ -23,7 +22,9 @@ fun main(): Unit = with(SpaceAge) {
             default { allQualities() }
             allCraftingRecipes()
             calciteMining()
-            coalMining()
+            coalMining {
+                cost = 20.0
+            }
             tungstenOreMining()
             remove(electromagneticPlant)
             remove(lightningCollector)
@@ -31,10 +32,16 @@ fun main(): Unit = with(SpaceAge) {
         }
     }
 
+    val targetTime = 30.minutes
+
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-        input(holmiumOre, cost = 200.0 + 1e7 / 500)
+        limit(holmiumPlate.withQuality(epic), 1000.0 / targetTime)
+        limit(holmiumPlate.withQuality(legendary), 2000.0 / targetTime)
+        limit(holmiumOre, 300.0 / targetTime)
+
+        oneFullLegendaryMechArmor(targetTime)
 
         costs {
             costOf(assemblingMachine3.item(), 3 + 1.0)
@@ -57,8 +64,11 @@ fun main(): Unit = with(SpaceAge) {
             for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
                 addQualityCost(module, 5.0)
             }
+            for (module in listOf(speedModule3, qualityModule3)) {
+                addQualityCost(module, 25.0)
+            }
+            forbidUnspecifiedModules()
         }
-        oneFullLegendaryMechArmor(1.hours)
     }
 
     val result = production.solve(

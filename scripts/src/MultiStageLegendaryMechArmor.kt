@@ -73,7 +73,11 @@ fun main(): Unit = with(SpaceAge) {
             optionalOutput(module)
             optionalOutput(module.withQuality(rare))
             optionalOutput(module.withQuality(epic))
+//            if (module == qualityModule3) {
+//                output(module.withQuality(legendary), rate = 4.0 / targetTime)
+//            } else {
             optionalOutput(module.withQuality(legendary))
+//            }
         }
 
         costs {
@@ -126,10 +130,6 @@ fun main(): Unit = with(SpaceAge) {
         printAndExportStagedSolution("output/legendary-armor-staged", it, object : FactorioGraphExportFormatter {
             override fun formatIngredientRate(ingredient: Ingredient, rate: Double): String =
                 "%.2f".format(rate * 60) + "/min"
-
-            override fun defaultNumberFormat(value: Double): String =
-                if (value < 0.01) "%e".format(value)
-                else "%.3f".format(value)
         })
     }
 }

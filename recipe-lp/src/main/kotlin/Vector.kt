@@ -117,6 +117,8 @@ fun <T> vectorOf(entries: List<Pair<T, Double>>): Vector<T> = vectorOfWithUnits(
 fun <T> vectorOf(vararg entries: Pair<T, Double>): Vector<T> = vectorOfWithUnits(entries.asList())
 fun <T> Map<out T, Double>.toVector(): Vector<T> = toVectorWithUnits()
 
+fun <T, U> AnyVector<T, U>?.orZero(): AnyVector<T, U> = this ?: emptyVector()
+
 fun <T> uvec(key: T): Vector<T> = vectorOfWithUnits(key to 1.0)
 
 inline fun <T, T2 : Any, U> AnyVector<T, U>.mapKeysNotNull(transform: (T) -> T2?): AnyVector<T2, U> =
@@ -139,9 +141,9 @@ inline fun <T, U> AnyVector<T, U>.filterKeys(predicate: (T) -> Boolean): AnyVect
     }
 }
 
-fun <S, T, U> Iterable<S>.sumVectorsPresized(transform: (S) -> AnyVector<out T, U>): AnyVector<T, U> =
-    buildVectorWithUnits(sumOf { transform(it).size }) {
-        for (s in this@sumVectorsPresized) {
+fun <S, T, U> Iterable<S>.vectorSumOf(transform: (S) -> AnyVector<out T, U>): AnyVector<T, U> =
+    buildVectorWithUnits {
+        for (s in this@vectorSumOf) {
             this += transform(s)
         }
     }

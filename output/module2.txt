@@ -1,6 +1,6 @@
 Inputs:
-Sulfuric acid | 394.1799/s
 Lava          | 8248.9033/s
+Sulfuric acid | 394.1799/s
 
 Outputs:
 Qual 2(Q4) | 0.0833/s

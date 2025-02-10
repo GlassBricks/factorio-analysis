@@ -1,229 +1,242 @@
 Inputs:
 Holmium plate(Q4) | 0.0004/s
-Sulfuric acid     | 310.9904/s
-Lava              | 1735.9486/s
+Sulfuric acid     | 305.2199/s
+Lava              | 1862.7950/s
 
 Outputs:
 Qual 2(Q5) | 0.0005/s
-Prod 2(Q4) | 0.0009/s
-Qual 2     | 0.1576/s
+Prod 2(Q4) | 0.0016/s
+Qual 2     | 0.1641/s
 Qual 3(Q5) | 0.0004/s
-Speed      | 0.1472/s
-Qual 2(Q3) | 0.0177/s
+Speed      | 0.1591/s
+Qual 2(Q3) | 0.0182/s
 Qual 3(Q4) | 0.0014/s
-Qual 2(Q4) | 0.0007/s
-Prod 2     | 0.0015/s
-Prod 2(Q3) | 0.0023/s
-Prod       | 0.0237/s
-Speed 3    | 0.0168/s
+Qual 2(Q4) | 0.0009/s
+Prod 2     | 0.0013/s
+Prod 2(Q3) | 0.0032/s
+Speed 2    | 0.0329/s
+Prod       | 0.0260/s
+Speed 3    | 0.0015/s
 Prod 2(Q5) | 0.0008/s
 
 Recipes:
-Acid neutralisation --> Chem plant                                   | 1.5363
-BC --> Asm 3[Prod x4, Beacon[Speed 2 x2]]                            | 2.9853
-BC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.1012
-BC(Q4) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0273
-BC(Q5) --> EMP[Prod 2(Q3) x5, Beacon[Speed 2 x2] x3]                 | 0.0056
-Calcite --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]           | 0.4666
-Carbon --> Chem plant                                                | 0.0097
-Casting LDS(Q2) --> Foundry[Qual 2 x4]                               | 2.7045
-Casting LDS(Q3) --> Foundry[Qual 2 x4]                               | 0.1981
-Casting LDS(Q4) --> Foundry[Qual 2 x4]                               | 0.0316
-Casting UG pipe --> Foundry[Qual 2 x4]                               | 2.4880
-Casting UG pipe(Q2) --> Foundry[Qual 2 x4]                           | 0.3270
-Casting UG pipe(Q3) --> Foundry[Qual 2 x4]                           | 0.0490
-Casting UG pipe(Q4) --> Foundry[Qual x4]                             | 0.0105
-Casting UG pipe(Q5) --> Foundry[Speed x4, Beacon[Speed 2 x2]]        | 0.0007
-Casting copper cable --> Foundry[Speed x4, Beacon[Speed 2 x2]]       | 3.2273
-Casting iron --> Foundry[Speed x4, Beacon[Speed 2 x2]]               | 1.4600
-Casting pipe --> Foundry[Speed x4, Beacon[Speed 2 x2]]               | 3.3547
-Coal --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]              | 1.5030
-Coal --> Big mining drill[Qual 2 x4]                                 | 7.0166
-Coal liquefaction --> Refinery                                       | 11.3333
-Copper cable(Q2) --> Asm 3[Speed x4, Beacon[Speed 2 x2]]             | 0.1826
-Copper cable(Q3) --> EMP[Prod x5, Beacon[Speed 2 x2] x3]             | 0.0945
-Copper cable(Q3) --> Asm 3[Qual 2 x4]                                | 0.0458
-Copper cable(Q4) --> EMP[Qual 2 x5]                                  | 0.0145
-Copper cable(Q4) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]           | 0.0172
-Copper cable(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]       | 0.0040
-GC --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                           | 4.0618
-GC(Q2) --> Asm 3[Qual x4]                                            | 0.2252
-GC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.0965
-GC(Q4) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0206
-GC(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0043
-Heavy oil cracking --> Chem plant                                    | 7.3667
-LDS recycling(Q2) --> Recycler[Qual 2 x4]                            | 2.1149
-LDS recycling(Q3) --> Recycler[Qual 2 x4]                            | 0.3204
-LDS recycling(Q4) --> Recycler[Qual 2(Q2) x4]                        | 0.0534
-LDS recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 2 x2]]         | 0.0016
-Light oil cracking --> Chem plant                                    | 10.3887
-Molten copper from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]]    | 1.3067
-Molten iron from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]]      | 3.8368
-Pipe(Q2) --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                     | 0.4723
-Plastic bar --> Chem plant[Prod x3, Beacon[Speed 2 x2]]              | 2.8460
-Plastic bar(Q2) --> Chem plant[Qual 2 x3]                            | 1.4264
-Plastic bar(Q3) --> Chem plant[Qual 2 x3]                            | 0.1426
-Plastic bar(Q4) --> Chem plant[Qual 2(Q2) x3]                        | 0.0018
-Plastic bar(Q4) --> Chem plant[Prod 2(Q3) x3, Beacon[Speed 2 x2] x3] | 0.0048
+Acid neutralisation --> Chem plant                                   | 1.5099
+BC --> Asm 3[Prod x4, Beacon[Speed 2 x2]]                            | 2.7573
+BC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.1086
+BC(Q4) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0302
+BC(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0054
+Calcite --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]           | 0.4972
+Carbon --> Chem plant                                                | 0.0009
+Casting LDS(Q2) --> Foundry[Qual 2 x4]                               | 3.2509
+Casting LDS(Q3) --> Foundry[Qual 2 x4]                               | 0.1526
+Casting LDS(Q4) --> Foundry[Qual 2 x4]                               | 0.0122
+Casting UG pipe --> Foundry[Qual 2 x4]                               | 2.7404
+Casting UG pipe(Q2) --> Foundry[Qual 2 x4]                           | 0.3599
+Casting UG pipe(Q3) --> Foundry[Qual 2 x4]                           | 0.0548
+Casting UG pipe(Q4) --> Foundry[Qual x4]                             | 0.0121
+Casting UG pipe(Q5) --> Foundry[Speed x4, Beacon[Speed 2 x2]]        | 0.0006
+Casting copper cable --> Foundry[Speed x4, Beacon[Speed 2 x2]]       | 3.1104
+Casting iron --> Foundry[Speed x4, Beacon[Speed 2 x2]]               | 1.2223
+Casting pipe --> Foundry[Speed x4, Beacon[Speed 2 x2]]               | 3.6951
+Coal --> Big mining drill[Speed x4, Beacon[Speed 2 x2] x2]           | 1.2929
+Coal --> Big mining drill[Qual 2 x4]                                 | 6.9285
+Coal liquefaction --> Refinery                                       | 11.1384
+Copper cable(Q2) --> Asm 3[Speed x4, Beacon[Speed 2 x2]]             | 0.0129
+Copper cable(Q3) --> Asm 3[Qual 2 x4]                                | 0.1992
+Copper cable(Q3) --> EMP[Prod x5, Beacon[Speed 2 x2] x3]             | 0.0890
+Copper cable(Q4) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]           | 0.0235
+Copper cable(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]       | 0.0039
+GC --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                           | 3.8952
+GC(Q2) --> Asm 3[Qual x4]                                            | 0.0159
+GC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.1068
+GC(Q4) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0237
+GC(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0040
+Heat exchanger recycling(Q2) --> Recycler[Qual 2 x4]                 | 0.0257
+Heat exchanger recycling(Q3) --> Recycler[Qual 2(Q2) x4]             | 0.0020
+Heat exchanger recycling(Q4) --> Recycler[Qual 2(Q3) x4]             | 0.0002
+Heat exchanger(Q2) --> Asm 3[Qual 2 x4]                              | 0.1787
+Heavy oil cracking --> Chem plant                                    | 7.2399
+LDS recycling(Q2) --> Recycler[Qual 2 x4]                            | 2.5422
+LDS recycling(Q3) --> Recycler[Qual 2 x4]                            | 0.3183
+LDS recycling(Q4) --> Recycler[Qual 2(Q2) x4]                        | 0.0388
+LDS recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 2 x2] x2]      | 0.0011
+Light oil cracking --> Chem plant                                    | 10.2100
+Molten copper from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]]    | 1.3832
+Molten iron from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]]      | 4.1361
+Pipe(Q2) --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                     | 0.5888
+Plastic bar --> Chem plant[Prod x3, Beacon[Speed 2 x2]]              | 2.7935
+Plastic bar(Q2) --> Chem plant[Qual 2 x3]                            | 1.4085
+Plastic bar(Q3) --> Chem plant[Qual 2 x3]                            | 0.1409
+Plastic bar(Q4) --> Chem plant[Prod 2(Q3) x3, Beacon[Speed 2 x2] x3] | 0.0054
 Plastic bar(Q5) --> Chem plant[Prod 2(Q3) x3, Beacon[Speed 2 x2] x3] | 0.0006
-Prod --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                         | 0.1229
-Prod 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                      | 0.0042
-Prod 2(Q3) --> EMP[Qual 2 x5]                                        | 0.0343
-Prod 2(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0096
-Prod 2(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                  | 0.0019
-Prod(Q3) --> EMP[Qual 2 x5]                                          | 0.0508
-Prod(Q4) --> EMP[Qual 2 x5]                                          | 0.0091
-Prod(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                    | 0.0022
-Qual --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                         | 1.8684
-Qual 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                      | 0.4466
-Qual 2(Q3) --> EMP[Qual 2 x5]                                        | 0.2617
-Qual 2(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0506
+Prod --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                         | 0.1304
+Prod 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                      | 0.0036
+Prod 2(Q3) --> EMP[Qual 2 x5]                                        | 0.0475
+Prod 2(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0193
+Prod 2(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                  | 0.0016
+Prod(Q3) --> EMP[Qual 2 x5]                                          | 0.0703
+Prod(Q4) --> EMP[Qual 2 x5]                                          | 0.0215
+Prod(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                    | 0.0015
+Qual --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                         | 1.9444
+Qual 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                      | 0.4648
+Qual 2(Q3) --> EMP[Qual 2 x5]                                        | 0.2701
+Qual 2(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0504
 Qual 2(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                  | 0.0012
-Qual 3(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0435
+Qual 3(Q4) --> EMP[Qual 2(Q2) x5]                                    | 0.0423
 Qual 3(Q5) --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                  | 0.0013
-Qual(Q3) --> EMP[Qual 2 x5]                                          | 0.3876
-Qual(Q4) --> EMP[Qual 2 x5]                                          | 0.0362
-RC --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                           | 9.9168
-RC(Q2) --> Asm 3[Qual x4]                                            | 1.2971
-RC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.2852
-RC(Q4) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.0501
-RC(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0108
-Speed --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                        | 1.1852
-Speed 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                     | 0.1269
-Speed 3 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                     | 0.0952
-Steam condensation --> Chem plant                                    | 2.9592
-Substation recycling(Q2) --> Recycler[Qual 2(Q2) x4]                 | 0.0060
-Substation recycling(Q3) --> Recycler[Qual 2(Q3) x4]                 | 0.0008
-Substation recycling(Q4) --> Recycler[Qual 2(Q3) x4]                 | 0.0001
-Substation(Q2) --> EMP[Qual 2(Q2) x5]                                | 0.0196
-Superconductor(Q4) --> EMP[Qual 2 x5]                                | 0.0003
-Superconductor(Q4) --> EMP[Qual 2(Q2) x5]                            | 0.0011
-Tungsten carbide --> Asm 3[Prod x4, Beacon[Speed 2 x2]]              | 0.0045
-Tungsten ore --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]      | 0.0119
-UG pipe recycling --> Recycler[Qual 2 x4]                            | 1.7167
-UG pipe recycling(Q2) --> Recycler[Qual 2 x4]                        | 0.3600
-UG pipe recycling(Q3) --> Recycler[Qual 2 x4]                        | 0.0649
-UG pipe recycling(Q4) --> Recycler[Speed x4, Beacon[Speed 2 x2]]     | 0.0008
-UG pipe recycling(Q4) --> Recycler[Qual 2 x4]                        | 0.0106
-UG pipe recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 2 x2]]     | 0.0008
+Qual(Q3) --> EMP[Qual 2 x5]                                          | 0.4002
+Qual(Q4) --> EMP[Qual 2 x5]                                          | 0.0346
+RC --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                           | 9.7337
+RC(Q2) --> Asm 3[Qual x4]                                            | 0.0918
+RC(Q3) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.3291
+RC(Q4) --> EMP[Prod 2 x5, Beacon[Speed 2 x2] x3]                     | 0.0616
+RC(Q5) --> EMP[Prod 2(Q2) x5, Beacon[Speed 2 x2] x3]                 | 0.0096
+Speed --> Asm 3[Speed x4, Beacon[Speed 2 x2]]                        | 1.1462
+Speed 2 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                     | 0.1049
+Speed 3 --> EMP[Speed x5, Beacon[Speed 2 x2] x3]                     | 0.0087
+Steam condensation --> Chem plant                                    | 2.9083
+Substation recycling(Q2) --> Recycler[Qual 2(Q2) x4]                 | 0.0004
+Substation recycling(Q3) --> Recycler[Qual 2(Q3) x4]                 | 0.0001
+Substation(Q2) --> EMP[Qual 2(Q2) x5]                                | 0.0014
+Superconductor(Q4) --> EMP[Qual 2 x5]                                | 0.0001
+Superconductor(Q4) --> EMP[Qual 2(Q2) x5]                            | 0.0012
+Tungsten carbide --> Asm 3[Prod x4, Beacon[Speed 2 x2]]              | 0.0004
+Tungsten ore --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]      | 0.0011
+UG pipe recycling --> Recycler[Qual 2 x4]                            | 1.8909
+UG pipe recycling(Q2) --> Recycler[Qual 2 x4]                        | 0.3963
+UG pipe recycling(Q3) --> Recycler[Qual 2 x4]                        | 0.0721
+UG pipe recycling(Q4) --> Recycler[Speed x4, Beacon[Speed 2 x2] x2]  | 0.0026
+UG pipe recycling(Q4) --> Recycler[Qual 2 x4]                        | 0.0054
+UG pipe recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 2 x2] x2]  | 0.0007
 
 
 Throughputs:
-RC                 | 5.5782/s
-RC(Q4)             | 0.0652/s
-RC(Q5)             | 0.0142/s (-0.000143)
-RC(Q3)             | 0.3754/s
-RC(Q2)             | 0.2933/s
-Calcite            | 3.7792/s
-Carbon             | 0.0097/s
-Coal               | 27.6665/s
-Coal(Q4)           | 0.0121/s
+RC                 | 5.4752/s
+RC(Q4)             | 0.0753/s (-0.000079)
+RC(Q5)             | 0.0121/s (-0.000022)
+RC(Q3)             | 0.4029/s
+RC(Q2)             | 0.0207/s
+Calcite            | 4.0276/s
+Carbon             | 0.0009/s
+Coal               | 27.1670/s
+Coal(Q4)           | 0.0120/s
 Coal(Q5)           | 0.0013/s
-Coal(Q3)           | 0.1212/s
-Coal(Q2)           | 1.2125/s
-Copper cable       | 104.5648/s
-Copper cable(Q4)   | 0.6384/s
-Copper cable(Q5)   | 0.1347/s (-0.000172)
-Copper cable(Q3)   | 3.1238/s
-Copper cable(Q2)   | 2.5679/s
-Copper plate(Q4)   | 0.1837/s
-Copper plate(Q5)   | 0.0323/s
-Copper plate(Q3)   | 0.9537/s
-Copper plate(Q2)   | 4.1508/s (+2.918330)
-GC                 | 27.4174/s
-GC(Q4)             | 0.3117/s
-GC(Q5)             | 0.0652/s
-GC(Q3)             | 1.4273/s
-GC(Q2)             | 0.4324/s
-Heavy oil          | 147.3332/s
+Coal(Q3)           | 0.1197/s
+Coal(Q2)           | 1.1973/s
+Copper cable       | 100.7780/s
+Copper cable(Q4)   | 0.7451/s (-0.000095)
+Copper cable(Q5)   | 0.1243/s (-0.000026)
+Copper cable(Q3)   | 3.4937/s
+Copper cable(Q2)   | 0.1817/s
+Copper plate(Q4)   | 0.1914/s
+Copper plate(Q5)   | 0.0319/s (-0.001191)
+Copper plate(Q3)   | 1.2098/s
+Copper plate(Q2)   | 6.2498/s (+0.206475)
+GC                 | 26.2924/s
+GC(Q4)             | 0.3568/s
+GC(Q5)             | 0.0606/s
+GC(Q3)             | 1.5628/s
+GC(Q2)             | 0.0306/s
+Heat exchanger(Q4) | 0.0004/s
+Heat exchanger(Q5) | (+0.0000/s)
+Heat exchanger(Q3) | 0.0043/s
+Heat exchanger(Q2) | 0.0548/s
+Heavy oil          | 144.7986/s
 Holmium plate(Q4)  | 0.0004/s
-Iron plate         | 27.4174/s
-Iron plate(Q4)     | 0.1676/s
-Iron plate(Q5)     | 0.0351/s
-Iron plate(Q3)     | 0.7839/s
-Iron plate(Q2)     | 3.6384/s
-Lava               | 1735.9486/s
-Light oil          | 155.8332/s
-LDS(Q4)            | 0.0228/s
-LDS(Q5)            | 0.0023/s
-LDS(Q3)            | 0.1367/s
-LDS(Q2)            | 0.9024/s
-Molten copper      | 330.7620/s
-Molten iron        | 971.1995/s
-Petroleum gas      | 126.5541/s
-Pipe               | 79.6157/s
-Pipe(Q4)           | 0.3352/s
-Pipe(Q5)           | 0.0703/s
-Pipe(Q3)           | 1.5678/s
-Pipe(Q2)           | 10.4649/s
-UG pipe            | 21.9739/s
-UG pipe(Q4)        | 0.1702/s
-UG pipe(Q5)        | 0.0333/s
-UG pipe(Q3)        | 0.8307/s
-UG pipe(Q2)        | 4.6080/s
-Plastic bar        | 11.1564/s
-Plastic bar(Q4)    | 0.1019/s
-Plastic bar(Q5)    | 0.0146/s
-Plastic bar(Q3)    | 0.5973/s
-Plastic bar(Q2)    | 3.3171/s
-BC                 | 0.7359/s
-BC(Q4)             | 0.0205/s
-BC(Q5)             | 0.0044/s
-BC(Q3)             | 0.0740/s
-Prod               | 0.0276/s
-Prod(Q4)           | 0.0019/s
-Prod(Q5)           | 0.0018/s
-Prod(Q3)           | 0.0069/s
-Prod 2             | 0.0015/s
-Prod 2(Q4)         | 0.0009/s
+Iron plate         | 26.2924/s
+Iron plate(Q4)     | 0.1928/s
+Iron plate(Q5)     | 0.0328/s
+Iron plate(Q3)     | 0.8676/s
+Iron plate(Q2)     | 4.0060/s
+Lava               | 1862.7950/s
+Light oil          | 153.1523/s
+LDS(Q4)            | 0.0166/s
+LDS(Q5)            | 0.0017/s
+LDS(Q3)            | 0.1358/s
+LDS(Q2)            | 1.0847/s
+Molten copper      | 350.1339/s
+Molten iron        | 1046.9623/s
+Petroleum gas      | 124.3769/s
+Pipe               | 87.6940/s
+Pipe(Q4)           | 0.3885/s
+Pipe(Q5)           | 0.0660/s (-0.000119)
+Pipe(Q3)           | 1.7547/s
+Pipe(Q2)           | 12.1121/s
+UG pipe            | 24.2036/s
+UG pipe(Q4)        | 0.1936/s
+UG pipe(Q5)        | 0.0335/s
+UG pipe(Q3)        | 0.9225/s
+UG pipe(Q2)        | 5.0728/s
+Plastic bar        | 10.9504/s
+Plastic bar(Q4)    | 0.0968/s
+Plastic bar(Q5)    | 0.0130/s
+Plastic bar(Q3)    | 0.6082/s
+Plastic bar(Q2)    | 3.4982/s
+BC                 | 0.6797/s
+BC(Q4)             | 0.0227/s
+BC(Q5)             | 0.0041/s
+BC(Q3)             | 0.0794/s
+Prod               | 0.0293/s
+Prod(Q4)           | 0.0039/s
+Prod(Q5)           | 0.0015/s
+Prod(Q3)           | 0.0095/s
+Prod 2             | 0.0013/s
+Prod 2(Q4)         | 0.0016/s
 Prod 2(Q5)         | 0.0008/s
-Prod 2(Q3)         | 0.0023/s
-Qual               | 0.4204/s
+Prod 2(Q3)         | 0.0032/s
+Qual               | 0.4375/s
 Qual(Q4)           | 0.0101/s
 Qual(Q5)           | 0.0011/s
-Qual(Q3)           | 0.0523/s
-Qual 2             | 0.1576/s
+Qual(Q3)           | 0.0540/s
+Qual 2             | 0.1641/s
 Qual 2(Q4)         | 0.0051/s
 Qual 2(Q5)         | 0.0011/s
-Qual 2(Q3)         | 0.0177/s
+Qual 2(Q3)         | 0.0182/s
 Qual 3(Q4)         | 0.0014/s
 Qual 3(Q5)         | 0.0004/s
-Speed              | 0.2667/s
-Speed 2            | 0.0448/s
-Speed 3            | 0.0168/s
-Steam              | 3072.5669/s
-Steel plate(Q4)    | (+0.0254/s)
-Steel plate(Q5)    | (+0.0041/s)
-Steel plate(Q3)    | (+0.1357/s)
-Steel plate(Q2)    | 0.5865/s
-Stone              | (+58.6937/s)
-Substation(Q4)     | 0.0010/s
-Substation(Q5)     | (+0.0001/s)
-Substation(Q3)     | 0.0103/s
-Substation(Q2)     | 0.0765/s
-Sulfuric acid      | 310.9904/s
+Speed              | 0.2579/s
+Speed 2            | 0.0370/s
+Speed 3            | 0.0015/s
+Steam              | 3019.7087/s
+Steel plate(Q4)    | (+0.0195/s)
+Steel plate(Q5)    | (+0.0031/s)
+Steel plate(Q3)    | (+0.1238/s)
+Steel plate(Q2)    | 0.6371/s
+Stone              | (+62.8865/s)
+Substation(Q4)     | (+0.0001/s)
+Substation(Q5)     | (+0.0000/s)
+Substation(Q3)     | 0.0007/s
+Substation(Q2)     | 0.0054/s
+Sulfuric acid      | 305.2199/s
 Superconductor(Q4) | 0.0011/s
 Superconductor(Q5) | 0.0002/s
-Tungsten carbide   | 0.0112/s
-Tungsten ore       | 0.0193/s
-Water              | 266.3310/s
+Tungsten carbide   | 0.0010/s
+Tungsten ore       | 0.0018/s
+Water              | 261.7493/s
+
+Surpluses:
+Copper plate(Q2) | 0.2065/s
+Steel plate(Q4)  | 0.0196/s
+Steel plate(Q5)  | 0.0033/s
+Steel plate(Q3)  | 0.1238/s
+Stone            | 62.8865/s
 
 Symbols used:
-Asm 3            | 22.3680
-Beacon           | 7.5213
-Big mining drill | 8.9980
-Chem plant       | 26.6828
-EMP              | 2.3157
-Foundry          | 18.9948
-Refinery         | 11.3333
-Prod             | 20.9699
-Prod 2           | 2.7516
-Prod 2(Q3)       | 0.0439
-Prod 2(Q2)       | 0.3351
-Qual             | 6.1312
-Qual 2           | 78.4711
-Qual 2(Q3)       | 0.0035
-Qual 2(Q2)       | 0.8642
-Recycler         | 4.6509
-Speed            | 135.3212
-Speed 2          | 15.0425
+Asm 3            | 20.6948
+Beacon           | 7.6492
+Big mining drill | 8.7198
+Chem plant       | 26.2178
+EMP              | 2.3422
+Foundry          | 20.1308
+Refinery         | 11.1384
+Prod             | 19.8560
+Prod 2           | 3.1486
+Prod 2(Q3)       | 0.0179
+Prod 2(Q2)       | 0.3848
+Qual             | 0.4794
+Qual 2           | 85.3820
+Qual 2(Q3)       | 0.0011
+Qual 2(Q2)       | 0.7377
+Recycler         | 5.2966
+Speed            | 134.1178
+Speed 2          | 15.2983

@@ -97,7 +97,7 @@ val speed3Beacons = SpaceAge.run {
 
 fun FactoryConfigBuilder.vulcanusMachines(
     modules: List<Module> = module123AllQualities,
-    beacons: List<List<WithBeaconCount>> = (speed2Beacons + speed3Beacons).map { listOf(it) },
+    beacons: List<List<WithBeaconCount>> = speed2Beacons.map { listOf(it) },
 ) {
     machines {
         default {

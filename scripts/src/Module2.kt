@@ -68,10 +68,9 @@ fun main() {
     }
     val result = production.solve(
         options = LpOptions(
-            numThreads = Runtime.getRuntime().availableProcessors() - 2,
+            enableLogging = true,
             epsilon = 1e-5
         )
-
     )
     println("Status: ${result.status}")
     println("Best bound: ${result.lpResult.bestBound}")

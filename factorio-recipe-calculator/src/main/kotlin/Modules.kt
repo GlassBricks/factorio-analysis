@@ -105,9 +105,7 @@ value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithB
     override val effects get() = moduleCounts.fold(IntEffects()) { acc, module -> acc + module.effects }
     override fun toString(): String = moduleCounts.joinToString(", ")
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        moduleCounts.fold<_, IngredientVector>(emptyVector()) { acc, moduleCount ->
-            acc + moduleCount.getBuildCost(prototypes)
-        }
+        moduleCounts.vectorSumOf { it.getBuildCost(prototypes) }
 }
 
 fun moduleList(
@@ -200,9 +198,9 @@ data class BeaconSetup(
     override val beaconCount: BeaconCount get() = BeaconCount(this, 1)
     override fun toString(): String = "$beacon[$modules]"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector {
+        val beaconCost = prototypes.itemOfOrNull(beacon)?.let { uvec(it) }.orZero()
         val moduleCost = modules.getBuildCost(prototypes)
-        val baseCost = prototypes.itemOfOrNull(beacon)?.let { moduleCost + uvec(it) } ?: moduleCost
-        return baseCost / sharing
+        return (moduleCost + beaconCost) / sharing
     }
 }
 
@@ -253,9 +251,7 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
         }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
-        beaconCounts.fold(emptyVector()) { acc, beaconCount ->
-            acc + beaconCount.getBuildCost(prototypes)
-        }
+        beaconCounts.vectorSumOf { it.getBuildCost(prototypes) }
 
     override fun toString(): String = beaconCounts.joinToString(", ")
 }
