@@ -1,0 +1,54 @@
+Inputs:
+Biter egg  | 3.3333/s
+Prod 2(Q4) | 0.0195/s
+Prod 2(Q3) | 0.1951/s
+
+Outputs:
+Prod 3(Q4) | 0.0167/s
+
+Recipes:
+Biter egg recycling --> Recycler[Qual 2(Q4) x4]     | 4.8508
+Biter egg recycling --> Recycler[Qual 2(Q5) x4]     | 1.7324
+Biter egg recycling(Q2) --> Recycler[Qual 2(Q5) x4] | 0.3048
+Prod 2 recycling(Q3) --> Recycler                   | 0.3658
+Prod 2 recycling(Q4) --> Recycler                   | 0.0366
+Prod 3 recycling(Q3) --> Recycler[Qual 2(Q5) x4]    | 0.3319
+Prod 3(Q3) --> EMP[Qual 2(Q5) x5]                   | 1.2586
+Prod 3(Q4) --> EMP                                  | 0.1209
+
+
+Throughputs:
+RC(Q4)        | 0.0202/s
+RC(Q5)        | (+0.0009/s)
+RC(Q3)        | 0.1573/s
+Biter egg     | 3.3333/s
+Biter egg(Q4) | 0.0040/s
+Biter egg(Q5) | (+0.0004/s)
+Biter egg(Q3) | 0.0315/s
+Biter egg(Q2) | 0.1561/s
+BC(Q4)        | 0.0202/s
+BC(Q5)        | (+0.0009/s)
+BC(Q3)        | 0.1573/s
+Prod(Q4)      | (+0.0098/s)
+Prod(Q3)      | (+0.0975/s)
+Prod 2(Q4)    | 0.0259/s
+Prod 2(Q5)    | (+0.0007/s)
+Prod 2(Q3)    | 0.2234/s
+Prod 3(Q4)    | 0.0167/s
+Prod 3(Q5)    | (+0.0012/s)
+Prod 3(Q3)    | 0.0354/s
+
+Surpluses:
+RC(Q5)        | 0.0009/s
+Biter egg(Q5) | 0.0004/s
+BC(Q5)        | 0.0009/s
+Prod(Q4)      | 0.0098/s
+Prod(Q3)      | 0.0975/s
+Prod 2(Q5)    | 0.0007/s
+Prod 3(Q5)    | 0.0012/s
+
+Symbols used:
+EMP        | 1.3795
+Qual 2(Q4) | 19.4032
+Qual 2(Q5) | 15.7693
+Recycler   | 7.6222

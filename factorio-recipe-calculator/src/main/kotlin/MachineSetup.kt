@@ -68,7 +68,7 @@ fun <M : AnyMachine<*>> M.processingOrNull(
     else MachineSetup(this, process, config)
 
 @Suppress("UNCHECKED_CAST")
-fun <M : AnyMachine<*>> M.craftingOrNullCast(
+fun <M : AnyMachine<*>> M.processingOrNullCast(
     process: RecipeOrResource<*>,
     config: ResearchConfig = ResearchConfig(),
 ): MachineSetup<M>? =

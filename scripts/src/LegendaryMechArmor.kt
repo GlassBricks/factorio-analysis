@@ -1,4 +1,5 @@
 import glassbricks.factorio.prototypes.EquipmentShapeType
+import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
@@ -16,14 +17,17 @@ fun main(): Unit = with(SpaceAge) {
     val vulcanusFactory = factory {
         vulcanusMachines()
         researchConfig = ResearchConfig(
-            miningProductivity = 0.2
+            miningProductivity = 0.2,
+            recipeProductivity = mapOf(
+                RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
+            ),
         )
         recipes {
             default { allQualities() }
             allCraftingRecipes()
             calciteMining()
             coalMining {
-                cost = 20.0
+                cost = 40.0
             }
             tungstenOreMining()
             remove(electromagneticPlant)
@@ -37,24 +41,28 @@ fun main(): Unit = with(SpaceAge) {
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
+        input(electronicCircuit, limit = 5e6 / targetTime, cost = 0.0)
         limit(holmiumPlate.withQuality(epic), 1000.0 / targetTime)
-        limit(holmiumPlate.withQuality(legendary), 2000.0 / targetTime)
+        limit(holmiumPlate.withQuality(legendary), 200.0 / targetTime)
         limit(holmiumOre, 300.0 / targetTime)
 
         oneFullLegendaryMechArmor(targetTime)
 
         costs {
-            costOf(assemblingMachine3.item(), 3 + 1.0)
-            costOf(foundry.item(), 5 + 2.0)
-            costOf(recycler.item(), 10 + 1.0)
-            costOf(electromagneticPlant.item(), 100)
-            costOf(beacon.item(), 4 + 1.0)
-            costOf(bigMiningDrill.item(), 5 + 2)
+            costOf(assemblingMachine2, 1 + 1.0)
+            costOf(assemblingMachine3, 3 + 1.0)
+            costOf(foundry, 5 + 2.0)
+            costOf(recycler, 12 + 1.0)
+            costOf(electromagneticPlant, 100)
+            costOf(beacon, 4 + 1.0)
+            costOf(bigMiningDrill, 5 + 2)
 
-            val qualityCostMultiplier = 5.0
+            val qualityCostMultiplier = 4.0
             fun addQualityCost(item: Item, baseCost: Double) {
                 for ((index, quality) in qualities.withIndex()) {
-                    var value = baseCost * qualityCostMultiplier.pow(index)
+                    // skip uncommon
+                    if (index == 1) continue
+                    val value = baseCost * qualityCostMultiplier.pow(index)
                     costOf(item.withQuality(quality), value)
                 }
             }

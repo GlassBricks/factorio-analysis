@@ -1,117 +1,114 @@
 Inputs:
-lava          | 311.14516/s
-sulfuric-acid | 96.71486/s
+Sulfuric acid | 125.2023/s
+Lava          | 233.5354/s
 
 Outputs:
-big-mining-drill     | 0.04828/s
-assembling-machine-2 | 0.09047/s
-assembling-machine-3 | 0.01786/s
-foundry              | 0.03882/s
-chemical-plant       | 0.10445/s
-oil-refinery         | 0.02419/s
-electric-furnace     | 0.00075/s
-beacon               | 0.00618/s
-speed                | 0.12177/s
-prod                 | 0.01032/s
-qual                 | 0.27706/s
+Refinery         | 0.0124/s
+Big mining drill | 0.0418/s
+Speed            | 0.1166/s
+Foundry          | 0.0333/s
+Asm 3            | 0.0071/s
+Beacon           | 0.0040/s
+Asm 2            | 0.0826/s
+Prod             | 0.0019/s
+Qual             | 0.1589/s
+Chem plant       | 0.0397/s
 
 Recipes:
-acid-neutralisation --> chemical-plant[speed2(legendary) x3]         | 0.09423
-advanced-circuit --> assembling-machine-2[prod2(legendary) x2]       | 21.94016
-assembling-machine-1 --> assembling-machine-2[speed2(legendary) x2]  | 0.03365
-assembling-machine-2 --> assembling-machine-2[speed2(legendary) x2]  | 0.03365
-assembling-machine-3 --> assembling-machine-2[speed2(legendary) x2]  | 0.00476
-beacon --> assembling-machine-2[speed2(legendary) x2]                | 0.04942
-big-mining-drill --> foundry[speed2(legendary) x4]                   | 0.06035
-calcite --> big-mining-drill[speed2(legendary) x4]                   | 0.05696
-carbon --> chemical-plant[prod2(legendary) x3]                       | 1.46848
-casting-copper-cable --> foundry[speed2(legendary) x4]               | 0.80616
-casting-iron --> foundry[speed2(legendary) x4]                       | 0.76069
-casting-iron-gear-wheel --> foundry[speed2(legendary) x4]            | 0.10454
-casting-iron-stick --> foundry[speed2(legendary) x4]                 | 0.00431
-casting-pipe --> foundry[speed2(legendary) x4]                       | 0.05866
-casting-steel --> foundry[speed2(legendary) x4]                      | 0.38324
-chemical-plant --> assembling-machine-2[speed2(legendary) x2]        | 0.27854
-coal --> big-mining-drill[speed2(legendary) x4]                      | 0.49830
-coal-liquefaction --> oil-refinery[prod2(legendary) x3]              | 1.72189
-concrete-from-molten-iron --> foundry[speed2(legendary) x4]          | 0.04313
-electric-engine-unit --> assembling-machine-2[speed2(legendary) x2]  | 1.71672
-electric-furnace --> assembling-machine-2[speed2(legendary) x2]      | 0.00201
-electric-mining-drill --> assembling-machine-2[speed2(legendary) x2] | 0.03433
-electronic-circuit --> assembling-machine-2[speed2(legendary) x2]    | 2.65403
-engine-unit --> assembling-machine-2[speed2(legendary) x2]           | 1.71672
-foundry --> foundry[speed2(legendary) x4]                            | 0.01617
-heavy-oil-cracking --> chemical-plant[prod2(legendary) x3]           | 1.35954
-light-oil-cracking --> chemical-plant[prod2(legendary) x3]           | 2.63713
-lubricant --> chemical-plant[prod2(legendary) x3]                    | 0.52668
-molten-copper-from-lava --> foundry[speed2(legendary) x4]            | 0.17198
-molten-iron-from-lava --> foundry[speed2(legendary) x4]              | 0.45031
-oil-refinery --> assembling-machine-2[speed2(legendary) x2]          | 0.10320
-plastic-bar --> chemical-plant[prod2(legendary) x3]                  | 2.16159
-productivity-module --> assembling-machine-2[speed2(legendary) x2]   | 0.08255
-quality-module --> assembling-machine-2[speed2(legendary) x2]        | 2.21646
-refined-concrete --> assembling-machine-2[speed2(legendary) x2]      | 0.41404
-speed-module --> assembling-machine-2[speed2(legendary) x2]          | 1.54581
-steam-condensation --> chemical-plant[speed2(legendary) x3]          | 0.18476
-stone-brick --> electric-furnace[speed2(legendary) x2]               | 0.38045
-tungsten-carbide --> assembling-machine-2[prod2(legendary) x2]       | 2.48417
-tungsten-ore --> big-mining-drill[speed2(legendary) x4]              | 1.24209
+Acid neutralisation --> Chem plant          | 0.4109
+Asm 1 --> Asm 2                             | 0.0645
+Asm 2 --> Asm 2                             | 0.0645
+Asm 3 --> Asm 2                             | 0.0047
+Beacon --> Asm 2                            | 0.0802
+Big mining drill --> Foundry                | 0.2092
+Calcite --> Big mining drill                | 0.1831
+Carbon --> Chem plant[Prod x3]              | 1.6224
+Casting copper cable --> Foundry            | 2.5307
+Casting iron --> Foundry                    | 2.3313
+Casting iron gear wheel --> Foundry         | 0.2847
+Casting iron stick --> Foundry              | 0.0148
+Casting pipe --> Foundry                    | 0.1468
+Casting steel --> Foundry                   | 1.0946
+Chem plant --> Asm 2                        | 0.2648
+Coal --> Big mining drill[Speed x4]         | 1.7439
+Coal liquefaction --> Refinery[Prod x3]     | 2.9259
+Concrete from molten iron --> Foundry       | 0.1480
+Electric engine unit --> Asm 2              | 3.7191
+Electric mining drill --> Asm 2             | 0.0744
+Engine unit --> Asm 2                       | 3.7191
+Foundry --> Foundry                         | 0.0555
+GC --> Asm 2                                | 5.0622
+Heavy oil cracking --> Chem plant[Prod x3]  | 1.8578
+Light oil cracking --> Chem plant[Prod x3]  | 2.9546
+Lubricant --> Chem plant                    | 0.4628
+Molten copper from lava --> Foundry         | 0.5399
+Molten iron from lava --> Foundry           | 1.3284
+Plastic bar --> Chem plant[Prod x3]         | 1.9823
+Prod --> Asm 2                              | 0.0384
+Qual --> Asm 2                              | 3.1776
+RC --> Asm 2                                | 15.0970
+Refined concrete --> Asm 2                  | 0.8882
+Refinery --> Asm 2                          | 0.1328
+Speed --> Asm 2                             | 2.8958
+Steam condensation --> Chem plant           | 0.7969
+Stone brick --> Electric furnace            | 0.6729
+Tungsten carbide --> Asm 2[Prod x2]         | 2.2882
+Tungsten ore --> Big mining drill[Speed x4] | 2.8602
 
 
 Throughputs:
-advanced-circuit      | 2.85222/s
-assembling-machine-1  | 0.12620/s
-assembling-machine-2  | 0.12620/s
-assembling-machine-3  | 0.01786/s
-beacon                | 0.00618/s
-big-mining-drill      | 0.04828/s
-calcite               | 0.68354/s
-carbon                | 1.49050/s
-chemical-plant        | 0.10445/s
-coal                  | 5.97962/s
-concrete              | 1.03511/s
-copper-cable          | 38.69571/s
-electric-engine-unit  | 0.32188/s
-electric-furnace      | 0.00075/s
-electric-mining-drill | 0.03219/s
-electronic-circuit    | 9.95262/s
-engine-unit           | 0.32188/s
-foundry               | 0.03882/s
-heavy-oil             | 22.72032/s
-iron-gear-wheel       | 2.50898/s
-iron-plate            | 11.41031/s
-iron-stick            | 0.41404/s
-lava                  | 311.14516/s
-light-oil             | 27.68986/s
-lubricant             | 5.34582/s
-molten-copper         | 64.49285/s
-molten-iron           | 168.86603/s
-oil-refinery          | 0.02419/s
-petroleum-gas         | 30.26230/s
-pipe                  | 1.40792/s
-plastic-bar           | 4.38803/s
-prod                  | 0.01032/s
-qual                  | 0.27706/s
-refined-concrete      | 0.51755/s
-speed                 | 0.19323/s
-steam                 | 612.51177/s
-steel-plate           | 2.87433/s
-stone                 | 10.62421/s (9.43530/s)
-stone-brick           | 0.59445/s
-sulfuric-acid         | 96.71486/s
-tungsten-carbide      | 1.93765/s
-tungsten-ore          | 2.98101/s
-water                 | 54.04127/s
+RC                    | 1.8871/s
+Asm 1                 | 0.0967/s
+Asm 2                 | 0.0967/s
+Asm 3                 | 0.0071/s
+Beacon                | 0.0040/s
+Big mining drill      | 0.0418/s
+Calcite               | 0.5492/s
+Carbon                | 1.5445/s
+Chem plant            | 0.0397/s
+Coal                  | 9.4170/s
+Concrete              | 0.8882/s
+Copper cable          | 30.3684/s
+Electric engine unit  | 0.2789/s
+Electric mining drill | 0.0279/s
+GC                    | 7.5933/s
+Engine unit           | 0.2789/s
+Foundry               | 0.0333/s
+Heavy oil             | 36.2107/s
+Iron gear wheel       | 1.7083/s
+Iron plate            | 8.7423/s
+Iron stick            | 0.3553/s
+Lava                  | 233.5354/s
+Light oil             | 37.6712/s
+Lubricant             | 4.6281/s
+Molten copper         | 50.6140/s
+Molten iron           | 124.5375/s
+Refinery              | 0.0124/s
+Petroleum gas         | 33.6987/s
+Pipe                  | 0.8809/s
+Plastic bar           | 3.7743/s
+Prod                  | 0.0019/s
+Qual                  | 0.1589/s
+Refined concrete      | 0.4441/s
+Speed                 | 0.1448/s
+Steam                 | 821.7611/s
+Steel plate           | 2.0523/s
+Stone                 | 8.0183/s (+7.177264)
+Stone brick           | 0.4205/s
+Sulfuric acid         | 125.2023/s
+Tungsten carbide      | 1.6681/s
+Tungsten ore          | 3.0891/s
+Water                 | 71.7202/s
 
 Surpluses:
-stone | 9.43530/s
+Stone | 7.1773/s
 
 Symbols used:
-assembling-machine-2 | 35.31026
-big-mining-drill     | 1.79735
-chemical-plant       | 8.43241
-electric-furnace     | 0.38045
-foundry              | 2.85956
-oil-refinery         | 1.72189
-prod2(legendary)     | 78.47459
-speed2(legendary)    | 41.99733
+Asm 2            | 37.5714
+Big mining drill | 4.7872
+Chem plant       | 10.0877
+Electric furnace | 0.6729
+Foundry          | 8.6839
+Refinery         | 2.9259
+Prod             | 38.6053
+Speed            | 18.4165

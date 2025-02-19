@@ -137,7 +137,7 @@ class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process
         if (filters.any { !it(machine) }) return
         withQualitiesList = withQualitiesList ?: qualities.mapNotNull { process.withQualityOrNull(it) }
         for (quality in withQualitiesList!!) {
-            val machineSetup = machine.machine.craftingOrNullCast(quality, config) ?: continue
+            val machineSetup = machine.machine.processingOrNullCast(quality, config) ?: continue
             val additionalCosts: Vector<Symbol> =
                 machine.additionalCosts + this.additionalCosts +
                         (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())

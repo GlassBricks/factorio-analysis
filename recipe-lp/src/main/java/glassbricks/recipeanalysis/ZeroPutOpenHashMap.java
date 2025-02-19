@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
+/**
+ * Needed as a java file since Kotlin tries to override the boxing version of [put] instead
+ */
 public final class ZeroPutOpenHashMap<T> extends Object2DoubleOpenHashMap<T> implements ZeroPutMap<T> {
     public ZeroPutOpenHashMap(int size) {
         super(size);

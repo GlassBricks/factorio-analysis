@@ -1,8 +1,9 @@
-import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.Item
-import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
-import glassbricks.factorio.recipes.export.*
+import glassbricks.factorio.recipes.export.RecipesFirst
+import glassbricks.factorio.recipes.export.mergeItemsByQuality
+import glassbricks.factorio.recipes.export.mergeRecipesByQuality
+import glassbricks.factorio.recipes.export.toFancyDotGraph
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
@@ -13,50 +14,38 @@ import glassbricks.recipeanalysis.writeDotGraph
 import java.io.File
 
 fun main() {
-    val vulcanusFactory = SpaceAge.factory {
-        vulcanusMachines()
-        researchConfig = ResearchConfig(
-            miningProductivity = 0.2,
-            recipeProductivity = mapOf(
-                RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
-            ),
-            maxQuality = epic
-        )
+    val nauvisFactory = SpaceAge.factory {
+        machines {
+            electromagneticPlant()
+            assemblingMachine3()
+            recycler()
+            default {
+                includeBuildCosts()
+                moduleConfig() // no modules
+                for (module in module123AllQualities) {
+                    moduleConfig(fill = module)
+                    if (module.effects.quality <= 0) {
+                        for (beaconConfig in speed2Beacons) {
+                            moduleConfig(fill = module, beacons = listOf(beaconConfig))
+                        }
+                    }
+                }
+            }
+        }
         recipes {
             default { allQualities() }
             allCraftingRecipes()
-            calciteMining()
-            coalMining { cost = 70.0 /* coal patches are scarce */ }
-            tungstenOreMining { cost = 10.0 }
-            remove(transportBelt)
-            remove(qualityModule2Recycling)
-            remove(qualityModuleRecycling)
         }
     }
 
-    val production = vulcanusFactory.problem {
-        input(lava, cost = 0.0)
-        input(sulfuricAcid, cost = 0.001)
-        output(
-            qualityModule2.withQuality(rare),
-            rate = 10.perMinute
-        )
-        output(
-            qualityModule2.withQuality(epic),
-            rate = 5.perMinute
-        )
-        output(steelPlate.withQuality(epic), rate = 60.perMinute)
+    val production = nauvisFactory.problem {
+        limit(biterEgg, 200.perMinute)
+        input(productivityModule2.withQuality(rare))
+        input(productivityModule2.withQuality(epic))
+
+        output(productivityModule3.withQuality(epic), rate = 1.perMinute)
 
         costs {
-            costOf(assemblingMachine2.item(), 1 + 1.0)
-            costOf(assemblingMachine3.item(), 3 + 1.0)
-            costOf(foundry.item(), 5 + 2.0)
-            costOf(recycler.item(), 10 + 1.0)
-            costOf(electromagneticPlant.item(), 100)
-            costOf(beacon.item(), 4 + 1.0)
-            costOf(bigMiningDrill.item(), 5 + 2)
-
-            //            val qualityCostMultiplier = 5.0
             fun addQualityCost(item: Item, baseCost: Double) {
                 costOf(item, baseCost)
                 costOf(item.withQuality(uncommon), baseCost * 5)
@@ -94,9 +83,8 @@ fun main() {
         mergeItemsByQuality()
         mergeRecipesByQuality()
     }.toFancyDotGraph()
-    File("output/module2.txt").writeText(display)
-    File("output/module2.dot").writeDotGraph(graph)
-    solution.toBlueprint().exportTo(File("output/module2-bp.txt"))
+    File("output/module3.txt").writeText(display)
+    File("output/module3.dot").writeDotGraph(graph)
 }
 
 // command to generate pdf from dot file
