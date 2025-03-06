@@ -3,341 +3,331 @@ digraph {
     concentrate=true
     node [shape="record"; margin=0]
     edge [decorate=true]
-    0 [color="#006400"; label="{Refinery|0.0124/s}"]
-    1 [color="#006400"; label="{Tungsten carbide|1.6681/s}"]
-    2 [color="#006400"; label="{Sulfuric acid|125.2023/s}"]
-    3 [color="#006400"; label="{Tungsten ore|3.0891/s}"]
-    4 [color="#006400"; label="{Carbon|1.5445/s}"]
-    5 [color="#006400"; label="{Chem plant|0.0397/s}"]
-    6 [color="#006400"; label="{Water|71.7202/s}"]
-    7 [color="#006400"; label="{Light oil|37.6712/s}"]
-    8 [color="#006400"; label="{Heavy oil|36.2107/s}"]
-    9 [color="#006400"; label="{Stone|8.0183/s (+7.177264)}"]
-    10 [color="#006400"; label="{Stone brick|0.4205/s}"]
-    11 [color="#006400"; label="{GC|7.5933/s}"]
-    12 [color="#006400"; label="{Iron plate|8.7423/s}"]
-    13 [color="#006400"; label="{Electric mining drill|0.0279/s}"]
-    14 [color="#006400"; label="{Iron gear wheel|1.7083/s}"]
-    15 [color="#006400"; label="{Coal|9.4170/s}"]
-    16 [color="#006400"; label="{Engine unit|0.2789/s}"]
-    17 [color="#006400"; label="{Electric engine unit|0.2789/s}"]
-    18 [color="#006400"; label="{Lubricant|4.6281/s}"]
-    19 [color="#006400"; label="{Calcite|0.5492/s}"]
-    20 [color="#006400"; label="{Lava|233.5354/s}"]
-    21 [color="#006400"; label="{Molten copper|50.6140/s}"]
-    22 [color="#006400"; label="{Pipe|0.8809/s}"]
-    23 [color="#006400"; label="{Steel plate|2.0523/s}"]
-    24 [color="#006400"; label="{Asm 1|0.0967/s}"]
-    25 [color="#006400"; label="{Speed|0.1448/s}"]
-    26 [color="#006400"; label="{Prod|0.0019/s}"]
-    27 [color="#006400"; label="{Petroleum gas|33.6987/s}"]
-    28 [color="#006400"; label="{Plastic bar|3.7743/s}"]
-    29 [color="#006400"; label="{Beacon|0.0040/s}"]
-    30 [color="#006400"; label="{Asm 3|0.0071/s}"]
-    31 [color="#006400"; label="{Asm 2|0.0967/s}"]
-    32 [color="#006400"; label="{Molten iron|124.5375/s}"]
-    33 [color="#006400"; label="{RC|1.8871/s}"]
-    34 [color="#006400"; label="{Qual|0.1589/s}"]
-    35 [color="#006400"; label="{Concrete|0.8882/s}"]
-    36 [color="#006400"; label="{Foundry|0.0333/s}"]
-    37 [color="#006400"; label="{Refined concrete|0.4441/s}"]
-    38 [color="#006400"; label="{Big mining drill|0.0418/s}"]
-    39 [color="#006400"; label="{Steam|821.7611/s}"]
-    40 [color="#006400"; label="{Iron stick|0.3553/s}"]
-    41 [color="#006400"; label="{Copper cable|30.3684/s}"]
-    42 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refinery|Output|0.0124/s}"]
-    43 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Tungsten carbide|Asm 2[Prod x2]|2.2882}"]
-    44 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Chem plant|Output|0.0397/s}"]
-    45 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Heavy oil cracking|Chem plant[Prod x3]|1.8578}"]
-    46 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Stone brick|Electric furnace|0.6729}"]
-    47 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Electric mining drill|Asm 2|0.0744}"]
-    48 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Carbon|Chem plant[Prod x3]|1.6224}"]
-    49 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Electric engine unit|Asm 2|3.7191}"]
-    50 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten copper from lava|Foundry|0.5399}"]
-    51 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refinery|Asm 2|0.1328}"]
-    52 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 1|Asm 2|0.0645}"]
-    53 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Speed|Output|0.1166/s}"]
-    54 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Prod|Output|0.0019/s}"]
-    55 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lubricant|Chem plant|0.4628}"]
-    56 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Plastic bar|Chem plant[Prod x3]|1.9823}"]
-    57 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Beacon|Output|0.0040/s}"]
-    58 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 3|Output|0.0071/s}"]
-    59 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 2|Output|0.0826/s}"]
-    60 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Coal|Big mining drill[Speed x4]|1.7439}"]
-    61 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron|Foundry|2.3313}"]
-    62 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lava|Input|233.5354/s}"]
-    63 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting pipe|Foundry|0.1468}"]
-    64 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual|Asm 2|3.1776}"]
-    65 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual|Output|0.1589/s}"]
-    66 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Concrete from molten iron|Foundry|0.1480}"]
-    67 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Foundry|Foundry|0.0555}"]
-    68 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Engine unit|Asm 2|3.7191}"]
-    69 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting steel|Foundry|1.0946}"]
-    70 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron gear wheel|Foundry|0.2847}"]
-    71 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Big mining drill|Foundry|0.2092}"]
-    72 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Calcite|Big mining drill|0.1831}"]
-    73 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Coal liquefaction|Refinery[Prod x3]|2.9259}"]
-    74 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 3|Asm 2|0.0047}"]
-    75 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Sulfuric acid|Input|125.2023/s}"]
-    76 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Steam condensation|Chem plant|0.7969}"]
-    77 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Big mining drill|Output|0.0418/s}"]
-    78 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 2|Asm 2|0.0645}"]
-    79 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refined concrete|Asm 2|0.8882}"]
-    80 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Prod|Asm 2|0.0384}"]
-    81 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Tungsten ore|Big mining drill[Speed x4]|2.8602}"]
-    82 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{RC|Asm 2|15.0970}"]
-    83 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron stick|Foundry|0.0148}"]
-    84 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting copper cable|Foundry|2.5307}"]
-    85 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten iron from lava|Foundry|1.3284}"]
-    86 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC|Asm 2|5.0622}"]
-    87 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Foundry|Output|0.0333/s}"]
-    88 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Speed|Asm 2|2.8958}"]
-    89 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Acid neutralisation|Chem plant|0.4109}"]
-    90 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Beacon|Asm 2|0.0802}"]
-    91 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Chem plant|Asm 2|0.2648}"]
-    92 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Light oil cracking|Chem plant[Prod x3]|2.9546}"]
-    0 -> 42 [color="#99620f"; label="(All)"]
-    1 -> 67 [color="#99620f"; label="1.1102/s
+    0 [color="#006400"; label="{Steam|12866.9129/s}"]
+    1 [color="#006400"; label="{Sulfuric acid|2424.2577/s}"]
+    2 [color="#006400"; label="{Calcite|22.4067/s}"]
+    3 [color="#006400"; label="{Concrete|30.1432/s}"]
+    4 [color="#006400"; label="{Water|1129.4132/s}"]
+    5 [color="#006400"; label="{Iron stick|12.0573/s}"]
+    6 [color="#006400"; label="{Refined concrete|15.0716/s}"]
+    7 [color="#006400"; label="{Steel plate|121.1195/s}"]
+    8 [color="#006400"; label="{GC|227.7732/s}"]
+    9 [color="#006400"; label="{Tungsten carbide|44.1026/s}"]
+    10 [color="#006400"; label="{Foundry|1.1304/s}"]
+    11 [color="#006400"; label="{Lubricant|63.2485/s}"]
+    12 [color="#006400"; label="{Heavy oil|462.8294/s}"]
+    13 [color="#006400"; label="{Light oil|478.0570/s}"]
+    14 [color="#006400"; label="{Pipe|43.7896/s}"]
+    15 [color="#006400"; label="{Iron gear wheel|195.0082/s}"]
+    16 [color="#006400"; label="{Chem plant|4.4680/s}"]
+    17 [color="#006400"; label="{Asm 2|15.2825/s}"]
+    18 [color="#006400"; label="{Speed|2.4809/s}"]
+    19 [color="#006400"; label="{Asm 3|0.0902/s}"]
+    20 [color="#006400"; label="{Electric engine unit|3.2118/s}"]
+    21 [color="#006400"; label="{Engine unit|3.2118/s}"]
+    22 [color="#006400"; label="{Molten iron|6615.8401/s}"]
+    23 [color="#006400"; label="{RC|23.9766/s}"]
+    24 [color="#006400"; label="{Big mining drill|0.4818/s}"]
+    25 [color="#006400"; label="{Tungsten ore|81.6714/s}"]
+    26 [color="#006400"; label="{Carbon|40.8357/s}"]
+    27 [color="#006400"; label="{Copper cable|782.5039/s}"]
+    28 [color="#006400"; label="{Molten copper|1304.1732/s}"]
+    29 [color="#006400"; label="{Qual|0.3610/s}"]
+    30 [color="#006400"; label="{Iron plate|368.5271/s}"]
+    31 [color="#006400"; label="{Electric mining drill|0.3212/s}"]
+    32 [color="#006400"; label="{Petroleum gas|428.1538/s}"]
+    33 [color="#006400"; label="{Lava|10560.0177/s}"]
+    34 [color="#006400"; label="{Stone|342.8840/s (+292.736856)}"]
+    35 [color="#006400"; label="{Stone brick|25.0736/s}"]
+    36 [color="#006400"; label="{Plastic bar|47.9532/s}"]
+    37 [color="#006400"; label="{Coal|157.9041/s}"]
+    38 [color="#006400"; label="{Asm 1|15.2825/s}"]
+    39 [color="#006400"; label="{Refinery|1.5026/s}"]
+    40 [color="#006400"; label="{Beacon|0.3278/s}"]
+    41 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Acid neutralisation|Chem plant|6.4335}"]
+    42 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refined concrete|Asm 2|30.1432}"]
+    43 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Foundry|Foundry|1.8839}"]
+    44 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Heavy oil cracking|Chem plant[Prod x3]|23.5048}"]
+    45 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Chem plant|Asm 2|29.7868}"]
+    46 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 3|Asm 2|0.0602}"]
+    47 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Calcite|Big mining drill|8.9627}"]
+    48 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Electric engine unit|Asm 2|42.8239}"]
+    49 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron gear wheel|Foundry|32.5014}"]
+    50 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Speed|Output|2.1199/s}"]
+    51 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Speed|Asm 2|49.6175}"]
+    52 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Chem plant|Output|4.4680/s}"]
+    53 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Big mining drill|Output|0.4818/s}"]
+    54 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting steel|Foundry|64.5971}"]
+    55 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Tungsten carbide|Asm 2[Prod x2]|60.4974}"]
+    56 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting copper cable|Foundry|65.2087}"]
+    57 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual|Output|0.3610/s}"]
+    58 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Electric mining drill|Asm 2|0.8565}"]
+    59 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 2|Output|15.1020/s}"]
+    60 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Light oil cracking|Chem plant[Prod x3]|37.4947}"]
+    61 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lava|Input|10560.0177/s}"]
+    62 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC|Asm 2|151.8488}"]
+    63 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Tungsten ore|Big mining drill[Speed x4]|90.7460}"]
+    64 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Stone brick|Electric furnace|40.1177}"]
+    65 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Plastic bar|Chem plant[Prod x3]|25.1855}"]
+    66 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Qual|Asm 2|7.2196}"]
+    67 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 1|Asm 2|10.1883}"]
+    68 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refinery|Output|1.5026/s}"]
+    69 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron|Foundry|98.2739}"]
+    70 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{RC|Asm 2|191.8129}"]
+    71 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Sulfuric acid|Input|2424.2577/s}"]
+    72 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting pipe|Foundry|7.2983}"]
+    73 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Coal liquefaction|Refinery[Prod x3]|37.3973}"]
+    74 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 2|Asm 2|10.1883}"]
+    75 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Carbon|Chem plant[Prod x3]|42.8947}"]
+    76 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Asm 3|Output|0.0902/s}"]
+    77 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Refinery|Asm 2|16.0276}"]
+    78 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lubricant|Chem plant|6.3249}"]
+    79 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten copper from lava|Foundry|13.9112}"]
+    80 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten iron from lava|Foundry|70.5690}"]
+    81 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron stick|Foundry|0.5024}"]
+    82 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Concrete from molten iron|Foundry|5.0239}"]
+    83 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Foundry|Output|1.1304/s}"]
+    84 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Big mining drill|Foundry|2.4088}"]
+    85 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Steam condensation|Chem plant|12.5490}"]
+    86 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Engine unit|Asm 2|42.8239}"]
+    87 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Beacon|Asm 2|6.5555}"]
+    88 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Coal|Big mining drill[Speed x4]|35.0898}"]
+    89 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Beacon|Output|0.3278/s}"]
+    0 -> 73 [color="#99620f"; label="317.8773/s
 "]
-    1 -> 71 [color="#99620f"; label="0.5579/s
+    0 -> 85 [color="#99620f"; label="12549.0355/s
 "]
-    2 -> 43 [color="#99620f"; label="15.4453/s
+    1 -> 41 [color="#99620f"; label="1286.6913/s
 "]
-    2 -> 48 [color="#99620f"; label="27.5809/s
+    1 -> 55 [color="#99620f"; label="408.3572/s
 "]
-    2 -> 89 [color="#99620f"; label="82.1761/s
+    1 -> 75 [color="#99620f"; label="729.2093/s
 "]
-    3 -> 43 [color="#99620f"; label="(All)"]
-    4 -> 43 [color="#99620f"; label="(All)"]
-    5 -> 44 [color="#99620f"; label="(All)"]
-    6 -> 45 [color="#99620f"; label="23.6870/s
+    2 -> 41 [color="#99620f"; label="1.2867/s
 "]
-    6 -> 66 [color="#99620f"; label="5.9212/s
+    2 -> 79 [color="#99620f"; label="3.4778/s
 "]
-    6 -> 79 [color="#99620f"; label="4.4409/s
+    2 -> 80 [color="#99620f"; label="17.6422/s
 "]
-    6 -> 92 [color="#99620f"; label="37.6712/s
+    3 -> 42 [color="#99620f"; label="(All)"]
+    4 -> 42 [color="#99620f"; label="150.7159/s
 "]
-    7 -> 92 [color="#99620f"; label="(All)"]
-    8 -> 45 [color="#99620f"; label="31.5826/s
+    4 -> 44 [color="#99620f"; label="299.6857/s
 "]
-    8 -> 55 [color="#99620f"; label="4.6281/s
+    4 -> 60 [color="#99620f"; label="478.0570/s
 "]
-    9 -> 46 [color="#99620f"; label="(All)"]
-    10 -> 51 [color="#99620f"; label="0.1245/s
+    4 -> 82 [color="#99620f"; label="200.9546/s
 "]
-    10 -> 66 [color="#99620f"; label="0.2961/s
+    5 -> 42 [color="#99620f"; label="(All)"]
+    6 -> 43 [color="#99620f"; label="(All)"]
+    7 -> 42 [color="#99620f"; label="1.5072/s
 "]
-    11 -> 47 [color="#99620f"; label="0.0837/s
+    7 -> 43 [color="#99620f"; label="37.6790/s
 "]
-    11 -> 49 [color="#99620f"; label="0.5579/s
+    7 -> 45 [color="#99620f"; label="22.3401/s
 "]
-    11 -> 51 [color="#99620f"; label="0.1245/s
+    7 -> 74 [color="#99620f"; label="30.5649/s
 "]
-    11 -> 52 [color="#99620f"; label="0.2900/s
+    7 -> 77 [color="#99620f"; label="22.5388/s
 "]
-    11 -> 64 [color="#99620f"; label="0.7944/s
+    7 -> 86 [color="#99620f"; label="3.2118/s
 "]
-    11 -> 67 [color="#99620f"; label="0.6661/s
+    7 -> 87 [color="#99620f"; label="3.2778/s
 "]
-    11 -> 78 [color="#99620f"; label="0.2900/s
+    8 -> 43 [color="#99620f"; label="22.6074/s
 "]
-    11 -> 80 [color="#99620f"; label="0.0096/s
+    8 -> 45 [color="#99620f"; label="22.3401/s
 "]
-    11 -> 82 [color="#99620f"; label="3.7743/s
+    8 -> 48 [color="#99620f"; label="6.4236/s
 "]
-    11 -> 88 [color="#99620f"; label="0.7239/s
+    8 -> 51 [color="#99620f"; label="12.4044/s
 "]
-    11 -> 90 [color="#99620f"; label="0.0802/s
+    8 -> 58 [color="#99620f"; label="0.9635/s
 "]
-    11 -> 91 [color="#99620f"; label="0.1986/s
+    8 -> 66 [color="#99620f"; label="1.8049/s
 "]
-    12 -> 47 [color="#99620f"; label="0.2789/s
+    8 -> 67 [color="#99620f"; label="45.8474/s
 "]
-    12 -> 52 [color="#99620f"; label="0.8701/s
+    8 -> 70 [color="#99620f"; label="47.9532/s
 "]
-    12 -> 86 [color="#99620f"; label="7.5933/s
+    8 -> 74 [color="#99620f"; label="45.8474/s
 "]
-    13 -> 71 [color="#99620f"; label="(All)"]
-    14 -> 47 [color="#99620f"; label="0.1395/s
+    8 -> 77 [color="#99620f"; label="15.0258/s
 "]
-    14 -> 51 [color="#99620f"; label="0.1245/s
+    8 -> 87 [color="#99620f"; label="6.5555/s
 "]
-    14 -> 52 [color="#99620f"; label="0.4834/s
+    9 -> 43 [color="#99620f"; label="37.6790/s
 "]
-    14 -> 68 [color="#99620f"; label="0.2789/s
+    9 -> 84 [color="#99620f"; label="6.4236/s
 "]
-    14 -> 78 [color="#99620f"; label="0.4834/s
+    10 -> 83 [color="#99620f"; label="(All)"]
+    11 -> 43 [color="#99620f"; label="15.0716/s
 "]
-    14 -> 91 [color="#99620f"; label="0.1986/s
+    11 -> 48 [color="#99620f"; label="48.1769/s
 "]
-    15 -> 48 [color="#99620f"; label="2.7581/s
+    12 -> 44 [color="#99620f"; label="399.5809/s
 "]
-    15 -> 56 [color="#99620f"; label="1.6849/s
+    12 -> 78 [color="#99620f"; label="63.2485/s
 "]
-    15 -> 73 [color="#99620f"; label="4.9740/s
+    13 -> 60 [color="#99620f"; label="(All)"]
+    14 -> 45 [color="#99620f"; label="22.3401/s
 "]
-    16 -> 49 [color="#99620f"; label="(All)"]
-    17 -> 71 [color="#99620f"; label="(All)"]
-    18 -> 49 [color="#99620f"; label="4.1840/s
+    14 -> 77 [color="#99620f"; label="15.0258/s
 "]
-    18 -> 67 [color="#99620f"; label="0.4441/s
+    14 -> 86 [color="#99620f"; label="6.4236/s
 "]
-    19 -> 50 [color="#99620f"; label="0.1350/s
+    15 -> 45 [color="#99620f"; label="22.3401/s
 "]
-    19 -> 85 [color="#99620f"; label="0.3321/s
+    15 -> 58 [color="#99620f"; label="1.6059/s
 "]
-    19 -> 89 [color="#99620f"; label="0.0822/s
+    15 -> 67 [color="#99620f"; label="76.4123/s
 "]
-    20 -> 50 [color="#99620f"; label="67.4854/s
+    15 -> 74 [color="#99620f"; label="76.4123/s
 "]
-    20 -> 85 [color="#99620f"; label="166.0500/s
+    15 -> 77 [color="#99620f"; label="15.0258/s
 "]
-    21 -> 84 [color="#99620f"; label="(All)"]
-    22 -> 51 [color="#99620f"; label="0.1245/s
+    15 -> 86 [color="#99620f"; label="3.2118/s
 "]
-    22 -> 68 [color="#99620f"; label="0.5579/s
+    16 -> 52 [color="#99620f"; label="(All)"]
+    17 -> 46 [color="#99620f"; label="0.1805/s
 "]
-    22 -> 91 [color="#99620f"; label="0.1986/s
+    17 -> 59 [color="#99620f"; label="15.1020/s
 "]
-    23 -> 51 [color="#99620f"; label="0.1867/s
+    18 -> 46 [color="#99620f"; label="0.3610/s
 "]
-    23 -> 67 [color="#99620f"; label="1.1102/s
+    18 -> 50 [color="#99620f"; label="2.1199/s
 "]
-    23 -> 68 [color="#99620f"; label="0.2789/s
+    19 -> 76 [color="#99620f"; label="(All)"]
+    20 -> 84 [color="#99620f"; label="(All)"]
+    21 -> 48 [color="#99620f"; label="(All)"]
+    22 -> 49 [color="#99620f"; label="1300.0545/s
 "]
-    23 -> 78 [color="#99620f"; label="0.1934/s
+    22 -> 54 [color="#99620f"; label="2422.3900/s
 "]
-    23 -> 79 [color="#99620f"; label="0.0444/s
+    22 -> 69 [color="#99620f"; label="2456.8473/s
 "]
-    23 -> 90 [color="#99620f"; label="0.0401/s
+    22 -> 72 [color="#99620f"; label="291.9305/s
 "]
-    23 -> 91 [color="#99620f"; label="0.1986/s
+    22 -> 81 [color="#99620f"; label="40.1909/s
 "]
-    24 -> 78 [color="#99620f"; label="(All)"]
-    25 -> 53 [color="#99620f"; label="0.1166/s
+    22 -> 82 [color="#99620f"; label="40.1909/s
 "]
-    25 -> 74 [color="#99620f"; label="0.0282/s
+    22 -> 84 [color="#99620f"; label="64.2359/s
 "]
-    26 -> 54 [color="#99620f"; label="(All)"]
-    27 -> 56 [color="#99620f"; label="(All)"]
-    28 -> 82 [color="#99620f"; label="(All)"]
+    23 -> 51 [color="#99620f"; label="12.4044/s
+"]
+    23 -> 66 [color="#99620f"; label="1.8049/s
+"]
+    23 -> 84 [color="#99620f"; label="3.2118/s
+"]
+    23 -> 87 [color="#99620f"; label="6.5555/s
+"]
+    24 -> 53 [color="#99620f"; label="(All)"]
+    25 -> 55 [color="#99620f"; label="(All)"]
+    26 -> 55 [color="#99620f"; label="(All)"]
+    27 -> 62 [color="#99620f"; label="683.3197/s
+"]
+    27 -> 70 [color="#99620f"; label="95.9064/s
+"]
+    27 -> 87 [color="#99620f"; label="3.2778/s
+"]
+    28 -> 56 [color="#99620f"; label="(All)"]
     29 -> 57 [color="#99620f"; label="(All)"]
-    30 -> 58 [color="#99620f"; label="(All)"]
-    31 -> 59 [color="#99620f"; label="0.0826/s
+    30 -> 58 [color="#99620f"; label="3.2118/s
 "]
-    31 -> 74 [color="#99620f"; label="0.0141/s
+    30 -> 62 [color="#99620f"; label="227.7732/s
 "]
-    32 -> 61 [color="#99620f"; label="58.2821/s
+    30 -> 67 [color="#99620f"; label="137.5421/s
 "]
-    32 -> 63 [color="#99620f"; label="5.8729/s
+    31 -> 84 [color="#99620f"; label="(All)"]
+    32 -> 65 [color="#99620f"; label="(All)"]
+    33 -> 79 [color="#99620f"; label="1738.8976/s
 "]
-    32 -> 66 [color="#99620f"; label="1.1842/s
+    33 -> 80 [color="#99620f"; label="8821.1201/s
 "]
-    32 -> 69 [color="#99620f"; label="41.0469/s
+    34 -> 64 [color="#99620f"; label="(All)"]
+    35 -> 77 [color="#99620f"; label="15.0258/s
 "]
-    32 -> 70 [color="#99620f"; label="11.3884/s
+    35 -> 82 [color="#99620f"; label="10.0477/s
 "]
-    32 -> 71 [color="#99620f"; label="5.5787/s
+    36 -> 70 [color="#99620f"; label="(All)"]
+    37 -> 65 [color="#99620f"; label="21.4077/s
 "]
-    32 -> 83 [color="#99620f"; label="1.1842/s
+    37 -> 73 [color="#99620f"; label="63.5755/s
 "]
-    33 -> 64 [color="#99620f"; label="0.7944/s
+    37 -> 75 [color="#99620f"; label="72.9209/s
 "]
-    33 -> 71 [color="#99620f"; label="0.2789/s
+    38 -> 74 [color="#99620f"; label="(All)"]
+    39 -> 68 [color="#99620f"; label="(All)"]
+    40 -> 89 [color="#99620f"; label="(All)"]
+    41 -> 0 [color="#0f4699"; label="(All)"]
+    42 -> 6 [color="#0f4699"; label="(All)"]
+    43 -> 10 [color="#0f4699"; label="(All)"]
+    44 -> 13 [color="#0f4699"; label="335.6479/s
 "]
-    33 -> 80 [color="#99620f"; label="0.0096/s
+    45 -> 16 [color="#0f4699"; label="(All)"]
+    46 -> 19 [color="#0f4699"; label="(All)"]
+    47 -> 2 [color="#0f4699"; label="(All)"]
+    48 -> 20 [color="#0f4699"; label="(All)"]
+    49 -> 15 [color="#0f4699"; label="(All)"]
+    51 -> 18 [color="#0f4699"; label="(All)"]
+    54 -> 7 [color="#0f4699"; label="(All)"]
+    55 -> 9 [color="#0f4699"; label="(All)"]
+    56 -> 27 [color="#0f4699"; label="(All)"]
+    58 -> 31 [color="#0f4699"; label="(All)"]
+    60 -> 32 [color="#0f4699"; label="356.9492/s
 "]
-    33 -> 88 [color="#99620f"; label="0.7239/s
+    61 -> 33 [color="#0f4699"; label="(All)"]
+    62 -> 8 [color="#0f4699"; label="(All)"]
+    63 -> 25 [color="#0f4699"; label="(All)"]
+    64 -> 35 [color="#0f4699"; label="(All)"]
+    65 -> 36 [color="#0f4699"; label="(All)"]
+    66 -> 29 [color="#0f4699"; label="(All)"]
+    67 -> 38 [color="#0f4699"; label="(All)"]
+    69 -> 30 [color="#0f4699"; label="(All)"]
+    70 -> 23 [color="#0f4699"; label="(All)"]
+    71 -> 1 [color="#0f4699"; label="(All)"]
+    72 -> 14 [color="#0f4699"; label="(All)"]
+    73 -> 12 [color="#0f4699"; label="(All)"]
+    73 -> 32 [color="#0f4699"; label="71.2045/s
 "]
-    33 -> 90 [color="#99620f"; label="0.0802/s
+    73 -> 13 [color="#0f4699"; label="142.4091/s
 "]
-    34 -> 65 [color="#99620f"; label="(All)"]
-    35 -> 79 [color="#99620f"; label="(All)"]
-    36 -> 87 [color="#99620f"; label="(All)"]
-    37 -> 67 [color="#99620f"; label="(All)"]
-    38 -> 77 [color="#99620f"; label="(All)"]
-    39 -> 73 [color="#99620f"; label="24.8700/s
+    74 -> 17 [color="#0f4699"; label="(All)"]
+    75 -> 26 [color="#0f4699"; label="(All)"]
+    77 -> 39 [color="#0f4699"; label="(All)"]
+    78 -> 11 [color="#0f4699"; label="(All)"]
+    79 -> 34 [color="#0f4699"; label="78.2504/s
 "]
-    39 -> 76 [color="#99620f"; label="796.8911/s
+    79 -> 28 [color="#0f4699"; label="(All)"]
+    80 -> 34 [color="#0f4699"; label="264.6336/s
 "]
-    40 -> 79 [color="#99620f"; label="(All)"]
-    41 -> 82 [color="#99620f"; label="7.5485/s
-"]
-    41 -> 86 [color="#99620f"; label="22.7798/s
-"]
-    41 -> 90 [color="#99620f"; label="0.0401/s
-"]
-    43 -> 1 [color="#0f4699"; label="(All)"]
-    45 -> 7 [color="#0f4699"; label="26.5294/s
-"]
-    46 -> 10 [color="#0f4699"; label="(All)"]
-    47 -> 13 [color="#0f4699"; label="(All)"]
-    48 -> 4 [color="#0f4699"; label="(All)"]
-    49 -> 17 [color="#0f4699"; label="(All)"]
-    50 -> 9 [color="#0f4699"; label="3.0368/s
-"]
-    50 -> 21 [color="#0f4699"; label="(All)"]
-    51 -> 0 [color="#0f4699"; label="(All)"]
-    52 -> 24 [color="#0f4699"; label="(All)"]
-    55 -> 18 [color="#0f4699"; label="(All)"]
-    56 -> 28 [color="#0f4699"; label="(All)"]
-    60 -> 15 [color="#0f4699"; label="(All)"]
-    61 -> 12 [color="#0f4699"; label="(All)"]
-    62 -> 20 [color="#0f4699"; label="(All)"]
-    63 -> 22 [color="#0f4699"; label="(All)"]
-    64 -> 34 [color="#0f4699"; label="(All)"]
-    66 -> 35 [color="#0f4699"; label="(All)"]
-    67 -> 36 [color="#0f4699"; label="(All)"]
-    68 -> 16 [color="#0f4699"; label="(All)"]
-    69 -> 23 [color="#0f4699"; label="(All)"]
-    70 -> 14 [color="#0f4699"; label="(All)"]
-    71 -> 38 [color="#0f4699"; label="(All)"]
-    72 -> 19 [color="#0f4699"; label="(All)"]
-    73 -> 27 [color="#0f4699"; label="5.5709/s
-"]
-    73 -> 7 [color="#0f4699"; label="11.1418/s
-"]
-    73 -> 8 [color="#0f4699"; label="(All)"]
-    74 -> 30 [color="#0f4699"; label="(All)"]
-    75 -> 2 [color="#0f4699"; label="(All)"]
-    76 -> 6 [color="#0f4699"; label="(All)"]
-    78 -> 31 [color="#0f4699"; label="(All)"]
-    79 -> 37 [color="#0f4699"; label="(All)"]
-    80 -> 26 [color="#0f4699"; label="(All)"]
-    81 -> 3 [color="#0f4699"; label="(All)"]
-    82 -> 33 [color="#0f4699"; label="(All)"]
-    83 -> 40 [color="#0f4699"; label="(All)"]
-    84 -> 41 [color="#0f4699"; label="(All)"]
-    85 -> 9 [color="#0f4699"; label="4.9815/s
-"]
-    85 -> 32 [color="#0f4699"; label="(All)"]
-    86 -> 11 [color="#0f4699"; label="(All)"]
-    88 -> 25 [color="#0f4699"; label="(All)"]
-    89 -> 39 [color="#0f4699"; label="(All)"]
-    90 -> 29 [color="#0f4699"; label="(All)"]
-    91 -> 5 [color="#0f4699"; label="(All)"]
-    92 -> 27 [color="#0f4699"; label="28.1278/s
-"]
+    80 -> 22 [color="#0f4699"; label="(All)"]
+    81 -> 5 [color="#0f4699"; label="(All)"]
+    82 -> 3 [color="#0f4699"; label="(All)"]
+    84 -> 24 [color="#0f4699"; label="(All)"]
+    85 -> 4 [color="#0f4699"; label="(All)"]
+    86 -> 21 [color="#0f4699"; label="(All)"]
+    87 -> 40 [color="#0f4699"; label="(All)"]
+    88 -> 37 [color="#0f4699"; label="(All)"]
     subgraph {
         rank="source"
-        60
-        62
-        72
-        75
-        81
+        47
+        61
+        63
+        71
+        88
     }
     subgraph {
         rank="sink"
-        42
-        44
+        50
+        52
         53
-        54
         57
-        58
         59
-        65
-        77
-        87
+        68
+        76
+        83
+        89
     }
 }

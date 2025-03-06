@@ -1,15 +1,15 @@
+package scripts.vulcanus
+
 import glassbricks.factorio.prototypes.EquipmentShapeType
 import glassbricks.factorio.prototypes.RecipeID
-import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.factorio.recipes.qualities
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
-import kotlin.math.pow
+import scripts.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -19,7 +19,7 @@ fun main(): Unit = with(SpaceAge) {
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(
-                RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
+                RecipeID(castingLowDensityStructure.prototype.name) to 0.2,
             ),
         )
         recipes {
@@ -49,32 +49,7 @@ fun main(): Unit = with(SpaceAge) {
         oneFullLegendaryMechArmor(targetTime)
 
         costs {
-            costOf(assemblingMachine2, 1 + 1.0)
-            costOf(assemblingMachine3, 3 + 1.0)
-            costOf(foundry, 5 + 2.0)
-            costOf(recycler, 12 + 1.0)
-            costOf(electromagneticPlant, 100)
-            costOf(beacon, 4 + 1.0)
-            costOf(bigMiningDrill, 5 + 2)
-
-            val qualityCostMultiplier = 4.0
-            fun addQualityCost(item: Item, baseCost: Double) {
-                for ((index, quality) in qualities.withIndex()) {
-                    // skip uncommon
-                    if (index == 1) continue
-                    val value = baseCost * qualityCostMultiplier.pow(index)
-                    costOf(item.withQuality(quality), value)
-                }
-            }
-            for (module in listOf(speedModule, productivityModule, qualityModule)) {
-                addQualityCost(module, 1.0)
-            }
-            for (module in listOf(speedModule2, productivityModule2, qualityModule2)) {
-                addQualityCost(module, 5.0)
-            }
-            for (module in listOf(speedModule3, qualityModule3)) {
-                addQualityCost(module, 25.0)
-            }
+            vulcanusCosts1()
             forbidUnspecifiedModules()
         }
     }

@@ -1,3 +1,5 @@
+package scripts.vulcanus
+
 import glassbricks.factorio.recipes.BeaconSetup
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
@@ -9,6 +11,7 @@ import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.runningFor
+import scripts.*
 import kotlin.time.Duration.Companion.minutes
 
 fun main() = with(SpaceAge) {

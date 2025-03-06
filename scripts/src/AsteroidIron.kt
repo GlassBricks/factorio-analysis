@@ -1,3 +1,5 @@
+package scripts
+
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.FactorioShorthandFormatter

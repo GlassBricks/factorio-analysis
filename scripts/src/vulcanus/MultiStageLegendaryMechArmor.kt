@@ -1,8 +1,9 @@
+package scripts.vulcanus
+
 import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.FactorioGraphExportFormatter
-import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.stage
 import glassbricks.recipeanalysis.Ingredient
@@ -11,6 +12,7 @@ import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.OrToolsLp
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.runningFor
+import scripts.*
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
@@ -48,16 +50,6 @@ fun main(): Unit = with(SpaceAge) {
         }
     }
 
-    fun ProblemBuilder.CostsScope.machineCosts() {
-        costOf(assemblingMachine2, 1.0 + 1.0)
-        costOf(assemblingMachine3, 3 + 1.0)
-        costOf(foundry, 5 + 2.0)
-        costOf(beacon, 4 + 1.0)
-        costOf(bigMiningDrill, 5 + 2)
-        costOf(recycler, 20)
-        costOf(electromagneticPlant, 100)
-    }
-
     val mallRunTime = 30.minutes
     val targetTime = 30.minutes
     val stage1 = vulcanusFactory.stage("modules") {
@@ -81,7 +73,7 @@ fun main(): Unit = with(SpaceAge) {
         }
 
         costs {
-            machineCosts()
+            vulcanusMachineCosts1()
             for (module in module1s) {
                 costOf(module, 1.0)
             }
@@ -106,7 +98,7 @@ fun main(): Unit = with(SpaceAge) {
         oneFullLegendaryMechArmor(targetTime)
 
         costs {
-            machineCosts()
+            vulcanusMachineCosts1()
             for (module in module123AllQualities) {
                 module producedBy stage1.runningFor(mallRunTime)
             }

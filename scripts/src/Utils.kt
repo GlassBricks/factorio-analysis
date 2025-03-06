@@ -1,6 +1,10 @@
+@file:Suppress("unused")
+
+package scripts
+
 import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.export.*
-import glassbricks.factorio.recipes.problem.FactoryConfigBuilder
+import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.recipeanalysis.recipelp.ProductionStage
 import glassbricks.recipeanalysis.recipelp.RecipeSolution
 import glassbricks.recipeanalysis.recipelp.textDisplay
@@ -95,32 +99,14 @@ val speed3Beacons = SpaceAge.run {
     )
 }
 
-fun FactoryConfigBuilder.vulcanusMachines(
-    modules: List<Module> = module123AllQualities,
-    beacons: List<List<WithBeaconCount>> = speed2Beacons.map { listOf(it) },
+fun ProblemBuilder.CostsScope.addQualityCosts(
+    item: Item,
+    baseCost: Double,
+    multipliers: List<Double>,
 ) {
-    machines {
-        default {
-            includeBuildCosts()
-
-            moduleConfig() // no modules
-            for (module in modules) {
-                moduleConfig(fill = module)
-                if (module.effects.quality <= 0) {
-                    for (beaconConfig in beacons) {
-                        moduleConfig(fill = module, beacons = beaconConfig)
-                    }
-                }
-            }
-        }
-        assemblingMachine3()
-        assemblingMachine2()
-        chemicalPlant()
-        oilRefinery()
-        foundry()
-        bigMiningDrill()
-        electricFurnace()
-        recycler()
-        electromagneticPlant()
+    var curCost = baseCost
+    for ((mult, quality) in (listOf(1.0) + multipliers).zip(prototypes.qualities)) {
+        curCost *= mult
+        costOf(item.withQuality(quality), curCost)
     }
 }

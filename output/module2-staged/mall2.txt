@@ -1,218 +1,90 @@
 Inputs:
-Sulfuric acid | 615.4770/s
-Lava          | 4472.2168/s
+Lava          | 53937.8702/s
+Sulfuric acid | 32488.1021/s
 
 Outputs:
-Prod(Q4)   | 0.0003/s
-Qual 2(Q5) | 0.0003/s
-Prod 2(Q4) | 0.0023/s
-Qual 2     | 0.2177/s
-Qual 2(Q3) | 0.0273/s
-Qual 2(Q2) | 0.1054/s
-Qual 2(Q4) | 0.0031/s
-Prod(Q5)   | 0.0043/s
-Speed 2    | 0.0944/s
-Prod       | 0.0008/s
-Prod(Q3)   | 0.0059/s
-Prod 2(Q5) | 0.0004/s
+Qual 2(Q4) | 0.0019/s
+Qual 2(Q5) | 0.0002/s
+Qual 2(Q2) | 0.1949/s
+Prod       | 41.7477/s
+Speed 2    | 8.2136/s
+Qual 2     | 5.1981/s
+Qual 2(Q3) | 0.0195/s
 
 Recipes:
-Acid neutralisation --> Chem plant              | 3.0373
-BC --> Asm 2                                    | 17.5373
-BC(Q2) --> EMP[Speed x5]                        | 0.5841
-BC(Q3) --> EMP[Prod x5]                         | 0.3027
-BC(Q4) --> EMP[Prod x5]                         | 0.0533
-BC(Q5) --> EMP[Prod x5]                         | 0.0043
-Calcite --> Big mining drill                    | 3.1840
-Casting LDS(Q2) --> Foundry[Qual x4]            | 4.8271
-Casting LDS(Q3) --> Foundry[Qual x4]            | 0.4717
-Casting LDS(Q4) --> Foundry[Qual x4]            | 0.0564
-Casting LDS(Q5) --> Foundry[Prod x4]            | 0.0006
-Casting UG pipe --> Foundry[Qual x4]            | 8.5589
-Casting UG pipe(Q2) --> Foundry[Qual x4]        | 0.3390
-Casting UG pipe(Q3) --> Foundry[Qual x4]        | 0.0537
-Casting UG pipe(Q4) --> Foundry[Qual x4]        | 0.0084
-Casting UG pipe(Q5) --> Foundry[Speed x4]       | 0.0007
-Casting copper cable --> Foundry[Speed x4]      | 8.6494
-Casting iron gear wheel --> Foundry[Speed x4]   | 0.5144
-Casting pipe --> Foundry[Speed x4]              | 16.5954
-Coal --> Big mining drill[Qual x4]              | 31.7444
-Coal liquefaction --> Refinery                  | 22.4064
-Coal recycling --> Recycler[Qual x4]            | 1.9649
-Copper cable(Q2) --> EMP[Speed x5]              | 0.8897
-Copper cable(Q3) --> EMP[Speed x5]              | 0.1537
-Copper cable(Q4) --> EMP[Qual x5]               | 0.0662
-Copper cable(Q5) --> EMP[Prod x5]               | 0.0078
-GC --> Asm 2                                    | 33.3292
-GC(Q2) --> EMP[Qual x5]                         | 1.2820
-GC(Q2) --> EMP[Speed x5]                        | 0.2098
-GC(Q3) --> EMP[Prod x5]                         | 0.2281
-GC(Q3) --> EMP[Qual x5]                         | 0.0615
-GC(Q4) --> EMP[Prod x5]                         | 0.0450
-GC(Q5) --> EMP[Prod x5]                         | 0.0082
-Heavy oil cracking --> Chem plant               | 14.5642
-Iron gear wheel recycling --> Recycler[Qual x4] | 0.4340
-LDS recycling(Q2) --> Recycler[Qual x4]         | 3.4755
-LDS recycling(Q3) --> Recycler[Qual x4]         | 0.4699
-LDS recycling(Q4) --> Recycler[Qual x4]         | 0.0664
-LDS recycling(Q5) --> Recycler                  | 0.0040
-Light oil cracking --> Chem plant               | 20.5392
-Molten copper from lava --> Foundry[Speed x4]   | 3.5379
-Molten iron from lava --> Foundry[Speed x4]     | 16.3386
-Plastic bar --> Chem plant                      | 9.2113
-Plastic bar(Q2) --> Chem plant[Qual x3]         | 3.4930
-Plastic bar(Q3) --> Chem plant[Qual x3]         | 0.3493
-Plastic bar(Q4) --> Chem plant[Prod x3]         | 0.0048
-Plastic bar(Q4) --> Chem plant[Qual x3]         | 0.0301
-Plastic bar(Q5) --> Chem plant[Prod x3]         | 0.0039
-Prod --> Asm 3                                  | 0.0101
-Prod 2(Q4) --> EMP[Qual x5]                     | 0.0325
-Prod 2(Q5) --> EMP[Speed x5]                    | 0.0016
-Prod(Q3) --> EMP[Qual x5]                       | 0.0415
-Prod(Q4) --> EMP[Qual x5]                       | 0.0458
-Prod(Q5) --> EMP[Speed x5]                      | 0.0121
-Qual --> Asm 2                                  | 2.5069
-Qual --> Asm 3                                  | 8.1022
-Qual 2 --> EMP[Speed x5]                        | 0.3552
-Qual 2 --> Asm 3[Qual x4]                       | 4.5830
-Qual 2(Q2) --> EMP[Qual x5]                     | 1.4018
-Qual 2(Q3) --> EMP[Qual x5]                     | 0.3088
-Qual 2(Q4) --> EMP[Qual x5]                     | 0.0219
-Qual recycling(Q5) --> Recycler                 | 0.0006
-Qual(Q2) --> EMP[Speed x5]                      | 0.7009
-Qual(Q3) --> EMP[Qual x5]                       | 0.4333
-Qual(Q4) --> EMP[Speed x5]                      | 0.0036
-RC --> Asm 2                                    | 73.6901
-RC(Q2) --> Asm 2                                | 0.6511
-RC(Q2) --> EMP[Speed x5]                        | 1.6708
-RC(Q3) --> EMP[Speed x5]                        | 0.4054
-RC(Q4) --> EMP[Qual x5]                         | 0.1609
-RC(Q5) --> EMP[Prod x5]                         | 0.0354
-Speed --> Asm 2                                 | 5.0341
-Speed 2 --> EMP[Speed x5]                       | 0.4720
-Steam condensation --> Chem plant               | 5.8506
-UG pipe recycling --> Recycler[Qual x4]         | 6.1624
-UG pipe recycling(Q2) --> Recycler[Qual x4]     | 0.4752
-UG pipe recycling(Q3) --> Recycler[Qual x4]     | 0.0709
-UG pipe recycling(Q4) --> Recycler[Qual x4]     | 0.0107
-UG pipe recycling(Q5) --> Recycler              | 0.0015
+Acid neutralisation --> Chem plant  | 160.8203
+BC --> Asm 2                        | 864.1080
+Calcite --> Big mining drill        | 56.0159
+Casting copper cable --> Foundry    | 993.0291
+Casting iron --> Foundry            | 343.1585
+Casting iron --> Foundry[Speed x4]  | 266.9746
+Coal --> Big mining drill[Speed x4] | 674.4786
+Coal liquefaction --> Refinery      | 1186.3793
+GC --> Asm 2                        | 2059.2820
+Heavy oil cracking --> Chem plant   | 771.1466
+Landfill --> Asm 2                  | 26.8713
+Landfill recycling --> Recycler     | 3.3589
+Light oil cracking --> Chem plant   | 1087.5144
+Molten copper from lava --> Foundry | 211.8462
+Molten iron from lava --> Foundry   | 219.6567
+Plastic bar --> Chem plant          | 662.3951
+Prod --> Asm 2                      | 834.9538
+Qual --> Asm 2                      | 433.1772
+Qual 2 --> Asm 3[Qual x4]           | 162.4414
+RC --> Asm 2                        | 5299.1610
+Speed --> Asm 2                     | 603.7524
+Speed 2 --> EMP[Speed x5]           | 10.0000
+Speed 2 --> Asm 2                   | 248.5429
+Steam condensation --> Chem plant   | 309.7768
 
 
 Throughputs:
-RC               | 9.2113/s
-RC(Q4)           | 0.0573/s
-RC(Q5)           | 0.0185/s
-RC(Q3)           | 0.4054/s
-RC(Q2)           | 1.7522/s
-Calcite          | 9.5519/s
-Coal             | 73.1391/s
-Coal(Q4)         | 0.0297/s
-Coal(Q5)         | 0.0033/s
-Coal(Q3)         | 0.2969/s
-Coal(Q2)         | 2.9691/s
-Copper cable     | 186.8264/s
-Copper cable(Q4) | 0.5662/s
-Copper cable(Q5) | 0.1094/s
-Copper cable(Q3) | 3.6880/s
-Copper cable(Q2) | 21.3535/s
-Copper plate(Q4) | 0.1987/s
-Copper plate(Q5) | 0.0234/s
-Copper plate(Q3) | 1.2293/s
-Copper plate(Q2) | 7.1178/s
-GC               | 49.9938/s
-GC(Q4)           | 0.2681/s
-GC(Q5)           | 0.0466/s
-GC(Q3)           | 1.6861/s
-GC(Q2)           | 7.9977/s
-Heavy oil        | 291.2831/s
-Iron gear wheel  | 5.5553/s
-Iron plate       | 49.9938/s
-Iron plate(Q4)   | 0.1351/s
-Iron plate(Q5)   | 0.0247/s
-Iron plate(Q3)   | 0.8690/s
-Iron plate(Q2)   | 5.5241/s
-Lava             | 4472.2168/s
-Light oil        | 308.0879/s
-LDS(Q4)          | 0.0283/s
-LDS(Q5)          | 0.0022/s
-LDS(Q3)          | 0.2005/s
-LDS(Q2)          | 1.4829/s
-Molten copper    | 597.0159/s
-Molten iron      | 2757.1467/s
-Petroleum gas    | 250.2047/s
-Pipe             | 273.8845/s
-Pipe(Q4)         | 0.2682/s
-Pipe(Q5)         | 0.0491/s
-Pipe(Q3)         | 1.7179/s
-Pipe(Q2)         | 10.8482/s
-UG pipe          | 78.8787/s
-UG pipe(Q4)      | 0.1371/s
-UG pipe(Q5)      | 0.0246/s
-UG pipe(Q3)      | 0.9077/s
-UG pipe(Q2)      | 6.0822/s
-Plastic bar      | 18.4225/s
-Plastic bar(Q4)  | 0.1406/s
-Plastic bar(Q5)  | 0.0183/s
-Plastic bar(Q3)  | 1.0437/s
-Plastic bar(Q2)  | 7.5395/s
-BC               | 1.3153/s
-BC(Q4)           | 0.0136/s
-BC(Q5)           | 0.0011/s
-BC(Q3)           | 0.0772/s
-BC(Q2)           | 0.3504/s
-Prod             | 0.0008/s
-Prod(Q4)         | 0.0068/s
-Prod(Q5)         | 0.0052/s
-Prod(Q3)         | 0.0059/s
-Prod 2(Q4)       | 0.0023/s
-Prod 2(Q5)       | 0.0004/s
-Qual             | 0.8005/s
-Qual(Q4)         | 0.0044/s
-Qual(Q5)         | 0.0003/s
-Qual(Q3)         | 0.0618/s
-Qual(Q2)         | 0.2804/s
-Qual 2           | 0.2177/s
-Qual 2(Q4)       | 0.0031/s
-Qual 2(Q5)       | 0.0003/s
-Qual 2(Q3)       | 0.0273/s
-Qual 2(Q2)       | 0.1054/s
-Speed            | 0.2517/s
-Speed 2          | 0.0944/s
-Steam            | 6074.6211/s
-Steel plate(Q4)  | (+0.0199/s)
-Steel plate(Q5)  | (+0.0023/s)
-Steel plate(Q3)  | (+0.1229/s)
-Steel plate(Q2)  | (+0.7118/s)
-Stone            | (+146.1068/s)
-Sulfuric acid    | 615.4770/s
-Water            | 526.5502/s
-
-Surpluses:
-Steel plate(Q4) | 0.0199/s
-Steel plate(Q5) | 0.0023/s
-Steel plate(Q3) | 0.1229/s
-Steel plate(Q2) | 0.7118/s
-Stone           | 146.1068/s
+RC            | 662.3951/s
+Calcite       | 140.0398/s
+Coal          | 3035.1538/s
+Copper cable  | 11916.3495/s
+GC            | 3088.9230/s
+Heavy oil     | 15422.9312/s
+Iron plate    | 3088.9230/s
+Landfill      | 40.3070/s
+Lava          | 53937.8702/s
+Light oil     | 16312.7157/s
+Molten copper | 19860.5826/s
+Molten iron   | 20592.8201/s
+Petroleum gas | 13247.9024/s
+Plastic bar   | 1324.7902/s
+BC            | 64.8081/s
+Prod          | 41.7477/s
+Qual          | 21.6589/s
+Qual 2        | 5.1981/s
+Qual 2(Q4)    | 0.0019/s
+Qual 2(Q5)    | 0.0002/s
+Qual 2(Q3)    | 0.0195/s
+Qual 2(Q2)    | 0.1949/s
+Speed         | 30.1876/s
+Speed 2       | 8.2136/s
+Steam         | 321640.6161/s
+Stone         | 2015.3478/s
+Sulfuric acid | 32488.1021/s
+Water         | 27879.9141/s
 
 Symbols used:
-(mall1):Output(assembling-machine-2) | 0.0826
-(mall1):Output(assembling-machine-3) | 0.0071
-(mall1):Output(beacon)               | 0.0040
-(mall1):Output(big-mining-drill)     | 0.0418
-(mall1):Output(chemical-plant)       | 0.0397
-(mall1):Output(foundry)              | 0.0333
-(mall1):Output(oil-refinery)         | 0.0124
-(mall1):Output(productivity-module)  | 0.0019
-(mall1):Output(quality-module)       | 0.1589
-(mall1):Output(speed-module)         | 0.1166
-Asm 2                                | 132.7487
-Asm 3                                | 12.6953
-Big mining drill                     | 34.9283
-Chem plant                           | 57.0836
-EMP                                  | 10.0000
-Foundry                              | 59.9520
-Refinery                             | 22.4064
-Prod                                 | 3.4531
-Qual                                 | 285.9876
-Recycler                             | 13.1361
-Speed                                | 209.8399
+(mall1):Output(assembling-machine-2, variableConfig=VariableConfig()) | 15.1020
+(mall1):Output(assembling-machine-3, variableConfig=VariableConfig()) | 0.0902
+(mall1):Output(beacon, variableConfig=VariableConfig())               | 0.3278
+(mall1):Output(big-mining-drill, variableConfig=VariableConfig())     | 0.4818
+(mall1):Output(chemical-plant, variableConfig=VariableConfig())       | 4.4680
+(mall1):Output(foundry, variableConfig=VariableConfig())              | 1.1304
+(mall1):Output(oil-refinery, variableConfig=VariableConfig())         | 1.5026
+(mall1):Output(quality-module, variableConfig=VariableConfig())       | 0.3610
+(mall1):Output(speed-module, variableConfig=VariableConfig())         | 2.1199
+Asm 2                                                                 | 10369.8484
+Asm 3                                                                 | 162.4414
+Big mining drill                                                      | 730.4946
+Chem plant                                                            | 2991.6532
+EMP                                                                   | 10.0000
+Foundry                                                               | 2034.6652
+Refinery                                                              | 1186.3793
+Qual                                                                  | 649.7657
+Recycler                                                              | 3.3589
+Speed                                                                 | 3815.8130

@@ -1,5 +1,6 @@
+package scripts.vulcanus
+
 import glassbricks.factorio.prototypes.RecipeID
-import glassbricks.factorio.recipes.Item
 import glassbricks.factorio.recipes.ResearchConfig
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.*
@@ -10,6 +11,7 @@ import glassbricks.recipeanalysis.perMinute
 import glassbricks.recipeanalysis.recipelp.textDisplay
 import glassbricks.recipeanalysis.recipelp.toThroughputGraph
 import glassbricks.recipeanalysis.writeDotGraph
+import scripts.*
 import java.io.File
 
 fun main() {
@@ -48,28 +50,7 @@ fun main() {
         output(steelPlate.withQuality(epic), rate = 60.perMinute)
 
         costs {
-            costOf(assemblingMachine2.item(), 1 + 1.0)
-            costOf(assemblingMachine3.item(), 3 + 1.0)
-            costOf(foundry.item(), 5 + 2.0)
-            costOf(recycler.item(), 10 + 1.0)
-            costOf(electromagneticPlant.item(), 100)
-            costOf(beacon.item(), 4 + 1.0)
-            costOf(bigMiningDrill.item(), 5 + 2)
-
-            //            val qualityCostMultiplier = 5.0
-            fun addQualityCost(item: Item, baseCost: Double) {
-                costOf(item, baseCost)
-                costOf(item.withQuality(uncommon), baseCost * 5)
-                costOf(item.withQuality(rare), baseCost * 5 * 4)
-                costOf(item.withQuality(epic), baseCost * 5 * 4 * 3)
-                costOf(item.withQuality(legendary), baseCost * 5 * 4 * 3 * 3)
-            }
-            for (module in module1s) {
-                addQualityCost(module, 1.0)
-            }
-            for (module in module2s) {
-                addQualityCost(module, 5.0)
-            }
+            vulcanusCosts1()
             forbidUnspecifiedModules()
         }
 

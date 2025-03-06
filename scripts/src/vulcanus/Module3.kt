@@ -1,4 +1,5 @@
-import glassbricks.factorio.recipes.Item
+package scripts.vulcanus
+
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.RecipesFirst
 import glassbricks.factorio.recipes.export.mergeItemsByQuality
@@ -11,6 +12,7 @@ import glassbricks.recipeanalysis.perMinute
 import glassbricks.recipeanalysis.recipelp.textDisplay
 import glassbricks.recipeanalysis.recipelp.toThroughputGraph
 import glassbricks.recipeanalysis.writeDotGraph
+import scripts.*
 import java.io.File
 
 fun main() {
@@ -46,19 +48,7 @@ fun main() {
         output(productivityModule3.withQuality(epic), rate = 1.perMinute)
 
         costs {
-            fun addQualityCost(item: Item, baseCost: Double) {
-                costOf(item, baseCost)
-                costOf(item.withQuality(uncommon), baseCost * 5)
-                costOf(item.withQuality(rare), baseCost * 5 * 4)
-                costOf(item.withQuality(epic), baseCost * 5 * 4 * 3)
-                costOf(item.withQuality(legendary), baseCost * 5 * 4 * 3 * 3)
-            }
-            for (module in module1s) {
-                addQualityCost(module, 1.0)
-            }
-            for (module in module2s) {
-                addQualityCost(module, 5.0)
-            }
+            vulcanusCosts1()
             forbidUnspecifiedModules()
         }
 
@@ -86,6 +76,3 @@ fun main() {
     File("output/module3.txt").writeText(display)
     File("output/module3.dot").writeDotGraph(graph)
 }
-
-// command to generate pdf from dot file
-// dot -Tpdf module2.dot -o module2.pdf

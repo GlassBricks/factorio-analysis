@@ -1,5 +1,7 @@
 @file:Suppress("unused")
 
+package scripts
+
 import glassbricks.factorio.recipes.*
 
 val WithFactorioPrototypes.recipeUnknown: Recipe get() = recipe("recipe-unknown")
