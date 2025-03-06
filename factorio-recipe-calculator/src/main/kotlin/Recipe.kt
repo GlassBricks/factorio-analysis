@@ -7,7 +7,7 @@ import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.Vector
 import java.util.*
 
-sealed interface RecipeOrResource<M : AnyMachine<*>> {
+sealed interface RecipeOrResource<out M : AnyMachine<*>> {
     val inputs: Vector<Ingredient>
     val outputs: Vector<Ingredient>
     val outputsToIgnoreProductivity: Vector<Ingredient>

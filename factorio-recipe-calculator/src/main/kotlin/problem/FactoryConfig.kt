@@ -8,63 +8,101 @@ import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.Vector
 import glassbricks.recipeanalysis.emptyVector
 import glassbricks.recipeanalysis.lp.VariableConfig
-import glassbricks.recipeanalysis.lp.VariableConfigBuilder
 import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.plus
 import glassbricks.recipeanalysis.recipelp.RealProcess
 
 @DslMarker
-annotation class RecipesConfigDsl
+annotation class FactoryConfigDsl
 
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
     val allProcesses: List<RealProcess>,
 ) : WithFactorioPrototypes
 
-data class MachineConfig(
-    val machine: AnyMachine<*>,
+data class SetupConfig(
     val includeBuildCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
-    val variableConfig: VariableConfig,
-    val outputVariableConfig: VariableConfig?,
-)
-
-class MachineConfigScope(
-    val prototypes: FactorioPrototypes,
-    val machine: BaseMachine<*>,
+    val costVariableConfig: VariableConfig?,
+    val lowerBound: Double,
+    val upperBound: Double,
+    val cost: Double,
+    val variableType: VariableType,
 ) {
-    val qualities = sortedSetOf(prototypes.defaultQuality)
+    operator fun plus(other: SetupConfig): SetupConfig = SetupConfig(
+        includeBuildCosts = includeBuildCosts || other.includeBuildCosts,
+        additionalCosts = additionalCosts + other.additionalCosts,
+        costVariableConfig = costVariableConfig ?: other.costVariableConfig,
+        lowerBound = maxOf(lowerBound, other.lowerBound),
+        upperBound = minOf(upperBound, other.upperBound),
+        cost = cost + other.cost,
+        variableType = when {
+            variableType == VariableType.Integer || other.variableType == VariableType.Integer -> VariableType.Integer
+            variableType == VariableType.SemiContinuous || other.variableType == VariableType.SemiContinuous -> VariableType.SemiContinuous
+            else -> VariableType.Continuous
+        }
+    )
 
-    var includeBuildCosts: Boolean = false
+    fun variableConfig(): VariableConfig = VariableConfig(
+        lowerBound = lowerBound,
+        upperBound = upperBound,
+        type = variableType,
+        cost = cost,
+    )
+}
+
+interface ISetupConfigBuilder {
+    var includeBuildCosts: Boolean
+    var additionalCosts: Vector<Symbol>
+    var outputVariableConfig: VariableConfig?
+
+    var lowerBound: Double
+    var upperBound: Double
+    var cost: Double
+    var type: VariableType
+
     fun includeBuildCosts() {
         includeBuildCosts = true
     }
+}
 
-    var additionalCosts: Vector<Symbol> = emptyVector()
-    var outputVariableConfig: VariableConfigBuilder? = null
+fun ISetupConfigBuilder.build(): SetupConfig = SetupConfig(
+    includeBuildCosts = includeBuildCosts,
+    additionalCosts = additionalCosts,
+    costVariableConfig = outputVariableConfig,
+    lowerBound = lowerBound,
+    upperBound = upperBound,
+    cost = cost,
+    variableType = type,
+)
 
-    /**
-     * Cost will either be applied to recipe variable or output variable, depending on if outputVariableConfig is set.
-     */
-    var cost: Double = DefaultWeights.RECIPE_COST
-    var lowerBound: Double = 0.0
-    var upperBound: Double = Double.POSITIVE_INFINITY
-    var type: VariableType = VariableType.Continuous
+class SetupConfigBuilder : ISetupConfigBuilder {
+    override var includeBuildCosts: Boolean = false
+    override var additionalCosts: Vector<Symbol> = emptyVector()
+    override var outputVariableConfig: VariableConfig? = null
 
-    /** When evaluating the _cost_ of using this recipe, the number of machines will be rounded up. */
-    fun integralCost() {
-        outputVariableConfig = VariableConfigBuilder(type = VariableType.Integer)
-    }
+    override var lowerBound: Double = 0.0
+    override var upperBound: Double = Double.POSITIVE_INFINITY
+    override var cost: Double = 0.0
+    override var type: VariableType = VariableType.Continuous
+}
 
-    /** When evaluating the _cost_ of using this recipe, the number of machines will be at minimum this value. */
-    fun semiContinuousCost(lowerBound: Double = 0.0) {
-        outputVariableConfig =
-            VariableConfigBuilder(type = VariableType.SemiContinuous, lowerBound = lowerBound)
-    }
+class MachineConfig(
+    val machine: AnyMachine<*>,
+    val setupConfig: SetupConfig,
+)
 
-    val moduleConfigs = mutableListOf<ModuleConfig>()
-    fun emptyModuleConfig() {
-        moduleConfigs += ModuleConfig()
+@FactoryConfigDsl
+class MachineConfigScope(
+    val machine: BaseMachine<*>,
+    override val prototypes: FactorioPrototypes,
+    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
+) : ISetupConfigBuilder by setupConfig, WithFactorioPrototypes {
+    var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
+    val moduleConfigs = mutableSetOf<ModuleConfig>(ModuleConfig())
+
+    fun noEmptyModules() {
+        moduleConfigs -= ModuleConfig()
     }
 
     fun moduleConfig(
@@ -79,122 +117,117 @@ class MachineConfigScope(
         )
     }
 
-    internal fun toMachineConfigs(): List<MachineConfig> {
-        val varConfigCost = if (outputVariableConfig != null) 0.0 else cost
-        val variableConfig = VariableConfig(
-            lowerBound = lowerBound,
-            upperBound = upperBound,
-            type = type,
-            cost = varConfigCost,
-        )
-        outputVariableConfig?.cost = cost
-        val outVarConfig = outputVariableConfig?.build()
-        return qualities.flatMap { quality ->
+    internal fun toMachineConfigs() = buildList {
+        val setupConfig = setupConfig.build()
+        for (quality in qualities) {
             val machine = machine.withQuality(quality)
-            val moduleConfigs = if (moduleConfigs.isEmpty()) listOf(ModuleConfig()) else moduleConfigs
-            moduleConfigs.mapNotNull { (modules, fill, beacons) ->
-                machine.withModulesOrNull(modules, fill, beacons)?.let {
-                    MachineConfig(
-                        machine = it,
-                        includeBuildCosts = includeBuildCosts,
-                        additionalCosts = additionalCosts,
-                        variableConfig = variableConfig,
-                        outputVariableConfig = outVarConfig,
-                    )
+            for (moduleConfig in moduleConfigs.ifEmpty { listOf(ModuleConfig()) }) {
+                val machineWithModules = machine.withModulesOrNull(moduleConfig)
+                if (machineWithModules != null) {
+                    add(MachineConfig(machineWithModules, setupConfig))
                 }
             }
         }
     }
-
 }
 
 typealias MachineConfigFn = MachineConfigScope.() -> Unit
 
-@RecipesConfigDsl
-class RecipeConfigScope(override val prototypes: FactorioPrototypes, val process: RecipeOrResource<*>) :
-    WithFactorioPrototypes {
-    val qualities = sortedSetOf(prototypes.defaultQuality)
-    var cost: Double = 0.0
+class RecipeConfig(
+    val recipe: RecipeOrResource<*>,
+    val setupConfig: SetupConfig,
+)
+
+@FactoryConfigDsl
+class RecipeConfigScope(
+    val process: RecipeOrResource<*>,
+    override val prototypes: FactorioPrototypes,
+    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
+) : ISetupConfigBuilder by setupConfig, WithFactorioPrototypes {
+    var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
     fun allQualities() {
-        qualities.addAll(prototypes.qualities)
+        this@RecipeConfigScope.qualities = qualities.toSet()
     }
 
-    fun setQualities(vararg qualities: Quality) {
-        this.qualities.clear()
-        this.qualities.addAll(qualities)
-    }
-
-    var additionalCosts: Vector<Symbol> = emptyVector()
-
-    val filters: MutableList<(MachineConfig) -> Boolean> = mutableListOf()
-
-    private var withQualitiesList: List<RecipeOrResource<*>>? = null
-    internal fun addCraftingSetups(
-        list: MutableList<in RealProcess>,
-        machine: MachineConfig,
-        config: ResearchConfig,
-    ) {
-        if (filters.any { !it(machine) }) return
-        withQualitiesList = withQualitiesList ?: qualities.mapNotNull { process.withQualityOrNull(it) }
-        for (quality in withQualitiesList!!) {
-            val machineSetup = machine.machine.processingOrNullCast(quality, config) ?: continue
-            val additionalCosts: Vector<Symbol> =
-                machine.additionalCosts + this.additionalCosts +
-                        (if (machine.includeBuildCosts) machineSetup.machine.getBuildCost(prototypes) else emptyVector())
-            val realProcess = RealProcess(
-                process = machineSetup,
-                additionalCosts = additionalCosts,
-                costVariableConfig = machine.outputVariableConfig,
-                variableConfig = machine.variableConfig.copy(
-                    cost = machine.variableConfig.cost + cost,
-                ),
-            )
-            list.add(realProcess)
+    internal fun toRecipeConfigs() = buildList {
+        val setupConfig = setupConfig.build()
+        for (quality in qualities) {
+            val recipe = process.withQualityOrNull(quality) ?: continue
+            add(RecipeConfig(recipe, setupConfig))
         }
     }
-
 }
 typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 
-@RecipesConfigDsl
+class ProcessConfigScope(
+    val process: MachineSetup<*>,
+    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
+) : ISetupConfigBuilder by setupConfig
+
+@FactoryConfigDsl
+abstract class ConfigScope<T, S>(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
+    var defaultConfig: (S.() -> Unit)? = null
+    val configs: MutableMap<T, MutableList<S.() -> Unit>> = mutableMapOf()
+    fun default(block: S.() -> Unit) {
+        defaultConfig = block
+    }
+
+    protected abstract fun createScope(item: T): S
+    open fun addConfig(item: T, block: (S.() -> Unit)? = null) {
+        val list = configs.getOrPut(item, ::ArrayList)
+        if (block != null) list += block
+    }
+
+    operator fun T.invoke(block: (S.() -> Unit)? = null) {
+        addConfig(this, block)
+    }
+
+    internal fun allScopes() = buildList {
+        for ((item, configs) in configs) {
+            val scope = createScope(item)
+            defaultConfig?.invoke(scope)
+            for (config in configs) {
+                config.invoke(scope)
+            }
+            add(scope)
+        }
+    }
+
+    internal fun scopeFor(item: T): S? {
+        if (defaultConfig == null && configs[item].isNullOrEmpty()) return null
+        val scope = createScope(item)
+        defaultConfig?.invoke(scope)
+        configs[item]?.forEach { it.invoke(scope) }
+        return scope
+    }
+}
+
+@FactoryConfigDsl
 class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
     val machines = MachinesScope()
     inline fun machines(block: MachinesScope.() -> Unit) = machines.block()
 
-    @RecipesConfigDsl
-    inner class MachinesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
-        var defaultConfig: MachineConfigFn? = null
-        val machineConfigs = mutableMapOf<BaseMachine<*>, MutableList<MachineConfigFn>>()
+    @FactoryConfigDsl
+    inner class MachinesScope : ConfigScope<BaseMachine<*>, MachineConfigScope>(prototypes) {
+        override fun createScope(item: BaseMachine<*>) = MachineConfigScope(item, prototypes)
 
-        fun default(block: MachineConfigFn) {
-            defaultConfig = block
-        }
-
-        operator fun BaseMachine<*>.invoke(block: MachineConfigFn? = null) {
-            val list = machineConfigs.getOrPut(this, ::ArrayList)
-            if (block != null) list += block
-        }
-
-        operator fun String.invoke(block: MachineConfigFn) {
-            machine(this)(block)
+        operator fun String.invoke(block: MachineConfigFn? = null) {
+            this@FactoryConfigBuilder.machine(this)(block)
         }
     }
 
     val recipes = RecipesScope()
     inline fun recipes(block: RecipesScope.() -> Unit) = recipes.block()
 
-    @RecipesConfigDsl
-    inner class RecipesScope : WithFactorioPrototypes by this@FactoryConfigBuilder {
-        var defaultRecipeConfig: RecipeConfigFn? = null
-        val recipeConfigs = mutableMapOf<RecipeOrResource<*>, MutableList<RecipeConfigFn>>()
-        fun default(block: RecipeConfigFn) {
-            defaultRecipeConfig = block
+    @FactoryConfigDsl
+    inner class RecipesScope : ConfigScope<RecipeOrResource<*>, RecipeConfigScope>(prototypes) {
+        init {
+            defaultConfig = {
+                cost = DefaultWeights.RECIPE_COST
+            }
         }
 
-        operator fun RecipeOrResource<*>.invoke(block: RecipeConfigFn? = null) {
-            val list = recipeConfigs.getOrPut(this, ::ArrayList)
-            if (block != null) list += block
-        }
+        override fun createScope(item: RecipeOrResource<*>): RecipeConfigScope = RecipeConfigScope(item, prototypes)
 
         operator fun Item.invoke(block: RecipeConfigFn? = null) {
             prototypes.recipeOf(this)(block)
@@ -216,21 +249,8 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
             }
         }
 
-        fun allRecycling(config: RecipeConfigFn = {}) {
-            allOfCategory("recycling", config)
-        }
-
-        fun mining(
-            vararg resources: String,
-            config: RecipeConfigFn? = null,
-        ) {
-            for (resource in resources) {
-                resource(resource)(config)
-            }
-        }
-
         fun remove(recipe: RecipeOrResource<*>) {
-            recipeConfigs.remove(recipe)
+            configs.remove(recipe)
         }
 
         fun remove(item: Item) {
@@ -242,52 +262,55 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
         }
     }
 
+    val setups = SetupScope()
+    inline fun setups(block: SetupScope.() -> Unit) = setups.block()
+
+    @FactoryConfigDsl
+    inner class SetupScope : ConfigScope<MachineSetup<*>, ProcessConfigScope>(prototypes) {
+        override fun createScope(item: MachineSetup<*>) = ProcessConfigScope(item)
+
+        override fun addConfig(item: MachineSetup<*>, block: (ProcessConfigScope.() -> Unit)?) {
+            this@FactoryConfigBuilder.machines.addConfig(item.machine.baseMachine())
+            this@FactoryConfigBuilder.recipes.addConfig(item.recipe)
+            super.addConfig(item, block)
+        }
+    }
+
     var researchConfig: ResearchConfig = ResearchConfig()
 
-    private fun getAllMachines(): List<MachineConfig> {
-        val machineScope = machines
-        return machineScope.machineConfigs.keys.flatMap {
-            MachineConfigScope(prototypes, it).apply {
-                machineScope.defaultConfig?.invoke(this)
-                machineScope.machineConfigs[it]?.forEach { it(this) }
-            }.toMachineConfigs()
-        }
-    }
-
-    private fun getAllRecipeConfigs(): List<RecipeConfigScope> {
-        val recipeScope = recipes
-        return recipeScope.recipeConfigs.keys.map { recipe ->
-            RecipeConfigScope(prototypes, recipe).apply {
-                recipeScope.defaultRecipeConfig?.invoke(this)
-                recipeScope.recipeConfigs[recipe]?.forEach { it(this) }
+    private fun getAllProcesses(): List<RealProcess> = buildList {
+        val machineConfigs = machines.allScopes().flatMap { it.toMachineConfigs() }
+        val recipeConfigs = recipes.allScopes().flatMap { it.toRecipeConfigs() }
+        val (crafting, mining) = recipeConfigs.partition { it.recipe is Recipe }
+        val craftingById = crafting.groupBy { (it.recipe as Recipe).prototype.category }
+        val miningById = mining.groupBy { (it.recipe as Resource).prototype.category }
+        for (machineConfig in machineConfigs) {
+            val machine = machineConfig.machine
+            val buildCost = machine.getBuildCost(prototypes)
+            val prototype = machine.prototype
+            val recipeConfigs = when (prototype) {
+                is CraftingMachinePrototype -> prototype.crafting_categories.flatMap { craftingById[it].orEmpty() }
+                is MiningDrillPrototype -> prototype.resource_categories.flatMap { miningById[it].orEmpty() }
+                else -> error("Unknown machine type: $prototype")
             }
-        }
-    }
+            for (recipeConfig in recipeConfigs) {
+                val setup = machine.processingOrNullCast(recipeConfig.recipe) ?: continue
 
-    private fun getAllProcesses(): List<RealProcess> {
-        val machines = getAllMachines()
-        val configs = getAllRecipeConfigs()
-        val (recipes, mining) = configs.partition { it.process is Recipe }
-        val recipeConfigs = recipes.groupBy { (it.process as Recipe).prototype.category }
-        val miningConfigs = mining.groupBy { (it.process as Resource).prototype.category }
-        return buildList {
-            for (machine in machines) {
-                val prototype = machine.machine.prototype
-                if (prototype is CraftingMachinePrototype) {
-                    for (category in prototype.crafting_categories) {
-                        val categoryConfigs = recipeConfigs[category] ?: continue
-                        for (config in categoryConfigs) {
-                            config.addCraftingSetups(this, machine, researchConfig)
-                        }
+                val setupConfigScope = setups.scopeFor(setup)
+                val config = (machineConfig.setupConfig + recipeConfig.setupConfig)
+                    .let {
+                        if (setupConfigScope != null) it + setupConfigScope.setupConfig.build()
+                        else it
                     }
-                } else if (prototype is MiningDrillPrototype) {
-                    for (category in prototype.resource_categories) {
-                        val categoryConfigs = miningConfigs[category] ?: continue
-                        for (config in categoryConfigs) {
-                            config.addCraftingSetups(this, machine, researchConfig)
-                        }
-                    }
-                } else error("Unknown machine type: $prototype")
+                val costs = config.additionalCosts + if (config.includeBuildCosts) buildCost else emptyVector()
+                add(
+                    RealProcess(
+                        process = setup,
+                        variableConfig = config.variableConfig(),
+                        additionalCosts = costs,
+                        costVariableConfig = config.costVariableConfig
+                    )
+                )
             }
         }
     }

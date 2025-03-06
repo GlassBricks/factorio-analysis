@@ -90,17 +90,7 @@ internal fun ProductionLp.createVarsAndConstraints(
         ?: maybeResolveReferenceVar(symbol, existingVars)?.also { symbolVariables[symbol] = it }
 
     val processVariables = allProcesses.associateWith { process ->
-        solver.addVariable(process.variableConfig).also { variable ->
-            val symbol = process.symbol
-            if (symbol != null) {
-                val existingVar = getExistingVar(symbol)
-                require(existingVar == null) {
-                    "Symbol $symbol is used in multiple processes. " +
-                            "Use an equality constraint instead if you want 2 recipes to have the same usage."
-                }
-                symbolVariables[symbol] = variable
-            }
-        }
+        solver.addVariable(process.variableConfig)
     }
     val processCostVariables = processVariables.mapValues { (process, processVar) ->
         process.costVariableConfig

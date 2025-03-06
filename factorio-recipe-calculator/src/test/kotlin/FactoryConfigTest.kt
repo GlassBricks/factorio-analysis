@@ -22,7 +22,6 @@ class FactoryConfigKtTest : FunSpec({
         val config = SpaceAge.factory {
             machines {
                 default {
-                    emptyModuleConfig()
                     moduleConfig(speed1, fill = speed2)
                     cost = 1.2
                 }
@@ -34,12 +33,9 @@ class FactoryConfigKtTest : FunSpec({
                 }
             }
             recipes {
-                default {
-                }
+                default {}
                 "advanced-circuit" {
-                    qualities.clear()
-                    qualities += uncommon
-                    qualities += rare
+                    qualities = setOf(uncommon, rare)
                 }
                 "transport-belt" {}
             }
@@ -115,6 +111,7 @@ class FactoryConfigKtTest : FunSpec({
             machines {
                 default { includeBuildCosts = true }
                 asm2 {
+                    noEmptyModules()
                     moduleConfig(fill = speed2)
                 }
             }
@@ -130,6 +127,23 @@ class FactoryConfigKtTest : FunSpec({
             speed2 to 2.0,
             symbol1 to 1.0
         )
+    }
+
+    test("setup config") {
+        val config = SpaceAge.factory {
+            recipes {
+                default {
+                    cost = 0.0
+                }
+            }
+            setups {
+                (machine("assembling-machine-2").processing(recipe("advanced-circuit"))) {
+                    cost += 10.0
+                }
+            }
+        }
+        val recipe = config.allProcesses.single()
+        recipe.variableConfig.cost shouldBe 10.0
     }
 }), WithFactorioPrototypes {
     override val prototypes: FactorioPrototypes get() = SpaceAge

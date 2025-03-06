@@ -13,7 +13,7 @@ import java.util.*
  * - Mining drills
  * Possibly more in the future
  */
-interface AnyMachine<P : MachinePrototype> : WithEffects, WithBuildCost {
+sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCost {
     val prototype: P
     val baseCraftingSpeed: Double
     val modulesUsed: Iterable<Module>
@@ -22,6 +22,11 @@ interface AnyMachine<P : MachinePrototype> : WithEffects, WithBuildCost {
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
     val moduleSet: ModuleSet?
+}
+
+fun <P : MachinePrototype> AnyMachine<P>.baseMachine(): BaseMachine<*> = when (this) {
+    is BaseMachine<*> -> this
+    is MachineWithModules<*> -> this.machine
 }
 
 val AnyMachine<*>.finalCraftingSpeed get() = baseCraftingSpeed * effects.speedMultiplier

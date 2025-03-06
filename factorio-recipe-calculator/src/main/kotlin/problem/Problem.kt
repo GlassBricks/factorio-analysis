@@ -23,7 +23,7 @@ object DefaultWeights {
     const val SURPLUS_COST: Double = 1e-4
 }
 
-@RecipesConfigDsl
+@FactoryConfigDsl
 class ProblemBuilder(
     override val prototypes: FactorioPrototypes,
     factoryConfig: FactoryConfig? = null,
@@ -87,7 +87,7 @@ class ProblemBuilder(
         CostsScope().apply(block)
     }
 
-    @RecipesConfigDsl
+    @FactoryConfigDsl
     inner class CostsScope : WithFactorioPrototypes by this@ProblemBuilder {
 
         fun getConfig(symbol: Symbol): VariableConfigBuilder {

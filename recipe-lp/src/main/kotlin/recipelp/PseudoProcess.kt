@@ -22,14 +22,12 @@ interface PseudoProcess {
      * Additional costs will be associated with this variable, not the recipe's variable.
      */
     val costVariableConfig: VariableConfig?
-    val symbol: Symbol?
 }
 
 private fun StringBuilder.commonToString(process: PseudoProcess) {
-//    if (process.variableConfig != VariableConfig()) append(", variableConfig=").append(process.variableConfig)
-//    if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
-//    if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
-    if (process.symbol != null) append(", symbol=").append(process.symbol)
+    if (process.variableConfig != VariableConfig()) append(", variableConfig=").append(process.variableConfig)
+    if (process.additionalCosts.isNotEmpty()) append(", additionalCosts=").append(process.additionalCosts)
+    if (process.costVariableConfig != null) append(", costVariableConfig=").append(process.costVariableConfig)
 }
 
 class RealProcess(
@@ -37,7 +35,6 @@ class RealProcess(
     override val variableConfig: VariableConfig = VariableConfig(),
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val costVariableConfig: VariableConfig? = null,
-    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
 
@@ -54,7 +51,6 @@ class Input(
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val costVariableConfig: VariableConfig? = null,
-    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = vectorOfWithUnits(ingredient to 1.0)
     override fun toString(): String = buildString {
@@ -70,7 +66,6 @@ class Output(
     override val variableConfig: VariableConfig,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
     override val costVariableConfig: VariableConfig? = null,
-    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     init {
         require(variableConfig.cost <= 0.0) { "Output cost must be negative (to optimize for!)" }
@@ -92,7 +87,6 @@ class CustomProcess(
     override val variableConfig: VariableConfig,
     override val costVariableConfig: VariableConfig? = null,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
-    override val symbol: Symbol? = null,
 ) : PseudoProcess {
     override fun toString(): String = buildString {
         append("CustomProcess(")
@@ -109,9 +103,8 @@ class CustomProcessBuilder(val name: String) {
     var symbol: Symbol? = null
     fun build(): CustomProcess = CustomProcess(
         name = name,
-        symbol = symbol,
         ingredientRate = ingredientRate,
         additionalCosts = additionalCosts,
-        variableConfig = variableConfig.build(),
+        variableConfig = variableConfig.build()
     )
 }
