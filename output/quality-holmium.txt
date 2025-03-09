@@ -1,0 +1,105 @@
+Inputs:
+
+Outputs:
+Holmium plate(Q4) | 1.0000/s
+
+Recipes:
+EMP --> EMP[Qual 3(Q2) x5]                                              | 3.7576
+EMP recycling --> Recycler[Qual 3(Q3) x4]                               | 1.1097
+EMP recycling(Q2) --> Recycler[Qual 3(Q4) x4]                           | 0.3149
+EMP recycling(Q3) --> Recycler[Qual 3(Q5) x4]                           | 0.0844
+EMP recycling(Q4) --> Recycler[Speed x4, Beacon[Speed 3 x2] x2]         | 0.0032
+EMP(Q2) --> EMP[Qual 3(Q3) x5]                                          | 0.4432
+EMP(Q3) --> EMP[Qual 2(Q5) x5]                                          | 0.1416
+Holmium plate --> Foundry[Prod 2(Q3) x4, Beacon[Speed 3 x2] x8]         | 1.7266
+Holmium solution --> Chem plant[Prod 2 x3, Beacon[Speed 3 x2] x2]       | 20.0909
+Ice melting --> Chem plant[Speed x3, Beacon[Speed 2 x2]]                | 5.2781
+Iron gear wheel recycling --> Recycler[Speed x4, Beacon[Speed 3 x2] x2] | 0.2643
+Iron stick --> Asm 2[Speed x2, Beacon[Speed 2 x2]]                      | 2.4029
+Refined concrete --> Asm 2[Speed x2, Beacon[Speed 2 x2]]                | 18.0216
+Scrap --> Big mining drill[Speed x4, Beacon[Speed 3 x2] x3]             | 51.7408
+Scrap recycling --> Recycler[Speed x4, Beacon[Speed 3 x2] x2]           | 115.6249
+
+
+Throughputs:
+RC                   | (+33.9937/s)
+Battery              | (+45.3250/s)
+Concrete             | 67.9875/s (+26.537771)
+Copper cable         | (+33.9937/s)
+EMP                  | 0.7102/s
+EMP(Q4)              | 0.0102/s
+EMP(Q5)              | (+0.0011/s)
+EMP(Q3)              | 0.0540/s
+EMP(Q2)              | 0.2015/s
+Holmium ore          | 11.3312/s
+Holmium plate        | 84.5452/s
+Holmium plate(Q4)    | 1.0000/s
+Holmium plate(Q5)    | (+0.0687/s)
+Holmium plate(Q3)    | 3.1852/s
+Holmium plate(Q2)    | 9.9711/s
+Holmium solution     | 668.5434/s
+Ice                  | 56.6562/s (+43.460985)
+Iron gear wheel      | 226.6249/s (+210.045001)
+Iron plate           | 8.2899/s
+Iron stick           | 16.5799/s
+LDS                  | (+11.3312/s)
+BC                   | 30.1194/s (+1.937641)
+BC(Q4)               | (+0.3333/s)
+BC(Q5)               | (+0.0229/s)
+BC(Q3)               | 1.0617/s
+BC(Q2)               | 3.3237/s
+Refined concrete     | 28.1817/s
+Refined concrete(Q4) | (+0.3333/s)
+Refined concrete(Q5) | (+0.0229/s)
+Refined concrete(Q3) | 1.0617/s
+Refined concrete(Q2) | 3.3237/s
+Scrap                | 1133.1244/s
+Solid fuel           | (+79.3187/s)
+Steel plate          | 52.7819/s (+22.527645)
+Steel plate(Q4)      | (+0.3333/s)
+Steel plate(Q5)      | (+0.0229/s)
+Steel plate(Q3)      | 1.0617/s
+Steel plate(Q2)      | 3.3237/s
+Stone                | 45.3250/s (+39.659354)
+Water                | 263.9047/s
+
+Surpluses:
+RC                   | 33.9937/s
+Battery              | 45.3250/s
+Concrete             | 26.5378/s
+Copper cable         | 33.9937/s
+EMP(Q5)              | 0.0011/s
+Holmium plate(Q5)    | 0.0687/s
+Ice                  | 43.4610/s
+Iron gear wheel      | 210.0450/s
+LDS                  | 11.3312/s
+BC                   | 1.9376/s
+BC(Q4)               | 0.3333/s
+BC(Q5)               | 0.0229/s
+Refined concrete(Q4) | 0.3333/s
+Refined concrete(Q5) | 0.0229/s
+Solid fuel           | 79.3187/s
+Steel plate          | 22.5276/s
+Steel plate(Q4)      | 0.3333/s
+Steel plate(Q5)      | 0.0229/s
+Stone                | 39.6594/s
+
+Symbols used:
+ElectricPower    | 5917118.3683
+Asm 2            | 20.4245
+Beacon           | 78.9352
+Big mining drill | 51.7408
+Chem plant       | 25.3690
+EMP              | 4.3423
+Foundry          | 1.7266
+Prod 2           | 60.2726
+Prod 2(Q3)       | 6.9064
+Qual 2(Q5)       | 0.7078
+Qual 3(Q4)       | 1.2595
+Qual 3(Q5)       | 0.3376
+Qual 3(Q3)       | 6.6544
+Qual 3(Q2)       | 18.7878
+Recycler         | 117.4014
+Speed            | 727.2167
+Speed 2          | 8.5675
+Speed 3          | 149.3029

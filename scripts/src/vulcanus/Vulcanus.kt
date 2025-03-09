@@ -21,15 +21,7 @@ fun FactoryConfigBuilder.vulcanusMachines(
         default {
             includeBuildCosts()
             includePowerCosts()
-            for (module in modules) {
-                moduleConfig(fill = module)
-                if (module.effects.quality <= 0) {
-                    for (beaconConfig in beacons) {
-                        moduleConfig(beacons = beaconConfig)
-                        moduleConfig(fill = module, beacons = beaconConfig)
-                    }
-                }
-            }
+            moduleConfigWithBeacons(modules, beacons)
         }
         assemblingMachine3()
         assemblingMachine2()

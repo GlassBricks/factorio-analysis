@@ -1,0 +1,50 @@
+Inputs:
+Sulfuric acid | 4978.4745/s
+Lava          | 33333.3333/s
+
+Outputs:
+
+Recipes:
+Acid neutralisation --> Chem plant[, Beacon[Speed x2]]                     | 15.5577
+Calcite --> Big mining drill[, Beacon[Speed 3 x2]]                         | 11.4632
+Casting copper cable --> Foundry[, Beacon[Speed 3 x2]]                     | 250.0000
+Casting iron --> Foundry[, Beacon[Speed 3 x2]]                             | 200.0000
+Decider combinator --> Asm 2[, Beacon[Speed x2]]                           | 208.3333
+Decider combinator recycling --> Recycler[Speed x4, Beacon[Speed 3 x2] x2] | 7.9719
+GC --> Asm 2[, Beacon[Speed x2]]                                           | 781.2500
+Landfill --> Asm 2[, Beacon[Speed x2]]                                     | 10.4167
+Molten copper from lava --> Foundry[, Beacon[Speed 3 x2]]                  | 53.3333
+Molten iron from lava --> Foundry[, Beacon[Speed 3 x2]]                    | 53.3333
+
+
+Other processes:
+CustomProcess(steam turbine power) | 829.7457
+
+Throughputs:
+Calcite            | 71.6451/s
+Copper cable       | 8125.0000/s
+Decider combinator | 500.0000/s
+GC                 | 2500.0000/s
+Iron plate         | 1875.0000/s
+Landfill           | (+25.0000/s)
+Lava               | 33333.3333/s
+Molten copper      | 12500.0000/s
+Molten iron        | 12500.0000/s
+Steam              | 49784.7447/s
+Stone              | 1250.0000/s
+Sulfuric acid      | 4978.4745/s
+
+Surpluses:
+Landfill | 25.0000/s
+
+Symbols used:
+Symbol(gcProduced) | 2500.0000
+Asm 2              | 1000.0000
+Beacon             | 199.9539
+Big mining drill   | 11.4632
+Chem plant         | 15.5577
+Foundry            | 556.6667
+Recycler           | 7.9719
+Speed              | 285.7772
+Speed 3            | 146.0184
+Steam turbine      | 829.7457

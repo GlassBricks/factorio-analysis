@@ -1,0 +1,114 @@
+package scripts.fulgora
+
+import glassbricks.factorio.recipes.Module
+import glassbricks.factorio.recipes.ResearchConfig
+import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.WithBeaconCount
+import glassbricks.factorio.recipes.problem.FactoryConfigBuilder
+import glassbricks.factorio.recipes.problem.ProblemBuilder
+import glassbricks.factorio.recipes.problem.factory
+import scripts.*
+import scripts.vulcanus.vulcanusMachines
+
+val defaultFulgoraBeaconConfig = with(SpaceAge) {
+    listOf(speedModule2, speedModule3)
+        .flatMap { beaconsWithSharing(it) }
+        .map { listOf(it) }
+}
+
+val fulgoraQualityMultipliers = listOf(
+    4.0,
+    3.8,
+    3.8,
+    3.8
+)
+
+fun FactoryConfigBuilder.fulgoraMachines(
+    modules: List<Module> = nonEffModulesAllQualities
+        .filter { it.prototype != productivityModule3.prototype },
+    beacons: List<List<WithBeaconCount>> = defaultFulgoraBeaconConfig,
+) {
+    // same machines, different cost
+    vulcanusMachines(modules, beacons)
+    machines {
+        bigMiningDrill {
+            moduleConfigs.removeIf {
+                it.beacons.sumOf { it.beaconCount.count } >= 4
+            }
+        }
+    }
+//    machines {
+//        default {
+//            includeBuildCosts()
+//            includePowerCosts()
+//            for (module in modules) {
+//                moduleConfig(fill = module)
+//                if (module.effects.quality <= 0) {
+//                    for (beaconConfig in beacons) {
+//                        moduleConfig(beacons = beaconConfig)
+//                        moduleConfig(fill = module, beacons = beaconConfig)
+//                    }
+//                }
+//            }
+//        }
+//        assemblingMachine2()
+//        assemblingMachine3()
+//        chemicalPlant()
+//        foundry()
+//        bigMiningDrill()
+//        electricFurnace()
+//        recycler()
+//        electricFurnace()
+//    }
+}
+
+fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() {
+    for (module in module1s) {
+        addQualityCosts(module, 1.0, fulgoraQualityMultipliers)
+    }
+    for (module in module2s) {
+        addQualityCosts(module, 7.0 / 1.5, fulgoraQualityMultipliers)
+    }
+    addQualityCosts(speedModule3, (6.5 / 1.5) * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
+    addQualityCosts(qualityModule3, (6.5 / 1.5) * 4.5 / 1.5, fulgoraQualityMultipliers)
+}
+
+fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() {
+    costOf(assemblingMachine2, 10.0)
+    costOf(assemblingMachine3, 40.0)
+    costOf(chemicalPlant, 10.0)
+//    costOf(oilRefinery, 15.0)
+    costOf(foundry, 400)
+    costOf(bigMiningDrill, 0) // cost to be set by outside instead
+    costOf(electricFurnace, 10.0)
+    costOf(beacon, 10.0)
+    costOf(recycler, 30.0)
+    costOf(electromagneticPlant, 50.0)
+}
+
+fun fulgoraFactory1(scrapCost: Number, config: FactoryConfigBuilder.() -> Unit = {}) = SpaceAge.factory {
+    fulgoraMachines()
+    recipes {
+        default {
+            allQualities()
+            cost = 0.0
+        }
+        allCraftingRecipes()
+        scrapMining {
+            cost = scrapCost.toDouble()
+        }
+    }
+    researchConfig = ResearchConfig(
+        miningProductivity = 0.2
+    )
+    config()
+}
+
+fun ProblemBuilder.fulgoraConfig1() {
+    input(heavyOil, cost = 0.0)
+    costs {
+        fulgoraMachineCosts1()
+        fulgoraModuleCosts1()
+        forbidAllUnspecified()
+    }
+}

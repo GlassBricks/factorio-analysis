@@ -4,11 +4,9 @@ package scripts
 
 import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.export.*
+import glassbricks.factorio.recipes.problem.MachineConfigScope
 import glassbricks.factorio.recipes.problem.ProblemBuilder
-import glassbricks.recipeanalysis.recipelp.ProductionStage
-import glassbricks.recipeanalysis.recipelp.RecipeSolution
-import glassbricks.recipeanalysis.recipelp.textDisplay
-import glassbricks.recipeanalysis.recipelp.toThroughputGraph
+import glassbricks.recipeanalysis.recipelp.*
 import glassbricks.recipeanalysis.writeDotGraph
 import java.io.File
 
@@ -54,6 +52,11 @@ fun printAndExportSolution(pathPrefix: String, solution: RecipeSolution) {
         mergeRecipesByQuality()
     }.toFancyDotGraph()
     dotFile.writeDotGraph(graph)
+}
+
+fun printAndExportSolution(pathPrefix: String, result: RecipeResult) {
+    println(result.status)
+    result.solution?.let { printAndExportSolution(pathPrefix, it) }
 }
 
 val module1s = SpaceAge.run {
@@ -121,5 +124,20 @@ fun ProblemBuilder.CostsScope.addQualityCosts(
     for ((mult, quality) in (listOf(1.0) + multipliers).zip(prototypes.qualities)) {
         curCost *= mult
         costOf(item.withQuality(quality), curCost)
+    }
+}
+
+fun MachineConfigScope.moduleConfigWithBeacons(
+    modules: List<Module>,
+    beacons: List<List<WithBeaconCount>>,
+) {
+    for (module in modules) {
+        moduleConfig(fill = module)
+        if (module.effects.quality <= 0) {
+            for (beaconConfig in beacons) {
+                moduleConfig(beacons = beaconConfig)
+                moduleConfig(fill = module, beacons = beaconConfig)
+            }
+        }
     }
 }
