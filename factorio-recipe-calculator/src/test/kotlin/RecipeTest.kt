@@ -84,6 +84,6 @@ class RecipeTest : FunSpec({
         emp.canProcess(plateCasting) shouldBe false
         furnace.canProcess(plateCasting) shouldBe false
     }
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge
 }

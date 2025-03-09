@@ -39,6 +39,6 @@ class MachineTest : FunSpec({
         val plant = craftingMachine("assembling-machine-2")
         plant.withModulesOrNull(speed1, speed1, speed1) shouldBe null
     }
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge
 }

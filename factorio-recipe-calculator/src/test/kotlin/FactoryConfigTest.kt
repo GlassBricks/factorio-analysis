@@ -145,6 +145,6 @@ class FactoryConfigKtTest : FunSpec({
         val recipe = config.allProcesses.single()
         recipe.variableConfig.cost shouldBe 10.0
     }
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes: FactorioPrototypes get() = SpaceAge
 }

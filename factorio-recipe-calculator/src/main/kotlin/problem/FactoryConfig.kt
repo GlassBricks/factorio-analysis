@@ -15,7 +15,7 @@ annotation class FactoryConfigDsl
 class FactoryConfig(
     override val prototypes: FactorioPrototypes,
     val allProcesses: List<RealProcess>,
-) : WithFactorioPrototypes
+) : FactorioPrototypesScope
 
 data class SetupConfig(
     val includeBuildCosts: Boolean,
@@ -103,7 +103,7 @@ class MachineConfigScope(
     val machine: BaseMachine<*>,
     override val prototypes: FactorioPrototypes,
     val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
-) : ISetupConfigBuilder by setupConfig, WithFactorioPrototypes {
+) : ISetupConfigBuilder by setupConfig, FactorioPrototypesScope {
     var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
     val moduleConfigs = mutableSetOf<ModuleConfig>(ModuleConfig())
 
@@ -149,7 +149,7 @@ class RecipeConfigScope(
     val process: RecipeOrResource<*>,
     override val prototypes: FactorioPrototypes,
     val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
-) : ISetupConfigBuilder by setupConfig, WithFactorioPrototypes {
+) : ISetupConfigBuilder by setupConfig, FactorioPrototypesScope {
     var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
     fun allQualities() {
         qualities = prototypes.qualities.toSet()
@@ -171,7 +171,7 @@ class ProcessConfigScope(
 ) : ISetupConfigBuilder by config
 
 @FactoryConfigDsl
-abstract class ConfigScope<T, S>(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
+abstract class ConfigScope<T, S>(override val prototypes: FactorioPrototypes) : FactorioPrototypesScope {
     var defaultConfig: (S.() -> Unit)? = null
     val configs: MutableMap<T, MutableList<S.() -> Unit>> = mutableMapOf()
     fun default(block: S.() -> Unit) {
@@ -209,7 +209,7 @@ abstract class ConfigScope<T, S>(override val prototypes: FactorioPrototypes) : 
 }
 
 @FactoryConfigDsl
-class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
+class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : FactorioPrototypesScope {
     val machines = MachinesScope()
     inline fun machines(block: MachinesScope.() -> Unit) = machines.block()
 
@@ -326,7 +326,7 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
     fun build(): FactoryConfig = FactoryConfig(prototypes, allProcesses = getAllProcesses())
 }
 
-inline fun WithFactorioPrototypes.factory(block: FactoryConfigBuilder.() -> Unit): FactoryConfig {
+inline fun FactorioPrototypesScope.factory(block: FactoryConfigBuilder.() -> Unit): FactoryConfig {
     val builder = FactoryConfigBuilder(prototypes)
     builder.block()
     return builder.build()

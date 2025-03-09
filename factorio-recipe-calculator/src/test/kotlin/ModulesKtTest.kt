@@ -162,6 +162,6 @@ class ModulesKtTest : FunSpec({
         }
     }
 
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes: FactorioPrototypes get() = SpaceAge
 }

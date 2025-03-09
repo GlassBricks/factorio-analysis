@@ -171,7 +171,7 @@ class MachineSetupTest : FunSpec({
 
         setup.cycleOutputs.round1e6() shouldBe rateVector(item("iron-chest").withQuality(legendary) to 1.0)
     }
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge
 }
 

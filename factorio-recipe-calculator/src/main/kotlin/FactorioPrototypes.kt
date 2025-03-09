@@ -2,7 +2,7 @@ package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
 
-class FactorioPrototypes(dataRaw: DataRaw) : WithFactorioPrototypes, IngredientsMap {
+class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, IngredientsMap {
     override val prototypes: FactorioPrototypes get() = this
 
     val qualityMap = loadQualities(dataRaw.quality)
@@ -46,7 +46,7 @@ class FactorioPrototypes(dataRaw: DataRaw) : WithFactorioPrototypes, Ingredients
     override fun get(fluidID: FluidID): Fluid = fluids.getValue(fluidID.value)
 }
 
-interface WithFactorioPrototypes {
+interface FactorioPrototypesScope {
     val prototypes: FactorioPrototypes
 
     fun quality(name: String): Quality = prototypes.qualityMap[name] ?: error("Quality $name not found")
@@ -79,7 +79,7 @@ interface WithFactorioPrototypes {
     }
 }
 
-val WithFactorioPrototypes.qualities get() = prototypes.qualities
+val FactorioPrototypesScope.qualities get() = prototypes.qualities
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }
 

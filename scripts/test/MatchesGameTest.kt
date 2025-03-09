@@ -33,7 +33,7 @@ class MatchesGameTest : StringSpec({
             speedModule3 to 2.0
         )
     }
-}), WithFactorioPrototypes by SpaceAge
+}), FactorioPrototypesScope by SpaceAge
 
 fun beNear(number: Double, epsilon: Double = 1e-6): Matcher<Number> = object : Matcher<Number> {
     override fun test(value: Number) = object : MatcherResult {

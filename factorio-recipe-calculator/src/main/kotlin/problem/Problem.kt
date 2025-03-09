@@ -2,7 +2,7 @@ package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.Entity
 import glassbricks.factorio.recipes.FactorioPrototypes
-import glassbricks.factorio.recipes.WithFactorioPrototypes
+import glassbricks.factorio.recipes.FactorioPrototypesScope
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Rate
 import glassbricks.recipeanalysis.Symbol
@@ -27,7 +27,7 @@ object DefaultWeights {
 class ProblemBuilder(
     override val prototypes: FactorioPrototypes,
     factoryConfig: FactoryConfig? = null,
-) : WithFactorioPrototypes {
+) : FactorioPrototypesScope {
     constructor(factoryConfig: FactoryConfig) : this(factoryConfig.prototypes, factoryConfig)
 
     var factory: FactoryConfig? = factoryConfig
@@ -88,7 +88,7 @@ class ProblemBuilder(
     }
 
     @FactoryConfigDsl
-    inner class CostsScope : WithFactorioPrototypes by this@ProblemBuilder {
+    inner class CostsScope : FactorioPrototypesScope by this@ProblemBuilder {
 
         fun varConfig(symbol: Symbol): VariableConfigBuilder {
             return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
@@ -175,7 +175,7 @@ class ProblemBuilder(
     )
 }
 
-inline fun WithFactorioPrototypes.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
+inline fun FactorioPrototypesScope.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
     ProblemBuilder(prototypes).apply(block).build()
 
 inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
