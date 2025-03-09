@@ -4,15 +4,15 @@ import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.perMinute
-import scripts.heatExchanger
 import scripts.legendary
 import scripts.printAndExportSolution
 import scripts.qualityModule3
+import scripts.undergroundBelt
 
 fun main(): Unit = with(SpaceAge) {
-    val factory = fulgoraFactory1(scrapCost = 100) {
+    val factory = fulgoraFactory1(scrapCost = 150) {
         recipes {
-            remove(heatExchanger) // wants like 0.05 of it, not worth the complexity
+            remove(undergroundBelt) // wants like 0.05 of it, not worth the complexity
         }
     }
     val problem = factory.problem {

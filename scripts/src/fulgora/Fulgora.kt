@@ -63,14 +63,15 @@ fun FactoryConfigBuilder.fulgoraMachines(
 }
 
 fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() {
+    val baseModuleCost = 5.0
     for (module in module1s) {
-        addQualityCosts(module, 1.0, fulgoraQualityMultipliers)
+        addQualityCosts(module, baseModuleCost, fulgoraQualityMultipliers)
     }
     for (module in module2s) {
-        addQualityCosts(module, 7.0 / 1.5, fulgoraQualityMultipliers)
+        addQualityCosts(module, baseModuleCost * 6 / 1.5, fulgoraQualityMultipliers)
     }
-    addQualityCosts(speedModule3, (6.5 / 1.5) * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
-    addQualityCosts(qualityModule3, (6.5 / 1.5) * 4.5 / 1.5, fulgoraQualityMultipliers)
+    addQualityCosts(speedModule3, (baseModuleCost * 6 / 1.5) * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
+    addQualityCosts(qualityModule3, (baseModuleCost * 6 / 1.5) * 4.5 / 1.5, fulgoraQualityMultipliers)
 }
 
 fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() {
@@ -81,9 +82,9 @@ fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() {
     costOf(foundry, 400)
     costOf(bigMiningDrill, 0) // cost to be set by outside instead
     costOf(electricFurnace, 10.0)
-    costOf(beacon, 10.0)
+    costOf(beacon, 25.0)
     costOf(recycler, 30.0)
-    costOf(electromagneticPlant, 50.0)
+    costOf(electromagneticPlant, 100.0)
 }
 
 fun fulgoraFactory1(scrapCost: Number, config: FactoryConfigBuilder.() -> Unit = {}) = SpaceAge.factory {
