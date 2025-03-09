@@ -6,16 +6,13 @@ import glassbricks.factorio.recipes.parseEnergy
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
 import glassbricks.factorio.recipes.withModules
-import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.div
+import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
-import glassbricks.recipeanalysis.vectorOf
-import glassbricks.recipeanalysis.vectorOfWithUnits
 import scripts.*
 import kotlin.time.Duration.Companion.hours
 
+val GcProduced = Symbol("gcProduced")
 fun main(): Unit = with(SpaceAge) {
-    val gcProducedSymbol = Symbol("gcProduced")
     val vulcanusFactory = factory {
         val modules = listOf(
             speedModule,
@@ -65,6 +62,7 @@ fun main(): Unit = with(SpaceAge) {
             assemblingMachine3 { moduleSetConfigs.removeIf { it.beacons.isEmpty() } }
         }
         recipes {
+            electronicCircuit()
             allCraftingRecipes()
             calciteMining()
             coalMining { cost = 70.0 }
@@ -73,22 +71,19 @@ fun main(): Unit = with(SpaceAge) {
             // apparently infinity pipes have a recipe...
             remove(infinityPipe)
         }
-        TODO()
-//        setups.default {
-//            val gcOutput = this.setup.netRate.sumOf { (ingredient, rate) ->
-//                if (ingredient is Item && ingredient.prototype == electronicCircuit.prototype) rate else 0.0
-//            }
-//            if (gcOutput > 0.0) {
-//                additionalCosts += vectorOf(gcProducedSymbol to gcOutput)
-//            }
-//        }
+        extraConfig {
+            // ignore quality gcs for now
+            val gcOutput = this.setup.toProcess().netRate[electronicCircuit]
+            if (gcOutput > 0.0) {
+                additionalCosts += vectorOf(GcProduced to gcOutput)
+            }
+        }
     }
 
-//    val targetRate = 18e6 / 3.hours
     val targetRate = 18e6 / 2.hours
 
     val production = vulcanusFactory.problem {
-        input(lava, cost = 0.0)
+        input(lava, cost = 1.0)
         input(sulfuricAcid, cost = 0.001)
 
         // hack to get power costs working
@@ -100,7 +95,7 @@ fun main(): Unit = with(SpaceAge) {
         surplusCost = 0.1
         costs {
             // at least 20MGC produced somehow
-            varConfig(gcProducedSymbol).apply {
+            varConfig(GcProduced).apply {
                 lowerBound = targetRate.ratePerSecond
             }
             // all power must be produced

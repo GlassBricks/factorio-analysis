@@ -12,7 +12,8 @@ data class FactoryConfig(
     val research: ResearchConfig,
     val machines: Map<BaseMachine<*>, MachineConfig>,
     val recipes: Map<RecipeOrResource<*>, RecipeConfig>,
-    val setups: Map<MachineSetup<*>, SetupConfig>,
+    val setups: Map<MachineSetup<*>, ProcessConfig>,
+    val additionalConfigFn: ((MachineSetup<*>) -> ProcessConfig?)?,
 ) {
 
     fun getAllProcesses(): List<RealProcess> {
@@ -36,9 +37,10 @@ data class FactoryConfig(
                 .flatMap { recipe ->
                     val recipeConfig = recipes[recipe]!!
 
-                    val setupConfig =
-                        machineConfig.setupConfig + recipeConfig.setupConfig + setups[MachineSetup(machine, recipe)]
-                    val baseAdditionalCosts = setupConfig.additionalCosts
+                    val setup = MachineSetup(machine, recipe)
+                    val setupConfig: ProcessConfig =
+                        machineConfig.processConfig + recipeConfig.processConfig + setups[setup] +
+                                additionalConfigFn?.invoke(setup)
 
                     val installedMachines =
                         machineConfig.moduleSets.filter { recipe.acceptsModules(it) }
@@ -50,13 +52,13 @@ data class FactoryConfig(
 
                     machinesWithQuality.stream().flatMap { machineWithQuality ->
                         val additionalCosts = buildVector {
+                            this += setupConfig.additionalCosts
                             if (setupConfig.includeBuildCosts) {
                                 this += machineWithQuality.getBuildCost(prototypes)
                             }
                             if (setupConfig.includePowerCosts) {
                                 this[ElectricPower] = machineWithQuality.powerUsage
                             }
-                            this += baseAdditionalCosts
                         }
 
                         recipesWithQuality.stream().map { recipeWithQuality ->
@@ -74,7 +76,7 @@ data class FactoryConfig(
     }
 }
 
-data class SetupConfig(
+data class ProcessConfig(
     val includeBuildCosts: Boolean,
     val includePowerCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
@@ -84,7 +86,7 @@ data class SetupConfig(
     val cost: Double,
     val variableType: VariableType,
 ) {
-    operator fun plus(other: SetupConfig?): SetupConfig = if (other == null) this else SetupConfig(
+    operator fun plus(other: ProcessConfig?): ProcessConfig = if (other == null) this else ProcessConfig(
         includeBuildCosts = includeBuildCosts || other.includeBuildCosts,
         includePowerCosts = includePowerCosts || other.includePowerCosts,
         additionalCosts = additionalCosts + other.additionalCosts,
@@ -108,12 +110,12 @@ data class SetupConfig(
 }
 
 data class MachineConfig(
-    val setupConfig: SetupConfig,
+    val processConfig: ProcessConfig,
     val qualities: Set<Quality>,
     val moduleSets: List<ModuleSet>,
 )
 
 data class RecipeConfig(
-    val setupConfig: SetupConfig,
+    val processConfig: ProcessConfig,
     val qualities: Set<Quality>,
 )

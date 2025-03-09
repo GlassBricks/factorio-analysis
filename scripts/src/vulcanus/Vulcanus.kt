@@ -67,6 +67,6 @@ fun ProblemBuilder.CostsScope.vulcanusMachineCosts1() {
     costOf(beacon, 4 / 1.5 + 1)
     costOf(electricFurnace, 1)
     // imported
-    costOf(recycler, 30)
+    costOf(recycler, 50)
     costOf(electromagneticPlant, 200)
 }

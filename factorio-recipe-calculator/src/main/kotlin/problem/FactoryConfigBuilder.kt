@@ -14,7 +14,7 @@ interface Builder<T> {
     fun build(): T
 }
 
-interface ISetupConfigBuilder {
+interface IProcessConfigBuilder {
     var includeBuildCosts: Boolean
     var includePowerCosts: Boolean
     var additionalCosts: Vector<Symbol>
@@ -34,7 +34,7 @@ interface ISetupConfigBuilder {
     }
 }
 
-class SetupConfigBuilder : ISetupConfigBuilder, Builder<SetupConfig> {
+class ProcessConfigBuilder : IProcessConfigBuilder, Builder<ProcessConfig> {
     override var includeBuildCosts: Boolean = false
     override var includePowerCosts: Boolean = false
     override var additionalCosts: Vector<Symbol> = emptyVector()
@@ -44,7 +44,7 @@ class SetupConfigBuilder : ISetupConfigBuilder, Builder<SetupConfig> {
     override var upperBound: Double = Double.POSITIVE_INFINITY
     override var cost: Double = 0.0
     override var type: VariableType = VariableType.Continuous
-    override fun build(): SetupConfig = SetupConfig(
+    override fun build(): ProcessConfig = ProcessConfig(
         includeBuildCosts = includeBuildCosts,
         additionalCosts = additionalCosts,
         costVariableConfig = outputVariableConfig,
@@ -60,8 +60,8 @@ class SetupConfigBuilder : ISetupConfigBuilder, Builder<SetupConfig> {
 class MachineConfigBuilder(
     val machine: BaseMachine<*>,
     prototypes: FactorioPrototypes,
-    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
-) : ISetupConfigBuilder by setupConfig, Builder<MachineConfig> {
+    val processConfig: ProcessConfigBuilder = ProcessConfigBuilder(),
+) : IProcessConfigBuilder by processConfig, Builder<MachineConfig> {
     var qualities = setOf(prototypes.defaultQuality)
     val moduleSetConfigs = mutableSetOf<ModuleSetConfig>(ModuleSetConfig())
 
@@ -82,7 +82,7 @@ class MachineConfigBuilder(
     }
 
     override fun build(): MachineConfig = MachineConfig(
-        setupConfig = setupConfig.build(),
+        processConfig = processConfig.build(),
         qualities = qualities,
         moduleSets = moduleSetConfigs.mapNotNull {
             val moduleSlots = machine.prototype.module_slots?.toInt() ?: return@mapNotNull null
@@ -94,18 +94,26 @@ class MachineConfigBuilder(
 @FactoryConfigDsl
 class RecipeConfigBuilder(
     val recipe: RecipeOrResource<*>,
-    override val prototypes: FactorioPrototypes,
-    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
-) : ISetupConfigBuilder by setupConfig, Builder<RecipeConfig>, FactorioPrototypesScope by prototypes {
+    val prototypes: FactorioPrototypes,
+    val processConfig: ProcessConfigBuilder = ProcessConfigBuilder(),
+) : IProcessConfigBuilder by processConfig, Builder<RecipeConfig> {
     var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
     fun allQualities() {
         this@RecipeConfigBuilder.qualities = prototypes.qualities.toSet()
     }
 
     override fun build(): RecipeConfig = RecipeConfig(
-        setupConfig = setupConfig.build(),
+        processConfig = processConfig.build(),
         qualities = qualities
     )
+}
+
+@FactoryConfigDsl
+class SetupConfigBuilder(
+    val setup: MachineSetup<*>,
+    val processConfigBuilder: ProcessConfigBuilder = ProcessConfigBuilder(),
+) : IProcessConfigBuilder by processConfigBuilder, Builder<ProcessConfig> {
+    override fun build(): ProcessConfig = processConfigBuilder.build()
 }
 
 @FactoryConfigDsl
@@ -205,7 +213,7 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
     @FactoryConfigDsl
     inner class SetupsScope : ConfigScope<MachineSetup<*>, SetupConfigBuilder>() {
         var addSetupMachines = true
-        override fun createBuilder(item: MachineSetup<*>): SetupConfigBuilder = SetupConfigBuilder()
+        override fun createBuilder(item: MachineSetup<*>): SetupConfigBuilder = SetupConfigBuilder(item)
         override fun addConfig(item: MachineSetup<*>, block: (SetupConfigBuilder.() -> Unit)?) {
             val (machine, recipe) = item
             if (addSetupMachines) {
@@ -224,12 +232,20 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         }
     }
 
+    var additionalConfigFn: (SetupConfigBuilder.() -> Unit)? = null
+    fun extraConfig(block: SetupConfigBuilder.() -> Unit) {
+        additionalConfigFn = block
+    }
+
     override fun build(): FactoryConfig = FactoryConfig(
         prototypes = prototypes,
         research = researchConfig,
         machines = machines.build(),
         recipes = recipes.build(),
-        setups = setups.build()
+        setups = setups.build(),
+        additionalConfigFn = additionalConfigFn?.let {
+            { setup -> SetupConfigBuilder(setup).apply(it).build() }
+        }
     )
 }
 

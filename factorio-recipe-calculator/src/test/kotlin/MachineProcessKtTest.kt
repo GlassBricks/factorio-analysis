@@ -37,7 +37,7 @@ class MachineProcessKtTest : FunSpec({
     test("doesn't accept prod modules in non prod recipe") {
         asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
         shouldThrow<IllegalArgumentException> {
-            asm2.withModules(prod1).crafting(recipe("transport-belt"))
+            asm2.withModules(prod1).crafting(recipe("transport-belt")).toProcess()
         }
     }
     test("basic recipe process") {
@@ -106,18 +106,18 @@ class MachineProcessKtTest : FunSpec({
     test("crafting different quality") {
         val setup = asm2.crafting(recipe("electronic-circuit").withQuality(legendary))
             .toProcess()
-        setup.cycleInputs shouldBe vectorOf(
+        setup.cycleInputs.toMap() shouldBe vectorOf(
             item("copper-cable").maybeWithQuality(legendary) to 3.0,
             item("iron-plate").maybeWithQuality(legendary) to 1.0,
-        )
-        setup.cycleOutputs shouldBe vectorOf(
+        ).toMap()
+        setup.cycleOutputs.toMap() shouldBe vectorOf(
             item("electronic-circuit").maybeWithQuality(legendary) to 1.0,
-        )
-        setup.netRate shouldBe vectorOfWithUnits(
+        ).toMap()
+        setup.netRate.toMap() shouldBe vectorOf(
             item("iron-plate").maybeWithQuality(legendary) to -1.5,
             item("copper-cable").maybeWithQuality(legendary) to -4.5,
             item("electronic-circuit").maybeWithQuality(legendary) to 1.5,
-        )
+        ).toMap()
     }
 
     test("Gambling!") {

@@ -10,9 +10,6 @@ data class ResearchConfig(
 )
 
 data class MachineSetup<M : AnyMachine<*>>(val machine: M, val recipe: RecipeOrResource<M>) {
-    init {
-        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
-    }
 
     fun toProcess(config: ResearchConfig = ResearchConfig()): MachineProcess<M> =
         MachineProcess(this, config)

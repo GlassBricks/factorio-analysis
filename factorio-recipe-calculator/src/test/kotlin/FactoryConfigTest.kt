@@ -3,6 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.lp.VariableType
+import glassbricks.recipeanalysis.plus
 import glassbricks.recipeanalysis.vectorOf
 import glassbricks.recipeanalysis.vectorOfWithUnits
 import io.kotest.assertions.assertSoftly
@@ -130,19 +131,31 @@ class FactoryConfigKtTest : FunSpec({
 
     test("setup config") {
         val config = SpaceAge.factory {
-            recipes {
-                default {
-                    cost = 0.0
-                }
-            }
             setups {
                 (machine("assembling-machine-2").crafting(recipe("advanced-circuit"))) {
                     cost += 10.0
+                    additionalCosts += vectorOf(item("iron-plate") to 1.0)
                 }
             }
         }
         val recipe = config.getAllProcesses().single()
         recipe.variableConfig.cost shouldBe 10.0
+        recipe.additionalCosts shouldBe vectorOf(item("iron-plate") to 1.0)
+    }
+    test("additional config") {
+        val config = SpaceAge.factory {
+            machines.addConfig(machine("assembling-machine-2"))
+            recipes.addConfig(recipe("advanced-circuit"))
+            recipes.addConfig(recipe("electronic-circuit"))
+            extraConfig {
+                cost += if (setup.recipe == recipe("advanced-circuit")) 10.0 else 20.0
+            }
+        }
+        val recipe = config.getAllProcesses()
+        val rcProcess = recipe.single { (it.process as MachineProcess<*>).recipe == recipe("advanced-circuit") }
+        rcProcess.variableConfig.cost shouldBe 10.0
+        val gcProcess = recipe.single { (it.process as MachineProcess<*>).recipe == recipe("electronic-circuit") }
+        gcProcess.variableConfig.cost shouldBe 20.0
     }
 }), FactorioPrototypesScope {
     override val prototypes: FactorioPrototypes get() = SpaceAge
