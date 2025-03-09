@@ -15,7 +15,6 @@ import glassbricks.recipeanalysis.uvec
 import kotlin.math.min
 
 object DefaultWeights {
-    const val RECIPE_COST = 1.0
     const val INPUT_COST = 1e4
     const val INPUT_RATE_COST = 1.0
 
@@ -150,10 +149,6 @@ class ProblemBuilder(
                 uvec(this) leq production.productionOf(this)
             // get config so forbidAllUnspecified() doesn't remove it
             varConfig(this)
-        }
-
-        infix fun Entity.producedBy(production: ProductionOverTime) {
-            item() producedBy production
         }
     }
 

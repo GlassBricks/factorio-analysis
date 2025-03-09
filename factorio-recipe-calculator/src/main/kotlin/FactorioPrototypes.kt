@@ -38,8 +38,6 @@ class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, Ingredient
     val resources: Map<String, Resource> =
         dataRaw.resource.mapValues { Resource.fromPrototype(it.value, this) }
 
-    val recipesByCategory = recipes.values.groupBy { it.prototype.category }
-
     val equipment = dataRaw.allEquipmentPrototypes().associateBy { it.name }
 
     override fun get(itemID: ItemID): Item = items.getValue(itemID.value)
