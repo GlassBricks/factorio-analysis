@@ -4,12 +4,9 @@ import glassbricks.factorio.prototypes.CraftingMachinePrototype
 import glassbricks.factorio.prototypes.MiningDrillPrototype
 import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.factorio.recipes.*
-import glassbricks.recipeanalysis.Symbol
-import glassbricks.recipeanalysis.Vector
-import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.VariableConfig
 import glassbricks.recipeanalysis.lp.VariableType
-import glassbricks.recipeanalysis.plus
 import glassbricks.recipeanalysis.recipelp.RealProcess
 
 @DslMarker
@@ -22,6 +19,7 @@ class FactoryConfig(
 
 data class SetupConfig(
     val includeBuildCosts: Boolean,
+    val includePowerCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
     val costVariableConfig: VariableConfig?,
     val lowerBound: Double,
@@ -31,6 +29,7 @@ data class SetupConfig(
 ) {
     operator fun plus(other: SetupConfig): SetupConfig = SetupConfig(
         includeBuildCosts = includeBuildCosts || other.includeBuildCosts,
+        includePowerCosts = includePowerCosts || other.includePowerCosts,
         additionalCosts = additionalCosts + other.additionalCosts,
         costVariableConfig = costVariableConfig ?: other.costVariableConfig,
         lowerBound = maxOf(lowerBound, other.lowerBound),
@@ -53,6 +52,7 @@ data class SetupConfig(
 
 interface ISetupConfigBuilder {
     var includeBuildCosts: Boolean
+    var includePowerCosts: Boolean
     var additionalCosts: Vector<Symbol>
     var outputVariableConfig: VariableConfig?
 
@@ -64,6 +64,10 @@ interface ISetupConfigBuilder {
     fun includeBuildCosts() {
         includeBuildCosts = true
     }
+
+    fun includePowerCosts() {
+        includePowerCosts = true
+    }
 }
 
 fun ISetupConfigBuilder.build(): SetupConfig = SetupConfig(
@@ -74,10 +78,12 @@ fun ISetupConfigBuilder.build(): SetupConfig = SetupConfig(
     upperBound = upperBound,
     cost = cost,
     variableType = type,
+    includePowerCosts = includePowerCosts
 )
 
 class SetupConfigBuilder : ISetupConfigBuilder {
     override var includeBuildCosts: Boolean = false
+    override var includePowerCosts: Boolean = false
     override var additionalCosts: Vector<Symbol> = emptyVector()
     override var outputVariableConfig: VariableConfig? = null
 
@@ -146,7 +152,7 @@ class RecipeConfigScope(
 ) : ISetupConfigBuilder by setupConfig, WithFactorioPrototypes {
     var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
     fun allQualities() {
-        this@RecipeConfigScope.qualities = qualities.toSet()
+        qualities = prototypes.qualities.toSet()
     }
 
     internal fun toRecipeConfigs() = buildList {
@@ -160,9 +166,9 @@ class RecipeConfigScope(
 typealias RecipeConfigFn = RecipeConfigScope.() -> Unit
 
 class ProcessConfigScope(
-    val process: MachineSetup<*>,
-    val setupConfig: SetupConfigBuilder = SetupConfigBuilder(),
-) : ISetupConfigBuilder by setupConfig
+    val setup: MachineSetup<*>,
+    val config: SetupConfigBuilder = SetupConfigBuilder(),
+) : ISetupConfigBuilder by config
 
 @FactoryConfigDsl
 abstract class ConfigScope<T, S>(override val prototypes: FactorioPrototypes) : WithFactorioPrototypes {
@@ -299,10 +305,12 @@ class FactoryConfigBuilder(override val prototypes: FactorioPrototypes) : WithFa
                 val setupConfigScope = setups.scopeFor(setup)
                 val config = (machineConfig.setupConfig + recipeConfig.setupConfig)
                     .let {
-                        if (setupConfigScope != null) it + setupConfigScope.setupConfig.build()
+                        if (setupConfigScope != null) it + setupConfigScope.config.build()
                         else it
                     }
-                val costs = config.additionalCosts + if (config.includeBuildCosts) buildCost else emptyVector()
+                var costs = config.additionalCosts
+                if (config.includeBuildCosts) costs += buildCost
+                if (config.includePowerCosts) costs += vectorOf(ElectricPower to machine.powerUsage)
                 add(
                     RealProcess(
                         process = setup,

@@ -50,7 +50,8 @@ fun main() {
         output(steelPlate.withQuality(epic), rate = 60.perMinute)
 
         costs {
-            vulcanusCosts1()
+            vulcanusMachineCosts1()
+            vulcanusModuleCosts1()
             forbidUnspecifiedModules()
         }
 
@@ -79,6 +80,3 @@ fun main() {
     File("output/module2.dot").writeDotGraph(graph)
     solution.toBlueprint().exportTo(File("output/module2-bp.txt"))
 }
-
-// command to generate pdf from dot file
-// dot -Tpdf module2.dot -o module2.pdf

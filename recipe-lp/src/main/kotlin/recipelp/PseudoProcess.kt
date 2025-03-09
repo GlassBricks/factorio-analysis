@@ -88,12 +88,7 @@ class CustomProcess(
     override val costVariableConfig: VariableConfig? = null,
     override val additionalCosts: Vector<Symbol> = emptyVector(),
 ) : PseudoProcess {
-    override fun toString(): String = buildString {
-        append("CustomProcess(")
-        append(name)
-        commonToString(this@CustomProcess)
-        append(")")
-    }
+    override fun toString(): String = "CustomProcess($name)"
 }
 
 class CustomProcessBuilder(val name: String) {

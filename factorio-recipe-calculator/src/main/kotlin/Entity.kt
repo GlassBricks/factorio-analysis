@@ -13,3 +13,7 @@ interface Entity {
 interface WithBuildCost {
     fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient>
 }
+
+interface WithPowerUsage {
+    val powerUsage: Double
+}

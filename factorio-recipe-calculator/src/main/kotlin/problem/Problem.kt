@@ -48,7 +48,7 @@ class ProblemBuilder(
     fun input(ingredient: Ingredient, cost: Double = DefaultWeights.INPUT_COST, limit: Rate = Rate.infinity) {
         inputs += Input(
             ingredient,
-            variableConfig = VariableConfig(cost = cost, upperBound = limit.perSecond)
+            variableConfig = VariableConfig(cost = cost, upperBound = limit.ratePerSecond)
         )
     }
 
@@ -64,7 +64,7 @@ class ProblemBuilder(
     ) {
         outputs += Output(
             ingredient,
-            variableConfig = VariableConfig(lowerBound = rate.perSecond, cost = -weight)
+            variableConfig = VariableConfig(lowerBound = rate.ratePerSecond, cost = -weight)
         )
     }
 
@@ -90,12 +90,12 @@ class ProblemBuilder(
     @FactoryConfigDsl
     inner class CostsScope : WithFactorioPrototypes by this@ProblemBuilder {
 
-        fun getConfig(symbol: Symbol): VariableConfigBuilder {
+        fun varConfig(symbol: Symbol): VariableConfigBuilder {
             return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
         }
 
         fun limit(symbol: Symbol, value: Number) {
-            val config = getConfig(symbol)
+            val config = varConfig(symbol)
             config.upperBound = min(value.toDouble(), config.upperBound)
         }
 
@@ -104,7 +104,7 @@ class ProblemBuilder(
         }
 
         fun costOf(symbol: Symbol, value: Number) {
-            getConfig(symbol).cost = value.toDouble()
+            varConfig(symbol).cost = value.toDouble()
         }
 
         fun costOf(entity: Entity, value: Number) {
@@ -149,7 +149,7 @@ class ProblemBuilder(
             this@ProblemBuilder.symbolConstraints +=
                 uvec(this) leq production.productionOf(this)
             // get config so forbidAllUnspecified() doesn't remove it
-            getConfig(this)
+            varConfig(this)
         }
 
         infix fun Entity.producedBy(production: ProductionOverTime) {

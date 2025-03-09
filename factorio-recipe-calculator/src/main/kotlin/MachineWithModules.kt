@@ -38,6 +38,10 @@ data class MachineWithModules<P>(
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> =
         machine.getBuildCost(prototypes) + moduleSet.getBuildCost(prototypes)
 
+    override val basePowerUsage: Double get() = machine.basePowerUsage
+    override val powerUsage: Double
+        get() = machine.powerUsage * effects.consumptionMultiplier + moduleSet.powerUsage
+
     override fun withQuality(quality: Quality): MachineWithModules<P> = copy(machine = machine.withQuality(quality))
 
     override fun toString(): String = "${machine}${moduleSet}"

@@ -12,9 +12,11 @@ interface Symbol : Equals {
     override fun toString(): String
 }
 
-data class StrSymbol(val name: String) : Symbol {
+class SimpleSymbol(val name: String) : Symbol {
+    override fun equals(other: Any?): Boolean = super.equals(other)
+    override fun hashCode(): Int = super.hashCode()
     override fun toString(): String = "Symbol($name)"
 }
 
 @Suppress("FunctionName")
-fun Symbol(name: String): StrSymbol = StrSymbol(name)
+fun Symbol(name: String): SimpleSymbol = SimpleSymbol(name)

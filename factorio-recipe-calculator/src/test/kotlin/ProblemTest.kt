@@ -1,5 +1,5 @@
-/*
 package glassbricks.factorio.recipes
+/*
 
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem

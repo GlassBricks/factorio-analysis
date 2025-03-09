@@ -17,7 +17,7 @@ fun Duration.asTime(): Time = Time(toDouble(DurationUnit.SECONDS))
  * Inverse of time
  */
 @JvmInline
-value class Rate(val perSecond: Double) {
+value class Rate(val ratePerSecond: Double) {
     companion object {
         val zero: Rate = Rate(0.0)
         val infinity: Rate = Rate(Double.POSITIVE_INFINITY)

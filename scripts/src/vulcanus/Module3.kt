@@ -24,10 +24,10 @@ fun main() {
             default {
                 includeBuildCosts()
                 moduleConfig() // no modules
-                for (module in module123AllQualities) {
+                for (module in nonEffModulesAllQualities) {
                     moduleConfig(fill = module)
                     if (module.effects.quality <= 0) {
-                        for (beaconConfig in speed2Beacons) {
+                        for (beaconConfig in beaconsWithSharing(speedModule2)) {
                             moduleConfig(fill = module, beacons = listOf(beaconConfig))
                         }
                     }
@@ -48,7 +48,8 @@ fun main() {
         output(productivityModule3.withQuality(epic), rate = 1.perMinute)
 
         costs {
-            vulcanusCosts1()
+            vulcanusMachineCosts1()
+            vulcanusModuleCosts1()
             forbidUnspecifiedModules()
         }
 

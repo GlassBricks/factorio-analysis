@@ -64,6 +64,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         ) {
             prototype(name + "Prototype") {
                 tryAddProperty("energy_source")
+                tryAddProperty("energy_usage")
                 tryAddProperty("allowed_effects")
                 tryAddProperty("module_slots")
                 tryAddProperty("allowed_module_categories")
@@ -342,13 +343,14 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
     }
 
     val machineProps = mapOf(
-        "effect_receiver" to ClassName(PACKAGE_NAME, "EffectReceiver"),
-        "module_slots" to ClassName(PACKAGE_NAME, "ItemStackIndex"),
-        "allowed_effects" to ClassName(PACKAGE_NAME, "EffectTypeLimitation"),
+        "effect_receiver" to ClassName(PACKAGE_NAME, "EffectReceiver").copy(nullable = true),
+        "module_slots" to ClassName(PACKAGE_NAME, "ItemStackIndex").copy(nullable = true),
+        "allowed_effects" to ClassName(PACKAGE_NAME, "EffectTypeLimitation").copy(nullable = true),
         "allowed_module_categories" to List::class.asClassName()
-            .parameterizedBy(ClassName(PACKAGE_NAME, "ModuleCategoryID"))
+            .parameterizedBy(ClassName(PACKAGE_NAME, "ModuleCategoryID")).copy(nullable = true),
+        "energy_usage" to ClassName(PACKAGE_NAME, "Energy"),
     ).mapValues {
-        PropertySpec.builder(it.key, it.value.copy(nullable = true))
+        PropertySpec.builder(it.key, it.value)
             .build()
     }
     val machineIntf = extraIntf(
@@ -357,7 +359,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         supertypes = listOf("HasEnergySource"),
         "CraftingMachinePrototype", "MiningDrillPrototype"
     ) {
-        for ((name, prop) in machineProps) {
+        for ((_, prop) in machineProps) {
             addProperty(prop)
         }
     }

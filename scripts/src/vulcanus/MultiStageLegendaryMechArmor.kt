@@ -99,7 +99,7 @@ fun main(): Unit = with(SpaceAge) {
 
         costs {
             vulcanusMachineCosts1()
-            for (module in module123AllQualities) {
+            for (module in nonEffModulesAllQualities) {
                 module producedBy stage1.runningFor(mallRunTime)
             }
         }

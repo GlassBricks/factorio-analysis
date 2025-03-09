@@ -1,46 +1,45 @@
 Inputs:
-Sulfuric acid | 171199.6723/s
 Lava          | 388618.3160/s
+Sulfuric acid | 155464.2768/s
 
 Outputs:
+Qual 2(Q4)      | 0.0833/s
 Qual 2(Q3)      | 0.8333/s
 Steel plate(Q4) | 1.0000/s
-Qual 2(Q4)      | 0.0833/s
 
 Recipes:
-Acid neutralisation --> Chem plant                                | 843.5263
-BC --> Asm 3[Prod x4, Beacon[Speed 2 x2]]                         | 2347.6824
-Calcite --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]        | 140.1395
-Casting copper cable --> Foundry[Speed x4, Beacon[Speed 2 x2]]    | 2339.2047
-Casting iron --> Foundry[Speed x4, Beacon[Speed 2 x2]]            | 1982.7192
-Casting steel --> Foundry[Qual x4]                                | 1043.7710
-Coal --> Big mining drill[Speed x4, Beacon[Speed 2 x2] x3]        | 1912.2920
-Coal liquefaction --> Refinery                                    | 6222.7350
-GC --> Asm 2                                                      | 13383.3551
-Heavy oil cracking --> Chem plant                                 | 4044.7777
-Light oil cracking --> Chem plant                                 | 5704.1737
-Molten copper from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]] | 499.0303
-Molten iron from lava --> Foundry[Speed x4, Beacon[Speed 2 x2]]   | 652.4313
-Plastic bar --> Chem plant[Prod x3, Beacon[Speed 2 x2]]           | 1985.3488
-Qual --> Asm 2                                                    | 9259.2594
-Qual 2 --> Asm 3[Qual 2 x4]                                       | 3472.2222
-RC --> Asm 2                                                      | 31130.2690
-Steam condensation --> Chem plant                                 | 1624.8252
-Steel chest --> Asm 2                                             | 161.6162
-Steel chest recycling --> Recycler[Qual 3 x4]                     | 18.9394
-Stone brick --> Electric furnace                                  | 11347.9124
+Acid neutralisation --> Chem plant                             | 764.8493
+BC --> Asm 3[Prod x4, Beacon[Speed 2 x2]]                      | 2347.6824
+Calcite --> Big mining drill[, Beacon[Speed 2 x2]]             | 195.8329
+Casting copper cable --> Foundry[, Beacon[Speed 2 x2]]         | 3324.1330
+Casting iron --> Foundry[, Beacon[Speed 2 x2]]                 | 2817.5485
+Casting steel --> Foundry[Qual x4]                             | 1043.7710
+Coal --> Big mining drill[Speed x4, Beacon[Speed 2 x2] x4]     | 1509.9921
+Coal liquefaction --> Refinery[Prod x3, Beacon[Speed 2 x2]]    | 2890.1622
+GC --> Asm 2                                                   | 13383.3551
+Heavy oil cracking --> Chem plant                              | 3682.0667
+Light oil cracking --> Chem plant[Prod x3, Beacon[Speed 2 x2]] | 2967.2332
+Molten copper from lava --> Foundry[, Beacon[Speed 2 x2]]      | 709.1484
+Molten iron from lava --> Foundry[, Beacon[Speed 2 x2]]        | 927.1393
+Plastic bar --> Chem plant[Prod x3, Beacon[Speed 2 x2]]        | 1985.3488
+Qual --> Asm 2                                                 | 9259.2594
+Qual 2 --> Asm 3[Qual 2 x4]                                    | 3472.2222
+RC --> Asm 2                                                   | 31130.2690
+Steam condensation --> Chem plant                              | 1479.1208
+Steel chest --> Asm 2                                          | 161.6162
+Steel chest recycling --> Recycler[Qual 3 x4]                  | 18.9394
 
 
 Throughputs:
 RC              | 3891.2836/s
-Calcite         | 945.9419/s
-Coal            | 15919.8303/s
+Calcite         | 930.2065/s
+Coal            | 13589.9281/s
 Copper cable    | 75790.2325/s
 GC              | 20075.0327/s
-Heavy oil       | 80895.5548/s
+Heavy oil       | 73641.3336/s
 Iron plate      | 20075.0327/s
 Lava            | 388618.3160/s
-Light oil       | 85562.6061/s
+Light oil       | 77889.8721/s
 Molten copper   | 126317.0541/s
 Molten iron     | 165146.6828/s
 Petroleum gas   | 69487.2073/s
@@ -52,17 +51,16 @@ Qual 2(Q4)      | 0.0833/s
 Qual 2(Q5)      | (+0.0093/s)
 Qual 2(Q3)      | 0.8333/s
 Qual 2(Q2)      | (+8.3333/s)
-Steam           | 1687052.5962/s
+Steam           | 1529698.6420/s
 Steel chest     | 242.4242/s
 Steel plate     | 1939.3939/s
 Steel plate(Q4) | 1.0000/s
 Steel plate(Q5) | (+0.1111/s)
 Steel plate(Q3) | (+10.0000/s)
 Steel plate(Q2) | (+100.0000/s)
-Stone           | 14184.8906/s
-Stone brick     | (+7092.4453/s)
-Sulfuric acid   | 171199.6723/s
-Water           | 146234.2722/s
+Stone           | (+14184.8906/s)
+Sulfuric acid   | 155464.2768/s
+Water           | 133120.8723/s
 
 Surpluses:
 Qual 2          | 106.4815/s
@@ -71,21 +69,21 @@ Qual 2(Q2)      | 8.3333/s
 Steel plate(Q5) | 0.1111/s
 Steel plate(Q3) | 10.0000/s
 Steel plate(Q2) | 100.0000/s
-Stone brick     | 7092.4453/s
+Stone           | 14184.8906/s
 
 Symbols used:
+ElectricPower    | 1431948033.2074
 Asm 2            | 53934.4997
 Asm 3            | 5819.9047
-Beacon           | 3091.9784
-Big mining drill | 2052.4315
-Chem plant       | 14202.6518
-Electric furnace | 11347.9124
-Foundry          | 6517.1566
-Refinery         | 6222.7350
-Prod             | 15346.7760
+Beacon           | 4537.3635
+Big mining drill | 1705.8250
+Chem plant       | 10878.6188
+Foundry          | 8821.7402
+Refinery         | 2890.1622
+Prod             | 32918.9623
 Qual             | 4175.0842
 Qual 2           | 13888.8889
 Qual 3           | 75.7576
 Recycler         | 18.9394
-Speed            | 30103.2683
-Speed 2          | 6183.9567
+Speed            | 6039.9682
+Speed 2          | 9074.7270

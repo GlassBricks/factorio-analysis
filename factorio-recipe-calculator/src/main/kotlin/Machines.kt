@@ -13,9 +13,10 @@ import java.util.*
  * - Mining drills
  * Possibly more in the future
  */
-sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCost {
+sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCost, WithPowerUsage {
     val prototype: P
     val baseCraftingSpeed: Double
+    val basePowerUsage: Double
     val modulesUsed: Iterable<Module>
     fun acceptsModule(module: Module): Boolean
     fun canProcess(process: RecipeOrResource<*>): Boolean
@@ -73,6 +74,12 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
     override val effects
         get() = _effects ?: prototype.effect_receiver?.base_effect?.toEffectInt(0) ?: IntEffects()
             .also { _effects = it }
+
+    override val basePowerUsage: Double
+        get() = if (prototype.energy_source is ElectricEnergySource) parseEnergy(prototype.energy_usage) else 0.0
+
+    override val powerUsage: Double get() = basePowerUsage * effects.consumptionMultiplier
+
     override val moduleSet: Nothing? get() = null
     override val modulesUsed: Iterable<Module> get() = emptySet()
 

@@ -40,9 +40,7 @@ fun printAndExportStagedSolution(
     }
 }
 
-fun printAndExportSolution(
-    pathPrefix: String, solution: RecipeSolution,
-) {
+fun printAndExportSolution(pathPrefix: String, solution: RecipeSolution) {
     val display = solution.textDisplay(RecipesFirst)
     File("$pathPrefix.txt").apply {
         parentFile.mkdirs()
@@ -62,41 +60,56 @@ val module1s = SpaceAge.run {
     listOf(
         speedModule,
         productivityModule,
-        qualityModule
+        qualityModule,
+        efficiencyModule
     )
 }
 val module2s = SpaceAge.run {
     listOf(
         speedModule2,
         productivityModule2,
-        qualityModule2
+        qualityModule2,
+        efficiencyModule2
     )
 }
 val module3s = SpaceAge.run {
     listOf(
         speedModule3,
         productivityModule3,
-        qualityModule3
+        qualityModule3,
+        efficiencyModule3
     )
 }
 val module12s = module1s + module2s
 val module12sAllQualities = module12s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
-val module123AllQualities =
-    module12sAllQualities + module3s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
 
-val speed2Beacons = SpaceAge.run {
-    listOf<WithBeaconCount>(
-        beacon(fill = speedModule2, sharing = 6.0),
-        beacon(fill = speedModule2, sharing = 6.0) * 2,
-        beacon(fill = speedModule2, sharing = 4.0) * 3
-    )
+val nonEffModulesAllQualities = SpaceAge.run {
+    (module1s + module2s + module3s)
+        .filter { !it.prototype.name.startsWith("efficiency") }
+        .flatMap { qualities.map { q -> it.withQuality(q) } }
 }
-val speed3Beacons = SpaceAge.run {
-    listOf<WithBeaconCount>(
-        beacon(fill = speedModule3, sharing = 6.0),
-        beacon(fill = speedModule3, sharing = 6.0) * 2,
-        beacon(fill = speedModule3, sharing = 4.0) * 3
-    )
+
+data class BeaconProfile(
+    val sharing: Double,
+    val count: Int,
+)
+
+val defaultBeaconProfiles = listOf(
+    BeaconProfile(6.0, 1),
+    BeaconProfile(6.0, 2),
+    BeaconProfile(6.0, 3),
+    BeaconProfile(6.0, 4),
+    BeaconProfile(6.0, 6),
+    BeaconProfile(4.0, 8),
+    BeaconProfile(2.0, 10),
+    BeaconProfile(2.0, 12),
+)
+
+fun beaconsWithSharing(
+    module: Module,
+    profiles: List<BeaconProfile> = defaultBeaconProfiles,
+): List<BeaconCount> = profiles.map { (sharing, count) ->
+    (SpaceAge.beacon)(fill = module, sharing = sharing) * count
 }
 
 fun ProblemBuilder.CostsScope.addQualityCosts(

@@ -19,38 +19,50 @@ fun main(): Unit = with(SpaceAge) {
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(
-                RecipeID(castingLowDensityStructure.prototype.name) to 0.2,
+                RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
             ),
         )
         recipes {
-            default { allQualities() }
+            default {
+                allQualities()
+                cost = 1.0
+            }
             allCraftingRecipes()
             calciteMining()
             coalMining {
-                cost = 40.0
+                cost = 60.0
             }
             tungstenOreMining()
             remove(electromagneticPlant)
             remove(lightningCollector)
             remove(lightningRod)
+            remove(supercapacitorRecycling)
+            remove(superconductorRecycling)
         }
     }
 
-    val targetTime = 30.minutes
+    val targetTime = 40.minutes
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
         input(electronicCircuit, limit = 5e6 / targetTime, cost = 0.0)
         limit(holmiumPlate.withQuality(epic), 1000.0 / targetTime)
-        limit(holmiumPlate.withQuality(legendary), 200.0 / targetTime)
-        limit(holmiumOre, 300.0 / targetTime)
+        limit(supercapacitor.withQuality(epic), 250.0 / targetTime)
+        limit(superconductor.withQuality(epic), 250.0 / targetTime)
+        limit(holmiumPlate.withQuality(legendary), 40.0 / targetTime)
+        limit(supercapacitor.withQuality(legendary), 10.0 / targetTime)
+        limit(superconductor.withQuality(legendary), 10.0 / targetTime)
 
         oneFullLegendaryMechArmor(targetTime)
 
         costs {
-            vulcanusCosts1()
-            forbidUnspecifiedModules()
+            vulcanusMachineCosts1()
+            vulcanusModuleCosts1()
+            limit(qualityModule3, 0)
+            limit(qualityModule3.withQuality(uncommon), 0.0)
+            limit(qualityModule3.withQuality(rare), 0.0)
+            forbidAllUnspecified()
         }
     }
 

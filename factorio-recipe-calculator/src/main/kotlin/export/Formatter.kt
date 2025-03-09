@@ -13,7 +13,6 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatMachine(machine: AnyMachine<*>): String = when (machine) {
         is BaseMachine<*> -> formatBaseMachine(machine)
         is MachineWithModules -> formatMachineWithModules(machine)
-        else -> error("Unknown machine type: $machine")
     }
 
     fun formatEntityName(prototype: EntityPrototype): String = prototype.name
@@ -26,7 +25,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatModuleSet(moduleSet: ModuleSet): String = buildString {
         append('[')
         append(formatModuleList(moduleSet.modules))
-        if (moduleSet.beacons.isEmpty().not()) {
+        if (!moduleSet.beacons.isEmpty()) {
             append(", ")
             append(formatBeaconList(moduleSet.beacons))
         }

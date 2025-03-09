@@ -48,7 +48,8 @@ data class IntEffects(
     )
 
     val speedMultiplier get() = 1 + speed / 100f
-    val prodMultiplier get() = 1 + productivity / 100f
+    val prodMultiplier get() = (1 + productivity / 100f).coerceAtMost(4f)
+    val consumptionMultiplier get() = (1 + consumption / 100f).coerceAtLeast(0.2f)
     val qualityChance get() = quality.coerceAtLeast(0) / 1000f
 }
 
@@ -153,7 +154,7 @@ fun Effect.toEffectInt(qualityLevel: Int): IntEffects {
 data class Beacon(
     override val prototype: BeaconPrototype,
     override val quality: Quality,
-) : Entity {
+) : Entity, WithPowerUsage {
     private val allowedEffects: EnumSet<EffectType> = prototype.allowed_effects
         ?.let { EnumSet.copyOf(it) }
         ?: EnumSet.allOf(EffectType::class.java)
@@ -173,6 +174,8 @@ data class Beacon(
         return baseMult * profileMult * qualityMult
     }
 
+    override val powerUsage: Double = parseEnergy(prototype.energy_usage)
+
     override fun withQuality(quality: Quality): Beacon = copy(quality = quality)
 
     override fun toString(): String = if (quality.level == 0) prototype.name else "${prototype.name}(${quality})"
@@ -182,7 +185,7 @@ data class BeaconSetup(
     val beacon: Beacon,
     val modules: ModuleList,
     val sharing: Double = 1.0,
-) : WithBeaconCount, WithBuildCost {
+) : WithBeaconCount, WithBuildCost, WithPowerUsage {
     init {
         require(modules.size <= beacon.prototype.module_slots.toInt()) {
             "Too many modules for $beacon"
@@ -202,6 +205,8 @@ data class BeaconSetup(
         val moduleCost = modules.getBuildCost(prototypes)
         return (moduleCost + beaconCost) / sharing
     }
+
+    override val powerUsage get() = beacon.powerUsage / sharing
 }
 
 fun Beacon.withModules(
@@ -220,11 +225,13 @@ fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null, sh
 operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null, sharing: Double = 1.0): BeaconSetup =
     withModules(modules.asList(), fill, sharing)
 
-data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost {
+data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost, WithPowerUsage {
     override val beaconCount: BeaconCount get() = this
     fun getEffect(numBeacons: Int): IntEffects = beaconSetup.getEffect(numBeacons) * count
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         beaconSetup.getBuildCost(prototypes) * count
+
+    override val powerUsage: Double get() = beaconSetup.powerUsage * count
 
     override fun toString(): String = if (count == 1) beaconSetup.toString() else "$beaconSetup*$count"
 
@@ -238,17 +245,16 @@ operator fun BeaconSetup.times(count: Int): BeaconCount = BeaconCount(this, coun
 operator fun Int.times(beacon: BeaconSetup): BeaconCount = BeaconCount(beacon, this)
 
 @JvmInline
-value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithBuildCost {
+value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithBuildCost, WithPowerUsage {
     constructor(vararg beacons: WithBeaconCount) : this(beacons.map { it.beaconCount })
 
     val size get() = beaconCounts.sumOf { it.count }
     fun isEmpty() = beaconCounts.isEmpty()
 
     override val effects: IntEffects
-        get() {
-            val totalBeacons = size
-            return beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(totalBeacons) }
-        }
+        get() = beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(size) }
+    override val powerUsage: Double
+        get() = beaconCounts.sumOf { it.powerUsage }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         beaconCounts.vectorSumOf { it.getBuildCost(prototypes) }
@@ -261,7 +267,7 @@ fun BeaconList(beacons: List<WithBeaconCount>): BeaconList = BeaconList(beacons.
 data class ModuleSet(
     val modules: ModuleList,
     val beacons: BeaconList,
-) : WithEffects, WithBuildCost {
+) : WithEffects, WithBuildCost, WithPowerUsage {
     override val effects: IntEffects = modules + beacons.effects
 
     fun modulesUsed(): List<Module> = buildList {
@@ -279,6 +285,8 @@ data class ModuleSet(
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         modules.getBuildCost(prototypes) + beacons.getBuildCost(prototypes)
+
+    override val powerUsage: Double get() = beacons.powerUsage
 
     override fun toString(): String = buildString {
         append('[')
