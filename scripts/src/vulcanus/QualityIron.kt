@@ -9,34 +9,36 @@ import glassbricks.recipeanalysis.perSecond
 import glassbricks.recipeanalysis.recipelp.textDisplay
 import scripts.*
 
-fun main() {
-    val vulcanusFactory = SpaceAge.factory {
+fun main() = with(SpaceAge) {
+    val vulcanusFactory = factory {
         vulcanusMachines()
         recipes {
             default {
                 allQualities()
             }
             allCraftingRecipes()
-            calciteMining()
+            calciteMining {
+                cost = 30.0
+            }
             coalMining()
         }
     }
 
     val production = vulcanusFactory.problem {
         input(lava, cost = 0.0)
-//        input(sulfuricAcid, cost = 0.0005)
-        input(lubricant, cost = 0.0005)
+        input(sulfuricAcid, cost = 0.0005)
 
         output(ironPlate.withQuality(legendary), 1.0.perSecond)
 
         costs {
             vulcanusMachineCosts1()
+            vulcanusModuleCosts1()
+            forbidAllUnspecified()
         }
     }
     val solution = production.solve(
         options = LpOptions(epsilon = 1e-5)
     )
     println(solution.status)
-    println(solution.lpResult.bestBound)
     println(solution.solution?.textDisplay(FactorioShorthandFormatter))
 }

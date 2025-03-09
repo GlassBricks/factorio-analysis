@@ -26,13 +26,9 @@ data class MachineWithModules<P>(
     override val prototype: P get() = machine.prototype
     override val quality: Quality get() = machine.quality
     override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed
-    override fun acceptsModule(module: Module): Boolean = machine.acceptsModule(module)
 
-    override val modulesUsed: List<Module> get() = moduleSet.modulesUsed()
-    override fun canProcess(process: RecipeOrResource<*>): Boolean {
-        if (process is Recipe && !process.acceptsModules(modulesUsed)) return false
-        return machine.canProcess(process)
-    }
+    override fun canProcess(process: RecipeOrResource<*>): Boolean =
+        machine.canProcess(process) && process.acceptsModules(moduleSet)
 
     override val effects: IntEffects get() = machine.effects + moduleSet
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> =

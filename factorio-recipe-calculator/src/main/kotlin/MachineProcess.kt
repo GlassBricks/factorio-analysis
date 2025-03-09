@@ -9,39 +9,53 @@ data class ResearchConfig(
     val miningProductivity: Double = 0.0,
 )
 
-data class MachineSetup<M : AnyMachine<*>>(
+data class MachineSetup<M : AnyMachine<*>>(val machine: M, val recipe: RecipeOrResource<M>) {
+    init {
+        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
+    }
+
+    fun toProcess(config: ResearchConfig = ResearchConfig()): MachineProcess<M> =
+        MachineProcess(this, config)
+}
+
+data class MachineProcess<M : AnyMachine<*>>(
     val machine: M,
     val recipe: RecipeOrResource<M>,
-    val maxQuality: Quality? = null,
-    val extraProductivity: Double = 0.0,
+    val researchConfig: ResearchConfig = ResearchConfig(),
 ) : Process {
     constructor(
-        machine: M,
-        process: RecipeOrResource<M>,
-        config: ResearchConfig,
+        setup: MachineSetup<M>,
+        researchConfig: ResearchConfig = ResearchConfig(),
     ) : this(
-        machine,
-        process,
-        config.maxQuality,
-        when (process) {
-            is Recipe -> config.recipeProductivity[RecipeID(process.prototype.name)] ?: 0.0
-            is Resource -> config.miningProductivity
-        },
+        setup.machine,
+        setup.recipe,
+        researchConfig
     )
 
     init {
         require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
     }
 
-    val effectsUsed: IntEffects = machine.effects.let {
-        if (extraProductivity != 0.0) it + IntEffects(productivity = extraProductivity.toFloat().toIntEffect()) else it
+    val setup get() = MachineSetup(machine, recipe)
+
+    val effectsUsed: IntEffects = run {
+        val extraProductivity = when (recipe) {
+            is Recipe -> researchConfig.recipeProductivity[RecipeID(recipe.prototype.name)] ?: 0.0
+            is Resource -> researchConfig.miningProductivity
+        }
+        machine.effects.let {
+            if (extraProductivity != 0.0) it + IntEffects(
+                productivity = extraProductivity.toFloat().toIntEffect()
+            ) else it
+        }
     }
+
     val cycleTime: Time = recipe.craftingTime / machine.finalCraftingSpeed
     val cycleOutputs = recipe.outputs.applyProdAndQuality(
         effectsUsed,
         recipe.outputsToIgnoreProductivity,
         recipe.inputQuality,
-        maxQuality,
+        researchConfig.maxQuality,
     )
     val cycleInputs get() = recipe.inputs
 
@@ -51,29 +65,15 @@ data class MachineSetup<M : AnyMachine<*>>(
         this.mapValuesInPlace { it.doubleValue / cycleTime.seconds }
     }.castUnits()
 
-    override fun toString(): String = "$machine --> $recipe"
+    override fun toString(): String = "$machine: $recipe"
 }
 
-fun <M : AnyMachine<*>> M.processing(
-    process: RecipeOrResource<M>,
-    config: ResearchConfig = ResearchConfig(),
-): MachineSetup<M> =
-    MachineSetup(this, process, config)
+fun <M : AnyMachine<*>> M.crafting(process: RecipeOrResource<M>): MachineSetup<M> =
+    MachineSetup(this, process)
 
-fun <M : AnyMachine<*>> M.processingOrNull(
-    process: RecipeOrResource<M>,
-    config: ResearchConfig = ResearchConfig(),
-): MachineSetup<M>? =
+fun <M : AnyMachine<*>> M.craftingOrNull(process: RecipeOrResource<M>): MachineSetup<M>? =
     if (!this.canProcess(process)) null
-    else MachineSetup(this, process, config)
-
-@Suppress("UNCHECKED_CAST")
-fun <M : AnyMachine<*>> M.processingOrNullCast(
-    process: RecipeOrResource<*>,
-    config: ResearchConfig = ResearchConfig(),
-): MachineSetup<M>? =
-    if (!this.canProcess(process)) null
-    else MachineSetup(this, process as RecipeOrResource<M>, config)
+    else MachineSetup(this, process)
 
 internal fun Vector<Ingredient>.applyProductivity(
     productsIgnoredFromProductivity: Vector<Ingredient>,

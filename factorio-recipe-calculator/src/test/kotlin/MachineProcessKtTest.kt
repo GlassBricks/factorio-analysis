@@ -7,8 +7,8 @@ import io.kotest.matchers.shouldBe
 
 fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = pairs.toMap().toVectorWithUnits()
 
-class MachineSetupTest : FunSpec({
-    this as MachineSetupTest
+class MachineProcessKtTest : FunSpec({
+    this as MachineProcessKtTest
     val asm2 = craftingMachine("assembling-machine-2")
     val asm3 = craftingMachine("assembling-machine-3")
     val foundry = craftingMachine("foundry")
@@ -28,20 +28,20 @@ class MachineSetupTest : FunSpec({
     }
     test("crafting") {
         val beltRecipe = recipe("transport-belt")
-        asm2.processing(beltRecipe) shouldBe MachineSetup(
+        asm2.crafting(beltRecipe) shouldBe MachineSetup(
             machine = asm2,
             recipe = beltRecipe,
         )
 
     }
     test("doesn't accept prod modules in non prod recipe") {
-        asm2.withModules(prod1).processingOrNull(recipe("transport-belt")) shouldBe null
+        asm2.withModules(prod1).craftingOrNull(recipe("transport-belt")) shouldBe null
         shouldThrow<IllegalArgumentException> {
-            asm2.withModules(prod1).processing(recipe("transport-belt"))
+            asm2.withModules(prod1).crafting(recipe("transport-belt"))
         }
     }
-    test("basic recipe") {
-        val setup = asm2.processing(recipe("electronic-circuit"))
+    test("basic recipe process") {
+        val setup = asm2.crafting(recipe("electronic-circuit")).toProcess()
         setup.cycleInputs shouldBe vectorOf(
             item("copper-cable") to 3.0,
             item("iron-plate") to 1.0,
@@ -57,24 +57,26 @@ class MachineSetupTest : FunSpec({
 
         val withSpeed = asm2
             .withModules(speed1)
-            .processing(recipe("electronic-circuit"))
+            .crafting(recipe("electronic-circuit"))
+            .toProcess()
 
         withSpeed.cycleTime.seconds shouldBe near(1 / 1.8)
         withSpeed.cycleInputs shouldBe setup.cycleInputs
         withSpeed.cycleOutputs shouldBe setup.cycleOutputs
-        withSpeed.netRate.round1e6() shouldBe vectorOfWithUnits(
+        withSpeed.netRate.round1e6() shouldBe vectorOf(
             item("iron-plate") to -1.8,
             item("copper-cable") to -5.4,
             item("electronic-circuit") to 1.8,
-        )
+        ).toMap()
 
         val withProd = asm2
             .withModules(prod1)
-            .processing(recipe("electronic-circuit"))
+            .crafting(recipe("electronic-circuit"))
+            .toProcess()
 
         withProd.cycleTime.seconds shouldBe near(0.5 / 0.75 / 0.95)
         withProd.cycleInputs shouldBe setup.cycleInputs
-        withProd.cycleOutputs.round1e6() shouldBe setup.cycleOutputs * 1.04
+        withProd.cycleOutputs.round1e6() shouldBe (setup.cycleOutputs * 1.04).toMap()
 
         withProd.netRate.round1e6() shouldBe vectorOfWithUnits<Rate, RealIngredient>(
             item("iron-plate") to -1.5 * 0.95,
@@ -85,7 +87,7 @@ class MachineSetupTest : FunSpec({
 
 
     test("with intrinsic prod") {
-        val setup = foundry.processing(recipe("transport-belt"))
+        val setup = foundry.crafting(recipe("transport-belt")).toProcess()
 
         setup.cycleInputs shouldBe vectorOf(
             item("iron-plate") to 1.0,
@@ -102,7 +104,8 @@ class MachineSetupTest : FunSpec({
     }
 
     test("crafting different quality") {
-        val setup = asm2.processing(recipe("electronic-circuit").withQuality(legendary))
+        val setup = asm2.crafting(recipe("electronic-circuit").withQuality(legendary))
+            .toProcess()
         setup.cycleInputs shouldBe vectorOf(
             item("copper-cable").maybeWithQuality(legendary) to 3.0,
             item("iron-plate").maybeWithQuality(legendary) to 1.0,
@@ -119,7 +122,8 @@ class MachineSetupTest : FunSpec({
 
     test("Gambling!") {
         val setup = asm3.withModules(quality3.repeat(3))
-            .processing(recipe("iron-chest"))
+            .crafting(recipe("iron-chest"))
+            .toProcess()
         val probs = listOf(
             1 - 0.075,
             0.075 * 0.9,
@@ -137,10 +141,8 @@ class MachineSetupTest : FunSpec({
     }
     test("Gambling but I'm not legendary") {
         val setup2 = asm3.withModules(quality3.repeat(3))
-            .processing(
-                recipe("iron-chest").withQuality(uncommon),
-                ResearchConfig(maxQuality = epic)
-            )
+            .crafting(recipe("iron-chest").withQuality(uncommon))
+            .toProcess(ResearchConfig(maxQuality = epic))
         val probs2 = listOf(
             1 - 0.075,
             0.075 * 0.9,
@@ -153,10 +155,11 @@ class MachineSetupTest : FunSpec({
         setup2.cycleOutputs.round1e6() shouldBe expected2.round1e6()
     }
     test("gambling with fluids") {
-        val setup = foundry.processing(
+        val setup = foundry.crafting(
             recipe("casting-low-density-structure")
                 .withQuality(epic)
         )
+            .toProcess()
         val plasticRate = 4.0 / 3
         setup.netRate.round1e6() shouldBe rateVector(
             item("plastic-bar").withQuality(epic) to -plasticRate,
@@ -167,9 +170,11 @@ class MachineSetupTest : FunSpec({
     }
     test("gambling legendary quality should do nothing") {
         val setup = asm3.withModules(quality3.repeat(4))
-            .processing(recipe("iron-chest").withQuality(legendary))
+            .crafting(recipe("iron-chest").withQuality(legendary))
+            .toProcess()
 
         setup.cycleOutputs.round1e6() shouldBe rateVector(item("iron-chest").withQuality(legendary) to 1.0)
+            .toMap()
     }
 }), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge

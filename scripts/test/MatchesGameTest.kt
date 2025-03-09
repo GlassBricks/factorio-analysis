@@ -26,12 +26,12 @@ class MatchesGameTest : StringSpec({
             )
         )
         f2.finalCraftingSpeed shouldBe beNear(13.2)
-        f2.getBuildCost(prototypes) shouldBe vectorOf(
+        f2.getBuildCost(prototypes).toMap() shouldBe vectorOf(
             foundry.item() to 1.0,
             speedModule to 4.0,
             beacon.item() to 1.0,
             speedModule3 to 2.0
-        )
+        ).toMap()
     }
 }), FactorioPrototypesScope by SpaceAge
 

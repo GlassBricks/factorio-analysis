@@ -17,8 +17,6 @@ sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCo
     val prototype: P
     val baseCraftingSpeed: Double
     val basePowerUsage: Double
-    val modulesUsed: Iterable<Module>
-    fun acceptsModule(module: Module): Boolean
     fun canProcess(process: RecipeOrResource<*>): Boolean
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
@@ -81,7 +79,6 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
     override val powerUsage: Double get() = basePowerUsage * effects.consumptionMultiplier
 
     override val moduleSet: Nothing? get() = null
-    override val modulesUsed: Iterable<Module> get() = emptySet()
 
     private var _allowedEffects: EnumSet<EffectType>? = null
     private val allowedEffects
@@ -92,12 +89,19 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
         }
             .also { _allowedEffects = it }
 
-    override fun acceptsModule(module: Module): Boolean {
-        if (prototype.module_slots.let { it == null || it.toInt() == 0 } ||
-            prototype.effect_receiver?.uses_module_effects == false
-        ) return false
-        return allowedEffects.containsAll(module.usedPositiveEffects)
-                && (prototype.allowed_module_categories?.let { module.prototype.category in it } != false)
+    private fun prototypeTakesModules(): Boolean {
+        if ((prototype.module_slots ?: 0) == 0) return false
+        if (prototype.effect_receiver?.uses_module_effects == false) return false
+        return true
+    }
+
+    fun acceptsModules(modules: WithModulesUsed): Boolean {
+        if (!prototypeTakesModules()) return false
+        if (!allowedEffects.containsAll(modules.moduleEffectsUsed)) return false
+        prototype.allowed_module_categories?.let { categories ->
+            if (!modules.modulesUsed.all { it.prototype.category in categories }) return false
+        }
+        return true
     }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> {
@@ -108,25 +112,20 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
 
     abstract override fun withQuality(quality: Quality): BaseMachine<P>
 
-    fun acceptsModules(modules: ModuleSet): Boolean {
-        for (module in modules.modulesUsed()) if (!acceptsModule(module)) return false
-        return modules.beacons.isEmpty() || prototype.effect_receiver?.uses_beacon_effects != false
-    }
-
     fun withModulesOrNull(modules: ModuleSet): AnyMachine<P>? {
         if (!acceptsModules(modules)) return null
         if (modules.isEmpty()) return this
         return MachineWithModules(this, modules)
     }
 
-    fun withModulesOrNull(modules: ModuleConfig): AnyMachine<P>? =
+    fun withModulesOrNull(modules: ModuleSetConfig): AnyMachine<P>? =
         prototype.module_slots?.toInt()?.let { modules.toModuleSet(it) }?.let { withModulesOrNull(it) }
 
     fun withModulesOrNull(
         modules: List<WithModuleCount>,
         fill: Module? = null,
         beacons: List<WithBeaconCount> = emptyList(),
-    ) = withModulesOrNull(ModuleConfig(modules, fill, beacons))
+    ) = withModulesOrNull(ModuleSetConfig(modules, fill, beacons))
 
     fun withModules(
         modules: List<WithModuleCount>,

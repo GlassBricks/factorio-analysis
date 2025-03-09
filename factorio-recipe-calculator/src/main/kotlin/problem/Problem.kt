@@ -167,7 +167,7 @@ class ProblemBuilder(
     fun build(): ProductionLp = ProductionLp(
         inputs = inputs,
         outputs = outputs,
-        processes = (factory ?: error("Factory not set")).allProcesses,
+        processes = (factory ?: error("Factory not set")).getAllProcesses(),
         otherProcesses = customProcesses,
         surplusCost = surplusCost,
         constraints = symbolConstraints,

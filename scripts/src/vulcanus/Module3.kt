@@ -15,8 +15,8 @@ import glassbricks.recipeanalysis.writeDotGraph
 import scripts.*
 import java.io.File
 
-fun main() {
-    val nauvisFactory = SpaceAge.factory {
+fun main() = with(SpaceAge) {
+    val nauvisFactory = factory {
         machines {
             electromagneticPlant()
             assemblingMachine3()

@@ -3,7 +3,7 @@ package glassbricks.factorio.recipes.export
 import glassbricks.factorio.prototypes.*
 import glassbricks.factorio.recipes.Fluid
 import glassbricks.factorio.recipes.Item
-import glassbricks.factorio.recipes.MachineSetup
+import glassbricks.factorio.recipes.MachineProcess
 import glassbricks.factorio.recipes.RealIngredient
 import glassbricks.factorio.recipes.problem.machine
 import glassbricks.factorio.recipes.problem.recipe
@@ -65,7 +65,7 @@ interface FactorioGraphExportFormatter : FactorioShorthandFormatter {
     override fun formatRecipeName(prototype: RecipePrototype): String =
         super.formatRecipeName(prototype).replace("-recycling", "\\nrecycling")
 
-    override fun formatSetup(setup: MachineSetup<*>): String =
+    override fun formatSetup(setup: MachineProcess<*>): String =
         formatRecipeOrResource(setup.recipe) + "|" + formatMachine(setup.machine)
 
     override fun formatInput(input: Ingredient): String = super.formatInput(input) + "|Input"

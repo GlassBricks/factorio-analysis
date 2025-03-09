@@ -41,10 +41,10 @@ class FactoryConfigKtTest : FunSpec({
             }
         }
         val advCircuit = recipe("advanced-circuit")
-        val allProcesses = config.allProcesses
+        val allProcesses = config.getAllProcesses()
         allProcesses.forAll {
             it.variableConfig.cost shouldBe 1.2
-            var process = it.process as MachineSetup<*>
+            var process = it.process as MachineProcess<*>
             it.variableConfig.upperBound shouldBe if (process.machine.prototype == asm2.prototype) 1.3 else Double.POSITIVE_INFINITY
             it.variableConfig.type shouldBe if (process.machine.prototype == asm2.prototype) VariableType.Integer else VariableType.Continuous
         }
@@ -61,10 +61,10 @@ class FactoryConfigKtTest : FunSpec({
             asm2.withModules(fill = prod2),
         ).flatMap { listOf(it, it.withQuality(uncommon)) }
         val expectedRecipes = machines.flatMap { machine ->
-            recipes.mapNotNull { machine.processingOrNull(it) }
+            recipes.mapNotNull { machine.craftingOrNull(it)?.toProcess() }
         }.toSet()
 
-        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineSetup<*> }
+        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineProcess<*> }
         val extra = expectedRecipes - actualRecipes
         val missing = actualRecipes - expectedRecipes
         assertSoftly {
@@ -83,9 +83,8 @@ class FactoryConfigKtTest : FunSpec({
                 ironOre {}
             }
         }
-        val recipe = config.allProcesses.single().process as MachineSetup<*>
-        recipe shouldBe drill.processing(ironOre)
-
+        val recipe = config.getAllProcesses().single().process as MachineProcess<*>
+        recipe shouldBe drill.crafting(ironOre).toProcess()
     }
     test("additional costs") {
         val symbolA = Symbol("a")
@@ -102,7 +101,7 @@ class FactoryConfigKtTest : FunSpec({
                 }
             }
         }
-        val recipe = config.allProcesses.single()
+        val recipe = config.getAllProcesses().single()
         recipe.additionalCosts shouldBe vectorOfWithUnits(symbolA to 1.0, symbolB to 2.0)
     }
     test("build costs") {
@@ -121,7 +120,7 @@ class FactoryConfigKtTest : FunSpec({
                 }
             }
         }
-        val recipe = config.allProcesses.single()
+        val recipe = config.getAllProcesses().single()
         recipe.additionalCosts shouldBe vectorOf(
             SpaceAge.itemOfOrNull(asm2) to 1.0,
             speed2 to 2.0,
@@ -137,12 +136,12 @@ class FactoryConfigKtTest : FunSpec({
                 }
             }
             setups {
-                (machine("assembling-machine-2").processing(recipe("advanced-circuit"))) {
+                (machine("assembling-machine-2").crafting(recipe("advanced-circuit"))) {
                     cost += 10.0
                 }
             }
         }
-        val recipe = config.allProcesses.single()
+        val recipe = config.getAllProcesses().single()
         recipe.variableConfig.cost shouldBe 10.0
     }
 }), FactorioPrototypesScope {

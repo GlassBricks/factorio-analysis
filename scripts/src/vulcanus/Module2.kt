@@ -14,8 +14,8 @@ import glassbricks.recipeanalysis.writeDotGraph
 import scripts.*
 import java.io.File
 
-fun main() {
-    val vulcanusFactory = SpaceAge.factory {
+fun main() = with(SpaceAge) {
+    val vulcanusFactory = factory {
         vulcanusMachines()
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,

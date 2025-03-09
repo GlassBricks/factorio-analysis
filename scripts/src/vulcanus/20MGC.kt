@@ -1,10 +1,16 @@
 package scripts.vulcanus
 
-import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.ElectricPower
+import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.parseEnergy
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.recipeanalysis.*
+import glassbricks.factorio.recipes.withModules
+import glassbricks.recipeanalysis.Symbol
+import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
+import glassbricks.recipeanalysis.vectorOf
+import glassbricks.recipeanalysis.vectorOfWithUnits
 import scripts.*
 import kotlin.time.Duration.Companion.hours
 
@@ -55,8 +61,8 @@ fun main(): Unit = with(SpaceAge) {
             }
         )
         machines {
-            assemblingMachine2 { moduleConfigs.removeIf { it.beacons.isEmpty() } }
-            assemblingMachine3 { moduleConfigs.removeIf { it.beacons.isEmpty() } }
+            assemblingMachine2 { moduleSetConfigs.removeIf { it.beacons.isEmpty() } }
+            assemblingMachine3 { moduleSetConfigs.removeIf { it.beacons.isEmpty() } }
         }
         recipes {
             allCraftingRecipes()
@@ -67,14 +73,15 @@ fun main(): Unit = with(SpaceAge) {
             // apparently infinity pipes have a recipe...
             remove(infinityPipe)
         }
-        setups.default {
-            val gcOutput = this.setup.netRate.sumOf { (ingredient, rate) ->
-                if (ingredient is Item && ingredient.prototype == electronicCircuit.prototype) rate else 0.0
-            }
-            if (gcOutput > 0.0) {
-                additionalCosts += vectorOf(gcProducedSymbol to gcOutput)
-            }
-        }
+        TODO()
+//        setups.default {
+//            val gcOutput = this.setup.netRate.sumOf { (ingredient, rate) ->
+//                if (ingredient is Item && ingredient.prototype == electronicCircuit.prototype) rate else 0.0
+//            }
+//            if (gcOutput > 0.0) {
+//                additionalCosts += vectorOf(gcProducedSymbol to gcOutput)
+//            }
+//        }
     }
 
 //    val targetRate = 18e6 / 3.hours

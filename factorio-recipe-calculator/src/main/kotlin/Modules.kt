@@ -56,6 +56,7 @@ data class IntEffects(
 operator fun WithEffects.plus(other: WithEffects): IntEffects = effects + other.effects
 
 interface WithEffects {
+
     val effects: IntEffects
 }
 
@@ -65,7 +66,7 @@ data class Module(
 ) : Item, WithEffects, WithModuleCount {
     override val effects = prototype.effect.toEffectInt(quality.level)
 
-    val usedPositiveEffects: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
+    override val moduleEffectsUsed: EnumSet<EffectType> = EnumSet.noneOf(EffectType::class.java).apply {
         val effect = prototype.effect
         if (effect.consumption != null && effect.consumption!! < 0) add(EffectType.consumption)
         if (effect.speed != null && effect.speed!! > 0) add(EffectType.speed)
@@ -74,23 +75,25 @@ data class Module(
         if (effect.quality != null && effect.quality!! > 0) add(EffectType.quality)
     }
 
-    override fun withQuality(quality: Quality): Module = copy(quality = quality)
-    override val moduleCount: ModuleCount
-        get() = ModuleCount(this, 1)
+    override val moduleCount: ModuleCount get() = ModuleCount(this, 1)
+    override val modulesUsed: Iterable<Module> get() = listOf(this)
 
+    override fun withQuality(quality: Quality): Module = copy(quality = quality)
     override fun toString(): String = if (quality.level == 0) prototype.name else "${prototype.name}(${quality})"
 }
 
-// for nice DSL stuff
-data class ModuleCount(val module: Module, val count: Int) : WithModuleCount, WithBuildCost {
+data class ModuleCount(val module: Module, val count: Int) : WithModuleCount, WithBuildCost, WithModulesUsed {
     override val moduleCount: ModuleCount get() = this
     override val effects: IntEffects get() = module.effects * count
     override fun toString(): String = if (count == 1) module.toString() else "${module}*${count}"
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         vectorOf(module to count.toDouble())
+
+    override val modulesUsed: Iterable<Module> get() = listOf(module)
+    override val moduleEffectsUsed: EnumSet<EffectType> get() = module.moduleEffectsUsed
 }
 
-interface WithModuleCount : WithEffects {
+interface WithModuleCount : WithEffects, WithModulesUsed {
     val moduleCount: ModuleCount
 }
 
@@ -98,7 +101,7 @@ operator fun Module.times(count: Int): ModuleCount = ModuleCount(this, count)
 operator fun Int.times(module: Module): ModuleCount = ModuleCount(module, this)
 
 @JvmInline
-value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithBuildCost {
+value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithBuildCost, WithModulesUsed {
     constructor(vararg modules: WithModuleCount) : this(modules.map { it.moduleCount })
 
     val size get() = moduleCounts.sumOf { it.count }
@@ -107,6 +110,12 @@ value class ModuleList(val moduleCounts: List<ModuleCount>) : WithEffects, WithB
     override fun toString(): String = moduleCounts.joinToString(", ")
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         moduleCounts.vectorSumOf { it.getBuildCost(prototypes) }
+
+    override val modulesUsed: Iterable<Module> get() = moduleCounts.map { it.moduleCount.module }
+    override val moduleEffectsUsed: EnumSet<EffectType>
+        get() = moduleCounts.fold(EnumSet.noneOf(EffectType::class.java)) { acc, module ->
+            acc.apply { addAll(module.moduleEffectsUsed) }
+        }
 }
 
 fun moduleList(
@@ -160,8 +169,8 @@ data class Beacon(
         ?: EnumSet.allOf(EffectType::class.java)
 
     fun acceptsModule(module: Module): Boolean =
-        allowedEffects.containsAll(module.usedPositiveEffects) &&
-                (prototype.allowed_module_categories?.contains(module.prototype.category) ?: true)
+        allowedEffects.containsAll(module.moduleEffectsUsed) &&
+                (prototype.allowed_module_categories?.contains(module.prototype.category) != false)
 
     fun effectMultiplier(numBeacons: Int): Double {
         if (numBeacons == 0) return 0.0
@@ -185,7 +194,7 @@ data class BeaconSetup(
     val beacon: Beacon,
     val modules: ModuleList,
     val sharing: Double = 1.0,
-) : WithBeaconCount, WithBuildCost, WithPowerUsage {
+) : WithBeaconCount, WithBuildCost, WithPowerUsage, WithModulesUsed by modules {
     init {
         require(modules.size <= beacon.prototype.module_slots.toInt()) {
             "Too many modules for $beacon"
@@ -225,7 +234,8 @@ fun Beacon.withModules(vararg modules: WithModuleCount, fill: Module? = null, sh
 operator fun Beacon.invoke(vararg modules: WithModuleCount, fill: Module? = null, sharing: Double = 1.0): BeaconSetup =
     withModules(modules.asList(), fill, sharing)
 
-data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost, WithPowerUsage {
+data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaconCount, WithBuildCost, WithPowerUsage,
+    WithModulesUsed by beaconSetup {
     override val beaconCount: BeaconCount get() = this
     fun getEffect(numBeacons: Int): IntEffects = beaconSetup.getEffect(numBeacons) * count
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
@@ -237,7 +247,7 @@ data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaco
 
 }
 
-interface WithBeaconCount {
+interface WithBeaconCount : WithModulesUsed {
     val beaconCount: BeaconCount
 }
 
@@ -245,7 +255,8 @@ operator fun BeaconSetup.times(count: Int): BeaconCount = BeaconCount(this, coun
 operator fun Int.times(beacon: BeaconSetup): BeaconCount = BeaconCount(beacon, this)
 
 @JvmInline
-value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithBuildCost, WithPowerUsage {
+value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithBuildCost, WithPowerUsage,
+    WithModulesUsed {
     constructor(vararg beacons: WithBeaconCount) : this(beacons.map { it.beaconCount })
 
     val size get() = beaconCounts.sumOf { it.count }
@@ -255,6 +266,12 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
         get() = beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(size) }
     override val powerUsage: Double
         get() = beaconCounts.sumOf { it.powerUsage }
+    override val modulesUsed: Iterable<Module>
+        get() = beaconCounts.flatMap { it.modulesUsed }
+    override val moduleEffectsUsed: EnumSet<EffectType>
+        get() = beaconCounts.fold(EnumSet.noneOf(EffectType::class.java)) { acc, beacon ->
+            acc.apply { addAll(beacon.moduleEffectsUsed) }
+        }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         beaconCounts.vectorSumOf { it.getBuildCost(prototypes) }
@@ -262,24 +279,27 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
     override fun toString(): String = beaconCounts.joinToString(", ")
 }
 
-fun BeaconList(beacons: List<WithBeaconCount>): BeaconList = BeaconList(beacons.map { it.beaconCount })
-
 data class ModuleSet(
     val modules: ModuleList,
     val beacons: BeaconList,
-) : WithEffects, WithBuildCost, WithPowerUsage {
+) : WithEffects, WithBuildCost, WithPowerUsage, WithModulesUsed {
     override val effects: IntEffects = modules + beacons.effects
 
-    fun modulesUsed(): List<Module> = buildList {
-        for ((module) in modules.moduleCounts) {
-            add(module)
-        }
-        for ((beacon) in beacons.beaconCounts) {
-            for ((module) in beacon.modules.moduleCounts) {
+    override val modulesUsed: Iterable<Module>
+        get() = buildList {
+            for ((module) in modules.moduleCounts) {
                 add(module)
             }
+            for ((beacon) in beacons.beaconCounts) {
+                for ((module) in beacon.modules.moduleCounts) {
+                    add(module)
+                }
+            }
         }
-    }
+
+    override val moduleEffectsUsed: EnumSet<EffectType> =
+        modules.moduleEffectsUsed
+            .clone().apply { addAll(beacons.moduleEffectsUsed) }
 
     fun isEmpty() = modules.isEmpty() && beacons.isEmpty()
 
@@ -299,11 +319,28 @@ data class ModuleSet(
     }
 }
 
-data class ModuleConfig(
-    val modules: List<WithModuleCount> = emptyList(),
+data class ModuleSetConfig(
+    val modules: List<ModuleCount> = emptyList(),
     val fill: Module? = null,
-    val beacons: List<WithBeaconCount> = emptyList(),
-) {
+    val beacons: List<BeaconCount> = emptyList(),
+) : WithModulesUsed {
+
+    override val modulesUsed: Iterable<Module> = buildList {
+        for (module in modules) add(module.module)
+        if (fill != null) add(fill)
+        for (beacon in beacons) addAll(beacon.modulesUsed)
+    }
+    override val moduleEffectsUsed: EnumSet<EffectType>
+        get() = modules.fold(EnumSet.noneOf(EffectType::class.java)) { acc, module ->
+            acc.apply { addAll(module.module.moduleEffectsUsed) }
+        }
+
     fun toModuleSet(numModuleSlots: Int): ModuleSet? = moduleList(numModuleSlots, modules, fill)
         ?.let { ModuleSet(it, BeaconList(beacons)) }
 }
+
+fun ModuleSetConfig(
+    modules: List<WithModuleCount>,
+    fill: Module? = null,
+    beacons: List<WithBeaconCount> = emptyList(),
+) = ModuleSetConfig(modules.map { it.moduleCount }, fill, beacons.map { it.beaconCount })

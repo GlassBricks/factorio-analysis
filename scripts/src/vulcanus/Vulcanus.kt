@@ -16,7 +16,7 @@ val defaultVulcanusBeaconConfig = with(SpaceAge) {
 fun FactoryConfigBuilder.vulcanusMachines(
     modules: List<Module> = nonEffModulesAllQualities,
     beacons: List<List<WithBeaconCount>> = defaultVulcanusBeaconConfig,
-) {
+) = with(prototypes) {
     machines {
         default {
             includeBuildCosts()
@@ -44,14 +44,16 @@ val vulcanusQualityMultipliers = listOf(
 )
 
 fun ProblemBuilder.CostsScope.vulcanusModuleCosts1() {
+    val baseModuleCost = 1.0
     for (module in module1s) {
-        addQualityCosts(module, 1.0, vulcanusQualityMultipliers)
+        addQualityCosts(module, baseModuleCost, vulcanusQualityMultipliers)
     }
+    val module2Cost = baseModuleCost * 7 / 1.5
     for (module in module2s) {
-        addQualityCosts(module, 7.0 / 1.5, vulcanusQualityMultipliers)
+        addQualityCosts(module, module2Cost, vulcanusQualityMultipliers)
     }
-    addQualityCosts(speedModule3, (6.5 / 1.5) * 5 / 1.5, vulcanusQualityMultipliers)
-    addQualityCosts(qualityModule3, (6.5 / 1.5) * 5 / 1.5 + 5.0, vulcanusQualityMultipliers)
+    addQualityCosts(speedModule3, module2Cost * 5 / 1.5, vulcanusQualityMultipliers)
+    addQualityCosts(qualityModule3, module2Cost * 5 / 1.5 + 5.0, vulcanusQualityMultipliers)
 }
 
 fun ProblemBuilder.CostsScope.vulcanusMachineCosts1() {

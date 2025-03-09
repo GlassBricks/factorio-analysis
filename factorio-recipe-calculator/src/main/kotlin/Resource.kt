@@ -16,6 +16,8 @@ class Resource private constructor(
     override fun withQualityOrNull(quality: Quality): RecipeOrResource<AnyMiningDrill>? =
         if (quality == this.inputQuality) this else null
 
+    override fun acceptsModules(modules: WithModulesUsed): Boolean = true
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Resource) return false
@@ -49,5 +51,4 @@ class Resource private constructor(
             )
         }
     }
-
 }

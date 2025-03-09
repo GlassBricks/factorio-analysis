@@ -142,7 +142,7 @@ data class BlueprintJson(
     val entities: List<BlueprintEntity>? = null,
 )
 
-fun Vector<MachineSetup<*>>.toBlueprint(): BlueprintJson {
+fun Vector<MachineProcess<*>>.toBlueprint(): BlueprintJson {
     var entityNum = 1
     var curCol = 0.0
     var curHeight = 0.0
@@ -150,9 +150,9 @@ fun Vector<MachineSetup<*>>.toBlueprint(): BlueprintJson {
     val keys = keys.sortedBy {
         it.recipe.toString()
     }
-    val entities = keys.flatMap { setup ->
-        val count = this[setup]
-        val prototype = setup.machine.prototype as EntityPrototype
+    val entities = keys.flatMap { process ->
+        val count = this[process]
+        val prototype = process.machine.prototype as EntityPrototype
         val height = prototype.tile_height ?: prototype.collision_box?.height?.let(::ceil)?.toInt()
         ?: error("No height for $prototype")
         val width = prototype.tile_width ?: prototype.collision_box?.width?.let(::ceil)?.toInt()
@@ -164,7 +164,7 @@ fun Vector<MachineSetup<*>>.toBlueprint(): BlueprintJson {
                 curCol += width
             }
             curRowMaxHeight = maxOf(curRowMaxHeight, yOffset + height / 2.0)
-            setup.toBlueprintEntity(
+            process.setup.toBlueprintEntity(
                 entityNumber = entityNum++,
                 position = Position(x = curCol + width / 2.0, y = curHeight + yOffset),
             ).also {
@@ -217,20 +217,20 @@ fun BlueprintJson.exportTo(file: File) {
 
 fun RecipeSolution.toBlueprint(): BlueprintJson {
     val machines = this.processes
-        .mapKeysNotNull { it as? MachineSetup<*> }
+        .mapKeysNotNull { it as? MachineProcess<*> }
     return machines.toBlueprint()
 }
 
 fun main() = with(SpaceAge) {
 
     val machine = craftingMachine("assembling-machine-2").withModules(module("speed-module-2") * 2)
-        .processing(recipe("iron-gear-wheel").withQuality(quality("uncommon")))
+        .crafting(recipe("iron-gear-wheel").withQuality(quality("uncommon")))
     var bpEntity = machine.toBlueprintEntity(1, Position(0.0, 0.0))!!
     println(bpEntity)
     println(bpJson.encodeToString<BlueprintEntity>(bpEntity))
 
     val recycler = craftingMachine("recycler").withModules(module("speed-module-2") * 2)
-        .processing(recipe("iron-gear-wheel-recycling").withQuality(quality("uncommon")))
+        .crafting(recipe("iron-gear-wheel-recycling").withQuality(quality("uncommon")))
     bpEntity = recycler.toBlueprintEntity(2, Position(0.0, 0.0))!!
     println(bpEntity)
     println(bpJson.encodeToString<BlueprintEntity>(bpEntity))

@@ -25,14 +25,14 @@ val fulgoraQualityMultipliers = listOf(
 
 fun FactoryConfigBuilder.fulgoraMachines(
     modules: List<Module> = nonEffModulesAllQualities
-        .filter { it.prototype != productivityModule3.prototype },
+        .filter { it.prototype != prototypes.productivityModule3.prototype },
     beacons: List<List<WithBeaconCount>> = defaultFulgoraBeaconConfig,
-) {
+) = with(prototypes) {
     // same machines, different cost
     vulcanusMachines(modules, beacons)
     machines {
         bigMiningDrill {
-            moduleConfigs.removeIf {
+            moduleSetConfigs.removeIf {
                 it.beacons.sumOf { it.beaconCount.count } >= 4
             }
         }
@@ -67,11 +67,12 @@ fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() {
     for (module in module1s) {
         addQualityCosts(module, baseModuleCost, fulgoraQualityMultipliers)
     }
+    val module2Cost = baseModuleCost * 6 / 1.5
     for (module in module2s) {
-        addQualityCosts(module, baseModuleCost * 6 / 1.5, fulgoraQualityMultipliers)
+        addQualityCosts(module, module2Cost, fulgoraQualityMultipliers)
     }
-    addQualityCosts(speedModule3, (baseModuleCost * 6 / 1.5) * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
-    addQualityCosts(qualityModule3, (baseModuleCost * 6 / 1.5) * 4.5 / 1.5, fulgoraQualityMultipliers)
+    addQualityCosts(speedModule3, module2Cost * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
+    addQualityCosts(qualityModule3, module2Cost * 4.5 / 1.5, fulgoraQualityMultipliers)
 }
 
 fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() {
@@ -95,7 +96,7 @@ fun fulgoraFactory1(scrapCost: Number, config: FactoryConfigBuilder.() -> Unit =
             cost = 0.0
         }
         allCraftingRecipes()
-        scrapMining {
+        this@factory.prototypes.scrapMining {
             cost = scrapCost.toDouble()
         }
     }

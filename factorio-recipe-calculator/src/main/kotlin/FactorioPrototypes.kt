@@ -68,18 +68,18 @@ interface FactorioPrototypesScope {
 
     fun itemOfOrNull(entity: EntityPrototype): Item? = prototypes.builtByMap[entity.name]
     fun itemOfOrNull(entity: Entity): Item? = itemOfOrNull(entity.prototype)?.withQuality(entity.quality)
+    fun itemOf(entity: Entity): Item = itemOfOrNull(entity) ?: error("Item not found for $entity")
     fun Entity.itemOrNull(): Item? = itemOfOrNull(this)
     fun Entity.item(): Item = itemOrNull() ?: error("Item not found for $this")
 
-    fun recipeOf(item: Item): Recipe = recipe(item.prototype.name).withQuality(item.quality)
-    fun recipeOf(fluid: Fluid): Recipe = recipe(fluid.prototype.name)
-    fun RealIngredient.recipe(): Recipe = when (this) {
-        is Item -> recipeOf(this)
-        is Fluid -> recipeOf(this)
+    fun recipeOf(ingredient: RealIngredient): Recipe = when (ingredient) {
+        is Item -> recipe(ingredient.prototype.name).withQuality(ingredient.quality)
+        is Fluid -> recipe(ingredient.prototype.name)
     }
-}
 
-val FactorioPrototypesScope.qualities get() = prototypes.qualities
+    fun RealIngredient.recipe(): Recipe = recipeOf(this)
+
+}
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }
 

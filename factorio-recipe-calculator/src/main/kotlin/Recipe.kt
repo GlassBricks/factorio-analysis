@@ -16,6 +16,8 @@ sealed interface RecipeOrResource<out M : AnyMachine<*>> {
 
     val inputQuality: Quality
     fun withQualityOrNull(quality: Quality): RecipeOrResource<M>?
+
+    fun acceptsModules(modules: WithModulesUsed): Boolean
 }
 
 class Recipe private constructor(
@@ -47,13 +49,14 @@ class Recipe private constructor(
     fun withQuality(quality: Quality): Recipe = withQualityOrNull(quality)
         ?: throw IllegalArgumentException("Cannot change quality of recipe $this to $quality")
 
-    fun acceptsModule(module: Module): Boolean {
-        if (prototype.allowed_module_categories?.let { module.prototype.category in it } == false) return false
-        if (!allowedModuleEffects.containsAll(module.usedPositiveEffects)) return false
+    override fun acceptsModules(modules: WithModulesUsed): Boolean {
+        if (!allowedModuleEffects.containsAll(modules.moduleEffectsUsed)) return false
+        prototype.allowed_module_categories?.let { categories ->
+            if (!modules.modulesUsed.all { it.prototype.category in categories })
+                return false
+        }
         return true
     }
-
-    fun acceptsModules(modules: Iterable<Module>): Boolean = modules.all { this.acceptsModule(it) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

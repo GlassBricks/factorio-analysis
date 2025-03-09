@@ -4,7 +4,7 @@ package scripts
 
 import glassbricks.factorio.recipes.*
 import glassbricks.factorio.recipes.export.*
-import glassbricks.factorio.recipes.problem.MachineConfigScope
+import glassbricks.factorio.recipes.problem.MachineConfigBuilder
 import glassbricks.factorio.recipes.problem.ProblemBuilder
 import glassbricks.recipeanalysis.recipelp.*
 import glassbricks.recipeanalysis.writeDotGraph
@@ -102,9 +102,7 @@ val defaultBeaconProfiles = listOf(
     BeaconProfile(6.0, 2),
     BeaconProfile(6.0, 3),
     BeaconProfile(6.0, 4),
-    BeaconProfile(6.0, 6),
     BeaconProfile(4.0, 8),
-    BeaconProfile(2.0, 10),
     BeaconProfile(2.0, 12),
 )
 
@@ -127,7 +125,7 @@ fun ProblemBuilder.CostsScope.addQualityCosts(
     }
 }
 
-fun MachineConfigScope.moduleConfigWithBeacons(
+fun MachineConfigBuilder.moduleConfigWithBeacons(
     modules: List<Module>,
     beacons: List<List<WithBeaconCount>>,
 ) {

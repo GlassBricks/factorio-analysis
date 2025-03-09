@@ -8,8 +8,7 @@ import kotlin.experimental.ExperimentalTypeInference
 import kotlin.math.abs
 
 class AnyVector<T, out Units>
-@PublishedApi internal constructor(internal val map: ZeroPutOpenHashMap<T>) :
-    Collection<Object2DoubleMap.Entry<T>> {
+@PublishedApi internal constructor(internal val map: ZeroPutOpenHashMap<T>) : Collection<Object2DoubleMap.Entry<T>> {
     operator fun get(key: T): Double = map.getDouble(key)
     override fun iterator(): Iterator<Object2DoubleMap.Entry<T>> = map.object2DoubleEntrySet().iterator()
 
@@ -19,6 +18,8 @@ class AnyVector<T, out Units>
 
     override fun isEmpty(): Boolean = map.isEmpty()
     override val size: Int get() = map.size
+
+    fun toMap(): Map<T, Double> = map.toMap()
 
     val keys: Set<T> get() = map.keys
     val values: DoubleCollection get() = map.values

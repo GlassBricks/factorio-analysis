@@ -7,7 +7,7 @@ import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.recipelp.RecipeLpFormatter
 
 interface FactorioRecipesFormatter : RecipeLpFormatter {
-    fun formatSetup(setup: MachineSetup<*>): String =
+    fun formatSetup(setup: MachineProcess<*>): String =
         "${formatMachine(setup.machine)} --> ${formatRecipeOrResource(setup.recipe)}"
 
     fun formatMachine(machine: AnyMachine<*>): String = when (machine) {
@@ -90,26 +90,26 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatFluid(fluid: Fluid): String = fluid.prototype.name
 
     override fun formatProcess(process: Process): String = when (process) {
-        is MachineSetup<*> -> formatSetup(process)
+        is MachineProcess<*> -> formatSetup(process)
         else -> process.toString()
     }
 
-    fun formatMachineSetupUsage(setup: MachineSetup<*>, rate: Double): String = defaultNumberFormat(rate)
+    fun formatMachineSetupUsage(setup: MachineProcess<*>, rate: Double): String = defaultNumberFormat(rate)
 
     override fun formatRealProcessUsage(process: Process, rate: Double): String =
-        if (process is MachineSetup<*>) formatMachineSetupUsage(process, rate)
+        if (process is MachineProcess<*>) formatMachineSetupUsage(process, rate)
         else super.formatRealProcessUsage(process, rate)
 
     companion object Default : FactorioRecipesFormatter
 }
 
 interface RecipesFirst : FactorioShorthandFormatter {
-    override fun formatSetup(setup: MachineSetup<*>): String =
+    override fun formatSetup(setup: MachineProcess<*>): String =
         "${formatRecipeOrResource(setup.recipe)} --> ${formatMachine(setup.machine)}"
 
     override val processComparator: Comparator<in Process>?
         get() = compareBy {
-            if (it is MachineSetup<*>) formatRecipeOrResource(it.recipe)
+            if (it is MachineProcess<*>) formatRecipeOrResource(it.recipe)
             else null
         }
 

@@ -73,17 +73,17 @@ class ModulesKtTest : FunSpec({
     val asm2 = craftingMachine("assembling-machine-2")
     val drill = miningDrill("electric-mining-drill")
     test("machine acceptsModule") {
-        asm1.acceptsModule(speed1) shouldBe false
+        asm1.acceptsModules(speed1) shouldBe false
 
-        asm2.acceptsModule(speed1) shouldBe true
-        asm2.acceptsModule(prod1) shouldBe true
-        asm2.acceptsModule(qual1) shouldBe true
-        asm2.acceptsModule(eff1) shouldBe true
+        asm2.acceptsModules(speed1) shouldBe true
+        asm2.acceptsModules(prod1) shouldBe true
+        asm2.acceptsModules(qual1) shouldBe true
+        asm2.acceptsModules(eff1) shouldBe true
 
-        drill.acceptsModule(speed1) shouldBe true
-        drill.acceptsModule(prod1) shouldBe true
-        drill.acceptsModule(qual1) shouldBe true
-        drill.acceptsModule(eff1) shouldBe true
+        drill.acceptsModules(speed1) shouldBe true
+        drill.acceptsModules(prod1) shouldBe true
+        drill.acceptsModules(qual1) shouldBe true
+        drill.acceptsModules(eff1) shouldBe true
     }
 
     context("adding machine effects") {
