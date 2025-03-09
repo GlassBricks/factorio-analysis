@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":factorio-recipe-calculator"))
+    api(project(":factorio-recipes"))
     testImplementation(libs.bundles.kotest)
     testImplementation(kotlin("test"))
 }

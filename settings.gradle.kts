@@ -23,5 +23,5 @@ plugins {
 rootProject.name = "factorio-analysis"
 include(":prototypes")
 include(":recipe-lp")
-include(":factorio-recipe-calculator")
+include(":factorio-recipes")
 include(":scripts")
