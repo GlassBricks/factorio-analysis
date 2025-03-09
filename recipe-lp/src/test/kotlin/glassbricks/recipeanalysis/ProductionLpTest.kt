@@ -262,8 +262,10 @@ class ProductionLpTest : StringSpec({
             inputs = listOf(input),
             outputs = listOf(output),
             processes = listOf(process),
-        ).solve(solver = OrToolsLp("SCIP"))
+        ).solve(solver = OrToolsLpSolver("SCIP"))
         result.status shouldBe LpResultStatus.Optimal
+        val usage = result.solution!!.processes.single().doubleValue
+        usage shouldBe 0.1
         val cost = result.lpSolution?.objectiveValue
         cost shouldBe 1.0
     }

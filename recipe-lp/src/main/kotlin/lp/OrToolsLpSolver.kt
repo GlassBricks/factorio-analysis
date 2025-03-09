@@ -8,7 +8,7 @@ import com.google.ortools.linearsolver.MPVariable
 import glassbricks.recipeanalysis.buildVector
 import glassbricks.recipeanalysis.relaxKeyType
 
-class OrToolsLp(solverId: String = "GLOP") : LpSolver {
+class OrToolsLpSolver(solverId: String = "GLOP") : LpSolver {
     init {
         Loader.loadNativeLibraries()
     }
@@ -62,7 +62,7 @@ class OrToolsLp(solverId: String = "GLOP") : LpSolver {
     }
 
     private inner class ConstraintImpl(val constraint: MPConstraint) : Constraint {
-        override val parent: LpSolver get() = this@OrToolsLp
+        override val parent: LpSolver get() = this@OrToolsLpSolver
         override var lb: Double
             get() = constraint.lb()
             set(value) = constraint.setLb(value)
@@ -86,7 +86,7 @@ class OrToolsLp(solverId: String = "GLOP") : LpSolver {
     }
 
     private inner class ObjectiveImpl(val objective: MPObjective) : Objective {
-        override val parent: LpSolver get() = this@OrToolsLp
+        override val parent: LpSolver get() = this@OrToolsLpSolver
 
         override var maximize: Boolean
             get() = objective.maximization()

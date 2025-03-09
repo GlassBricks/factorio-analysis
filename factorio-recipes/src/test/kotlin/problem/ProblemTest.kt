@@ -1,11 +1,11 @@
-package glassbricks.factorio.recipes
-/*
+package glassbricks.factorio.recipes.problem
 
-import glassbricks.factorio.recipes.problem.factory
-import glassbricks.factorio.recipes.problem.problem
+import glassbricks.factorio.prototypes.EntityPrototype
+import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.LpOptions
 import glassbricks.recipeanalysis.lp.LpResultStatus
+import glassbricks.recipeanalysis.lp.OrToolsLpSolver
 import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.toStage
@@ -70,7 +70,6 @@ class ProblemTest : FunSpec({
             machines {
                 default {
                     moduleConfig(fill = qual3)
-                    emptyModuleConfig()
                 }
                 "assembling-machine-3" {}
                 "recycler" {}
@@ -133,7 +132,6 @@ class ProblemTest : FunSpec({
         val gamblingFactory = factory {
             machines {
                 default {
-                    emptyModuleConfig()
                     moduleConfig(fill = qual2)
                     moduleConfig(fill = prod3, beacons = listOf(beacon(fill = speed2)))
                     moduleConfig(fill = speed1, beacons = listOf(beacon(fill = speed2)))
@@ -153,7 +151,7 @@ class ProblemTest : FunSpec({
                 "pipe-to-ground" {}
                 "pipe" {}
 
-                allRecycling()
+                allOfCategory("recycling")
             }
         }
         val problem = problem {
@@ -176,16 +174,21 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    (ironGearWheel.prototype.name) {}
+                    ironGearWheel {
+                        upperBound = 1.0
+                    }
                 }
             }
+            println(this.factory!!.getAllProcesses())
             input(ironPlate)
-            maximize(ironGearWheel)
+//            maximize(ironGearWheel)
+            output(ironGearWheel, 1.perSecond)
             costs {
-                limit(item("assembling-machine-1"), 1.0)
+//                limit(item("assembling-machine-1"), 1.0)
             }
         }
         val solution = problem.solve().solution!!
+        println(solution.processes.display())
 
         val inputRate = Rate(solution.inputs[ironPlate])
         inputRate shouldBe 2.perSecond
@@ -231,10 +234,10 @@ class ProblemTest : FunSpec({
                         includeBuildCosts = true
                     }
                     "assembling-machine-2" {
-                        additionalCosts += vectorWithUnits(foo to 2.0)
+                        additionalCosts += vectorOf(foo to 2.0)
                     }
                     "assembling-machine-1" {
-                        additionalCosts += vectorWithUnits(foo to 1.0)
+                        additionalCosts += vectorOf(foo to 1.0)
                     }
                 }
                 recipes {
@@ -249,15 +252,13 @@ class ProblemTest : FunSpec({
         }
         val solution = problem.solve().solution!!
 
-        val processes = solution.processes.mapKeysNotNull { it as? MachineSetup<*> }
-//        val asm2Recipe = problem.recipes.keys.find {
-//            it.machine.prototype.name == "assembling-machine-2"
-//        }
-//        val asm1Recipe = problem.recipes.keys.find {
-//            it.machine.prototype.name == "assembling-machine-1"
-//        }
-        val asm2Usage = processes.entries.find { it.key.machine.prototype.name == "assembling-machine-2" }?.value ?: 0.0
-        val asm1Usage = processes.entries.find { it.key.machine.prototype.name == "assembling-machine-1" }?.value ?: 0.0
+        val processes = solution.processes.mapKeysNotNull { it as? MachineProcess<*> }
+        val asm2Usage =
+            processes.find { (it.key.machine.prototype as EntityPrototype).name == "assembling-machine-2" }?.doubleValue
+                ?: 0.0
+        val asm1Usage =
+            processes.find { (it.key.machine.prototype as EntityPrototype).name == "assembling-machine-1" }?.doubleValue
+                ?: 0.0
         asm2Usage shouldBe 0.0
         asm1Usage shouldBe 1.0
     }
@@ -319,7 +320,7 @@ class ProblemTest : FunSpec({
             factory {
                 machines {
                     "assembling-machine-3" {
-                        type = VariableType.Integer
+                        integral()
                     }
                 }
                 recipes {
@@ -329,8 +330,8 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
-        val solution = problem.solve().solution!!
-        val usage = solution.processes.entries.single().value
+        val solution = problem.solve(solver = OrToolsLpSolver("SCIP")).solution!!
+        val usage = solution.processes.single().doubleValue
         usage shouldBe 1.0
     }
 
@@ -342,7 +343,7 @@ class ProblemTest : FunSpec({
                     "electric-furnace" {}
                 }
                 recipes {
-                    mining("iron-ore") {}
+                    (resource("iron-ore")) {}
                     "iron-plate" {}
                 }
             }
@@ -361,7 +362,7 @@ class ProblemTest : FunSpec({
                     }
                 }
                 recipes {
-                    mining("iron-ore") {}
+                    (resource("iron-ore")) {}
                 }
             }
             output(item("iron-ore"), 1.perSecond)
@@ -377,8 +378,8 @@ class ProblemTest : FunSpec({
         val problem = problem {
             factory {}
             customProcess("foo crafting") {
-                ingredientRate -= vectorWithUnits(foo to 1.0)
-                ingredientRate += vectorWithUnits(foo2 to 1.0)
+                ingredientRate -= vectorOfWithUnits(foo to 1.0)
+                ingredientRate += vectorOfWithUnits(foo2 to 1.0)
             }
             input(foo)
             output(foo2, 1.perSecond)
@@ -389,7 +390,7 @@ class ProblemTest : FunSpec({
 
     }
 
-    test("semi-continuous") {
+    xtest("semi-continuous") {
         val problem = problem {
             factory {
                 machines {
@@ -405,8 +406,8 @@ class ProblemTest : FunSpec({
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
-        val solution = problem.solve().solution!!
-        val usage = solution.processes.entries.single().value
+        val solution = problem.solve(solver = OrToolsLpSolver("SCIP")).solution!!
+        val usage = solution.processes.single().doubleValue
         usage shouldBe 2.0
         println(solution.processes.display())
     }
@@ -427,9 +428,9 @@ class ProblemTest : FunSpec({
             input(ironPlate, cost = 0.0)
             output(ironGearWheel, 0.01.perSecond)
         }
-        val solution = problem.solve().solution!!
-        val usage = solution.processes.entries.single().value
-        usage shouldBeIn (0.001..0.1)
+        val solution = problem.solve(solver = OrToolsLpSolver("SCIP")).solution!!
+        val usage = solution.processes.single().doubleValue
+        usage shouldBeIn 0.001..0.1
         val asm3usage = solution.symbolUsage[item("assembling-machine-3")]
         asm3usage shouldBe 1.0
         val cost = solution.objectiveValue
@@ -458,10 +459,7 @@ class ProblemTest : FunSpec({
             val stage1Solution = result.solutions!![stage]!!
             stage1Solution.processes.values.single() shouldBe 1.0
         }
-
     }
-
-}), WithFactorioPrototypes {
+}), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge
 }
-*/

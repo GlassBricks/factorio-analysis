@@ -25,7 +25,7 @@ interface LpSolver {
 }
 
 @Suppress("FunctionName")
-fun DefaultLpSolver(): LpSolver = OrToolsLp("GLOP")
+fun DefaultLpSolver(): LpSolver = OrToolsLpSolver("GLOP")
 
 class LpOptions(
     val timeLimit: Duration = 1.minutes,

@@ -96,12 +96,12 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
     }
 
     fun acceptsModules(modules: WithModulesUsed): Boolean {
-        if (!prototypeTakesModules()) return false
         if (!allowedEffects.containsAll(modules.moduleEffectsUsed)) return false
         prototype.allowed_module_categories?.let { categories ->
             if (!modules.modulesUsed.all { it.prototype.category in categories }) return false
         }
-        return true
+        if (!modules.modulesUsed.any()) return true
+        return prototypeTakesModules()
     }
 
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> {

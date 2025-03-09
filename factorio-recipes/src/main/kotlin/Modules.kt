@@ -280,8 +280,8 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
 }
 
 data class ModuleSet(
-    val modules: ModuleList,
-    val beacons: BeaconList,
+    val modules: ModuleList = ModuleList(emptyList()),
+    val beacons: BeaconList = BeaconList(emptyList()),
 ) : WithEffects, WithBuildCost, WithPowerUsage, WithModulesUsed {
     override val effects: IntEffects = modules + beacons.effects
 

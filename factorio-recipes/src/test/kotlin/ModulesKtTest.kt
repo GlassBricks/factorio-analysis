@@ -84,6 +84,8 @@ class ModulesKtTest : FunSpec({
         drill.acceptsModules(prod1) shouldBe true
         drill.acceptsModules(qual1) shouldBe true
         drill.acceptsModules(eff1) shouldBe true
+
+        asm1.acceptsModules(ModuleSet()) shouldBe true
     }
 
     context("adding machine effects") {

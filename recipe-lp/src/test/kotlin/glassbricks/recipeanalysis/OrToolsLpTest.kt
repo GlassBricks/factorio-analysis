@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class OrToolsLpTest : FreeSpec({
-    var solver by createEach { OrToolsLp("GLOP") }
+    var solver by createEach { OrToolsLpSolver("GLOP") }
     "basic lp test" {
         val (xv, yv) = "xy".map { solver.addPositiveVariable(name = it.toString()) }
         val x = uvec(xv)
@@ -36,7 +36,7 @@ class OrToolsLpTest : FreeSpec({
         result.solution!!.objectiveValue shouldBe -1.0
     }
     "unbounded solution" {
-        solver = OrToolsLp("CBC")
+        solver = OrToolsLpSolver("CBC")
         val x = solver.addPositiveVariable(name = "x")
         val xv = uvec(x)
         solver += listOf(xv geq 0.0)
@@ -51,7 +51,7 @@ class OrToolsLpTest : FreeSpec({
     }
     "integral" {
         // x >= 0.5; minimize x
-        solver = OrToolsLp("SCIP")
+        solver = OrToolsLpSolver("SCIP")
         val x = solver.addPositiveVariable(name = "x", type = VariableType.Integer)
         val xv = uvec(x)
         solver += listOf(xv geq 0.5)

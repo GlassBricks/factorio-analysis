@@ -9,7 +9,7 @@ import glassbricks.factorio.recipes.problem.stage
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
-import glassbricks.recipeanalysis.lp.OrToolsLp
+import glassbricks.recipeanalysis.lp.OrToolsLpSolver
 import glassbricks.recipeanalysis.recipelp.MultiStageProductionLp
 import glassbricks.recipeanalysis.recipelp.runningFor
 import scripts.*
@@ -110,7 +110,7 @@ fun main(): Unit = with(SpaceAge) {
     )
 
     val result = problem.solve(
-        OrToolsLp(), LpOptions(
+        OrToolsLpSolver(), LpOptions(
             timeLimit = 20.minutes,
             numThreads = Runtime.getRuntime().availableProcessors() - 2,
             enableLogging = true,

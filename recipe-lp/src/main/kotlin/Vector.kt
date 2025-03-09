@@ -49,6 +49,13 @@ class AnyVector<T, out Units>
         postfix = "}"
     ) { (ingredient, amount) -> "$ingredient: $amount" }
 
+    fun display(): String = buildString {
+        val ingredientStrs = map.keys.map { it.toString() }
+        val maxWidth = ingredientStrs.maxOfOrNull { it.length } ?: 0
+        for ((ingredient, amount) in map) {
+            append("%-${maxWidth}s: %f\n".format(ingredient, amount))
+        }
+    }
 }
 
 inline fun <T, Units> AnyVector<T, Units>.mapValues(transform: (Object2DoubleMap.Entry<T>) -> Double): AnyVector<T, Units> =

@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes.problem
 
+import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.Vector
@@ -32,6 +33,15 @@ interface IProcessConfigBuilder {
     fun includePowerCosts() {
         includePowerCosts = true
     }
+
+    fun integral() {
+        type = VariableType.Integer
+    }
+
+    fun integralCost() {
+        outputVariableConfig = (outputVariableConfig ?: VariableConfig())
+            .copy(type = VariableType.Integer)
+    }
 }
 
 class ProcessConfigBuilder : IProcessConfigBuilder, Builder<ProcessConfig> {
@@ -44,13 +54,14 @@ class ProcessConfigBuilder : IProcessConfigBuilder, Builder<ProcessConfig> {
     override var upperBound: Double = Double.POSITIVE_INFINITY
     override var cost: Double = 0.0
     override var type: VariableType = VariableType.Continuous
+
     override fun build(): ProcessConfig = ProcessConfig(
         includeBuildCosts = includeBuildCosts,
         additionalCosts = additionalCosts,
-        costVariableConfig = outputVariableConfig,
+        costVariableConfig = outputVariableConfig?.copy(cost = cost),
         lowerBound = lowerBound,
         upperBound = upperBound,
-        cost = cost,
+        cost = if (outputVariableConfig == null) cost else 0.0,
         variableType = type,
         includePowerCosts = includePowerCosts
     )
@@ -89,6 +100,7 @@ class MachineConfigBuilder(
             it.toModuleSet(moduleSlots)
         }
     )
+
 }
 
 @FactoryConfigDsl
@@ -190,6 +202,13 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
 
         fun allCraftingRecipes(config: RecipeConfigBuilder.() -> Unit = {}) {
             for (recipe in this@FactoryConfigBuilder.prototypes.recipes.values) {
+                addConfig(recipe, config)
+            }
+        }
+
+        fun allOfCategory(category: String, config: RecipeConfigBuilder.() -> Unit = {}) {
+            val id = RecipeCategoryID(category)
+            for (recipe in this@FactoryConfigBuilder.prototypes.recipesByCategory[id].orEmpty()) {
                 addConfig(recipe, config)
             }
         }

@@ -24,9 +24,9 @@ object DefaultWeights {
 
 @FactoryConfigDsl
 class ProblemBuilder(
-    override val prototypes: FactorioPrototypes,
+    val prototypes: FactorioPrototypes,
     factoryConfig: FactoryConfig? = null,
-) : FactorioPrototypesScope {
+) {
     constructor(factoryConfig: FactoryConfig) : this(factoryConfig.prototypes, factoryConfig)
 
     var factory: FactoryConfig? = factoryConfig
@@ -87,7 +87,7 @@ class ProblemBuilder(
     }
 
     @FactoryConfigDsl
-    inner class CostsScope : FactorioPrototypesScope by this@ProblemBuilder {
+    inner class CostsScope {
 
         fun varConfig(symbol: Symbol): VariableConfigBuilder {
             return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
@@ -99,7 +99,7 @@ class ProblemBuilder(
         }
 
         fun limit(entity: Entity, value: Number) {
-            limit(entity.item(), value)
+            limit(this@ProblemBuilder.prototypes.itemOf(entity), value)
         }
 
         fun costOf(symbol: Symbol, value: Number) {
@@ -107,7 +107,7 @@ class ProblemBuilder(
         }
 
         fun costOf(entity: Entity, value: Number) {
-            costOf(entity.item(), value)
+            costOf(this@ProblemBuilder.prototypes.itemOf(entity), value)
         }
 
         fun forbidIfNotSpecified(symbol: Symbol) {
@@ -116,10 +116,12 @@ class ProblemBuilder(
             }
         }
 
-        fun forbidUnspecifiedEntities() {
+        fun forbidUnspecifiedEntities() = with(this@ProblemBuilder.prototypes) {
             for (quality in prototypes.qualities) {
                 for (machine in prototypes.craftingMachines.values) {
-                    forbidIfNotSpecified(machine.item().withQuality(quality))
+                    forbidIfNotSpecified(
+                        machine.item().withQuality(quality)
+                    )
                 }
                 for (drill in prototypes.miningDrills.values) {
                     forbidIfNotSpecified(drill.item().withQuality(quality))
@@ -130,7 +132,7 @@ class ProblemBuilder(
             }
         }
 
-        fun forbidUnspecifiedModules() {
+        fun forbidUnspecifiedModules() = with(this@ProblemBuilder.prototypes) {
             for (module in prototypes.modules.values) {
                 for (quality in prototypes.qualities) {
                     forbidIfNotSpecified(module.withQuality(quality))

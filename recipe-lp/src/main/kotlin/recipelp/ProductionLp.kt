@@ -95,8 +95,8 @@ internal fun ProductionLp.createVarsAndConstraints(
     val processCostVariables = processVariables.mapValues { (process, processVar) ->
         process.costVariableConfig
             ?.let { solver.addVariable(it) }
-            ?.also { variable ->
-                solver.addConstraint(vectorOf(variable to 1.0, processVar to -1.0) geq 0.0)
+            ?.also { costVar ->
+                solver.addConstraint(vectorOf(costVar to 1.0, processVar to -1.0) geq 0.0)
             }
             ?: processVar
     }

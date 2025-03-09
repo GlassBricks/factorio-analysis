@@ -33,6 +33,8 @@ class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, Ingredient
     val recipes: Map<String, Recipe> =
         dataRaw.recipe.mapValues { Recipe.fromPrototype(it.value, defaultQuality, this) }
 
+    val recipesByCategory = recipes.values.groupBy { it.prototype.category }
+
     val miningDrills: Map<String, MiningDrill> =
         dataRaw.`mining-drill`.mapValues { MiningDrill(it.value, defaultQuality) }
     val resources: Map<String, Resource> =
