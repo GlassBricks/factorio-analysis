@@ -82,7 +82,7 @@ fun main(): Unit = with(SpaceAge) {
 
 }
 
-fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Duration) {
+fun ProblemBuilder.oneFullLegendaryMechArmor(targetTime: Duration) = with(prototypes) {
     data class Size(val x: Int, val y: Int)
 
     val sizes = listOf(

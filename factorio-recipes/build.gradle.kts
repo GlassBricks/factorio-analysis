@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api(project(":recipe-lp"))
     api(project(":prototypes"))
+    implementation(libs.fastutil)
     testImplementation(libs.bundles.kotest)
     testImplementation(kotlin("test"))
 }

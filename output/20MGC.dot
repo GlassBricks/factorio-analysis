@@ -3,75 +3,75 @@ digraph {
     concentrate=true
     node [shape="record"; margin=0]
     edge [decorate=true]
-    0 [color="#006400"; label="{Steam|50380.5935/s}"]
-    1 [color="#006400"; label="{Calcite|46.7622/s}"]
-    2 [color="#006400"; label="{Sulfuric acid|5038.0594/s}"]
-    3 [color="#006400"; label="{Iron plate|2249.9999/s}"]
-    4 [color="#006400"; label="{Molten iron|9894.5774/s}"]
-    5 [color="#006400"; label="{Copper cable|6749.9998/s}"]
-    6 [color="#006400"; label="{GC|2430.0000/s}"]
-    7 [color="#006400"; label="{Landfill|(+16.8208/s)}"]
-    8 [color="#006400"; label="{Stone|841.0391/s}"]
-    9 [color="#006400"; label="{Lava|20862.0597/s}"]
-    10 [color="#006400"; label="{Molten copper|7420.9330/s}"]
-    11 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Acid neutralisation|Chem plant|25.1903}"]
-    12 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|135.5422}"]
-    13 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC recycling|Recycler[Speed x4, Beacon[Speed 3 x2] x2]|38.7436}"]
-    14 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC|Asm 2[Prod x2, Beacon[Eff mod x2]]|1666.6667}"]
-    15 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Landfill|Asm 2[, Beacon[Speed x2]]|7.0087}"]
-    16 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Sulfuric acid|Input|5038.0594/s}"]
-    17 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten iron from lava|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|32.6608}"]
-    18 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(steam turbine power)|839.6766}"]
-    19 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lava|Input|20862.0597/s}"]
-    20 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Calcite|Big mining drill[, Beacon[Speed 3 x2]]|7.4819}"]
-    21 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting copper cable|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|127.0708}"]
-    22 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten copper from lava|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|24.4956}"]
-    0 -> 18 [color="#99620f"; label="(All)"]
-    1 -> 11 [color="#99620f"; label="5.0381/s
+    0 [color="#006400"; label="{Copper cable|6749.9998/s}"]
+    1 [color="#006400"; label="{Iron plate|2249.9999/s}"]
+    2 [color="#006400"; label="{GC|2430.0000/s}"]
+    3 [color="#006400"; label="{Steam|50380.5935/s}"]
+    4 [color="#006400"; label="{Calcite|46.7622/s}"]
+    5 [color="#006400"; label="{Sulfuric acid|5038.0594/s}"]
+    6 [color="#006400"; label="{Lava|20862.0597/s}"]
+    7 [color="#006400"; label="{Molten copper|7420.9330/s}"]
+    8 [color="#006400"; label="{Landfill|(+16.8208/s)}"]
+    9 [color="#006400"; label="{Stone|841.0391/s}"]
+    10 [color="#006400"; label="{Molten iron|9894.5774/s}"]
+    11 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC|Asm 2[Prod x2, Beacon[Eff mod x2]]|1666.6667}"]
+    12 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Acid neutralisation|Chem plant|25.1903}"]
+    13 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Calcite|Big mining drill[, Beacon[Speed 3 x2]]|7.4819}"]
+    14 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Sulfuric acid|Input|5038.0594/s}"]
+    15 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Lava|Input|20862.0597/s}"]
+    16 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting copper cable|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|127.0708}"]
+    17 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Landfill|Asm 2[, Beacon[Speed x2]]|7.0087}"]
+    18 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Casting iron|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|135.5422}"]
+    19 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{GC recycling|Recycler[Speed x4, Beacon[Speed 3 x2] x2]|38.7436}"]
+    20 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten iron from lava|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|32.6608}"]
+    21 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Molten copper from lava|Foundry[Prod x4, Beacon[Speed 3 x2] x2]|24.4956}"]
+    22 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(steam turbine power)|839.6766}"]
+    0 -> 11 [color="#99620f"; label="(All)"]
+    1 -> 11 [color="#99620f"; label="(All)"]
+    2 -> 19 [color="#99620f"; label="(All)"]
+    3 -> 22 [color="#99620f"; label="(All)"]
+    4 -> 12 [color="#99620f"; label="5.0381/s
 "]
-    1 -> 17 [color="#99620f"; label="23.8424/s
+    4 -> 20 [color="#99620f"; label="23.8424/s
 "]
-    1 -> 22 [color="#99620f"; label="17.8818/s
+    4 -> 21 [color="#99620f"; label="17.8818/s
 "]
-    2 -> 11 [color="#99620f"; label="(All)"]
-    3 -> 14 [color="#99620f"; label="(All)"]
-    4 -> 12 [color="#99620f"; label="(All)"]
-    5 -> 14 [color="#99620f"; label="(All)"]
-    6 -> 13 [color="#99620f"; label="(All)"]
-    8 -> 15 [color="#99620f"; label="(All)"]
-    9 -> 17 [color="#99620f"; label="11921.1770/s
+    5 -> 12 [color="#99620f"; label="(All)"]
+    6 -> 20 [color="#99620f"; label="11921.1770/s
 "]
-    9 -> 22 [color="#99620f"; label="8940.8827/s
+    6 -> 21 [color="#99620f"; label="8940.8827/s
 "]
-    10 -> 21 [color="#99620f"; label="(All)"]
-    11 -> 0 [color="#0f4699"; label="(All)"]
-    12 -> 3 [color="#0f4699"; label="1642.4999/s
+    7 -> 16 [color="#99620f"; label="(All)"]
+    9 -> 17 [color="#99620f"; label="(All)"]
+    10 -> 18 [color="#99620f"; label="(All)"]
+    11 -> 2 [color="#0f4699"; label="(All)"]
+    12 -> 3 [color="#0f4699"; label="(All)"]
+    13 -> 4 [color="#0f4699"; label="(All)"]
+    14 -> 5 [color="#0f4699"; label="(All)"]
+    15 -> 6 [color="#0f4699"; label="(All)"]
+    16 -> 0 [color="#0f4699"; label="4927.4998/s
 "]
-    13 -> 5 [color="#0f4699"; label="1822.5000/s
+    17 -> 8 [color="#0f4699"; label="(All)"]
+    18 -> 1 [color="#0f4699"; label="1642.4999/s
 "]
-    13 -> 3 [color="#0f4699"; label="607.5000/s
+    19 -> 0 [color="#0f4699"; label="1822.5000/s
 "]
-    14 -> 6 [color="#0f4699"; label="(All)"]
-    15 -> 7 [color="#0f4699"; label="(All)"]
-    16 -> 2 [color="#0f4699"; label="(All)"]
-    17 -> 8 [color="#0f4699"; label="395.7831/s
+    19 -> 1 [color="#0f4699"; label="607.5000/s
 "]
-    17 -> 4 [color="#0f4699"; label="(All)"]
-    19 -> 9 [color="#0f4699"; label="(All)"]
-    20 -> 1 [color="#0f4699"; label="(All)"]
-    21 -> 5 [color="#0f4699"; label="4927.4998/s
+    20 -> 9 [color="#0f4699"; label="395.7831/s
 "]
-    22 -> 10 [color="#0f4699"; label="(All)"]
-    22 -> 8 [color="#0f4699"; label="445.2560/s
+    20 -> 10 [color="#0f4699"; label="(All)"]
+    21 -> 7 [color="#0f4699"; label="(All)"]
+    21 -> 9 [color="#0f4699"; label="445.2560/s
 "]
     subgraph {
         rank="source"
-        16
-        19
-        20
+        13
+        14
+        15
     }
     subgraph {
         rank="sink"
-        18
+        22
     }
 }

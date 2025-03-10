@@ -3,6 +3,7 @@ package glassbricks.factorio.recipes.problem
 import glassbricks.factorio.recipes.Entity
 import glassbricks.factorio.recipes.FactorioPrototypes
 import glassbricks.factorio.recipes.FactorioPrototypesScope
+import glassbricks.factorio.recipes.maybeWithQuality
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Rate
 import glassbricks.recipeanalysis.Symbol
@@ -88,7 +89,7 @@ class ProblemBuilder(
 
     @FactoryConfigDsl
     inner class CostsScope {
-
+        val prototypes get() = this@ProblemBuilder.prototypes
         fun varConfig(symbol: Symbol): VariableConfigBuilder {
             return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
         }
@@ -161,15 +162,45 @@ class ProblemBuilder(
 
     var surplusCost: Double = DefaultWeights.SURPLUS_COST
 
-    fun build(): ProductionLp = ProductionLp(
-        inputs = inputs,
-        outputs = outputs,
-        processes = (factory ?: error("Factory not set")).getAllProcesses(),
-        otherProcesses = customProcesses,
-        surplusCost = surplusCost,
-        constraints = symbolConstraints,
-        symbolConfigs = symbolConfigs.mapValues { it.value.build() },
-    )
+    /**
+     * If to apply an optimization to remove recipes/items that cannot be produced, given the input. Ignores quality.
+     *
+     * Note: the LP solver also does this, but doing it ourselves first is much more performant,
+     *       since we work with recipes before they are multiplied by every quality/machine/module combination.
+     */
+    var removeUnusableRecipes: Boolean = true
+    var verifyOutputsProducible: Boolean = true
+
+    fun build(): ProductionLp = with(prototypes) {
+        var factory = factory ?: error("Factory not set")
+
+        if (removeUnusableRecipes) {
+            val inputItems = inputs.map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }
+            val (newFactory, producibleIngredients) = factory.removeUnusableRecipes(
+                inputItems,
+                customProcesses
+            )
+            factory = newFactory
+            if (verifyOutputsProducible) {
+                val nonProducibleOutputs = outputs
+                    .map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }
+                    .filterNot { it in producibleIngredients }
+                require(nonProducibleOutputs.isEmpty()) {
+                    "These outputs are not producible given inputs: $nonProducibleOutputs"
+                }
+            }
+        }
+
+        return ProductionLp(
+            inputs = inputs,
+            outputs = outputs,
+            processes = factory.getAllProcesses(),
+            otherProcesses = customProcesses,
+            surplusCost = surplusCost,
+            constraints = symbolConstraints,
+            symbolConfigs = symbolConfigs.mapValues { it.value.build() },
+        )
+    }
 }
 
 inline fun FactorioPrototypesScope.problem(block: ProblemBuilder.() -> Unit): ProductionLp =

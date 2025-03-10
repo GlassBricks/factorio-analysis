@@ -62,7 +62,7 @@ fun FactoryConfigBuilder.fulgoraMachines(
 //    }
 }
 
-fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() {
+fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() = with(prototypes) {
     val baseModuleCost = 5.0
     for (module in module1s) {
         addQualityCosts(module, baseModuleCost, fulgoraQualityMultipliers)
@@ -75,7 +75,7 @@ fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() {
     addQualityCosts(qualityModule3, module2Cost * 4.5 / 1.5, fulgoraQualityMultipliers)
 }
 
-fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() {
+fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() = with(prototypes) {
     costOf(assemblingMachine2, 10.0)
     costOf(assemblingMachine3, 40.0)
     costOf(chemicalPlant, 10.0)
@@ -106,7 +106,7 @@ fun fulgoraFactory1(scrapCost: Number, config: FactoryConfigBuilder.() -> Unit =
     config()
 }
 
-fun ProblemBuilder.fulgoraConfig1() {
+fun ProblemBuilder.fulgoraConfig1() = with(prototypes) {
     input(heavyOil, cost = 0.0)
     costs {
         fulgoraMachineCosts1()

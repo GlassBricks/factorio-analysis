@@ -13,10 +13,11 @@ class Resource private constructor(
     override val craftingTime: Time
         get() = Time(prototype.minable!!.mining_time)
 
+    override val craftingCategory: Any get() = prototype.category
+    override fun acceptsModules(modules: WithModulesUsed): Boolean = true
+
     override fun withQualityOrNull(quality: Quality): RecipeOrResource<AnyMiningDrill>? =
         if (quality == this.inputQuality) this else null
-
-    override fun acceptsModules(modules: WithModulesUsed): Boolean = true
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -43,7 +43,7 @@ val vulcanusQualityMultipliers = listOf(
     3.8
 )
 
-fun ProblemBuilder.CostsScope.vulcanusModuleCosts1() {
+fun ProblemBuilder.CostsScope.vulcanusModuleCosts1() = with(prototypes) {
     val baseModuleCost = 1.0
     for (module in module1s) {
         addQualityCosts(module, baseModuleCost, vulcanusQualityMultipliers)
@@ -56,7 +56,7 @@ fun ProblemBuilder.CostsScope.vulcanusModuleCosts1() {
     addQualityCosts(qualityModule3, module2Cost * 5 / 1.5 + 5.0, vulcanusQualityMultipliers)
 }
 
-fun ProblemBuilder.CostsScope.vulcanusMachineCosts1() {
+fun ProblemBuilder.CostsScope.vulcanusMachineCosts1() = with(prototypes) {
     costOf(assemblingMachine2, 1)
     costOf(chemicalPlant, 1)
     costOf(oilRefinery, 2)

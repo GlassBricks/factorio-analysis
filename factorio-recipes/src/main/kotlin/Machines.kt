@@ -15,6 +15,7 @@ import java.util.*
  */
 sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCost, WithPowerUsage {
     val prototype: P
+    val craftingCategories: List<Any>
     val baseCraftingSpeed: Double
     val basePowerUsage: Double
     fun canProcess(process: RecipeOrResource<*>): Boolean
@@ -35,15 +36,16 @@ data class CraftingMachine(
     override val prototype: CraftingMachinePrototype,
     override val quality: Quality,
 ) : BaseMachine<CraftingMachinePrototype>(), AnyCraftingMachine {
+    override val craftingCategories: List<RecipeCategoryID> get() = prototype.crafting_categories
     override val baseCraftingSpeed: Double get() = prototype.crafting_speed * (1.0 + quality.level * 0.3)
-    override fun withQuality(quality: Quality): CraftingMachine = CraftingMachine(prototype, quality)
 
     override fun canProcess(process: RecipeOrResource<*>): Boolean {
         if (process !is Recipe) return false
         val machinePrototype = prototype
         if (process.prototype.category !in machinePrototype.crafting_categories) return false
         if (machinePrototype is AssemblingMachinePrototype) {
-            if (machinePrototype.fixed_recipe.value.isNotEmpty() && machinePrototype.fixed_recipe.value != process.prototype.name) return false
+            val fixedRecipe = machinePrototype.fixed_recipe.value
+            if (fixedRecipe.isNotEmpty() && process.prototype.name != fixedRecipe) return false
         }
         // simplified, not 100% accurate, but good enough for now
         if (process.inputs.keys.any { it is Fluid } || process.outputs.keys.any { it is Fluid }) {
@@ -51,6 +53,8 @@ data class CraftingMachine(
         }
         return true
     }
+
+    override fun withQuality(quality: Quality): CraftingMachine = CraftingMachine(prototype, quality)
 }
 typealias AnyCraftingMachine = AnyMachine<CraftingMachinePrototype>
 
@@ -58,11 +62,14 @@ data class MiningDrill(
     override val prototype: MiningDrillPrototype,
     override val quality: Quality,
 ) : BaseMachine<MiningDrillPrototype>(), AnyMiningDrill {
+    override val craftingCategories: List<ResourceCategoryID> = prototype.resource_categories
+
     // higher quality miners don't mine faster
     override val baseCraftingSpeed: Double get() = prototype.mining_speed
-    override fun withQuality(quality: Quality): MiningDrill = MiningDrill(prototype, quality)
     override fun canProcess(process: RecipeOrResource<*>): Boolean =
         process is Resource && process.prototype.category in this.prototype.resource_categories
+
+    override fun withQuality(quality: Quality): MiningDrill = MiningDrill(prototype, quality)
 }
 typealias AnyMiningDrill = AnyMachine<MiningDrillPrototype>
 

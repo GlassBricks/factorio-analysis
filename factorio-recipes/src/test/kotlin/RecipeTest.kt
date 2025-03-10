@@ -38,11 +38,11 @@ class RecipeTest : FunSpec({
         test("legendary night vision equipment") {
             val legendary = SpaceAge.qualityMap["legendary"]!!
             val recipe = recipe("night-vision-equipment").withQuality(legendary)
-            recipe.inputs shouldBe vectorOfWithUnits(
+            recipe.inputs.toMap() shouldBe mapOf(
                 item("steel-plate").maybeWithQuality(legendary) to 10.0,
                 item("advanced-circuit").maybeWithQuality(legendary) to 5.0,
             )
-            recipe.outputs shouldBe vectorOfWithUnits(
+            recipe.outputs.toMap() shouldBe mapOf(
                 item("night-vision-equipment").maybeWithQuality(legendary) to 1.0,
             )
         }

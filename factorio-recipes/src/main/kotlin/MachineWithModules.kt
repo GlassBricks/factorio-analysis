@@ -24,6 +24,7 @@ data class MachineWithModules<P>(
     }
 
     override val prototype: P get() = machine.prototype
+    override val craftingCategories: List<Any> get() = machine.craftingCategories
     override val quality: Quality get() = machine.quality
     override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed
 

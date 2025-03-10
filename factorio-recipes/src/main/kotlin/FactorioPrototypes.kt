@@ -1,6 +1,7 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
+import glassbricks.recipeanalysis.Ingredient
 
 class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, IngredientsMap {
     override val prototypes: FactorioPrototypes get() = this
@@ -44,6 +45,8 @@ class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, Ingredient
 
     override fun get(itemID: ItemID): Item = items.getValue(itemID.value)
     override fun get(fluidID: FluidID): Fluid = fluids.getValue(fluidID.value)
+
+    override fun toString(): String = "FactorioPrototypes"
 }
 
 interface FactorioPrototypesScope {
@@ -79,6 +82,11 @@ interface FactorioPrototypesScope {
 
     fun RealIngredient.recipe(): Recipe = recipeOf(this)
 
+}
+
+fun Ingredient.maybeWithQuality(quality: Quality): Ingredient = when (this) {
+    is Item -> this.withQuality(quality)
+    else -> this
 }
 
 val SpaceAge by lazy { FactorioPrototypes(SpaceAgeDataRaw) }

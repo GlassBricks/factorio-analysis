@@ -17,21 +17,9 @@ data class FactoryConfig(
 ) {
 
     fun getAllProcesses(): List<RealProcess> {
-        val recipesByCategory = recipes.keys.groupBy<_, Any> {
-            val prototype = it.prototype
-            when (prototype) {
-                is RecipePrototype -> prototype.category
-                is ResourceEntityPrototype -> prototype.category
-                else -> error("Unknown prototype type: $prototype")
-            }
-        }
+        val recipesByCategory = recipes.keys.groupBy { it.craftingCategory }
         return machines.entries.parallelStream().flatMap { (machine, machineConfig) ->
-            val categories = when (val p: MachinePrototype = machine.prototype) {
-                is CraftingMachinePrototype -> p.crafting_categories
-                is MiningDrillPrototype -> p.resource_categories
-                else -> error("Unknown machine type: $p")
-            }
-            categories.parallelStream()
+            machine.craftingCategories.parallelStream()
                 .flatMap { cat -> recipesByCategory[cat].orEmpty().stream() }
                 .filter { recipe -> machine.canProcess(recipe) }
                 .flatMap { recipe ->
