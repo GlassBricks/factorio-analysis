@@ -8,6 +8,7 @@ import glassbricks.recipeanalysis.recipelp.RealProcess
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.doubles.beGreaterThan
+import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
@@ -15,6 +16,7 @@ fun recipe(
     name: String,
     vararg inOut: Pair<Ingredient, Double>,
     time: Double,
+    cost: Double = 0.0,
     additionalCosts: Vector<Symbol>? = null,
     costVariableConfig: VariableConfig? = null,
 ): RealProcess = RealProcess(
@@ -24,6 +26,7 @@ fun recipe(
     },
     additionalCosts = additionalCosts ?: emptyVector(),
     costVariableConfig = costVariableConfig,
+    variableConfig = VariableConfig(cost = cost),
 )
 
 class ProductionLpTest : StringSpec({
@@ -268,5 +271,44 @@ class ProductionLpTest : StringSpec({
         usage shouldBe 0.1
         val cost = result.lpSolution?.objectiveValue
         cost shouldBe 1.0
+    }
+
+    "high surplus cost causes extra recipe to be used" {
+        val a = TestIngredient("a")
+        val b = TestIngredient("b")
+        val c = TestIngredient("c")
+        val cCompact = TestIngredient("c-compact")
+        val processA = recipe(
+            "a->b, c",
+            a to -1.0,
+            b to 1.0,
+            c to 1.0,
+            time = 1.0,
+            cost = 1.0,
+        )
+        val cCompactify = recipe(
+            "c->c-compact",
+            c to -10.0,
+            cCompact to 1.0,
+            time = 1.0,
+            cost = 1.0,
+        )
+        val input = Input(a, VariableConfig(cost = 0.0))
+        val output = Output(b, VariableConfig(lowerBound = 1.0))
+        val problem = ProductionLp(
+            inputs = listOf(input),
+            outputs = listOf(output),
+            processes = listOf(processA, cCompactify),
+            surplusCost = 10.0
+        )
+        val result = problem.solve()
+        result.status shouldBe LpResultStatus.Optimal
+
+        val solution = result.solution!!
+        solution.lpProcesses[processA] shouldBe 1.0
+        solution.lpProcesses[cCompactify] shouldBeGreaterThan 0.0
+
+        solution.surpluses[c] shouldBe 0.0
+        solution.surpluses[cCompact] shouldBeGreaterThan 0.0
     }
 })
