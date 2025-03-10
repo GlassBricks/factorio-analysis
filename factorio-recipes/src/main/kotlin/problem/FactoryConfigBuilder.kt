@@ -153,7 +153,10 @@ abstract class ConfigScope<T, B> {
 
     protected fun getOrCreateBuilder(item: T): B = configs.getOrPut(item) {
         createBuilder(item)
-            .also { defaultConfig?.invoke(it) }
+            .also {
+                defaultConfigUsed = true
+                defaultConfig?.invoke(it)
+            }
     }
 }
 
@@ -173,7 +176,7 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         override fun createBuilder(item: BaseMachine<*>): MachineConfigBuilder =
             MachineConfigBuilder(item, this@FactoryConfigBuilder.prototypes)
 
-        operator fun String.invoke(block: MachineConfigBuilder.() -> Unit) {
+        operator fun String.invoke(block: MachineConfigBuilder.() -> Unit = {}) {
             addConfig(this@FactoryConfigBuilder.prototypes.machine(this), block)
         }
     }
