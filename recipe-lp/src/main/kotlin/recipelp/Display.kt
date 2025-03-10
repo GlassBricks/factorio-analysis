@@ -49,13 +49,13 @@ interface RecipeLpFormatter {
     fun formatIngredient(ingredient: Ingredient): String = formatSymbol(ingredient)
     fun formatSymbol(symbol: Symbol): String = symbol.toString()
 
-    val inputComparator: Comparator<in Ingredient>? get() = null
-    val outputComparator: Comparator<in Ingredient>? get() = null
+    val inputComparator: Comparator<in Ingredient>? get() = ingredientComparator
+    val outputComparator: Comparator<in Ingredient>? get() = ingredientComparator
     val otherProcessComparator: Comparator<in PseudoProcess>? get() = null
     val processComparator: Comparator<in Process>? get() = null
 
     val ingredientComparator: Comparator<in Ingredient>? get() = symbolComparator
-    val symbolComparator: Comparator<in Symbol>? get() = compareBy { it.toString() }
+    val symbolComparator: Comparator<in Symbol>? get() = compareBy { formatSymbol(it) }
 
     companion object Default : RecipeLpFormatter
 }

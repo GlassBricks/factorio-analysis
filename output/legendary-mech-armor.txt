@@ -1,19 +1,19 @@
 Inputs:
-Superconductor(Q4) | 0.0583/s
-Superconductor(Q5) | 0.0042/s
-Sulfuric acid      | 443.8039/s
-Supercapacitor(Q4) | 0.0583/s
 Holmium plate(Q4)  | 0.2333/s
 Holmium plate(Q5)  | 0.0167/s
 Lava               | 12030.5014/s
+Sulfuric acid      | 443.8039/s
+Supercapacitor(Q4) | 0.0583/s
 Supercapacitor(Q5) | 0.0042/s
+Superconductor(Q4) | 0.0583/s
+Superconductor(Q5) | 0.0042/s
 
 Outputs:
+Ingredient(grid 1x1) | 0.0063/s
 Ingredient(grid 1x2) | 0.0033/s
 Ingredient(grid 2x4) | 0.0017/s
-Mech armor(Q5)       | 0.0004/s
-Ingredient(grid 1x1) | 0.0063/s
 Ingredient(grid 4x4) | 0.0050/s
+Mech armor(Q5)       | 0.0004/s
 
 Recipes:
 Acid neutralisation --> Chem plant                                               | 2.2062
@@ -55,8 +55,8 @@ Coal recycling --> Recycler[Qual 2 x4]                                          
 Copper cable(Q2) --> Asm 2                                                       | 10.8419
 Copper cable(Q3) --> EMP[Prod 2 x5, Beacon[Speed 3 x2] x8]                       | 0.2089
 Copper cable(Q4) --> EMP[Prod 2(Q3) x5, Beacon[Speed 3 x2] x12]                  | 0.0474
-Copper cable(Q5) --> EMP[Prod 2 x5, Beacon[Speed 3 x2] x8]                       | 0.0029
 Copper cable(Q5) --> Asm 3[Prod x4, Beacon[Speed 3 x2]]                          | 0.0157
+Copper cable(Q5) --> EMP[Prod 2 x5, Beacon[Speed 3 x2] x8]                       | 0.0029
 Eff mod recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 3 x2] x4]              | 0.0004
 Eff mod(Q3) --> EMP[Speed 2 x5, Beacon[Speed 3 x2] x8]                           | 0.1742
 Eff mod(Q4) --> EMP[Speed 2 x5, Beacon[Speed 3 x2] x8]                           | 0.0438
@@ -127,83 +127,82 @@ UG pipe recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 3 x2] x4]             
 
 
 Other processes:
-CustomProcess(doubling Ingredient(grid 2x4)) | 12.0000
 CustomProcess(doubling Ingredient(grid 2x2)) | 28.0000
-CustomProcess(grid night-vision-equipment)   | 56.0000
-CustomProcess(grid battery-equipment)        | 8.0000
 CustomProcess(grid solar-panel-equipment)    | 15.0000
+CustomProcess(grid battery-equipment)        | 8.0000
+CustomProcess(grid night-vision-equipment)   | 56.0000
+CustomProcess(doubling Ingredient(grid 2x4)) | 12.0000
 
 Throughputs:
+BC(Q3)                     | 0.1677/s
+BC(Q4)                     | 0.1803/s
+BC(Q5)                     | 0.0139/s
+Battery equipment(Q4)      | 0.0235/s
+Battery equipment(Q5)      | 0.0033/s
+Battery(Q4)                | 0.1309/s
+Battery(Q5)                | 0.0031/s
+Big electric pole(Q3)      | 0.3775/s
+Big electric pole(Q4)      | 0.1335/s
+Big electric pole(Q5)      | 0.0203/s
+Calcite                    | 24.5022/s
+Cargo wagon                | 8.9349/s
+Cargo wagon(Q2)            | 0.6992/s
+Cargo wagon(Q3)            | 0.0699/s
+Cargo wagon(Q4)            | 0.0070/s
+Cargo wagon(Q5)            | 0.0008/s
+Coal                       | 88.1164/s
+Coal(Q2)                   | 8.1907/s
+Coal(Q3)                   | 0.8191/s
+Coal(Q4)                   | 0.0819/s
+Coal(Q5)                   | 0.0091/s
+Copper cable(Q2)           | 34.4907/s
+Copper cable(Q3)           | 15.4066/s
+Copper cable(Q4)           | 4.5674/s
+Copper cable(Q5)           | 0.5104/s
+Copper plate(Q2)           | 16.2628/s
+Copper plate(Q3)           | 3.9615/s
+Copper plate(Q4)           | 1.1612/s
+Copper plate(Q5)           | 0.1666/s
+Eff mod(Q3)                | 0.2796/s
+Eff mod(Q4)                | 0.0691/s
+Eff mod(Q5)                | 0.0011/s
+Electric engine unit(Q3)   | 0.1118/s
+Electric engine unit(Q4)   | 0.0276/s
+Electric engine unit(Q5)   | 0.0004/s
+Engine unit(Q3)            | 0.0810/s
+Engine unit(Q4)            | 0.0190/s
+Engine unit(Q5)            | 0.0001/s
+GC(Q2)                     | 7.4554/s
+GC(Q3)                     | 5.3937/s
+GC(Q4)                     | 2.3546/s
+GC(Q5)                     | 0.2279/s
+Heavy oil                  | 212.7725/s
+Holmium plate(Q4)          | 0.2778/s
+Holmium plate(Q5)          | 0.0278/s
 Ingredient(grid 1x1)       | 0.0063/s
 Ingredient(grid 1x2)       | 0.0033/s
 Ingredient(grid 2x2)       | 0.0233/s
 Ingredient(grid 2x4)       | 0.0117/s
 Ingredient(grid 4x4)       | 0.0050/s
-RC(Q4)                     | 0.5494/s
-RC(Q5)                     | 0.1366/s
-RC(Q3)                     | 2.5703/s
-RC(Q2)                     | 5.9617/s
-Battery(Q4)                | 0.1309/s
-Battery(Q5)                | 0.0031/s
-Battery equipment(Q4)      | 0.0235/s
-Battery equipment(Q5)      | 0.0033/s
-Big electric pole(Q4)      | 0.1335/s
-Big electric pole(Q5)      | 0.0203/s
-Big electric pole(Q3)      | 0.3775/s
-Calcite                    | 24.5022/s
-Cargo wagon                | 8.9349/s
-Cargo wagon(Q4)            | 0.0070/s
-Cargo wagon(Q5)            | 0.0008/s
-Cargo wagon(Q3)            | 0.0699/s
-Cargo wagon(Q2)            | 0.6992/s
-Coal                       | 88.1164/s
-Coal(Q4)                   | 0.0819/s
-Coal(Q5)                   | 0.0091/s
-Coal(Q3)                   | 0.8191/s
-Coal(Q2)                   | 8.1907/s
-Copper cable(Q4)           | 4.5674/s
-Copper cable(Q5)           | 0.5104/s
-Copper cable(Q3)           | 15.4066/s
-Copper cable(Q2)           | 34.4907/s
-Copper plate(Q4)           | 1.1612/s
-Copper plate(Q5)           | 0.1666/s
-Copper plate(Q3)           | 3.9615/s
-Copper plate(Q2)           | 16.2628/s
-Eff mod(Q4)                | 0.0691/s
-Eff mod(Q5)                | 0.0011/s
-Eff mod(Q3)                | 0.2796/s
-Electric engine unit(Q4)   | 0.0276/s
-Electric engine unit(Q5)   | 0.0004/s
-Electric engine unit(Q3)   | 0.1118/s
-GC(Q4)                     | 2.3546/s
-GC(Q5)                     | 0.2279/s
-GC(Q3)                     | 5.3937/s
-GC(Q2)                     | 7.4554/s
-Engine unit(Q4)            | 0.0190/s
-Engine unit(Q5)            | 0.0001/s
-Engine unit(Q3)            | 0.0810/s
-Heavy oil                  | 212.7725/s
-Holmium plate(Q4)          | 0.2778/s
-Holmium plate(Q5)          | 0.0278/s
 Iron gear wheel            | 97.1180/s
+Iron gear wheel(Q2)        | 3.5110/s
+Iron gear wheel(Q3)        | 0.5483/s
 Iron gear wheel(Q4)        | 0.0779/s
 Iron gear wheel(Q5)        | 0.0126/s
-Iron gear wheel(Q3)        | 0.5483/s
-Iron gear wheel(Q2)        | 3.5110/s
 Iron plate                 | 194.2360/s
+Iron plate(Q2)             | 27.3490/s
+Iron plate(Q3)             | 5.7786/s
 Iron plate(Q4)             | 1.2962/s
 Iron plate(Q5)             | 0.3839/s
-Iron plate(Q3)             | 5.7786/s
-Iron plate(Q2)             | 27.3490/s
+Iron stick(Q3)             | 2.3971/s
 Iron stick(Q4)             | 0.4366/s
 Iron stick(Q5)             | 0.1188/s
-Iron stick(Q3)             | 2.3971/s
-Lava                       | 12030.5014/s
-Light oil                  | 223.9226/s
+LDS(Q2)                    | 3.5354/s
+LDS(Q3)                    | 0.6684/s
 LDS(Q4)                    | 0.2045/s
 LDS(Q5)                    | 0.0067/s
-LDS(Q3)                    | 0.6684/s
-LDS(Q2)                    | 3.5354/s
+Lava                       | 12030.5014/s
+Light oil                  | 223.9226/s
 Lubricant                  | 1.5003/s
 Mech armor(Q4)             | 0.0011/s
 Mech armor(Q5)             | 0.0004/s
@@ -212,76 +211,77 @@ Molten iron                | 8339.7895/s
 Night vision equipment(Q5) | 0.0233/s
 Petroleum gas              | 182.0159/s
 Pipe                       | 368.8979/s
+Pipe(Q2)                   | 60.1667/s
+Pipe(Q3)                   | 10.7904/s
 Pipe(Q4)                   | 2.3287/s
 Pipe(Q5)                   | 0.6805/s
-Pipe(Q3)                   | 10.7904/s
-Pipe(Q2)                   | 60.1667/s
-UG pipe                    | 101.8158/s
-UG pipe(Q4)                | 1.1264/s
-UG pipe(Q5)                | 0.3324/s
-UG pipe(Q3)                | 4.9594/s
-UG pipe(Q2)                | 24.5742/s
+Plastic bar(Q2)            | 19.4643/s
+Plastic bar(Q3)            | 3.3853/s
 Plastic bar(Q4)            | 0.7313/s
 Plastic bar(Q5)            | 0.0906/s
-Plastic bar(Q3)            | 3.3853/s
-Plastic bar(Q2)            | 19.4643/s
+Power armor mk2(Q3)        | 0.0022/s
 Power armor mk2(Q4)        | 0.0014/s
 Power armor mk2(Q5)        | 0.0001/s
-Power armor mk2(Q3)        | 0.0022/s
-BC(Q4)                     | 0.1803/s
-BC(Q5)                     | 0.0139/s
-BC(Q3)                     | 0.1677/s
-Solar panel(Q5)            | 0.0062/s
+RC(Q2)                     | 5.9617/s
+RC(Q3)                     | 2.5703/s
+RC(Q4)                     | 0.5494/s
+RC(Q5)                     | 0.1366/s
 Solar panel equipment(Q5)  | 0.0062/s
+Solar panel(Q5)            | 0.0062/s
+Speed(Q3)                  | 0.2796/s
 Speed(Q4)                  | 0.0691/s
 Speed(Q5)                  | 0.0011/s
-Speed(Q3)                  | 0.2796/s
 Steam                      | 4412.3011/s
 Steel chest(Q4)            | 0.0466/s
 Steel chest(Q5)            | 0.0068/s
 Steel plate                | 194.2360/s
+Steel plate(Q2)            | 11.9234/s
+Steel plate(Q3)            | 3.2642/s
 Steel plate(Q4)            | 0.9773/s
 Steel plate(Q5)            | 0.2915/s
-Steel plate(Q3)            | 3.2642/s
-Steel plate(Q2)            | 11.9234/s
 Stone                      | (+374.5768/s)
+Substation(Q2)             | 1.5024/s
+Substation(Q3)             | 0.4636/s
 Substation(Q4)             | 0.0693/s
 Substation(Q5)             | 0.0077/s
-Substation(Q3)             | 0.4636/s
-Substation(Q2)             | 1.5024/s
 Sulfuric acid              | 443.8039/s
 Supercapacitor(Q4)         | 0.0694/s
 Supercapacitor(Q5)         | 0.0069/s
 Superconductor(Q4)         | 0.0694/s
 Superconductor(Q5)         | 0.0069/s
+UG pipe                    | 101.8158/s
+UG pipe(Q2)                | 24.5742/s
+UG pipe(Q3)                | 4.9594/s
+UG pipe(Q4)                | 1.1264/s
+UG pipe(Q5)                | 0.3324/s
 Water                      | 382.3767/s
 
 Surpluses:
 Stone | 374.5768/s
 
 Symbols used:
-ElectricPower    | 19041398.9297
 Asm 2            | 28.4464
 Asm 3            | 19.9679
 Beacon           | 31.8244
 Big mining drill | 42.9328
 Chem plant       | 42.8377
-Electric furnace | 0.0871
 EMP              | 2.6448
+Electric furnace | 0.0871
+ElectricPower    | 19041398.9297
 Foundry          | 162.4539
-Refinery         | 8.6143
 Prod             | 33.2791
 Prod 2           | 7.4017
+Prod 2(Q3)       | 1.7316
 Prod 2(Q4)       | 0.1609
 Prod 2(Q5)       | 0.0466
-Prod 2(Q3)       | 1.7316
 Qual             | 34.4496
 Qual 2           | 439.3352
+Qual 2(Q2)       | 13.8771
+Qual 2(Q3)       | 3.7089
 Qual 2(Q4)       | 0.3264
 Qual 2(Q5)       | 0.9167
-Qual 2(Q3)       | 3.7089
-Qual 2(Q2)       | 13.8771
 Recycler         | 28.1581
+Refinery         | 8.6143
 Speed            | 12.1405
 Speed 2          | 51.4489
 Speed 3          | 14.3954
