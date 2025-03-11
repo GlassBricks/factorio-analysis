@@ -181,6 +181,54 @@ class FactoryConfigKtTest : FunSpec({
         val gcProcess = recipe.single { (it.process as MachineProcess<*>).recipe == recipe("electronic-circuit") }
         gcProcess.variableConfig.cost shouldBe 20.0
     }
+    test("machine filters") {
+        val config = SpaceAge.factory {
+            machines {
+                asm2 {
+                    onlyRecipes(recipe("advanced-circuit"))
+                }
+            }
+            recipes {
+                "advanced-circuit" {}
+                "electronic-circuit" {}
+            }
+        }
+        val recipe = config.getAllProcesses().single().process as MachineProcess<*>
+        recipe.recipe shouldBe recipe("advanced-circuit")
+    }
+    test("recipe filters") {
+        val config = SpaceAge.factory {
+            machines {
+                asm2()
+                asm3()
+            }
+            recipes {
+                "advanced-circuit" {
+                    onlyUsing(asm3)
+                }
+            }
+        }
+        val recipe = config.getAllProcesses().single().process as MachineProcess<*>
+        recipe.machine shouldBe asm3
+    }
+    test("factory filters") {
+        val config = SpaceAge.factory {
+            machines {
+                asm2()
+                asm3()
+            }
+            recipes {
+                "advanced-circuit" {}
+                "electronic-circuit" {}
+            }
+            filters += { machine, recipe ->
+                machine == asm3 && recipe == recipe("advanced-circuit")
+            }
+        }
+        val recipe = config.getAllProcesses().single().process as MachineProcess<*>
+        recipe.machine shouldBe asm3
+        recipe.recipe shouldBe recipe("advanced-circuit")
+    }
 }), FactorioPrototypesScope {
     override val prototypes: FactorioPrototypes get() = SpaceAge
 }

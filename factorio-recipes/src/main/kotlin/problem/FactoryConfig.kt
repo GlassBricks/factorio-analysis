@@ -1,6 +1,5 @@
 package glassbricks.factorio.recipes.problem
 
-import glassbricks.factorio.prototypes.*
 import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.lp.VariableConfig
@@ -15,6 +14,7 @@ data class FactoryConfig(
     val recipes: Map<RecipeOrResource<*>, RecipeConfig>,
     val setups: Map<MachineSetup<*>, ProcessConfig>,
     val additionalConfigFn: ((MachineSetup<*>) -> ProcessConfig?)?,
+    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
 ) {
 
     fun getAllProcesses(): List<RealProcess> {
@@ -45,7 +45,12 @@ data class FactoryConfig(
                                     additionalConfigFn?.invoke(setup)
 
                         val additionalCosts = machineCosts + setupConfig.additionalCosts
-                        recipesWithQuality[recipe]!!.map { recipeWithQuality ->
+                        recipesWithQuality[recipe]!!.mapNotNull { recipeWithQuality ->
+                            if (!(machineConfig.filters.all { it(machineWithQuality, recipeWithQuality) } &&
+                                        recipeConfig.filters.all { it(machineWithQuality, recipeWithQuality) } &&
+                                        this@FactoryConfig.filters.all { it(machineWithQuality, recipeWithQuality) }
+                                        )) return@mapNotNull null
+
                             RealProcess(
                                 process = MachineProcess(
                                     machineWithQuality,
@@ -104,6 +109,7 @@ data class MachineConfig(
     val processConfig: ProcessConfig,
     val qualities: Set<Quality>,
     val moduleSets: List<ModuleSet>,
+    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
 )
 
 data class RecipeConfig(
@@ -111,12 +117,3 @@ data class RecipeConfig(
     val qualities: Set<Quality>,
     val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
 )
-
-private inline fun <T, R> Iterable<T>.groupByMulti(keys: (T) -> Iterable<R>): Map<R, List<T>> =
-    buildMap<_, MutableList<T>> {
-        for (item in this@groupByMulti) {
-            for (key in keys(item)) {
-                getOrPut(key, ::mutableListOf).add(item)
-            }
-        }
-    }

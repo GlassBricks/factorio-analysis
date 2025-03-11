@@ -53,13 +53,23 @@ class ProcessConfigBuilder : IProcessConfigBuilder, Builder<ProcessConfig> {
     )
 }
 
+abstract class CommonConfigBuilder(
+    val prototypes: FactorioPrototypes,
+    val processConfig: ProcessConfigBuilder = ProcessConfigBuilder(),
+) : IProcessConfigBuilder by processConfig {
+    var qualities = setOf(prototypes.defaultQuality)
+    fun allQualities() {
+        qualities = prototypes.qualities.toSet()
+    }
+
+    val filters: MutableList<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean> = mutableListOf()
+}
+
 @FactoryConfigDsl
 class MachineConfigBuilder(
     val machine: BaseMachine<*>,
     prototypes: FactorioPrototypes,
-    val processConfig: ProcessConfigBuilder = ProcessConfigBuilder(),
-) : IProcessConfigBuilder by processConfig, Builder<MachineConfig> {
-    val qualities = mutableSetOf(prototypes.defaultQuality)
+) : CommonConfigBuilder(prototypes), Builder<MachineConfig> {
     val moduleSetConfigs = mutableSetOf<ModuleSetConfig>(ModuleSetConfig())
 
     fun noEmptyModules() {
@@ -78,6 +88,16 @@ class MachineConfigBuilder(
         )
     }
 
+    fun onlyRecipes(vararg recipes: RecipeOrResource<*>) {
+        val allowedRecipes = recipes.map { it.prototype }.toSet()
+        filters += { _, recipe -> recipe.prototype in allowedRecipes }
+    }
+
+    fun onlyRecipesWithQuality(vararg recipes: RecipeOrResource<*>) {
+        val allowedRecipes = recipes.toSet()
+        filters += { _, recipe -> recipe in allowedRecipes }
+    }
+
     override fun build(): MachineConfig = MachineConfig(
         processConfig = processConfig.build(),
         qualities = qualities,
@@ -85,7 +105,8 @@ class MachineConfigBuilder(
             val moduleSlots = machine.prototype.module_slots?.toInt() ?: return@mapNotNull null
             it.toModuleSet(moduleSlots)
                 ?.takeIf { machine.acceptsModules(it) }
-        }
+        },
+        filters = filters,
     )
 
 }
@@ -93,16 +114,8 @@ class MachineConfigBuilder(
 @FactoryConfigDsl
 class RecipeConfigBuilder(
     val recipe: RecipeOrResource<*>,
-    val prototypes: FactorioPrototypes,
-    val processConfig: ProcessConfigBuilder = ProcessConfigBuilder(),
-) : IProcessConfigBuilder by processConfig, Builder<RecipeConfig> {
-    var qualities: Set<Quality> = setOf(prototypes.defaultQuality)
-    fun allQualities() {
-        this@RecipeConfigBuilder.qualities = prototypes.qualities.toSet()
-    }
-
-    val filters: MutableList<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean> = mutableListOf()
-
+    prototypes: FactorioPrototypes,
+) : CommonConfigBuilder(prototypes), Builder<RecipeConfig> {
     fun onlyUsing(vararg machines: AnyMachine<*>) {
         val allowedMachines = machines.toSet()
         filters += { machine, recipe -> machine in allowedMachines }
@@ -273,6 +286,8 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         additionalConfigFn = block
     }
 
+    val filters: MutableList<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean> = mutableListOf()
+
     override fun build(): FactoryConfig = FactoryConfig(
         prototypes = prototypes,
         research = researchConfig,
@@ -280,6 +295,7 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         machines = machines.build(),
         recipes = recipes.build(),
         setups = setups.build(),
+        filters = filters,
         additionalConfigFn = additionalConfigFn?.let {
             { setup -> SetupConfigBuilder(setup).apply(it).build() }
         }
