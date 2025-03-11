@@ -10,11 +10,12 @@ class Resource private constructor(
     override val outputsToIgnoreProductivity: Vector<Ingredient>,
     override val inputQuality: Quality,
 ) : RecipeOrResource<AnyMiningDrill> {
+    override val craftingCategory: Any get() = prototype.category
     override val craftingTime: Time
         get() = Time(prototype.minable!!.mining_time)
 
-    override val craftingCategory: Any get() = prototype.category
     override fun acceptsModules(modules: WithModulesUsed): Boolean = true
+    override val hasFluids: Boolean = inputs.keys.any { it is Fluid } || outputs.keys.any { it is Fluid }
 
     override fun withQualityOrNull(quality: Quality): RecipeOrResource<AnyMiningDrill>? =
         if (quality == this.inputQuality) this else null

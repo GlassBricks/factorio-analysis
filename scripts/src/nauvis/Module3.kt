@@ -1,4 +1,4 @@
-package scripts.vulcanus
+package scripts.nauvis
 
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.export.RecipesFirst
@@ -13,16 +13,18 @@ import glassbricks.recipeanalysis.recipelp.textDisplay
 import glassbricks.recipeanalysis.recipelp.toThroughputGraph
 import glassbricks.recipeanalysis.writeDotGraph
 import scripts.*
+import scripts.vulcanus.vulcanusMachineCosts1
+import scripts.vulcanus.vulcanusModuleCosts1
 import java.io.File
 
 fun main() = with(SpaceAge) {
     val nauvisFactory = factory {
+        includeBuildCosts()
         machines {
             electromagneticPlant()
             assemblingMachine3()
             recycler()
             default {
-                includeBuildCosts()
                 moduleConfig() // no modules
                 for (module in nonEffModulesAllQualities) {
                     moduleConfig(fill = module)

@@ -168,10 +168,9 @@ class ProblemTest : FunSpec({
     test("constrain machines") {
         val problem = problem {
             factory {
+                includeBuildCosts()
                 machines {
-                    "assembling-machine-1" {
-                        includeBuildCosts()
-                    }
+                    "assembling-machine-1" {}
                 }
                 recipes {
                     ironGearWheel {
@@ -202,9 +201,9 @@ class ProblemTest : FunSpec({
     test("constrain modules") {
         val problem = problem {
             factory {
+                includeBuildCosts()
                 machines {
                     "assembling-machine-2" {
-                        includeBuildCosts = true
                         moduleConfig()
                         moduleConfig(fill = prod3)
                     }
@@ -229,9 +228,9 @@ class ProblemTest : FunSpec({
         val foo = Symbol("foo")
         val problem = problem {
             factory {
+                includeBuildCosts()
                 machines {
                     default {
-                        includeBuildCosts = true
                     }
                     "assembling-machine-2" {
                         additionalCosts += vectorOf(foo to 2.0)
@@ -266,13 +265,13 @@ class ProblemTest : FunSpec({
     test("all recipes for complex stuff") {
         val problem = problem {
             factory {
+                includeBuildCosts()
                 machines {
                     default {
                         moduleConfig()
                         moduleConfig(fill = prod3, beacons = listOf(beacon(fill = speed2) * 4))
                         moduleConfig(fill = speed2)
                         moduleConfig(fill = qual3)
-                        includeBuildCosts()
                     }
                     "assembling-machine-3" {}
                     "chemical-plant" {}
@@ -282,10 +281,8 @@ class ProblemTest : FunSpec({
                     "electromagnetic-plant" {}
                 }
                 recipes {
+                    default { allQualities() }
                     allCraftingRecipes()
-                    default {
-                        allQualities()
-                    }
                 }
             }
             input(ironPlate)
@@ -414,11 +411,11 @@ class ProblemTest : FunSpec({
     test("using integral cost") {
         val problem = problem {
             factory {
+                includeBuildCosts()
                 machines {
                     "assembling-machine-3" {
                         cost = 10.0
                         integralCost()
-                        includeBuildCosts()
                     }
                 }
                 recipes {

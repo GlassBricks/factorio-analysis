@@ -40,7 +40,7 @@ interface ThroughputGraph {
             for ((ingredient, rawRate) in process.ingredientRate) {
                 val rate = rawRate * processUsage
                 if ((rate > 0) == wantPositive && ingredient in ingredients) {
-                    this[ingredient] += rate
+                    inc(ingredient, rate)
                 }
             }
         }

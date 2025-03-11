@@ -106,7 +106,7 @@ class ProductionOverTime(val factories: AnyVector<ProductionStage, Time>) {
         for ((stage, time) in factories) {
             val outputs = stage.productionLp.outputsByIngredient[ingredient] ?: continue
             val output = outputs.singleOrNull() ?: error("Multiple outputs for $ingredient in $stage")
-            this[stage.ref(output)] += time
+            inc(stage.ref(output), time)
         }
     }
 

@@ -139,7 +139,7 @@ class OrToolsLpSolver(solverId: String = "GLOP") : LpSolver {
             if (options.checkSolution) {
                 solver.verifySolution(epsilon, true)
             }
-            val assignment = buildVector(_variables.size) {
+            val assignment = buildVector {
                 for (variable in _variables) {
                     val value = variable.variable.solutionValue()
                     if (value !in -epsilon..epsilon) {

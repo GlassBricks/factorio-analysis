@@ -18,10 +18,21 @@ sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCo
     val craftingCategories: List<Any>
     val baseCraftingSpeed: Double
     val basePowerUsage: Double
-    fun canProcess(process: RecipeOrResource<*>): Boolean
+
+    /**
+     * See [canProcess]; only checks beyond crafting categories modules
+     */
+    fun canProcessInCategory(process: RecipeOrResource<*>): Boolean
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
     val moduleSet: ModuleSet?
+}
+
+fun AnyMachine<*>.canProcess(process: RecipeOrResource<*>): Boolean {
+    if (process.craftingCategory !in craftingCategories) return false
+    if (moduleSet?.let { process.acceptsModules(it) } == false) return false
+    if (!canProcessInCategory(process)) return false
+    return true
 }
 
 fun <P : MachinePrototype> AnyMachine<P>.baseMachine(): BaseMachine<*> = when (this) {
@@ -39,17 +50,14 @@ data class CraftingMachine(
     override val craftingCategories: List<RecipeCategoryID> get() = prototype.crafting_categories
     override val baseCraftingSpeed: Double get() = prototype.crafting_speed * (1.0 + quality.level * 0.3)
 
-    override fun canProcess(process: RecipeOrResource<*>): Boolean {
+    override fun canProcessInCategory(process: RecipeOrResource<*>): Boolean {
         if (process !is Recipe) return false
-        val machinePrototype = prototype
-        if (process.prototype.category !in machinePrototype.crafting_categories) return false
-        if (machinePrototype is AssemblingMachinePrototype) {
-            val fixedRecipe = machinePrototype.fixed_recipe.value
+        if (prototype is AssemblingMachinePrototype) {
+            val fixedRecipe = prototype.fixed_recipe.value
             if (fixedRecipe.isNotEmpty() && process.prototype.name != fixedRecipe) return false
         }
-        // simplified, not 100% accurate, but good enough for now
-        if (process.inputs.keys.any { it is Fluid } || process.outputs.keys.any { it is Fluid }) {
-            if (machinePrototype.fluid_boxes.isNullOrEmpty()) return false
+        if (process.hasFluids && prototype.fluid_boxes.isNullOrEmpty()) {
+            return false
         }
         return true
     }
@@ -66,8 +74,7 @@ data class MiningDrill(
 
     // higher quality miners don't mine faster
     override val baseCraftingSpeed: Double get() = prototype.mining_speed
-    override fun canProcess(process: RecipeOrResource<*>): Boolean =
-        process is Resource && process.prototype.category in this.prototype.resource_categories
+    override fun canProcessInCategory(process: RecipeOrResource<*>): Boolean = true
 
     override fun withQuality(quality: Quality): MiningDrill = MiningDrill(prototype, quality)
 }

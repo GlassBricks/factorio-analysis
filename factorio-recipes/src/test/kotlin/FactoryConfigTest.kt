@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes
 
+import glassbricks.factorio.recipes.problem.FactoryConfigBuilder
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.lp.VariableType
@@ -14,13 +15,36 @@ import io.kotest.matchers.shouldBe
 class FactoryConfigKtTest : FunSpec({
     this as FactoryConfigKtTest
     val asm2 = craftingMachine("assembling-machine-2")
+    val asm3 = craftingMachine("assembling-machine-3")
     val speed1 = module("speed-module")
     val speed2 = module("speed-module-2")
     val prod2 = module("productivity-module-2")
     val uncommon = SpaceAge.qualityMap["uncommon"]!!
     val rare = SpaceAge.qualityMap["rare"]!!
+    fun factory(block: FactoryConfigBuilder.() -> Unit) = SpaceAge.factory { block() }
+        .also {
+            it.getAllProcesses().forEach {
+                val process = it.process as MachineProcess<*>
+                process.machine.canProcess(process.recipe) shouldBe true
+            }
+        }
+
+    test("does not insert prod modules where not allowed") {
+        factory {
+            machines {
+                asm2 {
+                    moduleConfig(prod2)
+                }
+            }
+            recipes {
+                "transport-belt" {}
+                "advanced-circuit" {}
+            }
+        }
+        // assertion happens in [factory]
+    }
     test("machine, machine quality, modules, recipe quality") {
-        val config = SpaceAge.factory {
+        val config = factory {
             machines {
                 default {
                     moduleConfig(speed1, fill = speed2)
@@ -103,13 +127,13 @@ class FactoryConfigKtTest : FunSpec({
             }
         }
         val recipe = config.getAllProcesses().single()
-        recipe.additionalCosts shouldBe vectorOfWithUnits(symbolA to 1.0, symbolB to 2.0)
+        recipe.additionalCosts.toMap() shouldBe mapOf(symbolA to 1.0, symbolB to 2.0)
     }
     test("build costs") {
         val symbol1 = Symbol("1")
         val config = SpaceAge.factory {
+            includeBuildCosts()
             machines {
-                default { includeBuildCosts = true }
                 asm2 {
                     noEmptyModules()
                     moduleConfig(fill = speed2)
@@ -142,12 +166,12 @@ class FactoryConfigKtTest : FunSpec({
         recipe.variableConfig.cost shouldBe 10.0
         recipe.additionalCosts shouldBe vectorOf(item("iron-plate") to 1.0)
     }
-    test("additional config") {
+    test("extraConfig") {
         val config = SpaceAge.factory {
             machines.addConfig(machine("assembling-machine-2"))
             recipes.addConfig(recipe("advanced-circuit"))
             recipes.addConfig(recipe("electronic-circuit"))
-            extraConfig {
+            extraConfigBeforeQuality {
                 cost += if (setup.recipe == recipe("advanced-circuit")) 10.0 else 20.0
             }
         }

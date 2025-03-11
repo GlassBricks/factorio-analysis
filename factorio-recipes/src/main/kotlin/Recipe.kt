@@ -11,6 +11,7 @@ sealed interface RecipeOrResource<out M : AnyMachine<*>> {
     val inputs: Vector<Ingredient>
     val outputs: Vector<Ingredient>
     val outputsToIgnoreProductivity: Vector<Ingredient>
+    val hasFluids: Boolean
     val craftingTime: Time
 
     val prototype: Prototype
@@ -29,6 +30,7 @@ class Recipe private constructor(
     val baseProducts: Vector<Ingredient>,
     val baseProductsIgnoreProd: Vector<Ingredient>,
     private val allowedModuleEffects: EnumSet<EffectType>,
+    override val hasFluids: Boolean,
 ) : RecipeOrResource<AnyCraftingMachine> {
     override val craftingTime: Time get() = Time(prototype.energy_required)
     override val inputs = baseIngredients.withItemsQuality(inputQuality)
@@ -46,7 +48,8 @@ class Recipe private constructor(
             baseIngredients = baseIngredients,
             baseProducts = baseProducts,
             baseProductsIgnoreProd = baseProductsIgnoreProd,
-            allowedModuleEffects = allowedModuleEffects
+            allowedModuleEffects = allowedModuleEffects,
+            hasFluids = hasFluids
         )
     }
 
@@ -100,13 +103,17 @@ class Recipe private constructor(
             if (prototype.allow_pollution) allowedModuleEffects.add(EffectType.pollution)
             if (prototype.allow_quality) allowedModuleEffects.add(EffectType.quality)
 
+            val hasFluids =
+                ingredients.keys.any { it is Fluid } || products.keys.any { it is Fluid } || ignoreFromProductivity.keys.any { it is Fluid }
+
             return Recipe(
                 prototype = prototype,
                 inputQuality = quality,
                 baseIngredients = ingredients,
                 baseProducts = products,
                 baseProductsIgnoreProd = ignoreFromProductivity,
-                allowedModuleEffects = allowedModuleEffects
+                allowedModuleEffects = allowedModuleEffects,
+                hasFluids = hasFluids
             )
         }
     }

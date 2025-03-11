@@ -11,6 +11,7 @@ class AnyVector<T, out Units>
 @PublishedApi internal constructor(internal val map: ZeroPutOpenHashMap<T>) : Collection<Object2DoubleMap.Entry<T>> {
     operator fun get(key: T): Double = map.getDouble(key)
     override fun iterator(): Iterator<Object2DoubleMap.Entry<T>> = map.object2DoubleEntrySet().iterator()
+    fun fastIterator(): Iterator<Object2DoubleMap.Entry<T>> = map.object2DoubleEntrySet().fastIterator()
 
     override fun contains(element: Object2DoubleMap.Entry<T>): Boolean = map.containsKey(element.key)
     override fun containsAll(elements: Collection<Object2DoubleMap.Entry<T>>): Boolean =
@@ -60,7 +61,7 @@ class AnyVector<T, out Units>
 
 inline fun <T, Units> AnyVector<T, Units>.mapValues(transform: (Object2DoubleMap.Entry<T>) -> Double): AnyVector<T, Units> =
     buildVectorWithUnits {
-        for (entry in this@mapValues) {
+        for (entry in this@mapValues.fastIterator()) {
             this[entry.key] = transform(entry)
         }
     }
@@ -142,12 +143,17 @@ inline fun <T, U> AnyVector<T, U>.filterKeys(predicate: (T) -> Boolean): AnyVect
     }
 }
 
-fun <S, T, U> Iterable<S>.vectorSumOf(transform: (S) -> AnyVector<out T, U>): AnyVector<T, U> =
-    buildVectorWithUnits {
+fun <S, T, U> Iterable<S>.vectorSumOf(transform: (S) -> AnyVector<out T, U>): AnyVector<T, U> {
+    if (this is Collection) {
+        if (this.isEmpty()) return emptyVector()
+        if (this.size == 1) return transform(first()).relaxKeyType()
+    }
+    return buildVectorWithUnits {
         for (s in this@vectorSumOf) {
             this += transform(s)
         }
     }
+}
 
 @JvmInline
 value class AnyVectorBuilder<T, U>
@@ -161,15 +167,28 @@ value class AnyVectorBuilder<T, U>
         map[key] = value
     }
 
+    fun inc(key: T, value: Double) {
+        val oldValue = map.addTo(key, value)
+        if (oldValue == -value) {
+            map.removeDouble(key)
+        }
+    }
+
     operator fun plusAssign(other: AnyVector<out T, *>) {
         for ((ingredient, amount) in other) {
-            this[ingredient] += amount
+            inc(ingredient, amount)
+        }
+    }
+
+    fun addMul(other: AnyVector<out T, *>, mul: Double) {
+        for ((ingredient, amount) in other) {
+            inc(ingredient, amount * mul)
         }
     }
 
     operator fun minusAssign(other: AnyVector<out T, *>) {
         for ((ingredient, amount) in other) {
-            this[ingredient] -= amount
+            inc(ingredient, -amount)
         }
     }
 

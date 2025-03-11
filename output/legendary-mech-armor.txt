@@ -31,8 +31,8 @@ Big electric pole(Q3) --> EMP[Qual 2(Q3) x5]                                    
 Big electric pole(Q4) --> EMP[Qual 2(Q3) x5]                                     | 0.0182
 Calcite --> Big mining drill[Speed x4, Beacon[Speed 2 x2]]                       | 3.0250
 Cargo wagon --> Asm 3[Qual 2 x4]                                                 | 9.7118
-Cargo wagon recycling --> Recycler[Qual 2(Q2) x4]                                | 1.0948
 Cargo wagon recycling --> Recycler[Qual 2 x4]                                    | 0.3012
+Cargo wagon recycling --> Recycler[Qual 2(Q2) x4]                                | 1.0948
 Cargo wagon recycling(Q2) --> Recycler[Qual 2(Q3) x4]                            | 0.1093
 Cargo wagon recycling(Q3) --> Recycler[Qual 2(Q4) x4]                            | 0.0109
 Cargo wagon recycling(Q4) --> Recycler[Qual 2(Q5) x4]                            | 0.0011
@@ -127,11 +127,11 @@ UG pipe recycling(Q5) --> Recycler[Speed x4, Beacon[Speed 3 x2] x4]             
 
 
 Other processes:
-CustomProcess(doubling Ingredient(grid 2x2)) | 28.0000
-CustomProcess(grid solar-panel-equipment)    | 15.0000
-CustomProcess(grid battery-equipment)        | 8.0000
-CustomProcess(grid night-vision-equipment)   | 56.0000
 CustomProcess(doubling Ingredient(grid 2x4)) | 12.0000
+CustomProcess(doubling Ingredient(grid 2x2)) | 28.0000
+CustomProcess(grid night-vision-equipment)   | 56.0000
+CustomProcess(grid battery-equipment)        | 8.0000
+CustomProcess(grid solar-panel-equipment)    | 15.0000
 
 Throughputs:
 BC(Q3)                     | 0.1677/s
@@ -267,7 +267,6 @@ Big mining drill | 42.9328
 Chem plant       | 42.8377
 EMP              | 2.6448
 Electric furnace | 0.0871
-ElectricPower    | 19041398.9297
 Foundry          | 162.4539
 Prod             | 33.2791
 Prod 2           | 7.4017

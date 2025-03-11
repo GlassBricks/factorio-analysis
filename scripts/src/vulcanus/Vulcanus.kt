@@ -17,10 +17,9 @@ fun FactoryConfigBuilder.vulcanusMachines(
     modules: List<Module> = nonEffModulesAllQualities,
     beacons: List<List<WithBeaconCount>> = defaultVulcanusBeaconConfig,
 ) = with(prototypes) {
+    includeBuildCosts()
     machines {
         default {
-            includeBuildCosts()
-            includePowerCosts()
             moduleConfigWithBeacons(modules, beacons)
         }
         assemblingMachine3()

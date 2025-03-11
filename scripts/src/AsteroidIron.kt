@@ -10,9 +10,9 @@ import java.io.File
 
 fun main() = with(SpaceAge) {
     val space = factory {
+        includeBuildCosts()
         machines {
             default {
-                includeBuildCosts()
                 moduleConfig(fill = productivityModule2.withQuality(rare))
                 moduleConfig(fill = qualityModule2.withQuality(rare))
                 moduleConfig(fill = speedModule2)

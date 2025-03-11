@@ -140,7 +140,7 @@ internal fun ProductionLp.createVarsAndConstraints(
  */
 private inline fun <R, K> LpSolver.createMatrixEquations(
     vars: Map<R, Variable>,
-    weight: (R) -> AnyVector<K, *>,
+    crossinline weight: (R) -> AnyVector<K, *>,
     crossinline createVariable: (K) -> Variable,
 ): Map<K, Variable> = buildMap {
     val keyToCoeffs: MutableMap<K, Constraint> = Object2ObjectLinkedOpenHashMap(2_000)

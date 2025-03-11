@@ -71,7 +71,7 @@ fun main(): Unit = with(SpaceAge) {
             // apparently infinity pipes have a recipe...
             remove(infinityPipe)
         }
-        extraConfig {
+        extraConfigBeforeQuality {
             // ignore quality gcs for now
             val gcOutput = this.setup.toProcess().netRate[electronicCircuit]
             if (gcOutput > 0.0) {

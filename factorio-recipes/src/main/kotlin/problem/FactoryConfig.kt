@@ -10,6 +10,7 @@ import glassbricks.recipeanalysis.recipelp.RealProcess
 data class FactoryConfig(
     val prototypes: FactorioPrototypes,
     val research: ResearchConfig,
+    val costConfig: CostConfig,
     val machines: Map<BaseMachine<*>, MachineConfig>,
     val recipes: Map<RecipeOrResource<*>, RecipeConfig>,
     val setups: Map<MachineSetup<*>, ProcessConfig>,
@@ -18,55 +19,54 @@ data class FactoryConfig(
 
     fun getAllProcesses(): List<RealProcess> {
         val recipesByCategory = recipes.keys.groupBy { it.craftingCategory }
-        return machines.entries.parallelStream().flatMap { (machine, machineConfig) ->
-            machine.craftingCategories.parallelStream()
-                .flatMap { cat -> recipesByCategory[cat].orEmpty().stream() }
-                .filter { recipe -> machine.canProcess(recipe) }
-                .flatMap { recipe ->
-                    val recipeConfig = recipes[recipe]!!
+        // cache this because it's an expensive-ish computation we don't want to repeat
+        val recipesWithQuality = recipes.mapValues { (recipe, recipeConfig) ->
+            recipeConfig.qualities.mapNotNull { recipe.withQualityOrNull(it) }
+        }
+        return machines.entries.parallelStream().flatMap { (baseMachine, machineConfig) ->
+            val machineRecipes = baseMachine.craftingCategories
+                .flatMap { recipesByCategory[it].orEmpty() }
+                .filter { baseMachine.canProcessInCategory(it) }
+            machineConfig.moduleSets.parallelStream().flatMap { moduleSet ->
+                val machineWithModules = baseMachine.withModulesOrNull(moduleSet)!!
+                val thisRecipes = machineRecipes.filter { it.acceptsModules(moduleSet) }
+                machineConfig.qualities.parallelStream().flatMap { machineQuality ->
+                    val machineWithQuality = machineWithModules.withQuality(machineQuality)
+                    // cache expensive computation
+                    val machineCosts =
+                        (if (costConfig.includeBuildCosts) machineWithQuality.getBuildCost(prototypes) else emptyVector()) +
+                                (if (costConfig.includePowerCosts) vectorOf(ElectricPower to machineWithQuality.powerUsage) else emptyVector())
+                    thisRecipes.parallelStream().flatMap { recipe ->
+                        val recipeConfig = this@FactoryConfig.recipes[recipe]!!
 
-                    val setup = MachineSetup(machine, recipe)
-                    val setupConfig: ProcessConfig =
-                        machineConfig.processConfig + recipeConfig.processConfig + setups[setup] +
-                                additionalConfigFn?.invoke(setup)
+                        val setup = MachineSetup(baseMachine, recipe)
+                        val setupConfig: ProcessConfig =
+                            machineConfig.processConfig + recipeConfig.processConfig + setups[setup] +
+                                    additionalConfigFn?.invoke(setup)
 
-                    val installedMachines =
-                        machineConfig.moduleSets.filter { recipe.acceptsModules(it) }
-                            .mapNotNull { moduleSet -> machine.withModulesOrNull(moduleSet) }
-                    val machinesWithQuality = installedMachines.flatMap { machineWithModules ->
-                        machineConfig.qualities.map { machineWithModules.withQuality(it) }
-                    }
-                    val recipesWithQuality = recipeConfig.qualities.mapNotNull { recipe.withQualityOrNull(it) }
-
-                    machinesWithQuality.stream().flatMap { machineWithQuality ->
-                        val additionalCosts = buildVector {
-                            this += setupConfig.additionalCosts
-                            if (setupConfig.includeBuildCosts) {
-                                this += machineWithQuality.getBuildCost(prototypes)
-                            }
-                            if (setupConfig.includePowerCosts) {
-                                this[ElectricPower] = machineWithQuality.powerUsage
-                            }
-                        }
-
-                        recipesWithQuality.stream().map { recipeWithQuality ->
+                        val additionalCosts = machineCosts + setupConfig.additionalCosts
+                        recipesWithQuality[recipe]!!.map { recipeWithQuality ->
                             RealProcess(
-                                process = MachineProcess(machineWithQuality, recipeWithQuality, research),
+                                process = MachineProcess(
+                                    machineWithQuality,
+                                    recipeWithQuality,
+                                    research,
+                                    skipCanProcessCheck = true
+                                ),
                                 variableConfig = setupConfig.variableConfig(),
                                 additionalCosts = additionalCosts,
                                 costVariableConfig = setupConfig.costVariableConfig
                             )
-                        }
+                        }.stream()
                     }
                 }
+            }
         }
             .toList()
     }
 }
 
 data class ProcessConfig(
-    val includeBuildCosts: Boolean,
-    val includePowerCosts: Boolean,
     val additionalCosts: Vector<Symbol>,
     val costVariableConfig: VariableConfig?,
     val lowerBound: Double,
@@ -75,8 +75,6 @@ data class ProcessConfig(
     val variableType: VariableType,
 ) {
     operator fun plus(other: ProcessConfig?): ProcessConfig = if (other == null) this else ProcessConfig(
-        includeBuildCosts = includeBuildCosts || other.includeBuildCosts,
-        includePowerCosts = includePowerCosts || other.includePowerCosts,
         additionalCosts = additionalCosts + other.additionalCosts,
         costVariableConfig = costVariableConfig ?: other.costVariableConfig,
         lowerBound = maxOf(lowerBound, other.lowerBound),
@@ -97,6 +95,11 @@ data class ProcessConfig(
     )
 }
 
+data class CostConfig(
+    val includePowerCosts: Boolean = false,
+    val includeBuildCosts: Boolean = false,
+)
+
 data class MachineConfig(
     val processConfig: ProcessConfig,
     val qualities: Set<Quality>,
@@ -106,4 +109,14 @@ data class MachineConfig(
 data class RecipeConfig(
     val processConfig: ProcessConfig,
     val qualities: Set<Quality>,
+    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
 )
+
+private inline fun <T, R> Iterable<T>.groupByMulti(keys: (T) -> Iterable<R>): Map<R, List<T>> =
+    buildMap<_, MutableList<T>> {
+        for (item in this@groupByMulti) {
+            for (key in keys(item)) {
+                getOrPut(key, ::mutableListOf).add(item)
+            }
+        }
+    }

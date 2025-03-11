@@ -15,6 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 
 fun main(): Unit = with(SpaceAge) {
     val vulcanusFactory = factory {
+        includeBuildCosts()
         vulcanusMachines()
         researchConfig = ResearchConfig(
             miningProductivity = 0.2,

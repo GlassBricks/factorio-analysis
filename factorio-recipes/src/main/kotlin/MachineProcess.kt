@@ -15,10 +15,11 @@ data class MachineSetup<M : AnyMachine<*>>(val machine: M, val recipe: RecipeOrR
         MachineProcess(this, config)
 }
 
-data class MachineProcess<M : AnyMachine<*>>(
+class MachineProcess<M : AnyMachine<*>>(
     val machine: M,
     val recipe: RecipeOrResource<M>,
     val researchConfig: ResearchConfig = ResearchConfig(),
+    skipCanProcessCheck: Boolean = false,
 ) : Process {
     constructor(
         setup: MachineSetup<M>,
@@ -30,37 +31,61 @@ data class MachineProcess<M : AnyMachine<*>>(
     )
 
     init {
-        require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
+        if (!skipCanProcessCheck) {
+            require(machine.canProcess(recipe)) { "$machine does not accept $recipe" }
+        }
     }
 
     val setup get() = MachineSetup(machine, recipe)
 
-    val effectsUsed: IntEffects = run {
-        val extraProductivity = when (recipe) {
-            is Recipe -> researchConfig.recipeProductivity[RecipeID(recipe.prototype.name)] ?: 0.0
-            is Resource -> researchConfig.miningProductivity
+    private val effectsUsed: IntEffects
+        get() {
+            val extraProductivity = when (recipe) {
+                is Recipe -> researchConfig.recipeProductivity[RecipeID(recipe.prototype.name)] ?: 0.0
+                is Resource -> researchConfig.miningProductivity
+            }
+            return machine.effects.let {
+                if (extraProductivity != 0.0) it + IntEffects(
+                    productivity = extraProductivity.toFloat().toIntEffect()
+                ) else it
+            }
         }
-        machine.effects.let {
-            if (extraProductivity != 0.0) it + IntEffects(
-                productivity = extraProductivity.toFloat().toIntEffect()
-            ) else it
-        }
-    }
 
-    val cycleTime: Time = recipe.craftingTime / machine.finalCraftingSpeed
-    val cycleOutputs = recipe.outputs.applyProdAndQuality(
-        effectsUsed,
-        recipe.outputsToIgnoreProductivity,
-        recipe.inputQuality,
-        researchConfig.maxQuality,
-    )
+    val cycleTime: Time get() = recipe.craftingTime / machine.finalCraftingSpeed
+    val cycleOutputs
+        get() = recipe.outputs.applyProdAndQuality(
+            effectsUsed,
+            recipe.outputsToIgnoreProductivity,
+            recipe.inputQuality,
+            researchConfig.maxQuality,
+        )
     val cycleInputs get() = recipe.inputs
 
     override val netRate: IngredientRate = buildVector {
         this += cycleOutputs
         this -= cycleInputs
-        this.mapValuesInPlace { it.doubleValue / cycleTime.seconds }
+        this /= cycleTime.seconds
     }.castUnits()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MachineProcess<*>
+
+        if (machine != other.machine) return false
+        if (recipe != other.recipe) return false
+        if (researchConfig != other.researchConfig) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = machine.hashCode()
+        result = 31 * result + recipe.hashCode()
+        result = 31 * result + researchConfig.hashCode()
+        return result
+    }
 
     override fun toString(): String = "$machine: $recipe"
 }
@@ -76,9 +101,7 @@ internal fun Vector<Ingredient>.applyProductivity(
     productsIgnoredFromProductivity: Vector<Ingredient>,
     multiplier: Float,
 ): Vector<Ingredient> {
-    // performance: already handles case if productsIgnoredFromProductivity is empty or multiplier is 1.0
-    val productsToMultiply = this - productsIgnoredFromProductivity
-    return productsToMultiply * multiplier.toDouble() + productsIgnoredFromProductivity
+    return (this - productsIgnoredFromProductivity) * multiplier.toDouble() + productsIgnoredFromProductivity
 }
 
 internal fun Vector<Ingredient>.applyQualityRolling(
@@ -88,18 +111,18 @@ internal fun Vector<Ingredient>.applyQualityRolling(
 ): Vector<Ingredient> {
     if (qualityChance == 0f) return this
     if (qualityChance > 1) TODO("Quality chance > 100%")
-    var result: Vector<Ingredient> = emptyVector()
-    var curQuality = startingQuality
-    var propRemaining = 1.0
-    while (curQuality != finalQuality && curQuality.nextQuality != null) {
-        val probQualityIncrease = if (curQuality == startingQuality) qualityChance else .1f
-        val propCurrent = propRemaining * (1 - probQualityIncrease)
-        result += propCurrent * this.withItemsQuality(curQuality)
-        propRemaining *= probQualityIncrease
-        curQuality = curQuality.nextQuality
+    return buildVector {
+        var curQuality = startingQuality
+        var propRemaining = 1.0
+        while (curQuality != finalQuality && curQuality.nextQuality != null) {
+            val probQualityIncrease = if (curQuality == startingQuality) qualityChance else .1f
+            val propCurrent = propRemaining * (1 - probQualityIncrease)
+            this.addMul(this@applyQualityRolling.withItemsQuality(curQuality), propCurrent)
+            propRemaining *= probQualityIncrease
+            curQuality = curQuality.nextQuality
+        }
+        this.addMul(this@applyQualityRolling.withItemsQuality(curQuality), propRemaining)
     }
-    result += propRemaining * this.withItemsQuality(curQuality)
-    return result
 }
 
 internal fun Vector<Ingredient>.applyProdAndQuality(

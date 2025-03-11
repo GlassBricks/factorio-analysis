@@ -36,9 +36,9 @@ fun main() = with(SpaceAge) {
         tungstenMiningCost: Double = coalMiningCost * 2,
         researchConfig: ResearchConfig = ResearchConfig(miningProductivity = 0.2),
     ) = factory {
+        includeBuildCosts()
         machines {
             default {
-                includeBuildCosts()
                 moduleConfig() // no modules
                 for (module in module12sAllQualities) {
                     moduleConfig(fill = module)
