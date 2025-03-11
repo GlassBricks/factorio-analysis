@@ -57,6 +57,7 @@ fun main(): Unit = with(SpaceAge) {
                 }
             }
         )
+        includePowerCosts()
         machines {
             assemblingMachine2 { moduleSetConfigs.removeIf { it.beacons.isEmpty() } }
             assemblingMachine3 { moduleSetConfigs.removeIf { it.beacons.isEmpty() } }
