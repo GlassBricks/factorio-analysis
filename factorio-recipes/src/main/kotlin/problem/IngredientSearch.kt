@@ -61,7 +61,7 @@ fun <T, A : AbstractRecipe<T>> findProducibleRecipes(
  */
 fun FactoryConfig.removeUnusableRecipes(
     inputItems: List<Ingredient>,
-    customProccess: List<PseudoProcess>,
+    customProcesses: List<PseudoProcess>,
 ): Pair<FactoryConfig, Set<Ingredient>> {
 
     // first, find recipes that actually have machines
@@ -75,7 +75,7 @@ fun FactoryConfig.removeUnusableRecipes(
     ) : AbstractRecipe<Ingredient>
 
     val allRecipes = craftableRecipes.map { Recipe(it.inputs.keys, it.outputs.keys, it) } +
-            customProccess.map {
+            customProcesses.map {
                 val (inputs, outputs) = it.ingredientRate.partition { it.doubleValue < 0 }
                 Recipe(inputs.map {
                     it.key.maybeWithQuality(prototypes.defaultQuality)
