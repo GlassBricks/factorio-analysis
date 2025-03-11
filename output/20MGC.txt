@@ -36,7 +36,6 @@ Surpluses:
 Landfill | 16.8208/s
 
 Symbols used:
-Symbol(gcProduced) | 2500.0000
 Asm 2              | 1673.6753
 Beacon             | 299.7729
 Big mining drill   | 7.4819
@@ -48,3 +47,4 @@ Recycler           | 38.7436
 Speed              | 156.7267
 Speed 3            | 181.1269
 Steam turbine      | 839.6766
+Symbol(gcProduced) | 2500.0000
