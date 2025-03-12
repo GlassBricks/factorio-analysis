@@ -20,7 +20,7 @@ fun main() = with(SpaceAge) {
             crusher()
             electricFurnace()
         }
-        researchConfig = ResearchConfig(
+        research = ResearchConfig(
             miningProductivity = 0.2
         )
         recipes {

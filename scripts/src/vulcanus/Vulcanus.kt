@@ -14,7 +14,7 @@ val defaultVulcanusBeaconConfig = with(SpaceAge) {
 }
 
 fun FactoryConfigBuilder.vulcanusMachines(
-    modules: List<Module> = nonEffModulesAllQualities,
+    modules: Iterable<Module> = nonEffModulesAllQualities,
     beacons: List<List<WithBeaconCount>> = defaultVulcanusBeaconConfig,
 ) = with(prototypes) {
     includeBuildCosts()

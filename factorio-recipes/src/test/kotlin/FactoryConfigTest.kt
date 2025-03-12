@@ -153,6 +153,27 @@ class FactoryConfigKtTest : FunSpec({
         )
     }
 
+    test("machine count") {
+        val config = SpaceAge.factory {
+            includeMachineCount()
+            machines {
+                asm2 {
+                    noEmptyModules()
+                    moduleConfig(fill = speed2)
+                }
+            }
+            recipes {
+                "advanced-circuit"()
+            }
+        }
+        val recipe = config.getAllProcesses().single()
+        recipe.additionalCosts shouldBe vectorOf(
+            MachineSymbol(
+                asm2.withModules(fill = speed2)
+            ) to 1.0
+        )
+    }
+
     test("setup config") {
         val config = SpaceAge.factory {
             setups {

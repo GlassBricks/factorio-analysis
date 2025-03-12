@@ -2,7 +2,6 @@ package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.Entity
 import glassbricks.factorio.recipes.FactorioPrototypes
-import glassbricks.factorio.recipes.FactorioPrototypesScope
 import glassbricks.factorio.recipes.maybeWithQuality
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Rate
@@ -25,24 +24,9 @@ object DefaultWeights {
 
 @FactoryConfigDsl
 class ProblemBuilder(
-    val prototypes: FactorioPrototypes,
-    factoryConfig: FactoryConfig? = null,
+    val factory: Factory,
 ) {
-    constructor(factoryConfig: FactoryConfig) : this(factoryConfig.prototypes, factoryConfig)
-
-    var factory: FactoryConfig? = factoryConfig
-        set(value) {
-            if (value != null) require(value.prototypes == prototypes) { "Prototypes used in factory config do not match" }
-            field = value
-        }
-
-    fun factory(factoryConfig: FactoryConfig) {
-        this.factory = factoryConfig
-    }
-
-    inline fun factory(block: FactoryConfigBuilder.() -> Unit) {
-        factory(prototypes.factory(block))
-    }
+    val prototypes: FactorioPrototypes get() = factory.prototypes
 
     val inputs = mutableListOf<Input>()
     fun input(ingredient: Ingredient, cost: Double = DefaultWeights.INPUT_COST, limit: Rate = Rate.infinity) {
@@ -92,6 +76,10 @@ class ProblemBuilder(
         val prototypes get() = this@ProblemBuilder.prototypes
         fun varConfig(symbol: Symbol): VariableConfigBuilder {
             return this@ProblemBuilder.symbolConfigs.getOrPut(symbol) { VariableConfigBuilder() }
+        }
+
+        inline fun varConfig(symbol: Symbol, block: VariableConfigBuilder.() -> Unit) {
+            varConfig(symbol).apply(block)
         }
 
         fun limit(symbol: Symbol, value: Number) {
@@ -172,13 +160,12 @@ class ProblemBuilder(
     var verifyOutputsProducible: Boolean = true
 
     fun build(): ProductionLp = with(prototypes) {
-        var factory = factory ?: error("Factory not set")
-
+        var factory = factory
         if (removeUnusableRecipes) {
             val inputItems = inputs.map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }
             val (newFactory, producibleIngredients) = factory.removeUnusableRecipes(
                 inputItems,
-                customProcesses
+                customProcesses.map { it.toAbstractRecipe(prototypes) }
             )
             factory = newFactory
             if (verifyOutputsProducible) {
@@ -204,13 +191,10 @@ class ProblemBuilder(
     }
 }
 
-inline fun FactorioPrototypesScope.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
-    ProblemBuilder(prototypes).apply(block).build()
-
-inline fun FactoryConfig.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
+inline fun Factory.problem(block: ProblemBuilder.() -> Unit): ProductionLp =
     ProblemBuilder(this).apply(block).build()
 
-inline fun FactoryConfig.stage(
+inline fun Factory.stage(
     name: String? = null,
     block: ProblemBuilder.() -> Unit,
 ): ProductionStage =

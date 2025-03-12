@@ -17,7 +17,7 @@ fun main(): Unit = with(SpaceAge) {
     val vulcanusFactory = factory {
         includeBuildCosts()
         vulcanusMachines()
-        researchConfig = ResearchConfig(
+        research = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(
                 RecipeID(castingLowDensityStructure.prototype.name) to 0.1,

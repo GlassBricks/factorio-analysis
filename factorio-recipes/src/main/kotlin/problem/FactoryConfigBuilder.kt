@@ -88,14 +88,13 @@ class MachineConfigBuilder(
         )
     }
 
-    fun onlyRecipes(vararg recipes: RecipeOrResource<*>) {
+    fun onlyRecipes(recipes: Iterable<RecipeOrResource<*>>) {
         val allowedRecipes = recipes.map { it.prototype }.toSet()
         filters += { _, recipe -> recipe.prototype in allowedRecipes }
     }
 
-    fun onlyRecipesWithQuality(vararg recipes: RecipeOrResource<*>) {
-        val allowedRecipes = recipes.toSet()
-        filters += { _, recipe -> recipe in allowedRecipes }
+    fun onlyRecipes(vararg recipes: RecipeOrResource<*>) {
+        onlyRecipes(recipes.toSet())
     }
 
     override fun build(): MachineConfig = MachineConfig(
@@ -119,16 +118,6 @@ class RecipeConfigBuilder(
     fun onlyUsing(vararg machines: AnyMachine<*>) {
         val allowedMachines = machines.toSet()
         filters += { machine, recipe -> machine in allowedMachines }
-    }
-
-    fun atQualityOnlyUsing(
-        quality: Quality,
-        vararg machines: AnyMachine<*>,
-    ) {
-        val allowedMachines = machines.toSet()
-        filters += { machine, recipe ->
-            recipe.inputQuality != quality || machine in allowedMachines
-        }
     }
 
     override fun build(): RecipeConfig = RecipeConfig(
@@ -184,7 +173,7 @@ private fun <T, R, B : Builder<R>> ConfigScope<T, B>.build(): Map<T, R> {
 
 @FactoryConfigDsl
 class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<FactoryConfig> {
-    var researchConfig: ResearchConfig = ResearchConfig()
+    var research: ResearchConfig = ResearchConfig()
 
     var costConfig: CostConfig = CostConfig()
     fun includeBuildCosts() {
@@ -193,6 +182,10 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
 
     fun includePowerCosts() {
         costConfig = costConfig.copy(includePowerCosts = true)
+    }
+
+    fun includeMachineCount() {
+        costConfig = costConfig.copy(includeMachineCount = true)
     }
 
     val machines = MachinesScope()
@@ -286,11 +279,11 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         additionalConfigFn = block
     }
 
-    val filters: MutableList<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean> = mutableListOf()
+    val filters: MutableList<SetupPredicate> = mutableListOf()
 
     override fun build(): FactoryConfig = FactoryConfig(
         prototypes = prototypes,
-        research = researchConfig,
+        research = research,
         costConfig = costConfig,
         machines = machines.build(),
         recipes = recipes.build(),

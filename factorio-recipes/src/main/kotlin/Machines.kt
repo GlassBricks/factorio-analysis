@@ -1,10 +1,8 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
-import glassbricks.recipeanalysis.Ingredient
+import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.Vector
-import glassbricks.recipeanalysis.emptyVector
-import glassbricks.recipeanalysis.uvec
 import java.util.*
 
 /**
@@ -26,6 +24,10 @@ sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCo
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
     val moduleSet: ModuleSet?
+}
+
+data class MachineSymbol(val machine: AnyMachine<*>) : Symbol {
+    override fun toString(): String = machine.toString()
 }
 
 fun AnyMachine<*>.canProcess(process: RecipeOrResource<*>): Boolean {

@@ -1,5 +1,6 @@
 package glassbricks.factorio.recipes.problem
 
+import glassbricks.factorio.recipes.FactorioPrototypes
 import glassbricks.factorio.recipes.RecipeOrResource
 import glassbricks.factorio.recipes.maybeWithQuality
 import glassbricks.recipeanalysis.Ingredient
@@ -56,17 +57,30 @@ fun <T, A : AbstractRecipe<T>> findProducibleRecipes(
     return producibleItems to producibleRecipes
 }
 
+fun PseudoProcess.toAbstractRecipe(
+    prototypes: FactorioPrototypes,
+): AbstractRecipe<Ingredient> {
+    val (inputEntries, outputEntries) = ingredientRate.partition { it.doubleValue < 0 }
+    val inputs = inputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
+    val outputs = outputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
+
+    return object : AbstractRecipe<Ingredient> {
+        override val inputs = inputs
+        override val outputs = outputs
+    }
+}
+
 /**
  * Also returns the set of producible items (so it can later be verified against expected outputs).
  */
-fun FactoryConfig.removeUnusableRecipes(
+fun Factory.removeUnusableRecipes(
     inputItems: List<Ingredient>,
-    customProcesses: List<PseudoProcess>,
-): Pair<FactoryConfig, Set<Ingredient>> {
+    otherProcessesNoQuality: List<AbstractRecipe<Ingredient>>,
+): Pair<Factory, Set<Ingredient>> {
 
     // first, find recipes that actually have machines
-    val craftingCategories = machines.keys.flatMap { it.craftingCategories }.toSet()
-    val craftableRecipes = recipes.keys.filter { it.craftingCategory in craftingCategories }
+    val craftingCategories = machinesUsed().flatMap { it.craftingCategories }.toSet()
+    val craftableRecipes = recipesUsed().filter { it.craftingCategory in craftingCategories }
 
     class Recipe(
         override val inputs: Collection<Ingredient>,
@@ -74,20 +88,18 @@ fun FactoryConfig.removeUnusableRecipes(
         val recipe: RecipeOrResource<*>?,
     ) : AbstractRecipe<Ingredient>
 
-    val allRecipes = craftableRecipes.map { Recipe(it.inputs.keys, it.outputs.keys, it) } +
-            customProcesses.map {
-                val (inputs, outputs) = it.ingredientRate.partition { it.doubleValue < 0 }
-                Recipe(inputs.map {
-                    it.key.maybeWithQuality(prototypes.defaultQuality)
-                }, outputs.map {
-                    it.key.maybeWithQuality(prototypes.defaultQuality)
-                }, null)
-            }
+    val allRecipes = craftableRecipes.map {
+        Recipe(it.inputs.keys, it.outputs.keys, it)
+    } + otherProcessesNoQuality
 
     val (items, producibleRecipes) = findProducibleRecipes(
         allRecipes,
         inputItems,
     )
-    val newFactory = copy(recipes = producibleRecipes.mapNotNull { it.recipe }.associateWith { this.recipes[it]!! })
-    return newFactory to items
+    val baseRecipes = producibleRecipes
+        .filterIsInstance<Recipe>()
+        .map { it.recipe }
+        .toSet()
+
+    return (this.filterRecipes { it in baseRecipes }) to items
 }

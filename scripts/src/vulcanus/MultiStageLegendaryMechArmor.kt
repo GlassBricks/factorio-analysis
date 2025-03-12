@@ -22,7 +22,7 @@ fun main(): Unit = with(SpaceAge) {
         machines {
 //            electromagneticPlant { integralCost() }
         }
-        researchConfig = ResearchConfig(
+        research = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(RecipeID(castingLowDensityStructure.prototype.name) to 0.2)
         )
@@ -50,7 +50,7 @@ fun main(): Unit = with(SpaceAge) {
         }
     }
 
-    val mallRunTime = 30.minutes
+    val mallRunTime = 15.minutes
     val targetTime = 30.minutes
     val stage1 = vulcanusFactory.stage("modules") {
         input(lava, cost = 0.0)

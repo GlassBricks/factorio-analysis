@@ -83,8 +83,7 @@ val module3s = SpaceAge.run {
         efficiencyModule3
     )
 }
-val module12s = module1s + module2s
-val module12sAllQualities = module12s.flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
+val module12sAllQualities = (module1s + module2s).flatMap { SpaceAge.qualities.map { q -> it.withQuality(q) } }
 
 val nonEffModulesAllQualities = SpaceAge.run {
     (module1s + module2s + module3s)
@@ -126,7 +125,7 @@ fun ProblemBuilder.CostsScope.addQualityCosts(
 }
 
 fun MachineConfigBuilder.moduleConfigWithBeacons(
-    modules: List<Module>,
+    modules: Iterable<Module>,
     beacons: List<List<WithBeaconCount>>,
 ) {
     for (module in modules) {

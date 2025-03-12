@@ -33,16 +33,15 @@ class ProblemTest : FunSpec({
             }
             recipes {
                 "copper-cable" {}
-                (gc.prototype.name) {}
-                (ironGearWheel.prototype.name) {}
+                gc {}
+                ironGearWheel {}
                 // something irrelevant
                 "iron-chest" {}
             }
         }
     }
     test("solve maximize") {
-        val problem = problem {
-            factory = gcFactory
+        val problem = gcFactory.problem {
             limit(copperPlate, 3.perSecond)
             limit(ironPlate, 3.perSecond)
             maximize(gc)
@@ -53,8 +52,7 @@ class ProblemTest : FunSpec({
         Rate(solution.inputs[copperPlate]) shouldBe 3.perSecond
     }
     test("solve limit") {
-        val problem = problem {
-            factory = gcFactory
+        val problem = gcFactory.problem {
             input(copperPlate)
             input(ironPlate)
             output(gc, 2.perSecond)
@@ -80,8 +78,7 @@ class ProblemTest : FunSpec({
                 "iron-chest-recycling" {}
             }
         }
-        val problem = problem {
-            factory = basicGamblingFactory
+        val problem = basicGamblingFactory.problem {
             input(ironPlate)
             output(ironPlate.withQuality(legendary), 6.perMinute)
         }
@@ -91,17 +88,17 @@ class ProblemTest : FunSpec({
     }
 
     test("can cast pipe") {
-        val problem = problem {
-            factory {
-                machines {
-                    "foundry" {}
-                }
-                recipes {
-                    "casting-pipe" {}
-                    "casting-iron" {}
-                    "casting-pipe-to-ground" {}
-                }
+        val factory = factory {
+            machines {
+                "foundry" {}
             }
+            recipes {
+                "casting-pipe" {}
+                "casting-iron" {}
+                "casting-pipe-to-ground" {}
+            }
+        }
+        val problem = factory.problem {
             input(fluid("molten-iron"))
             output(item("pipe-to-ground"), 1.perSecond)
         }
@@ -110,15 +107,15 @@ class ProblemTest : FunSpec({
         println(solution.solution!!.processes.display())
     }
     test("can have excess") {
-        val problem = problem {
-            factory {
-                machines {
-                    "recycler" {}
-                }
-                recipes {
-                    "pipe-to-ground-recycling" {}
-                }
+        val factory = factory {
+            machines {
+                "recycler" {}
             }
+            recipes {
+                "pipe-to-ground-recycling" {}
+            }
+        }
+        val problem = factory.problem {
             input(item("pipe-to-ground"))
             output(ironPlate, 1.perSecond)
         }
@@ -154,8 +151,7 @@ class ProblemTest : FunSpec({
                 allOfCategory("recycling")
             }
         }
-        val problem = problem {
-            factory = gamblingFactory
+        val problem = gamblingFactory.problem {
             val moltenIron = fluid("molten-iron")
             input(moltenIron)
             output(ironPlate.withQuality(rare), 6.perMinute)
@@ -166,19 +162,18 @@ class ProblemTest : FunSpec({
     }
 
     test("constrain machines") {
-        val problem = problem {
-            factory {
-                includeBuildCosts()
-                machines {
-                    "assembling-machine-1" {}
-                }
-                recipes {
-                    ironGearWheel {
-                        upperBound = 1.0
-                    }
+        val factory = factory {
+            includeBuildCosts()
+            machines {
+                "assembling-machine-1" {}
+            }
+            recipes {
+                ironGearWheel {
+                    upperBound = 1.0
                 }
             }
-            println(this.factory!!.getAllProcesses())
+        }
+        val problem = factory.problem {
             input(ironPlate)
 //            maximize(ironGearWheel)
             output(ironGearWheel, 1.perSecond)
@@ -199,19 +194,19 @@ class ProblemTest : FunSpec({
     }
 
     test("constrain modules") {
-        val problem = problem {
-            factory {
-                includeBuildCosts()
-                machines {
-                    "assembling-machine-2" {
-                        moduleConfig()
-                        moduleConfig(fill = prod3)
-                    }
-                }
-                recipes {
-                    (ironGearWheel.prototype.name) {}
+        val factory = factory {
+            includeBuildCosts()
+            machines {
+                "assembling-machine-2" {
+                    moduleConfig()
+                    moduleConfig(fill = prod3)
                 }
             }
+            recipes {
+                (ironGearWheel.prototype.name) {}
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate)
             maximize(ironGearWheel)
             costs {
@@ -226,23 +221,24 @@ class ProblemTest : FunSpec({
 
     test("cost on symbol") {
         val foo = Symbol("foo")
-        val problem = problem {
-            factory {
-                includeBuildCosts()
-                machines {
-                    default {
-                    }
-                    "assembling-machine-2" {
-                        additionalCosts += vectorOf(foo to 2.0)
-                    }
-                    "assembling-machine-1" {
-                        additionalCosts += vectorOf(foo to 1.0)
-                    }
+
+        val factory = factory {
+            includeBuildCosts()
+            machines {
+                default {
                 }
-                recipes {
-                    (ironGearWheel.prototype.name) {}
+                "assembling-machine-2" {
+                    additionalCosts += vectorOf(foo to 2.0)
+                }
+                "assembling-machine-1" {
+                    additionalCosts += vectorOf(foo to 1.0)
                 }
             }
+            recipes {
+                (ironGearWheel.prototype.name) {}
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate)
             output(ironGearWheel, 1.perSecond)
             costs {
@@ -263,28 +259,28 @@ class ProblemTest : FunSpec({
     }
 
     test("all recipes for complex stuff") {
-        val problem = problem {
-            factory {
-                includeBuildCosts()
-                machines {
-                    default {
-                        moduleConfig()
-                        moduleConfig(fill = prod3, beacons = listOf(beacon(fill = speed2) * 4))
-                        moduleConfig(fill = speed2)
-                        moduleConfig(fill = qual3)
-                    }
-                    "assembling-machine-3" {}
-                    "chemical-plant" {}
-                    "oil-refinery" {}
-                    "centrifuge" {}
-                    "recycler" {}
-                    "electromagnetic-plant" {}
+        val factory = factory {
+            includeBuildCosts()
+            machines {
+                default {
+                    moduleConfig()
+                    moduleConfig(fill = prod3, beacons = listOf(beacon(fill = speed2) * 4))
+                    moduleConfig(fill = speed2)
+                    moduleConfig(fill = qual3)
                 }
-                recipes {
-                    default { allQualities() }
-                    allCraftingRecipes()
-                }
+                "assembling-machine-3" {}
+                "chemical-plant" {}
+                "oil-refinery" {}
+                "centrifuge" {}
+                "recycler" {}
+                "electromagnetic-plant" {}
             }
+            recipes {
+                default { allQualities() }
+                allCraftingRecipes()
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate)
             input(item("steel-plate"))
             input(copperPlate)
@@ -313,17 +309,17 @@ class ProblemTest : FunSpec({
     }
 
     test("integral") {
-        val problem = problem {
-            factory {
-                machines {
-                    "assembling-machine-3" {
-                        integral()
-                    }
-                }
-                recipes {
-                    (ironGearWheel.prototype.name) {}
+        val factory = factory {
+            machines {
+                "assembling-machine-3" {
+                    integral()
                 }
             }
+            recipes {
+                (ironGearWheel.prototype.name) {}
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
@@ -333,17 +329,17 @@ class ProblemTest : FunSpec({
     }
 
     test("with mining") {
-        val problem = problem {
-            factory {
-                machines {
-                    "electric-mining-drill" {}
-                    "electric-furnace" {}
-                }
-                recipes {
-                    (resource("iron-ore")) {}
-                    "iron-plate" {}
-                }
+        val factory = factory {
+            machines {
+                "electric-mining-drill" {}
+                "electric-furnace" {}
             }
+            recipes {
+                (resource("iron-ore")) {}
+                "iron-plate" {}
+            }
+        }
+        val problem = factory.problem {
             output(item("iron-plate"), 1.perSecond)
         }
         val solution = problem.solve()
@@ -351,17 +347,17 @@ class ProblemTest : FunSpec({
         println(solution.solution!!.processes.display())
     }
     test("moduled mining") {
-        val problem = problem {
-            factory {
-                machines {
-                    "electric-mining-drill" {
-                        moduleConfig(fill = speed2)
-                    }
-                }
-                recipes {
-                    (resource("iron-ore")) {}
+        val factory = factory {
+            machines {
+                "electric-mining-drill" {
+                    moduleConfig(fill = speed2)
                 }
             }
+            recipes {
+                (resource("iron-ore")) {}
+            }
+        }
+        val problem = factory.problem {
             output(item("iron-ore"), 1.perSecond)
         }
         val solution = problem.solve()
@@ -372,8 +368,7 @@ class ProblemTest : FunSpec({
     test("purely custom") {
         val foo = Ingredient("foo")
         val foo2 = Ingredient("foo2")
-        val problem = problem {
-            factory {}
+        val problem = factory {}.problem {
             customProcess("foo crafting") {
                 ingredientRate -= vectorOfWithUnits(foo to 1.0)
                 ingredientRate += vectorOfWithUnits(foo2 to 1.0)
@@ -388,18 +383,18 @@ class ProblemTest : FunSpec({
     }
 
     xtest("semi-continuous") {
-        val problem = problem {
-            factory {
-                machines {
-                    "assembling-machine-3" {
-                        type = VariableType.SemiContinuous
-                        lowerBound = 2.0
-                    }
-                }
-                recipes {
-                    "iron-gear-wheel" {}
+        val factory = factory {
+            machines {
+                "assembling-machine-3" {
+                    type = VariableType.SemiContinuous
+                    lowerBound = 2.0
                 }
             }
+            recipes {
+                "iron-gear-wheel" {}
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate)
             output(ironGearWheel, 0.01.perSecond)
         }
@@ -409,19 +404,19 @@ class ProblemTest : FunSpec({
         println(solution.processes.display())
     }
     test("using integral cost") {
-        val problem = problem {
-            factory {
-                includeBuildCosts()
-                machines {
-                    "assembling-machine-3" {
-                        cost = 10.0
-                        integralCost()
-                    }
-                }
-                recipes {
-                    "iron-gear-wheel" {}
+        val factory = factory {
+            includeBuildCosts()
+            machines {
+                "assembling-machine-3" {
+                    cost = 10.0
+                    integralCost()
                 }
             }
+            recipes {
+                "iron-gear-wheel" {}
+            }
+        }
+        val problem = factory.problem {
             input(ironPlate, cost = 0.0)
             output(ironGearWheel, 0.01.perSecond)
         }
@@ -436,16 +431,16 @@ class ProblemTest : FunSpec({
     }
 
     context("Multi stage problem") {
+        val factory = factory {
+            machines {
+                "assembling-machine-1" {}
+            }
+            recipes {
+                ironGearWheel {}
+            }
+        }
         test("sanity check") {
-            val problem = problem {
-                factory {
-                    machines {
-                        "assembling-machine-1" {}
-                    }
-                    recipes {
-                        ironGearWheel {}
-                    }
-                }
+            val problem = factory.problem {
                 input(ironPlate)
                 output(ironGearWheel, 1.perSecond)
             }

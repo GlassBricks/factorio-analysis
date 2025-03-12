@@ -6,18 +6,60 @@ import glassbricks.recipeanalysis.lp.VariableConfig
 import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.recipelp.RealProcess
 
+interface Factory {
+    val prototypes: FactorioPrototypes
+
+    fun machinesUsed(): Set<BaseMachine<*>>
+    fun recipesUsed(): Set<RecipeOrResource<*>>
+    fun getAllProcesses(): List<RealProcess>
+
+    /** Filter recipes if it would actually reduce the number of processes */
+    fun filterRecipes(predicate: (RecipeOrResource<*>) -> Boolean): Factory
+}
+
+data class CostConfig(
+    /**
+     * If true, adds the power usage of all configs ([ElectricPower]) to additionalCosts.
+     */
+    val includePowerCosts: Boolean = false,
+    /**
+     * If true, adds the build cost of the machine ([AnyMachine.getBuildCost]) to additionalCosts.
+     */
+    val includeBuildCosts: Boolean = false,
+    /**
+     * If true, adds the exact machine setup used ([MachineSymbol]) to additionalCosts.
+     */
+    val includeMachineCount: Boolean = false,
+)
+
+data class MachineConfig(
+    val processConfig: ProcessConfig,
+    val qualities: Set<Quality>,
+    val moduleSets: List<ModuleSet>,
+    val filters: List<SetupPredicate>,
+)
+
+data class RecipeConfig(
+    val processConfig: ProcessConfig,
+    val qualities: Set<Quality>,
+    val filters: List<SetupPredicate>,
+)
+
 data class FactoryConfig(
-    val prototypes: FactorioPrototypes,
+    override val prototypes: FactorioPrototypes,
     val research: ResearchConfig,
     val costConfig: CostConfig,
     val machines: Map<BaseMachine<*>, MachineConfig>,
     val recipes: Map<RecipeOrResource<*>, RecipeConfig>,
     val setups: Map<MachineSetup<*>, ProcessConfig>,
     val additionalConfigFn: ((MachineSetup<*>) -> ProcessConfig?)?,
-    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
-) {
+    val filters: List<SetupPredicate>,
+) : Factory {
 
-    fun getAllProcesses(): List<RealProcess> {
+    override fun recipesUsed(): Set<RecipeOrResource<*>> = recipes.keys
+    override fun machinesUsed(): Set<BaseMachine<*>> = machines.keys
+
+    override fun getAllProcesses(): List<RealProcess> {
         val recipesByCategory = recipes.keys.groupBy { it.craftingCategory }
         // cache this because it's an expensive-ish computation we don't want to repeat
         val recipesWithQuality = recipes.mapValues { (recipe, recipeConfig) ->
@@ -35,7 +77,8 @@ data class FactoryConfig(
                     // cache expensive computation
                     val machineCosts =
                         (if (costConfig.includeBuildCosts) machineWithQuality.getBuildCost(prototypes) else emptyVector()) +
-                                (if (costConfig.includePowerCosts) vectorOf(ElectricPower to machineWithQuality.powerUsage) else emptyVector())
+                                (if (costConfig.includePowerCosts) vectorOf(ElectricPower to machineWithQuality.powerUsage) else emptyVector()) +
+                                (if (costConfig.includeMachineCount) uvec(MachineSymbol(machineWithQuality)) else emptyVector())
                     thisRecipes.parallelStream().flatMap { recipe ->
                         val recipeConfig = this@FactoryConfig.recipes[recipe]!!
 
@@ -66,10 +109,38 @@ data class FactoryConfig(
                     }
                 }
             }
-        }
-            .toList()
+        }.toList()
     }
+
+    override fun filterRecipes(predicate: (RecipeOrResource<*>) -> Boolean): Factory =
+        copy(recipes = recipes.filterKeys(predicate))
 }
+
+class FactorySum(val configs: List<Factory>) : Factory {
+    override val prototypes: FactorioPrototypes get() = configs.first().prototypes
+
+    init {
+        require(configs.all { it.prototypes == configs.first().prototypes }) {
+            "All factory configs must use the same prototypes"
+        }
+    }
+
+    override fun machinesUsed(): Set<BaseMachine<*>> = configs.flatMap { it.machinesUsed() }.toSet()
+    override fun recipesUsed(): Set<RecipeOrResource<*>> = configs.flatMap { it.recipesUsed() }.toSet()
+    override fun getAllProcesses(): List<RealProcess> = configs.flatMap { it.getAllProcesses() }
+    override fun filterRecipes(predicate: (RecipeOrResource<*>) -> Boolean): Factory =
+        FactorySum(configs.map { it.filterRecipes(predicate) })
+}
+
+operator fun Factory.plus(other: Factory): Factory {
+    fun Factory.getList(): List<Factory> = when (this) {
+        is FactorySum -> configs
+        else -> listOf(this)
+    }
+    return FactorySum(this.getList() + other.getList())
+}
+
+typealias SetupPredicate = (AnyMachine<*>, RecipeOrResource<*>) -> Boolean
 
 data class ProcessConfig(
     val additionalCosts: Vector<Symbol>,
@@ -99,21 +170,3 @@ data class ProcessConfig(
         cost = cost,
     )
 }
-
-data class CostConfig(
-    val includePowerCosts: Boolean = false,
-    val includeBuildCosts: Boolean = false,
-)
-
-data class MachineConfig(
-    val processConfig: ProcessConfig,
-    val qualities: Set<Quality>,
-    val moduleSets: List<ModuleSet>,
-    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
-)
-
-data class RecipeConfig(
-    val processConfig: ProcessConfig,
-    val qualities: Set<Quality>,
-    val filters: List<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean>,
-)

@@ -100,7 +100,7 @@ fun fulgoraFactory1(scrapCost: Number, config: FactoryConfigBuilder.() -> Unit =
             cost = scrapCost.toDouble()
         }
     }
-    researchConfig = ResearchConfig(
+    research = ResearchConfig(
         miningProductivity = 0.2
     )
     config()

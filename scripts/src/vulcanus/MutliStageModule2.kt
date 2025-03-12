@@ -52,7 +52,7 @@ fun main() = with(SpaceAge) {
             }
         }
 
-        this.researchConfig = researchConfig
+        this.research = researchConfig
         recipes {
             default { allQualities() }
             allCraftingRecipes()

@@ -17,7 +17,7 @@ import java.io.File
 fun main() = with(SpaceAge) {
     val vulcanusFactory = factory {
         vulcanusMachines()
-        researchConfig = ResearchConfig(
+        research = ResearchConfig(
             miningProductivity = 0.2,
             recipeProductivity = mapOf(
                 RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
