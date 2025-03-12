@@ -71,6 +71,7 @@ fun main(): Unit = with(SpaceAge) {
             optionalOutput(module.withQuality(legendary))
 //            }
         }
+        verifyOutputsProducible = false
 
         costs {
             vulcanusMachineCosts1()

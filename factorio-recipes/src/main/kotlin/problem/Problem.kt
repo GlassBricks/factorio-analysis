@@ -186,7 +186,8 @@ class ProblemBuilder(
                     .map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }
                     .filterNot { it in producibleIngredients }
                 require(nonProducibleOutputs.isEmpty()) {
-                    "These outputs are not producible given inputs: $nonProducibleOutputs"
+                    "These outputs are not producible given inputs: $nonProducibleOutputs\n" +
+                            "You can disable this check by setting verifyOutputsProducible = false"
                 }
             }
         }
