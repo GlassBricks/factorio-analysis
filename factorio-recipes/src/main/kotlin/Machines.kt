@@ -1,6 +1,8 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.*
+import glassbricks.factorio.recipes.export.FactorioFormattable
+import glassbricks.factorio.recipes.export.FactorioRecipesFormatter
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.Vector
 import java.util.*
@@ -26,7 +28,9 @@ sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCo
     val moduleSet: ModuleSet?
 }
 
-data class MachineSymbol(val machine: AnyMachine<*>) : Symbol {
+data class MachineSymbol(val machine: AnyMachine<*>) : Symbol, FactorioFormattable {
+    override fun accept(formatter: FactorioRecipesFormatter): String = formatter.formatMachine(machine)
+
     override fun toString(): String = machine.toString()
 }
 

@@ -1,8 +1,6 @@
 package glassbricks.factorio.recipes.problem
 
-import glassbricks.factorio.recipes.Entity
-import glassbricks.factorio.recipes.FactorioPrototypes
-import glassbricks.factorio.recipes.maybeWithQuality
+import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.Rate
 import glassbricks.recipeanalysis.Symbol
@@ -89,6 +87,10 @@ class ProblemBuilder(
 
         fun limit(entity: Entity, value: Number) {
             limit(this@ProblemBuilder.prototypes.itemOf(entity), value)
+        }
+
+        fun limitMachine(machine: AnyMachine<*>, value: Number) {
+            limit(MachineSymbol(machine), value)
         }
 
         fun costOf(symbol: Symbol, value: Number) {

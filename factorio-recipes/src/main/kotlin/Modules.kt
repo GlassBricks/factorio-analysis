@@ -339,6 +339,14 @@ data class ModuleSetConfig(
         ?.let { ModuleSet(it, BeaconList(beacons)) }
 }
 
+fun ModuleSet?.toModuleSetConfig(): ModuleSetConfig {
+    if (this == null) return ModuleSetConfig()
+    return ModuleSetConfig(
+        modules = this.modules.moduleCounts,
+        beacons = this.beacons.beaconCounts
+    )
+}
+
 fun ModuleSetConfig(
     modules: List<WithModuleCount>,
     fill: Module? = null,

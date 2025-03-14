@@ -88,6 +88,10 @@ class MachineConfigBuilder(
         )
     }
 
+    fun moduleConfig(moduleSet: ModuleSetConfig) {
+        moduleSetConfigs += moduleSet
+    }
+
     fun onlyRecipes(recipes: Iterable<RecipeOrResource<*>>) {
         val allowedRecipes = recipes.map { it.prototype }.toSet()
         filters += { _, recipe -> recipe.prototype in allowedRecipes }
@@ -108,6 +112,14 @@ class MachineConfigBuilder(
         filters = filters,
     )
 
+    fun onlyMatching(machine: AnyMachine<*>) {
+        require(machine.prototype == this.machine.prototype) {
+            "Machine mismatch: ${machine.prototype} != ${this.machine.prototype}"
+        }
+        qualities = setOf(machine.quality)
+        moduleSetConfigs.clear()
+        moduleSetConfigs += machine.moduleSet.toModuleSetConfig()
+    }
 }
 
 @FactoryConfigDsl
@@ -292,14 +304,6 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         additionalConfigFn = additionalConfigFn?.let {
             { setup -> SetupConfigBuilder(setup).apply(it).build() }
         }
-    )
-}
-
-private fun ModuleSet?.toModuleSetConfig(): ModuleSetConfig {
-    if (this == null) return ModuleSetConfig()
-    return ModuleSetConfig(
-        modules = this.modules.moduleCounts,
-        beacons = this.beacons.beaconCounts
     )
 }
 

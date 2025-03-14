@@ -38,8 +38,12 @@ fun printAndExportStagedSolution(
     }
 }
 
-fun printAndExportSolution(pathPrefix: String, solution: RecipeSolution) {
-    val display = solution.textDisplay(RecipesFirst)
+fun printAndExportSolution(
+    pathPrefix: String,
+    solution: RecipeSolution,
+    formatter: FactorioRecipesFormatter = RecipesFirst,
+) {
+    val display = solution.textDisplay(formatter)
     File("$pathPrefix.txt").apply {
         parentFile.mkdirs()
         writeText(display)
@@ -54,9 +58,13 @@ fun printAndExportSolution(pathPrefix: String, solution: RecipeSolution) {
     dotFile.writeDotGraph(graph)
 }
 
-fun printAndExportSolution(pathPrefix: String, result: RecipeResult) {
+fun printAndExportSolution(
+    pathPrefix: String,
+    result: RecipeResult,
+    formatter: FactorioRecipesFormatter = RecipesFirst,
+) {
     println(result.status)
-    result.solution?.let { printAndExportSolution(pathPrefix, it) }
+    result.solution?.let { printAndExportSolution(pathPrefix, it, formatter) }
 }
 
 val module1s = SpaceAge.run {

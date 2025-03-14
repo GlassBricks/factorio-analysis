@@ -6,7 +6,14 @@ import glassbricks.recipeanalysis.Process
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.recipelp.RecipeLpFormatter
 
+interface FactorioFormattable {
+    fun accept(formatter: FactorioRecipesFormatter): String
+}
+
 interface FactorioRecipesFormatter : RecipeLpFormatter {
+
+    fun format(formattable: FactorioFormattable): String = formattable.accept(this)
+
     fun formatSetup(setup: MachineProcess<*>): String =
         "${formatMachine(setup.machine)} --> ${formatRecipeOrResource(setup.recipe)}"
 
@@ -80,6 +87,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatQualityName(prototype: QualityPrototype): String = prototype.name
 
     override fun formatSymbol(symbol: Symbol): String = when (symbol) {
+        is FactorioFormattable -> format(symbol)
         is Item -> formatItem(symbol)
         is Fluid -> formatFluid(symbol)
         else -> symbol.toString()

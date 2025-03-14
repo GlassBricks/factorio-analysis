@@ -51,8 +51,8 @@ interface RecipeLpFormatter {
 
     val inputComparator: Comparator<in Ingredient>? get() = ingredientComparator
     val outputComparator: Comparator<in Ingredient>? get() = ingredientComparator
-    val otherProcessComparator: Comparator<in PseudoProcess>? get() = null
-    val processComparator: Comparator<in Process>? get() = null
+    val otherProcessComparator: Comparator<in PseudoProcess>? get() = compareBy { formatOtherProcess(it) }
+    val processComparator: Comparator<in Process>? get() = compareBy { formatProcess(it) }
 
     val ingredientComparator: Comparator<in Ingredient>? get() = symbolComparator
     val symbolComparator: Comparator<in Symbol>? get() = compareBy { formatSymbol(it) }

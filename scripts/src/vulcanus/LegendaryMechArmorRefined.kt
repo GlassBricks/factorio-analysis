@@ -1,31 +1,31 @@
 package scripts.vulcanus
 
 import glassbricks.factorio.prototypes.RecipeID
-import glassbricks.factorio.recipes.ResearchConfig
-import glassbricks.factorio.recipes.SpaceAge
+import glassbricks.factorio.recipes.*
+import glassbricks.factorio.recipes.export.RecipesFirst
 import glassbricks.factorio.recipes.problem.factory
 import glassbricks.factorio.recipes.problem.plus
 import glassbricks.factorio.recipes.problem.problem
-import glassbricks.factorio.recipes.times
-import glassbricks.factorio.recipes.withModules
+import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
 import scripts.*
 import kotlin.time.Duration.Companion.minutes
 
 fun main(): Unit = with(SpaceAge) {
-    val qqModule = qualityModule3.withQuality(quality = legendary)
-
-    val theGoodRecycler = recycler.withModules(fill = qqModule)
-    val theGoodEmp = electromagneticPlant.withModules(fill = qqModule)
-
-    val theProdEmp = electromagneticPlant.withModules(
-        fill = productivityModule2.withQuality(epic),
-        beacons = listOf(beacon.withQuality(rare).withModules(speedModule3) * 9)
-    )
-    val highThroughputRecycling = listOf(
-        substationRecycling, bigElectricPoleRecycling, cargoWagonRecycling, heatExchangerRecycling
-    )
+    val theGoodRecycler =
+        recycler
+            .withQuality(rare)
+            .withModules(fill = qualityModule3.withQuality(quality = legendary))
+    val theGoodEmp = electromagneticPlant
+        .withQuality(rare)
+        .withModules(fill = qualityModule2.withQuality(quality = legendary))
+    val theProdEmp = electromagneticPlant
+        .withQuality(rare)
+        .withModules(
+            fill = productivityModule2.withQuality(epic),
+            beacons = listOf(beacon.withQuality(rare).withModules(speedModule3) * 4)
+        )
 
     val research = ResearchConfig(
         miningProductivity = 0.2,
@@ -33,32 +33,88 @@ fun main(): Unit = with(SpaceAge) {
             RecipeID(castingLowDensityStructure.prototype.name) to 0.1,
         ),
     )
-    val basicFactory = factory {
+    val basicStuff = factory {
         this.research = research
 
-//        val installableModules = listOf(
-//            qualityModule,
-//            productivityModule,
-//            speedModule,
-//            speedModule3
-//        ) + listOf(
-//            speedModule2,
-//            qualityModule2,
-//            productivityModule2,
-//        ).flatMap { qualities.map { q -> it.withQuality(q) } }
-//
-//        vulcanusMachines(installableModules)
-        vulcanusMachines()
+        // no quality modules to start with to start with
+        val installableModules = listOf(
+            qualityModule,
+            qualityModule2,
+            // maybe we can beg fulgora for just a few quality 3s?
+            productivityModule,
+            productivityModule2,
+            speedModule,
+            speedModule2,
+            speedModule3
+        )
+
+        vulcanusMachines(
+            installableModules, beacons =
+                beaconsWithSharing(speedModule3).map { listOf(it) } +
+                        listOf(listOf(beacon.withModules(fill = speedModule2)))
+        )
+//        vulcanusMachines()
 
         recipes {
             default {
                 allQualities()
-                cost = 1.0
+                cost = 2.0
             }
             allCraftingRecipes()
             calciteMining()
             coalMining { cost = 60.0 }
             tungstenOreMining()
+
+            advancedCircuit {
+                // only does a tiny bit -- let's just not do it
+                qualities -= normal
+            }
+
+            // can't craft
+            remove(electromagneticPlant)
+            remove(lightningCollector)
+            remove(lightningRod)
+            // don't want to craft
+            remove(supercapacitorRecycling)
+            remove(superconductorRecycling)
+
+            // 0.05 express belt foundries is too complicated
+            remove(transportBelt)
+
+            // really?
+            remove(grenade)
+
+            // night vision equipment is superior
+            remove(energyShieldEquipment)
+        }
+    }
+    val theGoodStuff = factory {
+        includeMachineCount()
+        this.research = research
+        machines {
+            recycler {
+                onlyMatching(theGoodRecycler)
+            }
+            electromagneticPlant {
+                qualities = setOf(rare)
+                noEmptyModules()
+                moduleConfig(theGoodEmp.moduleSet!!.toModuleSetConfig())
+                moduleConfig(theProdEmp.moduleSet!!.toModuleSetConfig())
+            }
+            assemblingMachine3 {
+                moduleConfig(fill = qualityModule3.withQuality(quality = legendary))
+                cost = 1000.0
+//                onlyRecipes(
+//                    powerArmorMk2.recipe(),
+//                    mechArmor.recipe(),
+//                )
+            }
+        }
+        recipes {
+            default { allQualities() }
+            allCraftingRecipes()
+
+
             remove(electromagneticPlant)
             remove(lightningCollector)
             remove(lightningRod)
@@ -66,28 +122,13 @@ fun main(): Unit = with(SpaceAge) {
             remove(superconductorRecycling)
         }
     }
-    val specialized = factory {
-//        includeBuildCosts()
-        this.research = research
-        machines {
-            recycler {
-                qualities = setOf(rare)
-                moduleConfig(fill = qqModule)
-            }
-        }
-        recipes {
-            default { allQualities() }
-            highThroughputRecycling.forEach { addConfig(it) }
-        }
-    }
 
-    val targetTime = 40.minutes
+    val targetTime = 30.minutes
 
-    val factory = basicFactory + specialized
+    val factory = basicStuff + theGoodStuff
     val problem = factory.problem {
         input(lava, cost = 0.0)
         input(sulfuricAcid, cost = 0.0005)
-        input(electronicCircuit, limit = 5e6 / targetTime, cost = 0.0)
         limit(holmiumPlate.withQuality(epic), 800.0 / targetTime)
         limit(supercapacitor.withQuality(epic), 200.0 / targetTime)
         limit(superconductor.withQuality(epic), 200.0 / targetTime)
@@ -101,9 +142,11 @@ fun main(): Unit = with(SpaceAge) {
             vulcanusMachineCosts1()
             vulcanusModuleCosts1()
 
-            limit(qualityModule3, 0)
-            limit(qualityModule3.withQuality(uncommon), 0.0)
-            limit(qualityModule3.withQuality(rare), 0.0)
+            // approximate only getting to use it later (buffer stuff then craft)
+            // Can be improved with more accurate multi-stage optimization shenanigans perhaps
+            limit(MachineSymbol(theGoodRecycler), 0.6)
+            limit(MachineSymbol(theGoodEmp), 0.6)
+            limit(MachineSymbol(theProdEmp), 0.6)
 
             forbidAllUnspecified()
         }
@@ -115,8 +158,12 @@ fun main(): Unit = with(SpaceAge) {
         )
     )
     println("Status: ${result.status}")
-    result.solution?.let {
-        printAndExportSolution("output/legendary-mech-armor2", it)
-    }
+    printAndExportSolution("output/legendary-mech-armor2", result, object : RecipesFirst {
+        override fun formatInputRate(input: Ingredient, rate: Double): String {
+            val amount = rate * targetTime.inWholeSeconds
+            val amountFnt = "%.2f".format(amount)
+            return super.formatInputRate(input, rate) + " (${amountFnt})"
+        }
+    })
 
 }
