@@ -7,7 +7,6 @@ import glassbricks.recipeanalysis.lp.VariableType
 import glassbricks.recipeanalysis.plus
 import glassbricks.recipeanalysis.vectorOf
 import glassbricks.recipeanalysis.vectorOfWithUnits
-import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
@@ -86,16 +85,12 @@ class FactoryConfigKtTest : FunSpec({
             asm2.withModules(fill = prod2),
         ).flatMap { listOf(it, it.withQuality(uncommon)) }
         val expectedRecipes = machines.flatMap { machine ->
-            recipes.mapNotNull { machine.craftingOrNull(it)?.toProcess() }
+            recipes.mapNotNull { machine.craftingOrNull(it) }
         }.toSet()
 
-        val actualRecipes = allProcesses.mapTo(mutableSetOf()) { it.process as MachineProcess<*> }
-        val extra = expectedRecipes - actualRecipes
-        val missing = actualRecipes - expectedRecipes
-        assertSoftly {
-            extra shouldBe emptySet()
-            missing shouldBe emptySet()
-        }
+        val actualRecipes = allProcesses.map { (it.process as MachineProcess<*>).setup }.toSet()
+
+        actualRecipes shouldBe expectedRecipes
     }
     test("mining recipe") {
         val ironOre = resource("iron-ore")
@@ -109,7 +104,7 @@ class FactoryConfigKtTest : FunSpec({
             }
         }
         val recipe = config.getAllProcesses().single().process as MachineProcess<*>
-        recipe shouldBe drill.crafting(ironOre).toProcess()
+        recipe.setup shouldBe drill.crafting(ironOre)
     }
     test("additional costs") {
         val symbolA = Symbol("a")

@@ -9,7 +9,7 @@ class Resource private constructor(
     override val outputs: Vector<Ingredient>,
     override val outputsToIgnoreProductivity: Vector<Ingredient>,
     override val inputQuality: Quality,
-) : RecipeOrResource<AnyMiningDrill> {
+) : MachineRecipe<AnyMiningDrill> {
     override val craftingCategory: Any get() = prototype.category
     override val craftingTime: Time
         get() = Time(prototype.minable!!.mining_time)
@@ -17,7 +17,7 @@ class Resource private constructor(
     override fun acceptsModules(modules: WithModulesUsed): Boolean = true
     override val hasFluids: Boolean = inputs.keys.any { it is Fluid } || outputs.keys.any { it is Fluid }
 
-    override fun withQualityOrNull(quality: Quality): RecipeOrResource<AnyMiningDrill>? =
+    override fun withQualityOrNull(quality: Quality): MachineRecipe<AnyMiningDrill>? =
         if (quality == this.inputQuality) this else null
 
     override fun equals(other: Any?): Boolean {
@@ -37,12 +37,12 @@ class Resource private constructor(
             val inputs = minable.required_fluid?.let { fluidId ->
                 val fluid = ingredientsMap.get(fluidId)
                 vectorOf<Ingredient>(fluid to minable.fluid_amount)
-            } ?: emptyVector()
+            } ?: zeroVector()
             val (products, prod) = minable.results?.let { products ->
                 ingredientsMap.getProductsVector(products)
             } ?: run {
                 val item = ingredientsMap.get(minable.result!!)
-                vectorOf<Ingredient>(item to minable.count.toDouble()) to emptyVector()
+                vectorOf<Ingredient>(item to minable.count.toDouble()) to zeroVector()
             }
             return Resource(
                 prototype = prototype,

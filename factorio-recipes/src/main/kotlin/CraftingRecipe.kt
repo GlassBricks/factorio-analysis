@@ -1,27 +1,10 @@
 package glassbricks.factorio.recipes
 
 import glassbricks.factorio.prototypes.EffectType
-import glassbricks.factorio.prototypes.Prototype
 import glassbricks.factorio.prototypes.RecipePrototype
 import glassbricks.recipeanalysis.*
 import glassbricks.recipeanalysis.Vector
 import java.util.*
-
-sealed interface RecipeOrResource<out M : AnyMachine<*>> {
-    val inputs: Vector<Ingredient>
-    val outputs: Vector<Ingredient>
-    val outputsToIgnoreProductivity: Vector<Ingredient>
-    val hasFluids: Boolean
-    val craftingTime: Time
-
-    val prototype: Prototype
-    val craftingCategory: Any
-
-    val inputQuality: Quality
-    fun withQualityOrNull(quality: Quality): RecipeOrResource<M>?
-
-    fun acceptsModules(modules: WithModulesUsed): Boolean
-}
 
 class Recipe private constructor(
     override val prototype: RecipePrototype,
@@ -31,7 +14,7 @@ class Recipe private constructor(
     val baseProductsIgnoreProd: Vector<Ingredient>,
     private val allowedModuleEffects: EnumSet<EffectType>,
     override val hasFluids: Boolean,
-) : RecipeOrResource<AnyCraftingMachine> {
+) : MachineRecipe<AnyCraftingMachine> {
     override val craftingTime: Time get() = Time(prototype.energy_required)
     override val inputs = baseIngredients.withItemsQuality(inputQuality)
     override val outputs = baseProducts.withItemsQuality(inputQuality)

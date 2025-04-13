@@ -8,7 +8,7 @@ import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.recipelp.textDisplay
 import java.io.File
 
-fun main() = with(SpaceAge) {
+fun main(): Unit = with(SpaceAge) {
     val space = factory {
         includeBuildCosts()
         machines {

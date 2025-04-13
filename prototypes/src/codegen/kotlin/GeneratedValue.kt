@@ -218,7 +218,8 @@ class GeneratedConceptBuilder(val concept: Concept) {
         block: PropertyOptions.() -> Unit,
     ) {
         if (name in properties) error("Property $name already defined")
-        val property = concept.properties?.find { it.name == name } ?: error("Property $name not found")
+        val property =
+            concept.properties?.find { it.name == name } ?: error("Property $name not found in ${concept.name}")
         properties[name] = PropertyOptions(property).apply(block)
     }
 

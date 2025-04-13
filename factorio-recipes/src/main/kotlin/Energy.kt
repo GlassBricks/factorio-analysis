@@ -1,7 +1,47 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.factorio.prototypes.Energy
+import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
+
+sealed interface Power : Ingredient {
+    data object Electric : Power
+    data object Heat : Power
+    data class Burner(val fuelCategoryValue: String) : Power {
+        val fuelCategory: FuelCategoryID get() = FuelCategoryID(fuelCategoryValue)
+        override fun toString(): String = "Burner($fuelCategoryValue)"
+    }
+
+    companion object {
+        fun Burner(fuelCategory: FuelCategoryID) = Burner(fuelCategory.value)
+    }
+
+    data object Unknown : Power
+}
+
+interface WithPowerUsage {
+    val powerType: Power?
+    val powerUsage: Double
+}
+
+fun EnergySource.toPowerType(): Power? = when (this) {
+    is ElectricEnergySource -> Power.Electric
+    is HeatEnergySource -> Power.Heat
+    is BurnerEnergySource -> Power.Burner(this.fuel_categories?.let {
+        it.singleOrNull() ?: TODO("Multiple fuel categories for one thing")
+    } ?: FuelCategoryID("<any>"))
+
+    is VoidEnergySource, is FluidEnergySource -> Power.Unknown
+}
+
+/**
+ * Parses energy and considers effectivity
+ */
+fun getPowerUsage(energy: Energy, energySource: EnergySource): Double = when (energySource) {
+    is ElectricEnergySource, is HeatEnergySource -> parseEnergy(energy)
+    is BurnerEnergySource -> parseEnergy(energy) / energySource.effectivity
+    is FluidEnergySource -> parseEnergy(energy) / energySource.effectivity
+    is VoidEnergySource -> 0.0
+}
 
 private val multipliers = mapOf(
     "k" to 1e3,
@@ -21,13 +61,15 @@ fun parseEnergy(energy: Energy): Double {
     val (valueStr, unitStr) = Regex("""(\d+(?:\.\d+)?)([a-zA-Z]+)""").find(energy)!!.destructured
     val unitPrefix = unitStr.removeSuffix("J").removeSuffix("W")
     val value = valueStr.toDouble() * multipliers[unitPrefix]!!
-    return if (unitStr.endsWith("W")) {
-        value / 60
-    } else if (unitStr.endsWith("J")) {
-        value
-    } else {
-        error("Invalid energy: $energy")
+    return when {
+        unitStr.endsWith("W") -> value / 60
+        unitStr.endsWith("J") -> value
+        else -> error("Invalid energy: $energy")
     }
 }
 
-data object ElectricPower : Ingredient
+fun FactorioPrototypes.getFuelUsageRecipes(): List<FuelBurning> {
+    return prototypes.items.values
+        .filter { it.prototype.fuel_category.value.isNotBlank() }
+        .map { FuelBurning(it) }
+}

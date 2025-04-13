@@ -22,7 +22,7 @@ sealed interface AnyMachine<out P : MachinePrototype> : WithEffects, WithBuildCo
     /**
      * See [canProcess]; only checks beyond crafting categories modules
      */
-    fun canProcessInCategory(process: RecipeOrResource<*>): Boolean
+    fun canProcessInCategory(process: MachineRecipe<*>): Boolean
     val quality: Quality
     fun withQuality(quality: Quality): AnyMachine<P>
     val moduleSet: ModuleSet?
@@ -34,7 +34,7 @@ data class MachineSymbol(val machine: AnyMachine<*>) : Symbol, FactorioFormattab
     override fun toString(): String = machine.toString()
 }
 
-fun AnyMachine<*>.canProcess(process: RecipeOrResource<*>): Boolean {
+fun AnyMachine<*>.canProcess(process: MachineRecipe<*>): Boolean {
     if (process.craftingCategory !in craftingCategories) return false
     if (moduleSet?.let { process.acceptsModules(it) } == false) return false
     if (!canProcessInCategory(process)) return false
@@ -56,7 +56,7 @@ data class CraftingMachine(
     override val craftingCategories: List<RecipeCategoryID> get() = prototype.crafting_categories
     override val baseCraftingSpeed: Double get() = prototype.crafting_speed * (1.0 + quality.level * 0.3)
 
-    override fun canProcessInCategory(process: RecipeOrResource<*>): Boolean {
+    override fun canProcessInCategory(process: MachineRecipe<*>): Boolean {
         if (process !is Recipe) return false
         if (prototype is AssemblingMachinePrototype) {
             val fixedRecipe = prototype.fixed_recipe.value
@@ -80,7 +80,7 @@ data class MiningDrill(
 
     // higher quality miners don't mine faster
     override val baseCraftingSpeed: Double get() = prototype.mining_speed
-    override fun canProcessInCategory(process: RecipeOrResource<*>): Boolean = true
+    override fun canProcessInCategory(process: MachineRecipe<*>): Boolean = true
 
     override fun withQuality(quality: Quality): MiningDrill = MiningDrill(prototype, quality)
 }
@@ -93,9 +93,8 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
         get() = _effects ?: prototype.effect_receiver?.base_effect?.toEffectInt(0) ?: IntEffects()
             .also { _effects = it }
 
-    override val basePowerUsage: Double
-        get() = if (prototype.energy_source is ElectricEnergySource) parseEnergy(prototype.energy_usage) else 0.0
-
+    override val powerType: Power? get() = prototype.energy_source.toPowerType()
+    override val basePowerUsage: Double get() = getPowerUsage(prototype.energy_usage, prototype.energy_source)
     override val powerUsage: Double get() = basePowerUsage * effects.consumptionMultiplier
 
     override val moduleSet: Nothing? get() = null
@@ -126,7 +125,7 @@ sealed class BaseMachine<P> : AnyMachine<P>, Entity
 
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> {
         val itemCost =
-            prototypes.itemOfOrNull(prototype as EntityPrototype)?.withQuality(quality) ?: return emptyVector()
+            prototypes.itemOfOrNull(prototype as EntityPrototype)?.withQuality(quality) ?: return zeroVector()
         return uvec(itemCost)
     }
 

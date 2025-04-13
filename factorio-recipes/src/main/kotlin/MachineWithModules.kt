@@ -27,16 +27,17 @@ data class MachineWithModules<P>(
     override val craftingCategories: List<Any> get() = machine.craftingCategories
     override val quality: Quality get() = machine.quality
     override val baseCraftingSpeed: Double get() = machine.baseCraftingSpeed
-    override val basePowerUsage: Double get() = machine.basePowerUsage
-    override fun canProcessInCategory(process: RecipeOrResource<*>): Boolean = machine.canProcessInCategory(process)
+    override val powerType: Power? get() = machine.powerType
+    override val basePowerUsage: Double get() = getPowerUsage(prototype.energy_usage, prototype.energy_source)
+    override val powerUsage: Double
+        get() = machine.basePowerUsage * effects.consumptionMultiplier + moduleSet.powerUsage
+
+    override fun canProcessInCategory(process: MachineRecipe<*>): Boolean = machine.canProcessInCategory(process)
     override fun withQuality(quality: Quality): MachineWithModules<P> = copy(machine = machine.withQuality(quality))
 
     override val effects: IntEffects get() = machine.effects + moduleSet
     override fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient> =
         machine.getBuildCost(prototypes) + moduleSet.getBuildCost(prototypes)
-
-    override val powerUsage: Double
-        get() = machine.basePowerUsage * effects.consumptionMultiplier + moduleSet.powerUsage
 
     override fun toString(): String = "${machine}${moduleSet}"
 }

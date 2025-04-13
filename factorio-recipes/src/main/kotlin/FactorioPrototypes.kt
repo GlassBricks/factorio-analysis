@@ -12,6 +12,7 @@ class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, Ingredient
 
     val items: Map<String, Item> =
         dataRaw.allItemPrototypes().associate { it.name to getItem(it, defaultQuality) }
+
     val fluids: Map<String, Fluid> =
         dataRaw.fluid.values.associate { it.name to Fluid(it) }
 
@@ -43,8 +44,8 @@ class FactorioPrototypes(dataRaw: DataRaw) : FactorioPrototypesScope, Ingredient
 
     val equipment = dataRaw.allEquipmentPrototypes().associateBy { it.name }
 
-    override fun get(itemID: ItemID): Item = items.getValue(itemID.value)
-    override fun get(fluidID: FluidID): Fluid = fluids.getValue(fluidID.value)
+    override fun get(id: ItemID): Item = items.getValue(id.value)
+    override fun get(id: FluidID): Fluid = fluids.getValue(id.value)
 
     override fun toString(): String = "FactorioPrototypes"
 }

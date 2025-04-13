@@ -1,10 +1,11 @@
 package glassbricks.factorio.recipes.problem
 
 import glassbricks.factorio.recipes.FactorioPrototypes
-import glassbricks.factorio.recipes.RecipeOrResource
+import glassbricks.factorio.recipes.MachineRecipe
+import glassbricks.factorio.recipes.PseudoRecipe
 import glassbricks.factorio.recipes.maybeWithQuality
 import glassbricks.recipeanalysis.Ingredient
-import glassbricks.recipeanalysis.recipelp.PseudoProcess
+import glassbricks.recipeanalysis.IngredientRate
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 
@@ -57,16 +58,11 @@ fun <T, A : AbstractRecipe<T>> findProducibleRecipes(
     return producibleItems to producibleRecipes
 }
 
-fun PseudoProcess.toAbstractRecipe(
-    prototypes: FactorioPrototypes,
-): AbstractRecipe<Ingredient> {
+fun toAbstractRecipe(prototypes: FactorioPrototypes, ingredientRate: IngredientRate): AbstractRecipe<Ingredient> {
     val (inputEntries, outputEntries) = ingredientRate.partition { it.doubleValue < 0 }
-    val inputs = inputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
-    val outputs = outputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
-
     return object : AbstractRecipe<Ingredient> {
-        override val inputs = inputs
-        override val outputs = outputs
+        override val inputs = inputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
+        override val outputs = outputEntries.map { it.key.maybeWithQuality(prototypes.defaultQuality) }
     }
 }
 
@@ -78,18 +74,23 @@ fun Factory.removeUnusableRecipes(
     otherProcessesNoQuality: List<AbstractRecipe<Ingredient>>,
 ): Pair<Factory, Set<Ingredient>> {
 
-    // first, find recipes that actually have machines
+    // Filter recipes that actually have machines
     val craftingCategories = machinesUsed().flatMap { it.craftingCategories }.toSet()
-    val craftableRecipes = recipesUsed().filter { it.craftingCategory in craftingCategories }
+    val craftableRecipes = recipesUsed().filter {
+        when {
+            it is MachineRecipe<*> -> it.craftingCategory in craftingCategories
+            else -> true
+        }
+    }
 
     class Recipe(
         override val inputs: Collection<Ingredient>,
         override val outputs: Collection<Ingredient>,
-        val recipe: RecipeOrResource<*>?,
+        val recipe: PseudoRecipe,
     ) : AbstractRecipe<Ingredient>
 
-    val allRecipes = craftableRecipes.map {
-        Recipe(it.inputs.keys, it.outputs.keys, it)
+    val allRecipes = craftableRecipes.map { recipe ->
+        Recipe(recipe.netInputs, recipe.netOutputs, recipe)
     } + otherProcessesNoQuality
 
     val (items, producibleRecipes) = findProducibleRecipes(
@@ -101,5 +102,5 @@ fun Factory.removeUnusableRecipes(
         .map { it.recipe }
         .toSet()
 
-    return (this.filterRecipes { it in baseRecipes }) to items
+    return (this.filterMachineRecipes { it in baseRecipes }) to items
 }

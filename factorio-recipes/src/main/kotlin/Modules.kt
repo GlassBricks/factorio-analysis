@@ -183,6 +183,7 @@ data class Beacon(
         return baseMult * profileMult * qualityMult
     }
 
+    override val powerType: Power? = prototype.energy_source.toPowerType()
     override val powerUsage: Double = parseEnergy(prototype.energy_usage)
 
     override fun withQuality(quality: Quality): Beacon = copy(quality = quality)
@@ -215,6 +216,7 @@ data class BeaconSetup(
         return (moduleCost + beaconCost) / sharing
     }
 
+    override val powerType: Power? get() = beacon.powerType
     override val powerUsage get() = beacon.powerUsage / sharing
 }
 
@@ -241,6 +243,7 @@ data class BeaconCount(val beaconSetup: BeaconSetup, val count: Int) : WithBeaco
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         beaconSetup.getBuildCost(prototypes) * count
 
+    override val powerType: Power? get() = beaconSetup.powerType
     override val powerUsage: Double get() = beaconSetup.powerUsage * count
 
     override fun toString(): String = if (count == 1) beaconSetup.toString() else "$beaconSetup*$count"
@@ -266,6 +269,16 @@ value class BeaconList(val beaconCounts: List<BeaconCount>) : WithEffects, WithB
         get() = beaconCounts.fold(IntEffects()) { acc, beacon -> acc + beacon.getEffect(size) }
     override val powerUsage: Double
         get() = beaconCounts.sumOf { it.powerUsage }
+    override val powerType: Power? get() = beaconCounts.firstOrNull()?.powerType
+
+    init {
+        val firstPowerType = beaconCounts.firstOrNull()?.powerType
+        if (firstPowerType != null)
+            require(beaconCounts.all { it.powerType == firstPowerType }) {
+                "TODO: Different power type usage"
+            }
+    }
+
     override val modulesUsed: Iterable<Module>
         get() = beaconCounts.flatMap { it.modulesUsed }
     override val moduleEffectsUsed: EnumSet<EffectType>
@@ -306,6 +319,7 @@ data class ModuleSet(
     override fun getBuildCost(prototypes: FactorioPrototypes): IngredientVector =
         modules.getBuildCost(prototypes) + beacons.getBuildCost(prototypes)
 
+    override val powerType: Power? get() = beacons.powerType
     override val powerUsage: Double get() = beacons.powerUsage
 
     override fun toString(): String = buildString {

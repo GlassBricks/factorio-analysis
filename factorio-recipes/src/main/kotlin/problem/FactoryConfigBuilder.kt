@@ -4,7 +4,7 @@ import glassbricks.factorio.prototypes.RecipeCategoryID
 import glassbricks.factorio.recipes.*
 import glassbricks.recipeanalysis.Symbol
 import glassbricks.recipeanalysis.Vector
-import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.zeroVector
 import glassbricks.recipeanalysis.lp.VariableConfig
 import glassbricks.recipeanalysis.lp.VariableType
 
@@ -35,7 +35,7 @@ interface IProcessConfigBuilder {
 }
 
 class ProcessConfigBuilder : IProcessConfigBuilder, Builder<ProcessConfig> {
-    override var additionalCosts: Vector<Symbol> = emptyVector()
+    override var additionalCosts: Vector<Symbol> = zeroVector()
     override var outputVariableConfig: VariableConfig? = null
 
     override var lowerBound: Double = 0.0
@@ -62,7 +62,7 @@ abstract class CommonConfigBuilder(
         qualities = prototypes.qualities.toSet()
     }
 
-    val filters: MutableList<(AnyMachine<*>, RecipeOrResource<*>) -> Boolean> = mutableListOf()
+    val filters: MutableList<(AnyMachine<*>, MachineRecipe<*>) -> Boolean> = mutableListOf()
 }
 
 @FactoryConfigDsl
@@ -70,7 +70,7 @@ class MachineConfigBuilder(
     val machine: BaseMachine<*>,
     prototypes: FactorioPrototypes,
 ) : CommonConfigBuilder(prototypes), Builder<MachineConfig> {
-    val moduleSetConfigs = mutableSetOf<ModuleSetConfig>(ModuleSetConfig())
+    val moduleSetConfigs = mutableSetOf(ModuleSetConfig())
 
     fun noEmptyModules() {
         moduleSetConfigs -= ModuleSetConfig()
@@ -92,12 +92,12 @@ class MachineConfigBuilder(
         moduleSetConfigs += moduleSet
     }
 
-    fun onlyRecipes(recipes: Iterable<RecipeOrResource<*>>) {
+    fun onlyRecipes(recipes: Iterable<MachineRecipe<*>>) {
         val allowedRecipes = recipes.map { it.prototype }.toSet()
         filters += { _, recipe -> recipe.prototype in allowedRecipes }
     }
 
-    fun onlyRecipes(vararg recipes: RecipeOrResource<*>) {
+    fun onlyRecipes(vararg recipes: MachineRecipe<*>) {
         onlyRecipes(recipes.toSet())
     }
 
@@ -124,7 +124,7 @@ class MachineConfigBuilder(
 
 @FactoryConfigDsl
 class RecipeConfigBuilder(
-    val recipe: RecipeOrResource<*>,
+    val recipe: MachineRecipe<*>,
     prototypes: FactorioPrototypes,
 ) : CommonConfigBuilder(prototypes), Builder<RecipeConfig> {
     fun onlyUsing(vararg machines: AnyMachine<*>) {
@@ -166,6 +166,12 @@ abstract class ConfigScope<T, B> {
             .also { block?.invoke(it) }
     }
 
+    fun onAll(block: B.() -> Unit) {
+        for (builder in configs.values) {
+            block(builder)
+        }
+    }
+
     operator fun T.invoke(block: (B.() -> Unit)? = null) = addConfig(this, block)
 
     protected abstract fun createBuilder(item: T): B
@@ -192,8 +198,8 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         costConfig = costConfig.copy(includeBuildCosts = true)
     }
 
-    fun includePowerCosts() {
-        costConfig = costConfig.copy(includePowerCosts = true)
+    fun includePowerUsage() {
+        costConfig = costConfig.copy(includePowerUsage = true)
     }
 
     fun includeMachineCount() {
@@ -211,14 +217,21 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
         operator fun String.invoke(block: MachineConfigBuilder.() -> Unit = {}) {
             addConfig(this@FactoryConfigBuilder.prototypes.machine(this), block)
         }
+
+        fun allCraftingMachines() {
+            val prototypes = this@FactoryConfigBuilder.prototypes
+            for (machine in prototypes.craftingMachines.values) {
+                addConfig(machine)
+            }
+        }
     }
 
     val recipes = RecipesScope()
     inline fun recipes(block: RecipesScope.() -> Unit) = recipes.block()
 
     @FactoryConfigDsl
-    inner class RecipesScope : ConfigScope<RecipeOrResource<*>, RecipeConfigBuilder>() {
-        override fun createBuilder(item: RecipeOrResource<*>): RecipeConfigBuilder =
+    inner class RecipesScope : ConfigScope<MachineRecipe<*>, RecipeConfigBuilder>() {
+        override fun createBuilder(item: MachineRecipe<*>): RecipeConfigBuilder =
             RecipeConfigBuilder(item, this@FactoryConfigBuilder.prototypes)
 
         operator fun Item.invoke(block: RecipeConfigBuilder.() -> Unit = {}) {
@@ -248,7 +261,7 @@ class FactoryConfigBuilder(val prototypes: FactorioPrototypes) : Builder<Factory
             }
         }
 
-        fun remove(recipe: RecipeOrResource<*>) {
+        fun remove(recipe: MachineRecipe<*>) {
             configs.remove(recipe)
         }
 

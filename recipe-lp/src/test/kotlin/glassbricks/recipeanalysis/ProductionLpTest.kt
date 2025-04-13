@@ -24,7 +24,7 @@ fun recipe(
         override val netRate: IngredientRate = inOut.toMap().toVector() / Time(time)
         override fun toString(): String = name
     },
-    additionalCosts = additionalCosts ?: emptyVector(),
+    additionalCosts = additionalCosts ?: zeroVector(),
     costVariableConfig = costVariableConfig,
     variableConfig = VariableConfig(cost = cost),
 )

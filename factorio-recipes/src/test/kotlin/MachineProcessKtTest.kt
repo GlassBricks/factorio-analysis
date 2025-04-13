@@ -3,6 +3,7 @@ package glassbricks.factorio.recipes
 import glassbricks.recipeanalysis.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.doubles.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 
 fun <T> rateVector(vararg pairs: Pair<T, Double>): RateVector<T> = pairs.toMap().toVectorWithUnits()
@@ -40,6 +41,7 @@ class MachineProcessKtTest : FunSpec({
             asm2.withModules(prod1).crafting(recipe("transport-belt")).toProcess()
         }
     }
+
     test("basic recipe process") {
         val setup = asm2.crafting(recipe("electronic-circuit")).toProcess()
         setup.cycleInputs shouldBe vectorOf(
@@ -175,6 +177,16 @@ class MachineProcessKtTest : FunSpec({
 
         setup.cycleOutputs.round1e6() shouldBe rateVector(item("iron-chest").withQuality(legendary) to 1.0)
             .toMap()
+    }
+
+    test("Include power") {
+        val setup = asm3.crafting(recipe("iron-chest"))
+            .toProcess(includePowerUsage = true)
+        setup.netRate[Power.Electric] shouldBeLessThan 0.0
+    }
+
+    test("nutrient usage") {
+
     }
 }), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge

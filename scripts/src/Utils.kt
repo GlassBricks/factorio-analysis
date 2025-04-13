@@ -44,7 +44,7 @@ fun printAndExportSolution(
     formatter: FactorioRecipesFormatter = RecipesFirst,
 ) {
     val display = solution.textDisplay(formatter)
-    File("$pathPrefix.txt").apply {
+    File("$pathPrefix.txt").absoluteFile.apply {
         parentFile.mkdirs()
         writeText(display)
     }

@@ -3,30 +3,30 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.RecipeID
 import glassbricks.recipeanalysis.*
 
-data class ResearchConfig(
-    val maxQuality: Quality? = null,
-    val recipeProductivity: Map<RecipeID, Double> = emptyMap(),
-    val miningProductivity: Double = 0.0,
-)
+data class MachineSetup<M : AnyMachine<*>>(val machine: M, val recipe: MachineRecipe<M>) {
 
-data class MachineSetup<M : AnyMachine<*>>(val machine: M, val recipe: RecipeOrResource<M>) {
-
-    fun toProcess(config: ResearchConfig = ResearchConfig()): MachineProcess<M> =
-        MachineProcess(this, config)
+    fun toProcess(
+        config: ResearchConfig = ResearchConfig(),
+        includePowerUsage: Boolean = false,
+    ): MachineProcess<M> =
+        MachineProcess(this, includePowerUsage = includePowerUsage, researchConfig = config)
 }
 
 class MachineProcess<M : AnyMachine<*>>(
     val machine: M,
-    val recipe: RecipeOrResource<M>,
+    val recipe: MachineRecipe<M>,
+    val includePowerUsage: Boolean,
     val researchConfig: ResearchConfig = ResearchConfig(),
     skipCanProcessCheck: Boolean = false,
 ) : Process {
     constructor(
         setup: MachineSetup<M>,
+        includePowerUsage: Boolean = false,
         researchConfig: ResearchConfig = ResearchConfig(),
     ) : this(
         setup.machine,
         setup.recipe,
+        includePowerUsage,
         researchConfig
     )
 
@@ -65,35 +65,20 @@ class MachineProcess<M : AnyMachine<*>>(
         this += cycleOutputs
         this -= cycleInputs
         this /= cycleTime.seconds
+        if (includePowerUsage) {
+            machine.powerType?.let {
+                inc(it, -machine.powerUsage)
+            }
+        }
     }.castUnits()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as MachineProcess<*>
-
-        if (machine != other.machine) return false
-        if (recipe != other.recipe) return false
-        if (researchConfig != other.researchConfig) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = machine.hashCode()
-        result = 31 * result + recipe.hashCode()
-        result = 31 * result + researchConfig.hashCode()
-        return result
-    }
 
     override fun toString(): String = "$machine: $recipe"
 }
 
-fun <M : AnyMachine<*>> M.crafting(process: RecipeOrResource<M>): MachineSetup<M> =
+fun <M : AnyMachine<*>> M.crafting(process: MachineRecipe<M>): MachineSetup<M> =
     MachineSetup(this, process)
 
-fun <M : AnyMachine<*>> M.craftingOrNull(process: RecipeOrResource<M>): MachineSetup<M>? =
+fun <M : AnyMachine<*>> M.craftingOrNull(process: MachineRecipe<M>): MachineSetup<M>? =
     if (!this.canProcess(process)) null
     else MachineSetup(this, process)
 

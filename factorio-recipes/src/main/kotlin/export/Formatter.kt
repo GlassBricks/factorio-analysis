@@ -15,7 +15,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun format(formattable: FactorioFormattable): String = formattable.accept(this)
 
     fun formatSetup(setup: MachineProcess<*>): String =
-        "${formatMachine(setup.machine)} --> ${formatRecipeOrResource(setup.recipe)}"
+        "${formatMachine(setup.machine)} : ${formatRecipeOrResource(setup.recipe)}"
 
     fun formatMachine(machine: AnyMachine<*>): String = when (machine) {
         is BaseMachine<*> -> formatBaseMachine(machine)
@@ -64,7 +64,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
     fun formatBeacon(beacon: Beacon): String =
         formatBeaconName(beacon.prototype) + formatQualityQualifier(beacon.quality)
 
-    fun formatRecipeOrResource(process: RecipeOrResource<*>): String = when (process) {
+    fun formatRecipeOrResource(process: MachineRecipe<*>): String = when (process) {
         is Recipe -> formatRecipe(process)
         is Resource -> formatResource(process)
     }
@@ -113,7 +113,7 @@ interface FactorioRecipesFormatter : RecipeLpFormatter {
 
 interface RecipesFirst : FactorioShorthandFormatter {
     override fun formatSetup(setup: MachineProcess<*>): String =
-        "${formatRecipeOrResource(setup.recipe)} --> ${formatMachine(setup.machine)}"
+        "${formatRecipeOrResource(setup.recipe)} : ${formatMachine(setup.machine)}"
 
     override val processComparator: Comparator<in Process>?
         get() = compareBy {

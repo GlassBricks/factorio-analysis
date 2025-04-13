@@ -22,6 +22,7 @@ CustomProcess(steam turbine power) | 839.6766
 Throughputs:
 Calcite       | 46.7622/s
 Copper cable  | 6749.9998/s
+Electric      | 81168734.0272/s
 GC            | 2430.0000/s
 Iron plate    | 2249.9999/s
 Landfill      | (+16.8208/s)

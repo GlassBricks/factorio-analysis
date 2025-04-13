@@ -16,10 +16,6 @@ interface WithBuildCost {
     fun getBuildCost(prototypes: FactorioPrototypes): Vector<Ingredient>
 }
 
-interface WithPowerUsage {
-    val powerUsage: Double
-}
-
 interface WithModulesUsed {
     val modulesUsed: Iterable<Module>
     val moduleEffectsUsed: EnumSet<EffectType>

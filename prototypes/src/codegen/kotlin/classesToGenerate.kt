@@ -305,6 +305,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
             +"type"
             +"burner_usage"
             +"fuel_categories"
+            +"effectivity"
         }
         "HeatEnergySource" {
             includeAllProperties = false
@@ -313,6 +314,7 @@ fun GeneratedPrototypesBuilder.classesToGenerate() {
         "FluidEnergySource" {
             includeAllProperties = false
             +"type"
+            +"effectivity"
         }
         "ElectricEnergySource" {
             includeAllProperties = false

@@ -40,7 +40,7 @@ fun FactoryConfigBuilder.fulgoraMachines(
 //    machines {
 //        default {
 //            includeBuildCosts()
-//            includePowerCosts()
+//            includePowerUsage()
 //            for (module in modules) {
 //                moduleConfig(fill = module)
 //                if (module.effects.quality <= 0) {
@@ -67,12 +67,12 @@ fun ProblemBuilder.CostsScope.fulgoraModuleCosts1() = with(prototypes) {
     for (module in module1s) {
         addQualityCosts(module, baseModuleCost, fulgoraQualityMultipliers)
     }
-    val module2Cost = baseModuleCost * 6 / 1.5
+    val module2Cost = baseModuleCost * 4 / 1.5
     for (module in module2s) {
         addQualityCosts(module, module2Cost, fulgoraQualityMultipliers)
     }
-    addQualityCosts(speedModule3, module2Cost * 4.5 / 1.5 + 5.0, fulgoraQualityMultipliers)
-    addQualityCosts(qualityModule3, module2Cost * 4.5 / 1.5, fulgoraQualityMultipliers)
+    addQualityCosts(speedModule3, module2Cost * 4 / 1.5 + 5.0, fulgoraQualityMultipliers)
+    addQualityCosts(qualityModule3, module2Cost * 4 / 1.5, fulgoraQualityMultipliers)
 }
 
 fun ProblemBuilder.CostsScope.fulgoraMachineCosts1() = with(prototypes) {

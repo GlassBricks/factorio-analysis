@@ -1,6 +1,6 @@
 package glassbricks.factorio.recipes
 
-import glassbricks.recipeanalysis.emptyVector
+import glassbricks.recipeanalysis.zeroVector
 import glassbricks.recipeanalysis.vectorOf
 import glassbricks.recipeanalysis.vectorOfWithUnits
 import io.kotest.core.spec.style.FunSpec
@@ -14,7 +14,7 @@ class RecipeTest : FunSpec({
             recipe.prototype.name shouldBe "iron-gear-wheel"
             recipe.inputs shouldBe vectorOfWithUnits(item("iron-plate") to 2.0)
             recipe.outputs shouldBe vectorOfWithUnits(item("iron-gear-wheel") to 1.0)
-            recipe.outputsToIgnoreProductivity shouldBe emptyVector()
+            recipe.outputsToIgnoreProductivity shouldBe zeroVector()
         }
         test("kovarex") {
             val recipe = recipe("kovarex-enrichment-process")
@@ -83,6 +83,12 @@ class RecipeTest : FunSpec({
         foundry.canProcess(plateCasting) shouldBe true
         emp.canProcess(plateCasting) shouldBe false
         furnace.canProcess(plateCasting) shouldBe false
+    }
+
+    test("egg cultivation") {
+        val recipe = recipe("pentapod-egg")
+        recipe.inputs[item("pentapod-egg")] shouldBe 1.0
+        recipe.outputs[item("pentapod-egg")] shouldBe 2.0
     }
 }), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge

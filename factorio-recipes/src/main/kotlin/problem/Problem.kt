@@ -167,7 +167,7 @@ class ProblemBuilder(
             val inputItems = inputs.map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }
             val (newFactory, producibleIngredients) = factory.removeUnusableRecipes(
                 inputItems,
-                customProcesses.map { it.toAbstractRecipe(prototypes) }
+                customProcesses.map { toAbstractRecipe(prototypes, it.ingredientRate) }
             )
             factory = newFactory
             if (verifyOutputsProducible) {
@@ -176,7 +176,8 @@ class ProblemBuilder(
                     .filterNot { it in producibleIngredients }
                 require(nonProducibleOutputs.isEmpty()) {
                     "These outputs are not producible given inputs: $nonProducibleOutputs\n" +
-                            "You can disable this check by setting verifyOutputsProducible = false"
+                            "You can disable this check by setting verifyOutputsProducible = false\n" +
+                            "Producible: $producibleIngredients"
                 }
             }
         }

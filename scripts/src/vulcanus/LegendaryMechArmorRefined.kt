@@ -9,6 +9,7 @@ import glassbricks.factorio.recipes.problem.problem
 import glassbricks.recipeanalysis.Ingredient
 import glassbricks.recipeanalysis.div
 import glassbricks.recipeanalysis.lp.LpOptions
+import glassbricks.recipeanalysis.lp.OrToolsLpSolver
 import scripts.*
 import kotlin.time.Duration.Companion.minutes
 
@@ -49,11 +50,22 @@ fun main(): Unit = with(SpaceAge) {
         )
 
         vulcanusMachines(
-            installableModules, beacons =
-                beaconsWithSharing(speedModule3).map { listOf(it) } +
-                        listOf(listOf(beacon.withModules(fill = speedModule2)))
+            installableModules,
+            beaconsWithSharing(
+                speedModule3,
+                listOf(
+                    BeaconProfile(6.0, 1),
+                    BeaconProfile(6.0, 2),
+                    BeaconProfile(6.0, 4),
+                    BeaconProfile(4.0, 8),
+                    BeaconProfile(2.0, 12),
+                )
+            ).map { listOf(it) } +
+                    listOf(listOf(beacon.withModules(fill = speedModule2)))
         )
-//        vulcanusMachines()
+        machines.onAll {
+            integralCost()
+        }
 
         recipes {
             default {
@@ -114,7 +126,6 @@ fun main(): Unit = with(SpaceAge) {
             default { allQualities() }
             allCraftingRecipes()
 
-
             remove(electromagneticPlant)
             remove(lightningCollector)
             remove(lightningRod)
@@ -153,11 +164,9 @@ fun main(): Unit = with(SpaceAge) {
     }
 
     val result = problem.solve(
-        options = LpOptions(
-            enableLogging = true
-        )
+        solver = OrToolsLpSolver("SCIP"),
+        options = LpOptions(enableLogging = true),
     )
-    println("Status: ${result.status}")
     printAndExportSolution("output/legendary-mech-armor2", result, object : RecipesFirst {
         override fun formatInputRate(input: Ingredient, rate: Double): String {
             val amount = rate * targetTime.inWholeSeconds

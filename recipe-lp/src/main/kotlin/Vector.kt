@@ -7,6 +7,11 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleMap
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.math.abs
 
+/**
+ * Vector (linear algebra), supporting some algebraic operations.
+ *
+ * Basically a fancy map of T to Double, where the possible values of T define a vector space.
+ */
 class AnyVector<T, out Units>
 @PublishedApi internal constructor(internal val map: ZeroPutOpenHashMap<T>) : Collection<Object2DoubleMap.Entry<T>> {
     operator fun get(key: T): Double = map.getDouble(key)
@@ -30,7 +35,7 @@ class AnyVector<T, out Units>
 
     operator fun unaryMinus(): AnyVector<T, Units> = mapValues { -it.doubleValue }
     operator fun times(scalar: Double): AnyVector<T, Units> = when (scalar) {
-        0.0 -> emptyVector()
+        0.0 -> zeroVector()
         1.0 -> this
         else -> mapValues { it.doubleValue * scalar }
     }
@@ -38,7 +43,7 @@ class AnyVector<T, out Units>
     operator fun times(scalar: Int): AnyVector<T, Units> = this * scalar.toDouble()
 
     operator fun div(scalar: Double): AnyVector<T, Units> = when {
-        scalar.isInfinite() -> emptyVector()
+        scalar.isInfinite() -> zeroVector()
         scalar == 1.0 -> this
         else -> mapValues { it.doubleValue / scalar }
     }
@@ -86,8 +91,8 @@ operator fun <T, U> AnyVector<out T, U>.plus(other: AnyVector<out T, U>): AnyVec
     }
 }
 
-private val theEmptyVector = AnyVector<Any, Any>(ZeroPutOpenHashMap())
-fun <T, U> emptyVector(): AnyVector<T, U> = theEmptyVector as AnyVector<T, U>
+private val theZeroVector = AnyVector<Any, Any>(ZeroPutOpenHashMap())
+fun <T, U> zeroVector(): AnyVector<T, U> = theZeroVector as AnyVector<T, U>
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 inline fun <T, U> AnyVector<out T, U>.relaxKeyType(): AnyVector<T, U> = this as AnyVector<T, U>
@@ -119,7 +124,7 @@ fun <T> vectorOf(entries: List<Pair<T, Double>>): Vector<T> = vectorOfWithUnits(
 fun <T> vectorOf(vararg entries: Pair<T, Double>): Vector<T> = vectorOfWithUnits(entries.asList())
 fun <T> Map<out T, Double>.toVector(): Vector<T> = toVectorWithUnits()
 
-fun <T, U> AnyVector<T, U>?.orZero(): AnyVector<T, U> = this ?: emptyVector()
+fun <T, U> AnyVector<T, U>?.orZero(): AnyVector<T, U> = this ?: zeroVector()
 
 fun <T> uvec(key: T): Vector<T> = vectorOfWithUnits(key to 1.0)
 
@@ -145,7 +150,7 @@ inline fun <T, U> AnyVector<T, U>.filterKeys(predicate: (T) -> Boolean): AnyVect
 
 fun <S, T, U> Iterable<S>.vectorSumOf(transform: (S) -> AnyVector<out T, U>): AnyVector<T, U> {
     if (this is Collection) {
-        if (this.isEmpty()) return emptyVector()
+        if (this.isEmpty()) return zeroVector()
         if (this.size == 1) return transform(first()).relaxKeyType()
     }
     return buildVectorWithUnits {
@@ -214,7 +219,7 @@ value class AnyVectorBuilder<T, U>
     }
 
     fun build(): AnyVector<T, U> {
-        if (map.isEmpty()) return emptyVector()
+        if (map.isEmpty()) return zeroVector()
         return AnyVector(map)
     }
 }

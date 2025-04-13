@@ -6,7 +6,7 @@ import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import kotlin.test.assertNotNull
 
-class RecipePrototypesTest : FreeSpec({
+class FactorioPrototypesTest : FreeSpec({
     "qualities" {
         SpaceAge.qualities shouldHaveSize 5
         val expectedNames = listOf("normal", "uncommon", "rare", "epic", "legendary")

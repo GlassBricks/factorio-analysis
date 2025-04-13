@@ -14,7 +14,7 @@ interface PseudoProcess {
     val ingredientRate: IngredientRate
     val variableConfig: VariableConfig
 
-    val additionalCosts: Vector<Symbol> get() = emptyVector()
+    val additionalCosts: Vector<Symbol> get() = zeroVector()
 
     /**
      * If set, a second variable >= the recipe's variable will be created to represent the cost.
@@ -33,7 +33,7 @@ private fun StringBuilder.commonToString(process: PseudoProcess) {
 class RealProcess(
     val process: Process,
     override val variableConfig: VariableConfig = VariableConfig(),
-    override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = zeroVector(),
     override val costVariableConfig: VariableConfig? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = process.netRate
@@ -49,7 +49,7 @@ class RealProcess(
 class Input(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
-    override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = zeroVector(),
     override val costVariableConfig: VariableConfig? = null,
 ) : PseudoProcess {
     override val ingredientRate: IngredientRate get() = vectorOfWithUnits(ingredient to 1.0)
@@ -64,7 +64,7 @@ class Input(
 class Output(
     val ingredient: Ingredient,
     override val variableConfig: VariableConfig,
-    override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = zeroVector(),
     override val costVariableConfig: VariableConfig? = null,
 ) : PseudoProcess {
     init {
@@ -86,20 +86,20 @@ class CustomProcess(
     override val ingredientRate: IngredientRate,
     override val variableConfig: VariableConfig,
     override val costVariableConfig: VariableConfig? = null,
-    override val additionalCosts: Vector<Symbol> = emptyVector(),
+    override val additionalCosts: Vector<Symbol> = zeroVector(),
 ) : PseudoProcess {
     override fun toString(): String = "CustomProcess($name)"
 }
 
 class CustomProcessBuilder(val name: String) {
-    var ingredientRate: IngredientRate = emptyVector()
-    var additionalCosts: Vector<Symbol> = emptyVector()
+    var ingredientRate: IngredientRate = zeroVector()
+    var costs: Vector<Symbol> = zeroVector()
     val variableConfig = VariableConfigBuilder()
     var symbol: Symbol? = null
     fun build(): CustomProcess = CustomProcess(
         name = name,
         ingredientRate = ingredientRate,
-        additionalCosts = additionalCosts,
+        additionalCosts = costs,
         variableConfig = variableConfig.build()
     )
 }

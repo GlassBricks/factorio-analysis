@@ -65,7 +65,7 @@ fun Constraint.setBoundsFromOp(op: ComparisonOp, bound: Double) {
 }
 
 fun LpSolver.addConstraint(
-    lhs: Vector<out Variable> = emptyVector(),
+    lhs: Vector<out Variable> = zeroVector(),
     op: ComparisonOp = ComparisonOp.Leq,
     rhs: Double = 0.0,
     name: String = "",
