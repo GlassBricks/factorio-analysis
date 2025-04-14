@@ -35,34 +35,22 @@ fun main(): Unit = with(SpaceAge) {
     }
     val problem = factory.problem {
         val fruit = Ingredient("AnyFruit")
-        val shippedScience = Ingredient("ShippedScience")
 
         limit(fruit, rate = 2.0.perSecond)
         input(water, cost = 0.0)
-        maximize(shippedScience)
+        maximize(agriculturalSciencePack)
         surplusCost = 0.0
 
         customProcess("jellynut") {
             ingredientRate = vectorOfWithUnits(
-                fruit to -1.0,
                 jellynut to 1.0
             )
         }
 
         customProcess("yumako") {
             ingredientRate = vectorOfWithUnits(
-                fruit to -1.0,
                 yumako to 1.0
             )
-        }
-
-        customProcess("ScienceShipment") {
-            ingredientRate = vectorOfWithUnits(
-                agriculturalSciencePack to -1000.0,
-                rocketFuel to -50.0 / (1.24),
-                shippedScience to 1000.0
-            )
-            ingredientRate /= 100
         }
     }
 

@@ -115,4 +115,8 @@ class ProductionOverTime(val factories: AnyVector<ProductionStage, Time>) {
 }
 
 fun ProductionStage.runningFor(time: Duration): ProductionOverTime =
-    ProductionOverTime(vectorOfWithUnits<Time, ProductionStage>(this to time.toDouble(DurationUnit.SECONDS)))
+    ProductionOverTime(
+        vectorOfWithUnits<Time, ProductionStage>(
+            this to time.toDouble(DurationUnit.SECONDS)
+        )
+    )

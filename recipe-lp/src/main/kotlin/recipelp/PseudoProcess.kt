@@ -71,7 +71,10 @@ class Output(
         require(variableConfig.cost <= 0.0) { "Output cost must be negative (to optimize for!)" }
     }
 
-    override val ingredientRate: IngredientRate get() = vectorOfWithUnits(ingredient to -1.0)
+    override val ingredientRate: IngredientRate
+        get() = vectorOfWithUnits(
+            ingredient to -1.0
+        )
 
     override fun toString(): String = buildString {
         append("Output(")

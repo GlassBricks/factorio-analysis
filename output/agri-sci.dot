@@ -3,100 +3,84 @@ digraph {
     concentrate=true
     node [shape="record"; margin=0]
     edge [decorate=true]
-    0 [color="#006400"; label="{Bioflux|2.1584/s}"]
-    1 [color="#006400"; label="{Pentapod egg|0.7399/s}"]
-    2 [color="#006400"; label="{Burner(nutrients)|8236362.5237/s}"]
-    3 [color="#006400"; label="{Agricultural science pack|1.2874/s}"]
-    4 [color="#006400"; label="{Ingredient(AnyFruit)|2.0000/s}"]
-    5 [color="#006400"; label="{Yumako|1.3367/s}"]
-    6 [color="#006400"; label="{Yumako seed|(+0.0465/s)}"]
-    7 [color="#006400"; label="{Yumako mash|4.6518/s}"]
-    8 [color="#006400"; label="{Water|30.4900/s}"]
-    9 [color="#006400"; label="{Ingredient(ShippedScience)|1.2874/s}"]
-    10 [color="#006400"; label="{Rocket fuel|0.0519/s}"]
-    11 [color="#006400"; label="{Jellynut|0.6633/s}"]
-    12 [color="#006400"; label="{Jelly|4.6164/s}"]
-    13 [color="#006400"; label="{Nutrients|18.9157/s}"]
-    14 [color="#006400"; label="{Jellynut seed|(+0.0231/s)}"]
-    15 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Agricultural science pack|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.9865}"]
-    16 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(yumako)|1.3367}"]
-    17 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Ingredient(AnyFruit)|Input|2.0000/s}"]
-    18 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Yumako processing|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.4456}"]
-    19 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Water|Input|30.4900/s}"]
-    20 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(ScienceShipment)|0.1287}"]
-    21 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Ingredient(ShippedScience)|Output|1.2874/s}"]
-    22 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(jellynut)|0.6633}"]
-    23 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Bioflux|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.6202}"]
-    24 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Rocket fuel from jelly|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.0994}"]
-    25 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Nutrients from bioflux|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.1812}"]
-    26 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Pentapod egg|Biochamber[Eff mod x4]|3.6994}"]
-    27 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{FuelUsage(nutrients)|4.1182}"]
-    28 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Jellynut processing|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.2211}"]
-    0 -> 15 [color="#99620f"; label="0.7399/s
+    0 [color="#006400"; label="{Bioflux|0.0333/s}"]
+    1 [color="#006400"; label="{Burner(food)|200000.0000/s}"]
+    2 [color="#006400"; label="{ElectricPower|2639983.8718/s}"]
+    3 [color="#006400"; label="{Water|0.7560/s}"]
+    4 [color="#006400"; label="{Burner(nutrients)|9414315.1766/s}"]
+    5 [color="#006400"; label="{Biter egg|1.0000/s}"]
+    6 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{FuelUsage(bioflux)|0.0333}"]
+    7 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Bioflux|Input|0.0333/s}"]
+    8 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Raw fish(Q5)|Output|0.0001/s}"]
+    9 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Water|Input|0.7560/s}"]
+    10 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{ElectricPower|Input|2639983.8718/s}"]
+    11 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{CustomProcess(Biter spawner)|2.0000}"]
+    12 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{FuelUsage(nutrients)|4.7072}"]
+    13 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Nutrients from biter egg|Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]|0.6667}"]
+    14 [color="#006400"; label="{Raw fish}|{Q3|0.0098/s}|{Q4|0.0018/s}|{Q5|0.0001/s}"]
+    15 [color="#006400"; label="{Nutrients}|{Q1|47.7619/s}|{Q2|3.8746/s}|{Q3|0.6560/s}|{Q4|0.1001/s}|{Q5|(+0.0074/s)}"]
+    16 [color="#006400"; label="{Spoilage}|{Q1|96.4426/s}|{Q2|18.7538/s}|{Q3|1.9141/s}|{Q4|0.1914/s}|{Q5|(+0.0213/s)}"]
+    17 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Raw fish recycling|Recycler}|{Q3|[Qual 2(Q2) x4]|0.0010}|{Q4|[Qual 2(Q2) x4]|0.0002}"; shape="record"]
+    18 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Fish breeding|Biochamber}|{Q3|[Eff mod x4]|0.0197}|{Q4|[Eff mod x4]|0.0030}"; shape="record"]
+    19 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Nutrients recycling|Recycler}|{Q1|[Qual 2(Q2) x4]|13.4546}|{Q2|[Qual 2(Q2) x4]|1.2108}"; shape="record"]
+    20 [style="filled"; color="#842e99"; fillcolor="#cceeff"; label="{Nutrients from spoilage|Biochamber}|{Q1|[Qual 2(Q2) x4]|12.0553}|{Q2|[Qual 2(Q2) x4]|2.3442}|{Q3|[Qual 2(Q2) x4]|0.2393}|{Q4|[Prod 2 x4, Beacon[Speed 2 x2]]|0.0128}"; shape="record"]
+    0 -> 6 [color="#99620f"; label="(All)"]
+    1 -> 11 [color="#99620f"; label="(All)"]
+    2 -> 17 [color="#99620f"; label="ElectricPower	210.8832/s
 "]
-    0 -> 24 [color="#99620f"; label="0.0597/s
+    2 -> 19 [color="#99620f"; label="ElectricPower	2639772.9886/s
 "]
-    0 -> 25 [color="#99620f"; label="1.3589/s
+    3 -> 18 [color="#99620f"; label="(All)"]
+    4 -> 13 [color="#99620f"; label="Burner(nutrients)	2053333.2698/s
 "]
-    1 -> 15 [color="#99620f"; label="(All)"]
-    2 -> 15 [color="#99620f"; label="Burner(nutrients)	3038419.0689/s
+    4 -> 18 [color="#99620f"; label="Burner(nutrients)	2268.0591/s
 "]
-    2 -> 18 [color="#99620f"; label="Burner(nutrients)	1372364.8222/s
+    4 -> 20 [color="#99620f"; label="Burner(nutrients)	7358713.8478/s
 "]
-    2 -> 23 [color="#99620f"; label="Burner(nutrients)	1910331.8430/s
+    5 -> 13 [color="#99620f"; label="(All)"]
+    6 -> 1 [color="#0f4699"; label="(All)"]
+    7 -> 0 [color="#0f4699"; label="(All)"]
+    9 -> 3 [color="#0f4699"; label="(All)"]
+    10 -> 2 [color="#0f4699"; label="(All)"]
+    11 -> 5 [color="#0f4699"; label="(All)"]
+    12 -> 4 [color="#0f4699"; label="(All)"]
+    13 -> 15 [color="#0f4699"; label="Q1	34.8000/s
 "]
-    2 -> 24 [color="#99620f"; label="Burner(nutrients)	306292.2448/s
+    14 -> 8 [color="#99620f"; label="Q5	0.0001/s
 "]
-    2 -> 25 [color="#99620f"; label="Burner(nutrients)	558048.6936/s
+    14 -> 17 [color="#99620f"; label="Q3	0.0098/s
+Q4	0.0018/s
 "]
-    2 -> 26 [color="#99620f"; label="Burner(nutrients)	369937.4036/s
+    15 -> 12 [color="#99620f"; label="Q1	4.7072/s
 "]
-    2 -> 28 [color="#99620f"; label="Burner(nutrients)	680968.4475/s
+    15 -> 18 [color="#99620f"; label="Q3	0.6560/s
+Q4	0.1001/s
 "]
-    3 -> 20 [color="#99620f"; label="(All)"]
-    4 -> 16 [color="#99620f"; label="Ingredient(AnyFruit)	1.3367/s
+    15 -> 19 [color="#99620f"; label="Q1	43.0547/s
+Q2	3.8746/s
 "]
-    4 -> 22 [color="#99620f"; label="Ingredient(AnyFruit)	0.6633/s
+    16 -> 20 [color="#99620f"; label="(All)"]
+    17 -> 14 [color="#0f4699"; label="Q4	0.0003/s
+Q5	0.0001/s
 "]
-    5 -> 18 [color="#99620f"; label="(All)"]
-    7 -> 23 [color="#99620f"; label="(All)"]
-    8 -> 24 [color="#99620f"; label="0.8950/s
+    18 -> 14 [color="#0f4699"; label="Q3	0.0098/s
+Q4	0.0015/s
 "]
-    8 -> 26 [color="#99620f"; label="29.5950/s
+    19 -> 16 [color="#0f4699"; label="(All)"]
+    20 -> 15 [color="#0f4699"; label="Q1	12.9619/s
+Q2	3.8746/s
+Q3	0.6560/s
+Q4	0.1001/s
+Q5	0.0074/s
 "]
-    9 -> 21 [color="#99620f"; label="(All)"]
-    10 -> 20 [color="#99620f"; label="(All)"]
-    11 -> 28 [color="#99620f"; label="(All)"]
-    12 -> 23 [color="#99620f"; label="3.7214/s
-"]
-    12 -> 24 [color="#99620f"; label="0.8950/s
-"]
-    13 -> 26 [color="#99620f"; label="14.7975/s
-"]
-    13 -> 27 [color="#99620f"; label="4.1182/s
-"]
-    15 -> 3 [color="#0f4699"; label="(All)"]
-    16 -> 5 [color="#0f4699"; label="(All)"]
-    17 -> 4 [color="#0f4699"; label="(All)"]
-    18 -> 6 [color="#0f4699"; label="(All)"]
-    18 -> 7 [color="#0f4699"; label="(All)"]
-    19 -> 8 [color="#0f4699"; label="(All)"]
-    20 -> 9 [color="#0f4699"; label="(All)"]
-    22 -> 11 [color="#0f4699"; label="(All)"]
-    23 -> 0 [color="#0f4699"; label="(All)"]
-    24 -> 10 [color="#0f4699"; label="(All)"]
-    25 -> 13 [color="#0f4699"; label="(All)"]
-    26 -> 1 [color="#0f4699"; label="(All)"]
-    27 -> 2 [color="#0f4699"; label="(All)"]
-    28 -> 14 [color="#0f4699"; label="(All)"]
-    28 -> 12 [color="#0f4699"; label="(All)"]
     subgraph {
         rank="source"
-        17
-        19
+        7
+        9
+        10
     }
     subgraph {
         rank="sink"
-        21
+        8
     }
 }

@@ -3,20 +3,15 @@ package glassbricks.factorio.recipes
 import glassbricks.factorio.prototypes.*
 import glassbricks.recipeanalysis.Ingredient
 
-sealed interface Power : Ingredient {
-    data object Electric : Power
-    data object Heat : Power
-    data class Burner(val fuelCategoryValue: String) : Power {
-        val fuelCategory: FuelCategoryID get() = FuelCategoryID(fuelCategoryValue)
-        override fun toString(): String = "Burner($fuelCategoryValue)"
-    }
+sealed interface Power : Ingredient
+data object ElectricPower : Power
+data object HeatPower : Power
 
-    companion object {
-        fun Burner(fuelCategory: FuelCategoryID) = Burner(fuelCategory.value)
-    }
-
-    data object Unknown : Power
+data class BurnerPower(val fuelCategoryValue: String) : Power {
+    override fun toString(): String = "Burner($fuelCategoryValue)"
 }
+
+fun BurnerPower(fuelCategory: FuelCategoryID) = BurnerPower(fuelCategory.value)
 
 interface WithPowerUsage {
     val powerType: Power?
@@ -24,13 +19,13 @@ interface WithPowerUsage {
 }
 
 fun EnergySource.toPowerType(): Power? = when (this) {
-    is ElectricEnergySource -> Power.Electric
-    is HeatEnergySource -> Power.Heat
-    is BurnerEnergySource -> Power.Burner(this.fuel_categories?.let {
+    is ElectricEnergySource -> ElectricPower
+    is HeatEnergySource -> HeatPower
+    is BurnerEnergySource -> BurnerPower(this.fuel_categories?.let {
         it.singleOrNull() ?: TODO("Multiple fuel categories for one thing")
     } ?: FuelCategoryID("<any>"))
 
-    is VoidEnergySource, is FluidEnergySource -> Power.Unknown
+    is VoidEnergySource, is FluidEnergySource -> null
 }
 
 /**

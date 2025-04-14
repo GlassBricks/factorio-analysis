@@ -12,8 +12,10 @@ data class FuelBurning(val fuel: Item) : FactorioPseudoProcess {
         }
     }
 
+    private val fuelType get() = BurnerPower(fuel.prototype.fuel_category)
+
     override val netInputs: Set<Ingredient> get() = setOf(fuel)
-    override val netOutputs: Set<Ingredient> get() = setOf(Power.Burner(fuel.prototype.fuel_category))
+    override val netOutputs: Set<Ingredient> get() = setOf(fuelType)
     override val netRate: IngredientRate
         get() = vectorOfWithUnits(
             fuel to -1.0,

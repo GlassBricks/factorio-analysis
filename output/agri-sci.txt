@@ -1,50 +1,60 @@
 Inputs:
-Ingredient(AnyFruit) | 2.0000/s
-Water                | 30.4900/s
+Bioflux       | 0.0333/s
+ElectricPower | 2639983.8718/s
+Water         | 0.7560/s
 
 Outputs:
-Ingredient(ShippedScience) | 1.2874/s
+Raw fish(Q5) | 0.0001/s
 
 Recipes:
-FuelUsage(nutrients)                                                  | 4.1182
-Agricultural science pack : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]] | 0.9865
-Bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]                   | 0.6202
-Jellynut processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]       | 0.2211
-Nutrients from bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.1812
-Pentapod egg : Biochamber[Eff mod x4]                                 | 3.6994
-Rocket fuel from jelly : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.0994
-Yumako processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]         | 0.4456
+FuelUsage(bioflux)                                                      | 0.0333
+FuelUsage(nutrients)                                                    | 4.7072
+Fish breeding(Q3) : Biochamber[Eff mod x4]                              | 0.0197
+Fish breeding(Q4) : Biochamber[Eff mod x4]                              | 0.0030
+Nutrients from biter egg : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.6667
+Nutrients from spoilage : Biochamber[Qual 2(Q2) x4]                     | 12.0553
+Nutrients from spoilage(Q2) : Biochamber[Qual 2(Q2) x4]                 | 2.3442
+Nutrients from spoilage(Q3) : Biochamber[Qual 2(Q2) x4]                 | 0.2393
+Nutrients from spoilage(Q4) : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]] | 0.0128
+Nutrients recycling : Recycler[Qual 2(Q2) x4]                           | 13.4546
+Nutrients recycling(Q2) : Recycler[Qual 2(Q2) x4]                       | 1.2108
+Raw fish recycling(Q3) : Recycler[Qual 2(Q2) x4]                        | 0.0010
+Raw fish recycling(Q4) : Recycler[Qual 2(Q2) x4]                        | 0.0002
 
 
 Other processes:
-CustomProcess(ScienceShipment) | 0.1287
-CustomProcess(jellynut)        | 0.6633
-CustomProcess(yumako)          | 1.3367
+CustomProcess(Biter spawner) | 2.0000
 
 Throughputs:
-Agricultural science pack  | 1.2874/s
-Bioflux                    | 2.1584/s
-Burner(nutrients)          | 8236362.5237/s
-Ingredient(AnyFruit)       | 2.0000/s
-Ingredient(ShippedScience) | 1.2874/s
-Jelly                      | 4.6164/s
-Jellynut                   | 0.6633/s
-Jellynut seed              | (+0.0231/s)
-Nutrients                  | 18.9157/s
-Pentapod egg               | 0.7399/s
-Rocket fuel                | 0.0519/s
-Water                      | 30.4900/s
-Yumako                     | 1.3367/s
-Yumako mash                | 4.6518/s
-Yumako seed                | (+0.0465/s)
+Bioflux           | 0.0333/s
+Biter egg         | 1.0000/s
+Burner(food)      | 200000.0000/s
+Burner(nutrients) | 9414315.1766/s
+ElectricPower     | 2639983.8718/s
+Nutrients         | 47.7619/s
+Nutrients(Q2)     | 3.8746/s
+Nutrients(Q3)     | 0.6560/s
+Nutrients(Q4)     | 0.1001/s
+Nutrients(Q5)     | (+0.0074/s)
+Raw fish(Q3)      | 0.0098/s
+Raw fish(Q4)      | 0.0018/s
+Raw fish(Q5)      | 0.0001/s
+Spoilage          | 96.4426/s
+Spoilage(Q2)      | 18.7538/s
+Spoilage(Q3)      | 1.9141/s
+Spoilage(Q4)      | 0.1914/s
+Spoilage(Q5)      | (+0.0213/s)
+Water             | 0.7560/s
 
 Surpluses:
-Jellynut seed | 0.0231/s
-Yumako seed   | 0.0465/s
+Nutrients(Q5) | 0.0074/s
+Spoilage(Q5)  | 0.0213/s
 
 Symbols used:
-Beacon     | 2.5540
-Biochamber | 6.2534
-Eff mod    | 14.7975
-Prod 2     | 10.2161
-Speed 2    | 5.1081
+Beacon     | 0.6794
+Biochamber | 15.3409
+Eff mod    | 0.0907
+Prod 2     | 2.7177
+Qual 2(Q2) | 117.2216
+Recycler   | 14.6666
+Speed 2    | 1.3589

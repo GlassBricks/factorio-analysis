@@ -22,6 +22,9 @@ value class Rate(val ratePerSecond: Double) {
         val zero: Rate = Rate(0.0)
         val infinity: Rate = Rate(Double.POSITIVE_INFINITY)
     }
+
+    operator fun div(value: Double): Rate = Rate(ratePerSecond / value)
+    operator fun times(value: Double): Rate = Rate(ratePerSecond * value)
 }
 
 val Double.perSecond: Rate get() = Rate(this)

@@ -34,6 +34,8 @@ class ProblemBuilder(
         )
     }
 
+    var freePower: Boolean = true
+
     fun limit(ingredient: Ingredient, rate: Rate) {
         input(ingredient, cost = DefaultWeights.INPUT_RATE_COST, limit = rate)
     }
@@ -161,7 +163,16 @@ class ProblemBuilder(
     var removeUnusableRecipes: Boolean = true
     var verifyOutputsProducible: Boolean = true
 
+    private fun postConfig() {
+        if (freePower) {
+            input(ElectricPower, cost = 0.0)
+        }
+    }
+
     fun build(): ProductionLp = with(prototypes) {
+
+        postConfig()
+
         var factory = factory
         if (removeUnusableRecipes) {
             val inputItems = inputs.map { it.ingredient.maybeWithQuality(prototypes.defaultQuality) }

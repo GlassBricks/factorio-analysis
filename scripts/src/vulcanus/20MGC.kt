@@ -1,6 +1,6 @@
 package scripts.vulcanus
 
-import glassbricks.factorio.recipes.Power
+import glassbricks.factorio.recipes.ElectricPower
 import glassbricks.factorio.recipes.SpaceAge
 import glassbricks.factorio.recipes.parseEnergy
 import glassbricks.factorio.recipes.problem.factory
@@ -90,8 +90,7 @@ fun main(): Unit = with(SpaceAge) {
         // hack to get power costs working
         customProcess("steam turbine power") {
             ingredientRate = vectorOfWithUnits(
-                steam to -60.0,
-                Power.Electric to parseEnergy("5.8MW")
+                ElectricPower to parseEnergy("5.8MW")
             )
             costs = uvec(steamTurbine)
         }
