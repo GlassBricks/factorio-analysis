@@ -14,7 +14,9 @@ class MachineProcessKtTest : FunSpec({
     val asm3 = craftingMachine("assembling-machine-3")
     val foundry = craftingMachine("foundry")
     val prod1 = module("productivity-module")
+    val prod2 = module("productivity-module-2")
     val speed1 = module("speed-module")
+    val eff1 = module("efficiency-module")
     val quality3 = module("quality-module-3")
     val (_, uncommon, _, epic, legendary) = SpaceAge.qualities
     test("withModules") {
@@ -123,7 +125,7 @@ class MachineProcessKtTest : FunSpec({
     }
 
     test("Gambling!") {
-        val setup = asm3.withModules(quality3.repeat(3))
+        val setup = asm3.withModules(quality3 * 3)
             .crafting(recipe("iron-chest"))
             .toProcess()
         val probs = listOf(
@@ -142,7 +144,7 @@ class MachineProcessKtTest : FunSpec({
                 ((expected - rateVector(item("iron-plate") to 8.0)) * (2.0 * 1.0625)).round1e6()
     }
     test("Gambling but I'm not legendary") {
-        val setup2 = asm3.withModules(quality3.repeat(3))
+        val setup2 = asm3.withModules(quality3 * 3)
             .crafting(recipe("iron-chest").withQuality(uncommon))
             .toProcess(ResearchConfig(maxQuality = epic))
         val probs2 = listOf(
@@ -171,7 +173,7 @@ class MachineProcessKtTest : FunSpec({
         ).round1e6()
     }
     test("gambling legendary quality should do nothing") {
-        val setup = asm3.withModules(quality3.repeat(4))
+        val setup = asm3.withModules(quality3 * 4)
             .crafting(recipe("iron-chest").withQuality(legendary))
             .toProcess()
 
@@ -185,11 +187,28 @@ class MachineProcessKtTest : FunSpec({
         setup.netRate[Power.Electric] shouldBeLessThan 0.0
     }
 
-    test("nutrient usage") {
+    test("experimentally confirmed nutrient usage") {
+        val nutrients = item("nutrients")
+        val nutrientsValue = parseEnergy(nutrients.prototype.fuel_value)
+        val biochamber = machine("biochamber")
 
+        fun yield1k(machine: AnyMachine<*>): Double {
+            val rate = machine.crafting(recipe("pentapod-egg"))
+                .toProcess(includePowerUsage = true)
+                .netRate
+            val fuelRate = rate[Power.Burner("nutrients")] / nutrientsValue
+            val totalNutrients = rate[nutrients] + fuelRate
+            val output = rate[item("pentapod-egg")]
+
+            return -1000.0 / totalNutrients * output
+        }
+
+        yield1k(biochamber) shouldBe near(47.0, 0.5)
+        yield1k(biochamber.withModules(fill = speed1)) shouldBe near(45.0, 0.5)
+        yield1k(biochamber.withModules(fill = prod1)) shouldBe near(46.0, 0.5)
+        yield1k(biochamber.withModules(fill = prod2)) shouldBe near(43.0, 0.5)
+        yield1k(biochamber.withModules(fill = eff1)) shouldBe near(49.0, 0.5)
     }
 }), FactorioPrototypesScope {
     override val prototypes get() = SpaceAge
 }
-
-private fun <E> E.repeat(i: Int): List<E> = List(i) { this }

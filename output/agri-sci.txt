@@ -1,49 +1,50 @@
 Inputs:
 Ingredient(AnyFruit) | 2.0000/s
-Water                | 32.5350/s
+Water                | 30.4900/s
 
 Outputs:
-Ingredient(ShippedScience) | 1.5861/s
+Ingredient(ShippedScience) | 1.2874/s
 
 Recipes:
-FuelUsage(nutrients)                                                  | 0.1382
-Agricultural science pack : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]] | 1.2154
-Bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]                   | 0.6103
-Jellynut processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]       | 0.2282
-Nutrients from bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.1519
-Pentapod egg : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]              | 2.6194
-Rocket fuel from jelly : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.1225
-Yumako processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]         | 0.4385
+FuelUsage(nutrients)                                                  | 4.1182
+Agricultural science pack : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]] | 0.9865
+Bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]                   | 0.6202
+Jellynut processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]       | 0.2211
+Nutrients from bioflux : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.1812
+Pentapod egg : Biochamber[Eff mod x4]                                 | 3.6994
+Rocket fuel from jelly : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]    | 0.0994
+Yumako processing : Biochamber[Prod 2 x4, Beacon[Speed 2 x2]]         | 0.4456
 
 
 Other processes:
-CustomProcess(ScienceShipment) | 0.1586
-CustomProcess(jellynut)        | 0.6846
-CustomProcess(yumako)          | 1.3154
+CustomProcess(ScienceShipment) | 0.1287
+CustomProcess(jellynut)        | 0.6633
+CustomProcess(yumako)          | 1.3367
 
 Throughputs:
-Agricultural science pack  | 1.5861/s
-Bioflux                    | 2.1240/s
-Burner(nutrients)          | 276488.5939/s
+Agricultural science pack  | 1.2874/s
+Bioflux                    | 2.1584/s
+Burner(nutrients)          | 8236362.5237/s
 Ingredient(AnyFruit)       | 2.0000/s
-Ingredient(ShippedScience) | 1.5861/s
-Jelly                      | 4.7648/s
-Jellynut                   | 0.6846/s
-Jellynut seed              | (+0.0238/s)
-Nutrients                  | 15.8544/s
-Pentapod egg               | 0.9115/s
-Rocket fuel                | 0.0640/s
-Water                      | 32.5350/s
-Yumako                     | 1.3154/s
-Yumako mash                | 4.5776/s
-Yumako seed                | (+0.0458/s)
+Ingredient(ShippedScience) | 1.2874/s
+Jelly                      | 4.6164/s
+Jellynut                   | 0.6633/s
+Jellynut seed              | (+0.0231/s)
+Nutrients                  | 18.9157/s
+Pentapod egg               | 0.7399/s
+Rocket fuel                | 0.0519/s
+Water                      | 30.4900/s
+Yumako                     | 1.3367/s
+Yumako mash                | 4.6518/s
+Yumako seed                | (+0.0465/s)
 
 Surpluses:
-Jellynut seed | 0.0238/s
-Yumako seed   | 0.0458/s
+Jellynut seed | 0.0231/s
+Yumako seed   | 0.0465/s
 
 Symbols used:
-Beacon     | 5.3861
-Biochamber | 5.3861
-Prod 2     | 21.5446
-Speed 2    | 10.7723
+Beacon     | 2.5540
+Biochamber | 6.2534
+Eff mod    | 14.7975
+Prod 2     | 10.2161
+Speed 2    | 5.1081

@@ -57,13 +57,18 @@ private val multipliers = mapOf(
     "" to 1.0,
 )
 
+/**
+ * Note: both joules and watts are treated as the same unit, since the default time unit is _seconds_.
+ *
+ * The wiki says that watts are converted to joules/tick, by dividing by 60; but we don't do that here
+ * since we use seconds instead of ticks.
+ */
 fun parseEnergy(energy: Energy): Double {
     val (valueStr, unitStr) = Regex("""(\d+(?:\.\d+)?)([a-zA-Z]+)""").find(energy)!!.destructured
     val unitPrefix = unitStr.removeSuffix("J").removeSuffix("W")
     val value = valueStr.toDouble() * multipliers[unitPrefix]!!
     return when {
-        unitStr.endsWith("W") -> value / 60
-        unitStr.endsWith("J") -> value
+        unitStr.endsWith("W") || unitStr.endsWith("J") -> value
         else -> error("Invalid energy: $energy")
     }
 }
